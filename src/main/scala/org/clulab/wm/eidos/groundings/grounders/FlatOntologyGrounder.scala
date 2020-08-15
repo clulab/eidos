@@ -15,17 +15,8 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   def groundEidosMention(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
-      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
-      // grounding and we want to use it.
-      val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
-      if (matchedPatterns.nonEmpty) {
-        Seq(newOntologyGrounding(matchedPatterns))
-      }
-      // Otherwise, back-off to the w2v-based approach
-      else {
-        val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
-        groundStrings(canonicalNameParts)
-      }
+      val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
+      Seq(groundPatternsThenEmbeddings(mention.odinMention.text, canonicalNameParts, conceptPatterns, conceptEmbeddings))
     }
     else
       Seq(newOntologyGrounding())

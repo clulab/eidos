@@ -30,20 +30,8 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   // For API to reground strings
   def groundOntology(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
     // Sieve-based approach
-    if (isGroundableType) {
-      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
-      // grounding and we want to use it.
-      val matchedPatterns = nodesPatternMatched(mentionText, conceptPatterns)
-      if (matchedPatterns.nonEmpty) {
-        newOntologyGrounding(matchedPatterns)
-      }
-      // Otherwise, back-off to the w2v-based approach
-      else {
-        newOntologyGrounding(wordToVec.calculateSimilarities(canonicalNameParts, conceptEmbeddings).map(SingleOntologyNodeGrounding(_)))
-      }
-    }
-    else
-      newOntologyGrounding()
+    if (isGroundableType) groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptEmbeddings)
+    else newOntologyGrounding()
   }
 
   def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
@@ -66,15 +54,26 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // For API to reground strings
   def groundText(text: String): OntologyGrounding = {
-    val matchedPatterns = nodesPatternMatched(text, conceptPatterns)
+    groundPatternsThenEmbeddings(text, conceptPatterns, conceptEmbeddings)
+  }
+
+  def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): OntologyGrounding = {
+    groundPatternsThenEmbeddings(text, text.split(" +"), patterns, embeddings)
+  }
+  def groundPatternsThenEmbeddings(splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): OntologyGrounding = {
+    groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, embeddings)
+  }
+  def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): OntologyGrounding = {
+    val matchedPatterns = nodesPatternMatched(text, patterns)
     if (matchedPatterns.nonEmpty) {
       newOntologyGrounding(matchedPatterns)
     }
     // Otherwise, back-off to the w2v-based approach
     else {
-      newOntologyGrounding(wordToVec.calculateSimilarities(text.split(" +"), conceptEmbeddings).map(SingleOntologyNodeGrounding(_)))
+      newOntologyGrounding(wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_)))
     }
   }
+
 }
 
 object EidosOntologyGrounder {
