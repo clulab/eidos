@@ -11,7 +11,8 @@ import org.json4s._
 class RelevanceDocumentAttachmentBuilderFromText extends DocumentAttachmentBuilderFromText {
 
   def mkDocumentAttachment(serializedText: String): RelevanceDocumentAttachment = {
-    new RelevanceDocumentAttachment(serializedText.toFloat)
+    val relevanceScoreStrings = serializedText.split('\t')
+    new RelevanceDocumentAttachment(relevanceScoreStrings.map{x => x.toFloat})
   }
 }
 
@@ -21,13 +22,13 @@ class RelevanceDocumentAttachmentBuilderFromJson extends DocumentAttachmentBuild
   def mkDocumentAttachment(relevanceValue: JValue): RelevanceDocumentAttachment = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    val relevanceScore = (relevanceValue \ "relevance").extract[String].toFloat
+    val relevanceScoreString = (relevanceValue \ "relevanceScores").extract[String]
 
-    new RelevanceDocumentAttachment(relevanceScore)
+    new RelevanceDocumentAttachment(relevanceScoreString.split("\t").map{x => x.toFloat})
   }
 }
 
-class RelevanceDocumentAttachment(val relevanceScore: Float) extends DocumentAttachment { // Maybe with EidosAttachment for jsonld?
+class RelevanceDocumentAttachment(val relevanceScores: Seq[Float]) extends DocumentAttachment { // Maybe with EidosAttachment for jsonld?
 
   override def documentAttachmentBuilderFromTextClassName: String = classOf[RelevanceDocumentAttachmentBuilderFromText].getName
   override def documentAttachmentBuilderFromJsonClassName: String = classOf[RelevanceDocumentAttachmentBuilderFromJson].getName
@@ -36,16 +37,22 @@ class RelevanceDocumentAttachment(val relevanceScore: Float) extends DocumentAtt
     val that = other.asInstanceOf[RelevanceDocumentAttachment]
 
     // This equal method seems to be safe. Confirm with Becky later.
-    "%.4f".format(this.relevanceScore) == "%.4f".format(that.relevanceScore)
+    val thisRelScores = this.relevanceScores.map{x => "%.4f".format(x)}
+    val thatRelScores = that.relevanceScores.map{x => "%.4f".format(x)}
+
+
+    // TODO: ask becky if it is a good idea to use this equal function.
+    thisRelScores == thatRelScores
   }
 
   override def toDocumentSerializer: String = {
 
-    "%.4f".format(relevanceScore)
+    relevanceScores.map{x => "%.4f".format(x)}.mkString("\t")
+
   }
 
   override def toJsonSerializer: JValue = {
-    "relevance" -> "%.4f".format(relevanceScore)
+    "relevanceScores" -> relevanceScores.map{x => "%.4f".format(x)}.mkString("\t")
   }
 }
 
@@ -61,17 +68,17 @@ object RelevanceDocumentAttachment {
     relevanceDocumentAttachmentOpt
   }
 
-  def getRelevance(doc: Document): Option[Float] = {
+  def getRelevance(doc: Document): Option[Seq[Float]] = {
     val relevanceDocumentAttachmentOpt = getRelevanceDocumentAttachment(doc)
     val relevanceOpt = relevanceDocumentAttachmentOpt.map { relevanceDocumentAttachment =>
-      relevanceDocumentAttachment.relevanceScore
+      relevanceDocumentAttachment.relevanceScores
     }
 
     relevanceOpt
   }
 
-  def setRelevance(doc: Document, relevanceScore: Float): RelevanceDocumentAttachment = {
-    val relevanceDocumentAttachment = new RelevanceDocumentAttachment(relevanceScore)
+  def setRelevance(doc: Document, relevanceScores: Seq[Float]): RelevanceDocumentAttachment = {
+    val relevanceDocumentAttachment = new RelevanceDocumentAttachment(relevanceScores)
 
     doc.addAttachment(Key, relevanceDocumentAttachment)
     relevanceDocumentAttachment

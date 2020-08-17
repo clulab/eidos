@@ -101,35 +101,35 @@ class TestDocumentAttachment extends Test {
   }
 
   "Document with RelevanceDocumentAttachment" should "serialize as text" in {
-    val docRelevanceScore = 0.7f
+    val docSentRelevanceScores = Seq(0.7f, 0.8f)
     val oldDocument = new Document(Array.empty[Sentence])
 
-    RelevanceDocumentAttachment.setRelevance(oldDocument, docRelevanceScore)
+    RelevanceDocumentAttachment.setRelevance(oldDocument, docSentRelevanceScores)
 
     val documentSerializer = new DocumentSerializer()
     val documentString = documentSerializer.save(oldDocument)
 
     val newDocument = documentSerializer.load(documentString)
     val newRelevanceOpt = RelevanceDocumentAttachment.getRelevance(newDocument)
-    "%.4f".format(newRelevanceOpt.get)=="%.4f".format(docRelevanceScore) should be (true)
+    newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores.map{x => "%.4f".format(x)} should be (true)
 
-    val docRelevanceScore2 = 0.8f
-    "%.4f".format(newRelevanceOpt.get)=="%.4f".format(docRelevanceScore2) should be (false)
+    val docSentRelevanceScores2 = Seq(0.8f, 0.9f, 0.8f)
+    newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores2.map{x => "%.4f".format(x)} should be (false)
   }
 
   "Document with RelevanceDocumentAttachments" should "serialize as json" in {
-    val docRelevanceScore = 0.7f
+    val docSentRelevanceScores = Seq(0.7f, 0.8f)
     val oldDocument = new Document(Array.empty[Sentence])
 
-    RelevanceDocumentAttachment.setRelevance(oldDocument, docRelevanceScore)
+    RelevanceDocumentAttachment.setRelevance(oldDocument, docSentRelevanceScores)
 
     val documentString = prettyJson(renderJValue(oldDocument.jsonAST))
 
     val newDocument: Document = JSONSerializer.toDocument(parseJson(documentString))
     val newRelevanceOpt = RelevanceDocumentAttachment.getRelevance(newDocument)
-    "%.4f".format(newRelevanceOpt.get)=="%.4f".format(docRelevanceScore) should be (true)
+    newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores.map{x => "%.4f".format(x)} should be (true)
 
-    val docRelevanceScore2 = 0.8f
-    "%.4f".format(newRelevanceOpt.get)=="%.4f".format(docRelevanceScore2) should be (false)
+    val docSentRelevanceScores2 = Seq(0.8f, 0.9f, 0.8f)
+    newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores2.map{x => "%.4f".format(x)} should be (false)
   }
 }

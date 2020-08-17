@@ -108,12 +108,11 @@ class EidosSystem(val components: EidosComponents) {
   def annotateDoc(doc: Document): Document = {
     // It is assumed and not verified that the document has _not_ already been annotated.
     components.proc.annotate(doc)
-    components.proc.annotate(doc)
+    //components.proc.annotate(doc)
     // HERE
-    for (sentence <- doc.sentences){
-      val attachment = RelevanceDocumentAttachment.setRelevance(doc, this.components.eidosSentenceClassifier.classify(sentence).get) // TODO: check this later
-      doc.addAttachment("relevanceScore", attachment)
-    }
+    val relevanceScores = doc.sentences.map{sent => this.components.eidosSentenceClassifier.classify(sent).get}
+    val attachment = RelevanceDocumentAttachment.setRelevance(doc, relevanceScores) // TODO: check this later
+    doc.addAttachment("relevanceScore", attachment)
     doc
 
   }
