@@ -40,8 +40,6 @@ class RelevanceDocumentAttachment(val relevanceScores: Seq[Float]) extends Docum
     val thisRelScores = this.relevanceScores.map{x => "%.4f".format(x)}
     val thatRelScores = that.relevanceScores.map{x => "%.4f".format(x)}
 
-
-    // TODO: ask becky if it is a good idea to use this equal function.
     thisRelScores == thatRelScores
   }
 
