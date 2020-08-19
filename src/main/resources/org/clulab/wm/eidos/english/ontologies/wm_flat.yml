@@ -1,0 +1,359 @@
+# Attempt to unify the upper-level ontologies of UArizona Eidos and BBN Hume
+# - focus on semantic distinctions other than the terminologies
+#  - we don't attempt to differentiate "event" and "entities" but rather trying to put all causal factors into "causal_factor"
+#  - use coarse-grained concepts "causal_factor", "entity" (where the causal factor is located, who and what artifacts are involved in a causal factor), "time", and "indicator_and_reported_property" as the top level concepts.
+# - allow multiple inheritance ("economic_crisis" is a child to both "economic_and_commerce" and "crisis_and_disaster"). Concepts under "intervention" and "condition" will overlap with other categories
+- wm:
+  - concept:
+    - causal_factor:
+      - interventions:
+        - provide: # (supply, distribute, deliver, vaccinate, give)
+          - agriculture_inputs: # agricultural_productivity
+            - livestock_production:
+              - livestock_feed
+              - veterinary_services
+              - livestock_watering
+            - crop_production:
+              - farm_equipment
+              - harvesting_equipment
+              - seed
+              - irrigation:
+                - water_source
+                - pumps
+                - field_irrigation
+              - soil_inputs:
+                - fertilizer
+                - fertilizer_subsidy
+              - weed_pest_control:
+                - biological
+                - chemical
+                - organic
+            - post_harvest:
+              - processing_equipment
+              - packaging
+              - warehousing
+          - information_services:
+            - surveillance_system
+            - weather_monitoring
+            - price_monitoring
+            - human_rights_monitoring:
+              - victims
+              - perpetrators
+              - violations
+            - statistics:
+              - national_survey
+          - livelihood_support: 
+            - food_aid
+            - nutrition_support
+            - water
+            - financial_assistance
+            - livelihood_assets
+            - humanitarian_nonfood_items:
+              - shelter
+          - medical_inputs:
+            - vaccine
+            - medical_treatment
+            - prevention
+            - psychological
+          - sanitation_and_hygiene_inputs
+        - build: # (construct/repair)
+          - agriculture_infrastructure:
+            - livestock_production:
+              - livestock_shelter # enclosure, barn, pasture, etc
+            - crop_production: #
+              - irrigation_infrastructure # canal, reservoir, water_tower
+              - extension_offices # farmer_training_centers, demonstration plots, etc
+              - greenhouse # nursery, high_tunnel, etc.
+              - post_harvest # on-farm_processing_facility, silos, cooperative_processing, storage, etc.
+          - trade_infrastructure # factory, industrial_park, storage_facilities, warehouse, processing_facilities, etc.
+          - educational_infrastructure # community_centers, child_friendly_learning_spaces, school_rehabilitation, gender_specific_bathrooms, etc.
+          - shelter_housing # permanent_house, temporary_housing, refugee_camp, housing_provision, leasing_or_rental_services, temporary_communal_settlement, etc.
+          - WASH_infrastructure # sanitation facilities, latrines, washing_and_bathing_facilities, temporary_water_points, boreholes, permanent_water_points, borehole_repair, etc.
+          - medical_infrastructure # hospitals, mobile clinics, field_hospitals, emergency treatment centers, medical supply chain facilities, etc.
+          - transportation_infrastructure # bridge, repair, all_weather_roads, railway_lines, temporary_roads, road_rehabilitation
+          - communication_infrastructure # cell-phone_towers, landlines, etc
+          - energy_infrastructure # dams, electricity_grids, micro-grids, solar_panels, wind_turbines, wind_farms, solar_farms, etc.
+        - train: # teach, capacity_building, educate, etc
+          - agriculture_training: # extension, capacity_building, training_of_trainers, development_agents (ET specific name for extension workers), extension_workers
+            - production_practices: # Pasture_management, Herd_management, planting_practices, etc.
+              - planting_training # crop_spacing, planting_times, seed_depth, watering, crop_rotation, cover_cropping, composting, low_till, no_till, perennial_planting, Conservation_agriculture
+              - pest_weed_control # IPM_practices (integrated pest management), etc
+              - post_harvest_practices # storage, processing, packaging, safety_and_hygiene, certifications, ISO, FDA, work_place_safety, etc.
+            - agriculture_information # digital_extension, famers_almanac, mobile_extension, SMS reminders,  Weather_information,  NMA_reports (national met agency), broadcast_weather_reports,
+          - medical_training: # capacity_assessments, community_health_workers (CHWs),
+            - assessment_and_triage_of_health_facilities
+            - capacity_building_of_medical_staff
+          - human_rights_training #
+          - financial_management # provision_of_credit_and_training_for_income_generation
+          - education_systems #  provision_of_non_formal_education, community_sourced_temporary_teachers
+          - public_health_campaigns # behaviour change, campaigns, public information, hygiene_promotion, information_campaign, health_promoters,
+          - public_safety_campaigns # explosive_hazards
+          - emergency_preparedness_training: # disaster risk management, resilience building, etc.
+            - surveillance_system_strengthening
+            - humanitarian_certifications # SPHERE, core_standards, humanitarian_charter, etc.
+        - secure: # protect, stabilize, defend, conserve, neutralize, preserve
+          - livelihood_protections #  agricultural assets, cattle_raids,, supply chains,
+          - community_security: # policing, governance
+            - mine_clearance
+            - temporary_policing_services
+          - conflict_resolution # conflict_mediatio, political_dialogue, disarmament, demobilization, reintegration, family_reunification, rehabilitation_of_child_soldier
+          - natural_resources # Water_rights, Land_rights, land_deeds, Biotechnology, etc.
+          - cultural_resources # landmark_designation, world_heritage_status, etc.
+        - legislate: # regulate, control, tax,  subsidize, penalize, certify, ban, etc.
+          - subsidize
+          - tax
+          - control_prices
+      - environmental:
+        - meteorologic:
+          - weather
+          - climate
+          - precipitation:
+            - rainfall
+            - storm
+          - temperature # temperature of ...
+        - environment
+        - climate_change_mitigation
+        - resource_management
+        - forestry
+        - natural_resources:
+          - water_bodies
+          - land_availability
+          - fossil_fuels
+          - soil
+          - pasture
+        - pollution:
+          - air_pollution
+          - land_pollution
+          - climate_change
+      - crisis_and_disaster:
+        - health:
+          - pandemic
+          - mitigation:
+            - sanitation
+            - contact_tracing
+            - quarantine
+            - social_distancing
+            - masks
+        - famine
+        - crisis
+        - economic:
+          - economic_crisis
+        - environmental_disasters:
+          - crop_failure
+          - insect_infestation
+          - natural_disaster:
+            - flooding
+            - avalanche
+            - wildfire
+            - volcanic_eruption
+            - drought
+            - earthquake
+          - weather_issue:
+            - cold_temperature
+          - fire # what is on fire?
+      - economic_and_commerce:
+        - poverty
+        - economic_activity:
+          - livelihood:
+            #examples:
+            #- livelihood
+            #- livelihood activities
+            #- workplace
+            #- work
+            #- job
+            #- career
+            #- opportunity
+            #- employment
+            #- agribusiness
+            #- pastoralist livelihood
+            #- find work
+            #- wages
+            #- high unemployment
+            #- underemployment
+            - farming
+          - currency
+          - cross_border_trade:
+            - import:
+              - food_import # thing imported
+            - export:
+              - food_export # thing exported
+          - market:
+            - labor_market
+            - fuel
+            - price_or_cost:
+              - food_price
+              - crop_price
+              - oil_price
+              - cost_of_living
+              - cost_of_transportation
+            - revenue:
+              #examples:
+              #- livelihood
+              #- net profit
+              #- profit
+              #- earning
+              #- earnings
+              #- revenue
+              #- investment
+              #- repaying
+              #- fee
+              #- dividend
+              #- disbursements
+              - household_income
+              - farmer_income
+            - budget
+            - assets
+            - supply:
+              - food_supply
+            - demand:
+              - food_demand
+            - transaction:
+              - oil_transaction
+              - food_purchase
+            - depreciation
+            - inflation
+            - currency_devaluation
+            - food_stocks
+          - competition # between? about?
+          - development # being developed
+      - research_development:
+        - technology_and_innovation
+      - social_and_political:
+        - communication:
+          - planning
+          - discussion_debate
+          - collaboration
+        - basic_services
+        - population_group:
+          - population_density
+          - de-population
+          - overcrowding
+        - educational:
+          - education
+          - educational_materials
+        - government:
+          - census
+          - regulation # topic
+          - tax_duty
+        - political:
+          - political_instability
+          - corruption
+          - independence
+          - sanction
+        - migration:
+          - human_migration
+          - hosting_idps
+          - emigration
+          - immigration
+          - migration_returnees
+          - seasonal_migration
+        - threat:
+          - exploitation
+          - physical_insecurity
+          - disarmament
+        - criminal:
+          - crime
+          - abduction
+        - conflict:
+          - tension
+          - hostility
+          - demonstrate
+          - war
+          - attack
+          - strike
+          - terrorism
+          - livestock_raid
+      - movement:
+        - transport
+        - evacuate_humanitarian_workers
+        - animal_migration
+      - agriculture:
+        - pests:
+            - locust_related:
+              - locust_eggs
+              - locust_breeding
+              - locust_hatching
+              - solitary:
+                - solitary_hopper
+                - solitary_locust
+              - gregarious:
+                - hopper_band
+                - locust_swarm
+        - planting
+        - crop_storage
+        - fertilization
+        - irrigation
+        - pesticide
+        - crop_production
+        - livestock_production
+        - plant_disease:
+          - pest_infestation
+        - livestock_disease
+      - wild_food_sources:
+        - foraging_wild_foods
+        - hunting
+      - health_and_life:
+        - living_condition:
+          - food_safety
+          - water_safety
+          - sanitation_and_hygiene
+        - nutrition:
+          - food_intake
+          - food_diversity
+          - food_preparation
+          - food_preference
+          - malnutrition
+          - breast_feeding
+        - biometrics
+        - disease:
+          - transmission
+          - covid_virus
+          - human_disease
+          - alcohol_drug_and_substance_abuse
+        - treatment:
+          - health_treatment
+        - death
+        - injury
+        - birth
+        - basic_needs
+      - access:
+        - market_access
+        - infrastructure_access:
+          - electrical
+          - waste
+          - road_access
+          - bridge
+          - construction_materials
+          - transportation:
+            - travel
+            - shipping
+          - medical:
+            - ambulances
+            - medical_facility
+            - medical_workers
+        - water_access
+      - trend
+      - food_security:
+        - food_availability
+        - food_production
+        - food_utilization
+        - household_food_storage
+        - food_access
+        - food_stability
+      - food_insecurity:
+        - food_unavailability
+        - food_nonutilization
+        - food_nonaccess
+        - food_instability
+    - entity:
+      - geo-location
+      - organization
+      - government_entity
+      - person_and_group:
+        - population
+        - community
+      - artifact
+    - time:
+      - temporal:
+        - crop_season
+        - season
