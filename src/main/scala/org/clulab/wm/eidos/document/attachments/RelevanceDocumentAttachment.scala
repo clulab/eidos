@@ -55,7 +55,7 @@ class RelevanceDocumentAttachment(val relevanceScores: Seq[Float]) extends Docum
 }
 
 object RelevanceDocumentAttachment {
-  protected val Key = "relevance"
+  protected val Key = "relevanceScore"
 
   def getRelevanceDocumentAttachment(doc: Document): Option[RelevanceDocumentAttachment] = {
     val documentAttachmentOpt = doc.getAttachment(Key)

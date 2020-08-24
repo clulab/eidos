@@ -6,6 +6,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.time.LocalDateTime
 
+import com.typesafe.config.Config
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.serialization.DocumentSerializer
@@ -13,6 +14,7 @@ import org.clulab.serialization.json.JSONSerializer
 import org.clulab.serialization.json._
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.attachments.{DctDocumentAttachment, RelevanceDocumentAttachment}
 import org.clulab.wm.eidos.test.TestUtils._
@@ -132,4 +134,27 @@ class TestDocumentAttachment extends Test {
     val docSentRelevanceScores2 = Seq(0.8f, 0.9f, 0.8f)
     newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores2.map{x => "%.4f".format(x)} should be (false)
   }
+
+  "Document relevance score added by annotateDoc" should "have 4 non-negative scores" in {
+
+    val config: Config = EidosSystem.defaultConfig
+    val eidosSystem = new EidosSystem(config)
+
+    // This text is randomly selected.
+    val docText = "As I wrote about before the conventions, " +
+      "all signs pointed to small convention bounces in the Biden-Trump matchup. " +
+      "Bounces have been getting smaller in recent years, and the unusual stability of this race, " +
+      "well known candidates and low undecideds made it unlikely that the scaled back conventions would produce a large bounce. " +
+      "The good news for Biden comes in the form of favorability ratings. " +
+      "A new ABC News/Ipsos poll shows that Biden's net favorability rating (favorable - unfavorable) is up compared to before the conventions. " +
+      "Stock level and seasonality: according to traders, most commodities are imported, " +
+      "with the highest flow of supply observed during the months of january to march, june to july and november to december. " +
+      "An additional environmental impact unique to flooded rice systems is an increase in insect-borne disease: flooded rice fields have been associated with an increase in malaria transmission among farmers, workers, and communities adjacent to flooded rice-producing areas in both africa and asia (larson et al. "
+
+    val docObj = eidosSystem.annotate(docText)
+    val relevanceScore = RelevanceDocumentAttachment.getRelevance(docObj)
+    relevanceScore.get.forall(x => x> -0.1f) should be (true)
+    relevanceScore.get.length==6 should be (true)
+  }
+
 }
