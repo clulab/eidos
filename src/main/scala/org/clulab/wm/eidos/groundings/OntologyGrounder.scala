@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 
 import org.clulab.wm.eidos.groundings.OntologyAliases._
-import org.clulab.wm.eidos.groundings.grounders.PredicatePackage
+import org.clulab.wm.eidos.groundings.grounders.{PredicatePackage, PredicateTuple}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Namer
 
@@ -24,8 +24,9 @@ case class SingleOntologyNodeGrounding(namer: Namer, score: Float) extends Indiv
 object SingleOntologyNodeGrounding {
   def apply(tuple: (Namer, Float)): SingleOntologyNodeGrounding = SingleOntologyNodeGrounding(tuple._1, tuple._2)
 }
-case class PredicateGrounding(predicatePackage: PredicatePackage, score: Float){
-  def name: String = ???
+case class PredicateGrounding(predicateTuple: PredicateTuple) extends IndividualGrounding {
+  def name: String = predicateTuple.name
+  def score: Float = predicateTuple.score
 }
 
 
