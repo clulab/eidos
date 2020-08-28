@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.groundings.grounders
 
 import org.clulab.wm.eidos.groundings.{DomainOntology, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.utils.{Canonicalizer, GroundingUtils}
 
 class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
@@ -16,7 +16,9 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
       val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
-      Seq(groundPatternsThenEmbeddings(mention.odinMention.text, canonicalNameParts, conceptPatterns, conceptEmbeddings))
+      val aggregated = groundPatternsThenEmbeddings(mention.odinMention.text, canonicalNameParts, conceptPatterns, conceptEmbeddings)
+      val filtered = filterAndSlice(aggregated, topN, threshold)
+      Seq(newOntologyGrounding(filtered))
     }
     else
       Seq(newOntologyGrounding())
