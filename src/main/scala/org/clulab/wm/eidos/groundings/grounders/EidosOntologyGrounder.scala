@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings.grounders
 
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, OntologyAliases, OntologyGrounder, OntologyGrounding, SingleOntologyNodeGrounding}
-import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, IndividualGrounding, OntologyAliases, OntologyGrounder, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.OntologyAliases.{MultipleOntologyGrounding, OntologyGroundings}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.slf4j.Logger
@@ -30,7 +30,9 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   // For API to reground strings
   def groundOntology(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
     // Sieve-based approach
-    if (isGroundableType) groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptEmbeddings)
+    if (isGroundableType) {
+      newOntologyGrounding(groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptEmbeddings))
+    }
     else newOntologyGrounding()
   }
 
@@ -54,24 +56,48 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // For API to reground strings
   def groundText(text: String): OntologyGrounding = {
-    groundPatternsThenEmbeddings(text, conceptPatterns, conceptEmbeddings)
+    newOntologyGrounding(groundPatternsThenEmbeddings(text, conceptPatterns, conceptEmbeddings))
   }
 
-  def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): OntologyGrounding = {
+  def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     groundPatternsThenEmbeddings(text, text.split(" +"), patterns, embeddings)
   }
-  def groundPatternsThenEmbeddings(splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): OntologyGrounding = {
+  def groundPatternsThenEmbeddings(splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, embeddings)
   }
-  def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): OntologyGrounding = {
+  def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+    val exactMatch = conceptEmbeddings.filter(ce => ce.namer.name.split("/").last == text)
+    if (exactMatch.nonEmpty) {
+      return exactMatch.map(em => SingleOntologyNodeGrounding(em.namer, 1.0f))
+    }
     val matchedPatterns = nodesPatternMatched(text, patterns)
     if (matchedPatterns.nonEmpty) {
-      newOntologyGrounding(matchedPatterns)
+      matchedPatterns
     }
     // Otherwise, back-off to the w2v-based approach
     else {
-      newOntologyGrounding(wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_)))
+      wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_))
     }
+  }
+
+  /**
+   * Removes all groundings below a provided threshold (if provided), then truncates the remaining
+   * groundings if there are more than asked for (if topN provided)
+   * @param fullGrounding the multiple groundings to different nodes in the ontology
+   * @param topNOpt optional number of groundings you want to return
+   * @param thresholdOpt optional threshold for the grounding score, below which you want to prune
+   * @return surviving groundings
+   */
+  def filterAndSlice(fullGrounding: MultipleOntologyGrounding, topNOpt: Option[Int] = None, thresholdOpt: Option[Float] = None): MultipleOntologyGrounding = {
+    val filtered = thresholdOpt.map { threshold =>
+      fullGrounding.filter { case i: IndividualGrounding => i.score >= threshold }
+    }.getOrElse(fullGrounding)
+    val sorted = filtered.sortBy(grounding => -grounding.score)
+    val taken = topNOpt.map { topN =>
+      sorted.take(topN)
+    }.getOrElse(sorted)
+
+    taken
   }
 
 }
@@ -80,7 +106,7 @@ object EidosOntologyGrounder {
   val GROUNDABLE = "Entity"
 
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
-  protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional"
+  protected val WM_COMPOSITIONAL_NAMESPACE = "wm_compositional" // As of now, the compositional 2.1 ontology uses this as the namespace
   protected val     WM_FLATTENED_NAMESPACE = "wm_flattened" // This one isn't in-house, but for completeness...
   protected val               UN_NAMESPACE = "un"
   protected val              WDI_NAMESPACE = "wdi"
@@ -94,7 +120,8 @@ object EidosOntologyGrounder {
   protected val   MAAS_NAMES = Set("MaaS-model", "MaaS-parameter", "MaaS-variable")
   protected val   WM_FLAT_NAMESPACE = "wm_flat"
 
-  val PRIMARY_NAMESPACE: String = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
+  //val PRIMARY_NAMESPACE: String = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
+  val PRIMARY_NAMESPACE: String = WM_COMPOSITIONAL_NAMESPACE // Assign the primary namespace here, publically.
 
   val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE) ++ MAAS_NAMES
 
@@ -108,7 +135,8 @@ object EidosOntologyGrounder {
 
   def mkGrounder(ontologyName: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer): OntologyGrounder = {
     ontologyName match {
-      case WM_COMPOSITIONAL_NAMESPACE => new CompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer)
+      //case WM_COMPOSITIONAL_NAMESPACE => new CompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer)
+      case WM_COMPOSITIONAL_NAMESPACE => new SRLCompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer)
       case INTERVENTIONS_NAMESPACE => new InterventionGrounder(ontologyName, domainOntology, w2v, canonicalizer)
       case WM_FLAT_NAMESPACE => new InterventionSieveGrounder(ontologyName, domainOntology, w2v, canonicalizer)
       case _ => EidosOntologyGrounder(ontologyName, domainOntology, w2v, canonicalizer)
