@@ -109,9 +109,10 @@ class EidosSystem(val components: EidosComponents) {
     // It is assumed and not verified that the document has _not_ already been annotated.
     components.proc.annotate(doc)
     //components.proc.annotate(doc)
-    // HERE
+    // TODO: I notice sentence classifier is used in EidosRefiner, where each Eidos mention gets a relevance score.
+    // TODO: But I am not sure if we can utilize that score here.
     val relevanceScores = doc.sentences.map{sent => this.components.eidosSentenceClassifier.classify(sent).get}
-    val attachment = RelevanceDocumentAttachment.setRelevance(doc, relevanceScores) // TODO: check this later
+    val attachment = RelevanceDocumentAttachment.setRelevance(doc, relevanceScores)
     doc.addAttachment("relevanceScore", attachment)
     doc
 

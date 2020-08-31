@@ -18,6 +18,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.attachments.{DctDocumentAttachment, RelevanceDocumentAttachment}
 import org.clulab.wm.eidos.test.TestUtils._
+import org.json4s.jackson.JsonMethods.{pretty, render}
 import org.json4s.jackson.parseJson
 import org.json4s.jackson.prettyJson
 import org.json4s.jackson.renderJValue
@@ -135,10 +136,10 @@ class TestDocumentAttachment extends Test {
     newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores2.map{x => "%.4f".format(x)} should be (false)
   }
 
-  "Document relevance score added by annotateDoc" should "have 4 non-negative scores" in {
 
-    val config: Config = EidosSystem.defaultConfig
-    val eidosSystem = new EidosSystem(config)
+  val config: Config = EidosSystem.defaultConfig
+  val eidosSystem = new EidosSystem(config)
+  "Document relevance score added by annotateDoc" should "have 6 non-negative scores" in {
 
     // This text is randomly selected.
     val docText = "As I wrote about before the conventions, " +
@@ -155,6 +156,21 @@ class TestDocumentAttachment extends Test {
     val relevanceScore = RelevanceDocumentAttachment.getRelevance(docObj)
     relevanceScore.get.forall(x => x> -0.1f) should be (true)
     relevanceScore.get.length==6 should be (true)
+  }
+
+  // TODO: do we really need this unit test?
+  "A sentence" should "print json" in {
+    val docText = "Rainfall can increase poverty."
+    val docAnnotated = eidosSystem.annotate(docText)
+    val serial = pretty(render(docAnnotated.jsonAST))
+
+    //println(serial)
+
+    true should be (true)
+
+    // If it needs to be actually written to a file, use FileUtils.write()
+    // http://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/FileUtils.html
+
   }
 
 }
