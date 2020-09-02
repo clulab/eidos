@@ -115,6 +115,8 @@ class TestDocumentAttachment extends Test {
     val newDocument = documentSerializer.load(documentString)
     val newRelevanceOpt = RelevanceDocumentAttachment.getRelevance(newDocument)
     newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores.map{x => "%.4f".format(x)} should be (true)
+    oldDocument.getAttachment("relevanceScore").equals(newDocument.getAttachment("relevanceScore")) should be (true)
+
 
     val docSentRelevanceScores2 = Seq(0.8f, 0.9f, 0.8f)
     newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores2.map{x => "%.4f".format(x)} should be (false)
@@ -131,6 +133,8 @@ class TestDocumentAttachment extends Test {
     val newDocument: Document = JSONSerializer.toDocument(parseJson(documentString))
     val newRelevanceOpt = RelevanceDocumentAttachment.getRelevance(newDocument)
     newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores.map{x => "%.4f".format(x)} should be (true)
+    oldDocument.getAttachment("relevanceScore").equals(newDocument.getAttachment("relevanceScore")) should be (true)
+
 
     val docSentRelevanceScores2 = Seq(0.8f, 0.9f, 0.8f)
     newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores2.map{x => "%.4f".format(x)} should be (false)

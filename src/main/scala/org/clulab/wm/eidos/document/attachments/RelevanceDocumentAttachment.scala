@@ -45,12 +45,12 @@ class RelevanceDocumentAttachment(val relevanceScores: Seq[Float]) extends Docum
 
   override def toDocumentSerializer: String = {
 
-    relevanceScores.map{x => "%.4f".format(x)}.mkString("\t")
+    relevanceScores.map{x => x.toString}.mkString("\t")
 
   }
 
   override def toJsonSerializer: JValue = {
-    "relevanceScores" -> relevanceScores.map{x => "%.4f".format(x)}//.mkString("\t")
+    "relevanceScores" -> relevanceScores
   }
 }
 
