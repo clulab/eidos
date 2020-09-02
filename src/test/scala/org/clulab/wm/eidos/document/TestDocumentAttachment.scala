@@ -158,13 +158,13 @@ class TestDocumentAttachment extends Test {
     relevanceScore.get.length==6 should be (true)
   }
 
-  // TODO: do we really need this unit test?
+  // TODO: do we really need this unit test? This is for printing the JSON ouptut.
   "A sentence" should "print json" in {
-    val docText = "Rainfall can increase poverty."
+    val docText = "Rainfall can increase poverty. All signs pointed to small convention bounces in the Biden-Trump matchup. "
     val docAnnotated = eidosSystem.annotate(docText)
     val serial = pretty(render(docAnnotated.jsonAST))
 
-    //println(serial)
+    println(serial)
 
     true should be (true)
 
