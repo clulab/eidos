@@ -22,7 +22,9 @@ class RelevanceDocumentAttachmentBuilderFromJson extends DocumentAttachmentBuild
   def mkDocumentAttachment(relevanceValue: JValue): RelevanceDocumentAttachment = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    val relevanceScoreString = (relevanceValue \ "relevanceScores").extract[Seq[String]]
+    //val relevanceScoreString = (relevanceValue \ "relevanceScores").extract[Seq[String]]
+    val relevanceScoreString = (relevanceValue).extract[Seq[String]]
+
 
     new RelevanceDocumentAttachment(relevanceScoreString.map{x => x.toFloat})
   }
@@ -50,7 +52,8 @@ class RelevanceDocumentAttachment(val relevanceScores: Seq[Float]) extends Docum
   }
 
   override def toJsonSerializer: JValue = {
-    "relevanceScores" -> relevanceScores
+    //"relevanceScores" -> relevanceScores
+    relevanceScores
   }
 }
 
