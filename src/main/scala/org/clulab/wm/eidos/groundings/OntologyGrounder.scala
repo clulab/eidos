@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 
 import org.clulab.wm.eidos.groundings.OntologyAliases._
-import org.clulab.wm.eidos.groundings.grounders.{PredicatePackage, PredicateTuple}
+import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Namer
 

@@ -66,7 +66,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, embeddings)
   }
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
-    val exactMatch = conceptEmbeddings.filter(ce => ce.namer.name.split("/").last == text)
+    val exactMatch = embeddings.filter(ce => ce.namer.name.split("/").last == text.toLowerCase)
     if (exactMatch.nonEmpty) {
       return exactMatch.map(em => SingleOntologyNodeGrounding(em.namer, 1.0f))
     }

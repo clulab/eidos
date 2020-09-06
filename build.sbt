@@ -16,8 +16,10 @@ resolvers ++= Seq(
   "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d
 )
 
+val becky = ""
+
 libraryDependencies ++= {
-  val      procVer = "8.1.3"
+  val      procVer = "8.2.1-SNAPSHOT"
   val procModelVer = "7.5.4"
   val    luceneVer = "6.6.6"
   val   lihaoyiVer = "0.7.1"

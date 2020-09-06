@@ -8,20 +8,56 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
 
 class RegroundExporter(filename: String, reader: EidosSystem) extends JSONLDExporter(filename, reader) {
-  def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+  override def export(annotatedDocument: AnnotatedDocument): Unit = {
     val ontologyHandler = reader.components.ontologyHandler
-
-    FileUtils.printWriterFromFile(filename).autoClose { pw =>
-      annotatedDocuments.foreach { annotatedDocument =>
-        annotatedDocument.allEidosMentions.foreach { eidosMention =>
-          ontologyHandler.ground(eidosMention)
-        }
-
-        val corpus = new JLDCorpus(annotatedDocument)
-        val mentionsJSONLD = corpus.serialize()
-
-        pw.println(stringify(mentionsJSONLD, pretty = true))
-      }
+    // Reground
+    annotatedDocument.allEidosMentions.foreach { eidosMention =>
+      ontologyHandler.ground(eidosMention)
     }
+    super.export(annotatedDocument)
+
+//    FileUtils.printWriterFromFile(filename + ".debug.txt").autoClose { pw =>
+//      annotatedDocument.eidosMentions.filter(_.odinMention matches "Causal").foreach { em =>
+//        val args = em.eidosArguments("cause") ++ em.eidosArguments("effect")
+//        val info = args.map(m => (m.odinMention.text, m.grounding.get("wm_compositional").flatMap(_.headOption), m.grounding.get("wm_flattened").flatMap(_.headOption)))
+//        for ((text, groundingComp, groundingFlat) <- info) {
+//          pw.println(s"text: ${text}")
+//          pw.println(s"Compositional Grounding:")
+//          groundingComp match {
+//            case None => pw.println("no grounding...")
+//            case Some(grounding) =>
+//              pw.println(s"  --> grounding: ${grounding.name}")
+//              pw.println(s"      score: ${grounding.score}")
+//          }
+//          pw.println(s"Flat Grounding:")
+//          groundingFlat match {
+//            case None => pw.println("  --> no grounding...")
+//            case Some(grounding) =>
+//              pw.println(s"  --> grounding: ${grounding.name}")
+//              pw.println(s"      score: ${grounding.score}")
+//          }
+//          pw.println()
+//        }
+//
+//      }
+//
+//    }
   }
+
+//  def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
+//    val ontologyHandler = reader.components.ontologyHandler
+//
+//    FileUtils.printWriterFromFile(filename).autoClose { pw =>
+//      annotatedDocuments.foreach { annotatedDocument =>
+//        annotatedDocument.allEidosMentions.foreach { eidosMention =>
+//          ontologyHandler.ground(eidosMention)
+//        }
+//
+//        val corpus = new JLDCorpus(annotatedDocument)
+//        val mentionsJSONLD = corpus.serialize()
+//
+//        pw.println(stringify(mentionsJSONLD, pretty = true))
+//      }
+//    }
+//  }
 }
