@@ -40,7 +40,8 @@ object GroundingUtils {
       getGroundingsStringOpt(mention, namespace, topK, delim).getOrElse("(namespace unavailable)")
 
   def noisyOr(values: Seq[Float], scale: Float = 1.0f): Float = {
-    val result = 1.0f - values.fold(1.0f)((product, value) => product * (1.0f - value))
+    val epsilon = 0.01f
+    val result = 1.0f - values.fold(1.0f)((product, value) => product * (1.0f - (value - epsilon)))
     result * scale
   }
 }
