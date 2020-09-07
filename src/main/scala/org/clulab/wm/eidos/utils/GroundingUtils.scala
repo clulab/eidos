@@ -39,6 +39,8 @@ object GroundingUtils {
   def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5, delim: String = ", "): String =
       getGroundingsStringOpt(mention, namespace, topK, delim).getOrElse("(namespace unavailable)")
 
-  def noisyOr(values: Seq[Float]): Float =
-    1.0f - values.fold(1.0f)((product, value) => product * (1.0f - value))
+  def noisyOr(values: Seq[Float], scale: Float = 1.0f): Float = {
+    val result = 1.0f - values.fold(1.0f)((product, value) => product * (1.0f - value))
+    result * scale
+  }
 }

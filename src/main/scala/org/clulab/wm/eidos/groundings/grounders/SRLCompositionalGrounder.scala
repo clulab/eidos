@@ -16,7 +16,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
-case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGrounding, themeProcess: OntologyGrounding, themeProcessProperties: OntologyGrounding) {
+case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGrounding, themeProcess: OntologyGrounding, themeProcessProperties: OntologyGrounding, predicates: Set[Int]) {
 
   val name: String = {
     if (theme.nonEmpty) {
@@ -41,6 +41,7 @@ case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGro
     val themeProcessScore = themeProcess.grounding.headOption.map(_.score)
     val allScores = themeScore ++ themeProcessScore
     if (allScores.isEmpty) 0.0f
+//    else (allScores.toSeq.sum / allScores.toSeq.length)
     else GroundingUtils.noisyOr(allScores.toSeq)
   }
 }
@@ -52,7 +53,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     Utils.initializeDyNet()
     new CluProcessor()
   }
-
 
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
     branches.exists(_.namer.name == s)
@@ -109,45 +109,58 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       case Seq() =>
         // No predicates
         val pseudoTheme = groundToBranches(Seq(CONCEPT), tokenInterval, s, topN, threshold)
-        val predicateTuple = PredicateTuple(pseudoTheme, newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding())
-        PredicateGrounding(predicateTuple)
+        val predicateTuple = PredicateTuple(pseudoTheme, newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
+        Seq(PredicateGrounding(predicateTuple))
       case preds =>
-        val predicateTuple = f(preds.head, Seq(), sentenceHelper, topN, threshold)
-        PredicateGrounding(predicateTuple)
+        val groundings = new ArrayBuffer[PredicateGrounding]
+        var seen = Set[Int]()
+        for (p <- preds) {
+//          if (!seen.contains(p)) {
+            val predicateTuple = packagePredicate(p, Seq(), sentenceHelper, topN, threshold, Set())
+            groundings.append(PredicateGrounding(predicateTuple))
+            // Add all the predicates covered here
+            seen ++= predicateTuple.predicates
+//          }
+        }
+        // Sort them highest first and take the top N if applicable
+        val sortedSliced = groundings.sortBy(-_.score)
+        sortedSliced.take(topN.getOrElse(sortedSliced.length))
+
     }
 
-    Seq(newOntologyGrounding(Seq(srlGrounding)))
+    Seq(newOntologyGrounding(srlGrounding))
 
     // Am I done here? or do I need to filter and slice?
   }
 
   @tailrec
-  private def f(pred: Int, attachedProperties: Seq[OntologyGrounding], s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): PredicateTuple = {
+  private def packagePredicate(pred: Int, attachedProperties: Seq[OntologyGrounding], s: SentenceHelper, topN: Option[Int], threshold: Option[Float], predicatesCovered: Set[Int]): PredicateTuple = {
     val themes = getThemes(pred, s, backoff = true).sortBy(s.minGraphDistanceToSyntacticRoot)
     val theme = themes.headOption
 
     val propertyOpt = maybeProperty(Interval(pred, pred + 1), s)
     if (propertyOpt.isEmpty) {
+      // It's not a property
       val groundedPred = groundChunk(pred, s, topN, threshold)
       val groundedAttachedProps = attachedProperties.headOption.getOrElse(newOntologyGrounding())
       if (theme.isDefined) {
         // If there's a theme, it occupies the theme position in the tuple
         val (groundedTheme, groundedThemeProps) = tupelize(theme.get, s, topN, threshold)
-        PredicateTuple(groundedTheme, groundedThemeProps, groundedPred.grounding, groundedAttachedProps)
+        PredicateTuple(groundedTheme, groundedThemeProps, groundedPred.grounding, groundedAttachedProps, predicatesCovered ++ Set(pred, theme.get))
       } else {
         // Promote the predicate
-        PredicateTuple(groundedPred.grounding, groundedAttachedProps, newOntologyGrounding(), newOntologyGrounding())
+        PredicateTuple(groundedPred.grounding, groundedAttachedProps, newOntologyGrounding(), newOntologyGrounding(), predicatesCovered ++ Set(pred))
       }
     }
     else {
       // If the predicate was a property, it is "demoted" to a process property
       if (theme.nonEmpty) {
-        f(theme.get, attachedProperties ++ Seq(propertyOpt.get), s, topN, threshold)
+        packagePredicate(theme.get, attachedProperties ++ Seq(propertyOpt.get), s, topN, threshold, predicatesCovered ++ Set(pred, theme.get))
       } else {
         // property and no theme -- promote the property
         // todo: should we do this?
         logger.warn("Promoting Property with no Theme or Process")
-        PredicateTuple(propertyOpt.get, newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding())
+        PredicateTuple(propertyOpt.get, newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), predicatesCovered++ Set(pred))
       }
     }
   }

@@ -16,32 +16,36 @@ class RegroundExporter(filename: String, reader: EidosSystem) extends JSONLDExpo
     }
     super.export(annotatedDocument)
 
-//    FileUtils.printWriterFromFile(filename + ".debug.txt").autoClose { pw =>
-//      annotatedDocument.eidosMentions.filter(_.odinMention matches "Causal").foreach { em =>
-//        val args = em.eidosArguments("cause") ++ em.eidosArguments("effect")
-//        val info = args.map(m => (m.odinMention.text, m.grounding.get("wm_compositional").flatMap(_.headOption), m.grounding.get("wm_flattened").flatMap(_.headOption)))
-//        for ((text, groundingComp, groundingFlat) <- info) {
-//          pw.println(s"text: ${text}")
-//          pw.println(s"Compositional Grounding:")
-//          groundingComp match {
-//            case None => pw.println("no grounding...")
-//            case Some(grounding) =>
-//              pw.println(s"  --> grounding: ${grounding.name}")
-//              pw.println(s"      score: ${grounding.score}")
-//          }
-//          pw.println(s"Flat Grounding:")
-//          groundingFlat match {
-//            case None => pw.println("  --> no grounding...")
-//            case Some(grounding) =>
-//              pw.println(s"  --> grounding: ${grounding.name}")
-//              pw.println(s"      score: ${grounding.score}")
-//          }
-//          pw.println()
-//        }
-//
-//      }
-//
-//    }
+    FileUtils.printWriterFromFile(filename + ".debug.txt").autoClose { pw =>
+      annotatedDocument.eidosMentions.filter(_.odinMention matches "Causal").foreach { em =>
+        val args = em.eidosArguments("cause") ++ em.eidosArguments("effect")
+        val info = args.map(m => (m.odinMention.text, m.grounding.get("wm_compositional"), m.grounding.get("wm_flattened")))
+        for ((text, groundingComp, groundingFlat) <- info) {
+          pw.println(s"text: ${text}")
+          pw.println(s"Compositional Grounding:")
+          groundingComp match {
+            case None => pw.println("no grounding...")
+            case Some(grounding) =>
+              grounding.grounding.foreach { gr =>
+                pw.println(s"  --> grounding: ${gr.name}")
+                pw.println(s"      score: ${gr.score}")
+              }
+          }
+          pw.println(s"Flat Grounding:")
+          groundingFlat match {
+            case None => pw.println("no grounding...")
+            case Some(grounding) =>
+              grounding.grounding.foreach { gr =>
+                pw.println(s"  --> grounding: ${gr.name}")
+                pw.println(s"      score: ${gr.score}")
+              }
+          }
+          pw.println()
+        }
+
+      }
+
+    }
   }
 
 //  def export(annotatedDocuments: Seq[AnnotatedDocument]): Unit = {
