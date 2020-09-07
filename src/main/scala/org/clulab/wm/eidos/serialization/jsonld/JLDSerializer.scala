@@ -900,11 +900,13 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     }
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue)
+    val rawTextOpt = document.text.map(_.substring(sentence.startOffsets.head, sentence.endOffsets.last))
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
       "text" -> getSentenceText(sentence),
+      "rawText" -> rawTextOpt,
       JLDWord.plural -> jldWords.map(_.toJObject),
       JLDDependency.plural -> jldGraphMapPair,
       JLDTimex.plural -> timexes,
@@ -930,7 +932,7 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     val jldSentences = sentences.zipWithIndex.map { case (sentence, index) =>
       new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index)).toJObject
     }.toSeq
-    val jldText = annotatedDocument.document.text.map(text => text)
+    val jldText = annotatedDocument.document.text
     val dctOpt = DctDocumentAttachment.getDct(annotatedDocument.document)
     val jldDCT = dctOpt.map(dct => new JLDDCT(serializer, dct).toJObject)
 

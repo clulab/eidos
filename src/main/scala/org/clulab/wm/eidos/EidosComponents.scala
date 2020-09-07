@@ -8,6 +8,7 @@ import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.context.SeasonFinder
 import org.clulab.wm.eidos.document.EidosSentenceClassifier
 import org.clulab.wm.eidos.document.SentenceClassifier
 import org.clulab.wm.eidos.expansion.ConceptExpander
@@ -44,6 +45,7 @@ case class EidosComponents(
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = finders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
   lazy val timeNormFinderOpt: Option[TimeNormFinder] = finders.collectFirst { case f: TimeNormFinder => f }
+  lazy val seasonFinderOpt: Option[SeasonFinder] = finders.collectFirst { case f: SeasonFinder => f }
   lazy val useTimeNorm: Boolean = timeNormFinderOpt.isDefined
   lazy val language: String = proc.language
 }
