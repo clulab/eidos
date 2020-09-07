@@ -7,23 +7,34 @@ import org.clulab.wm.eidos.utils.FileUtils
 class DebugGroundingExporter(filename: String) extends Exporter {
 
   override def export(annotatedDocument: AnnotatedDocument): Unit = {
-    FileUtils.printWriterFromFile(filename).autoClose { pw =>
+    FileUtils.printWriterFromFile(filename + ".debug.txt").autoClose { pw =>
       annotatedDocument.eidosMentions.filter(_.odinMention matches "Causal").foreach { em =>
         val args = em.eidosArguments("cause") ++ em.eidosArguments("effect")
-        val info = args.map(m => (m.odinMention.text, m.grounding.get("wm_compositional").flatMap(_.headOption)))
-        for ((text, groundingClass) <- info) {
+        val info = args.map(m => (m.odinMention.text, m.grounding.get("wm_compositional"), m.grounding.get("wm_flattened")))
+        for ((text, groundingComp, groundingFlat) <- info) {
           pw.println(s"text: ${text}")
-          groundingClass match {
+          pw.println(s"Compositional Grounding:")
+          groundingComp match {
             case None => pw.println("no grounding...")
             case Some(grounding) =>
-              pw.println(s"grounding: ${grounding.name}")
-              pw.println(s"score: ${grounding.score}")
+              grounding.grounding.foreach { gr =>
+                pw.println(s"  --> grounding: ${gr.name}")
+                pw.println(s"      score: ${gr.score}")
+              }
+          }
+          pw.println(s"Flat Grounding:")
+          groundingFlat match {
+            case None => pw.println("no grounding...")
+            case Some(grounding) =>
+              grounding.grounding.foreach { gr =>
+                pw.println(s"  --> grounding: ${gr.name}")
+                pw.println(s"      score: ${gr.score}")
+              }
           }
           pw.println()
         }
 
       }
-
     }
   }
 
