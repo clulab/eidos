@@ -163,18 +163,18 @@ class TestDocumentAttachment extends Test {
   }
 
   // TODO: do we really need this unit test? This is for printing the JSON ouptut.
-  "A sentence" should "print json" in {
-    val docText = "Rainfall can increase poverty. All signs pointed to small convention bounces in the Biden-Trump matchup. "
-    val docAnnotated = eidosSystem.annotate(docText)
-    val serial = pretty(render(docAnnotated.jsonAST))
-
-    println(serial)
-
-    true should be (true)
-
-    // If it needs to be actually written to a file, use FileUtils.write()
-    // http://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/FileUtils.html
-
-  }
+//  "A sentence" should "print json" in {
+//    val docText = "Rainfall can increase poverty. All signs pointed to small convention bounces in the Biden-Trump matchup. "
+//    val docAnnotated = eidosSystem.annotate(docText)
+//    val serial = pretty(render(docAnnotated.jsonAST))
+//
+//    println(serial)
+//
+//    true should be (true)
+//
+//    // If it needs to be actually written to a file, use FileUtils.write()
+//    // http://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/FileUtils.html
+//
+//  }
 
 }
