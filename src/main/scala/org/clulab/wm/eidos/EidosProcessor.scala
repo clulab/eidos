@@ -11,7 +11,7 @@ import org.clulab.processors.clu.SpanishCluProcessor
 import org.clulab.processors.clu.tokenizer.RawToken
 import org.clulab.processors.clu.tokenizer.SentenceSplitter
 import org.clulab.processors.clu.tokenizer.Tokenizer
-import org.clulab.processors.fastnlp.FastNLPProcessor
+import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.utils.ScienceUtils
 import org.clulab.wm.eidos.utils.EnglishTagSet
 import org.clulab.wm.eidos.utils.Language
@@ -42,7 +42,7 @@ trait LanguageSpecific {
   def getTagSet: TagSet
 }
 
-class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessor
+class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
     with SentencesExtractor with LanguageSpecific {
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
   val tagSet = new EnglishTagSet()
