@@ -35,33 +35,30 @@ class RelevanceDocumentAttachment(val relevanceScores: Seq[Float]) extends Docum
   override def documentAttachmentBuilderFromTextClassName: String = classOf[RelevanceDocumentAttachmentBuilderFromText].getName
   override def documentAttachmentBuilderFromJsonClassName: String = classOf[RelevanceDocumentAttachmentBuilderFromJson].getName
 
+  protected def round(relevance: Float): Float = "%.5f".format(relevance).toFloat
+
   override def equals(other: Any): Boolean = {
     val that = other.asInstanceOf[RelevanceDocumentAttachment]
-
-    // This equal method seems to be safe. Confirm with Becky later.
-    val thisRelScores = this.relevanceScores.map{x => "%.4f".format(x)}
-    val thatRelScores = that.relevanceScores.map{x => "%.4f".format(x)}
+    val thisRelScores = this.relevanceScores.map(round)
+    val thatRelScores = that.relevanceScores.map(round)
 
     thisRelScores == thatRelScores
   }
 
   override def toDocumentSerializer: String = {
-
     relevanceScores.map{x => x.toString}.mkString("\t")
-
   }
 
   override def toJsonSerializer: JValue = {
-    //"relevanceScores" -> relevanceScores
     relevanceScores
   }
 }
 
 object RelevanceDocumentAttachment {
-  protected val Key = "relevanceScore"
+  protected val key = "relevanceScore"
 
   def getRelevanceDocumentAttachment(doc: Document): Option[RelevanceDocumentAttachment] = {
-    val documentAttachmentOpt = doc.getAttachment(Key)
+    val documentAttachmentOpt = doc.getAttachment(key)
     val relevanceDocumentAttachmentOpt = documentAttachmentOpt.map { documentAttachment =>
       documentAttachment.asInstanceOf[RelevanceDocumentAttachment]
     }
@@ -81,7 +78,18 @@ object RelevanceDocumentAttachment {
   def setRelevance(doc: Document, relevanceScores: Seq[Float]): RelevanceDocumentAttachment = {
     val relevanceDocumentAttachment = new RelevanceDocumentAttachment(relevanceScores)
 
-    doc.addAttachment(Key, relevanceDocumentAttachment)
+    doc.addAttachment(key, relevanceDocumentAttachment)
     relevanceDocumentAttachment
+  }
+
+  def setRelevanceOpt(doc: Document, relevanceOpts: Seq[Option[Float]]): RelevanceDocumentAttachment = {
+    val relevanceAny = relevanceOpts.exists(_.isDefined)
+    val relevanceAll = relevanceOpts.forall(_.isDefined)
+    assert(!relevanceAny || relevanceAll)
+    if (relevanceAll) {
+      val relevances = relevanceOpts.map(_.get)
+      setRelevance(doc, relevances)
+    }
+    else new RelevanceDocumentAttachment(Seq.empty)
   }
 }

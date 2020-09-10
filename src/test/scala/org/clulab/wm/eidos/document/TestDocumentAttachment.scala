@@ -103,23 +103,29 @@ class TestDocumentAttachment extends Test {
     newDctOpt.get should not be (dct2)
   }
 
+  def round(relevance: Float): Float = "%.4f".format(relevance).toFloat
+
   "Document with RelevanceDocumentAttachment" should "serialize as text" in {
-    val docSentRelevanceScores = Seq(0.7f, 0.8f)
+    val docSentRelevanceScores = Array(0.7f, 0.8f)
     val oldDocument = new Document(Array.empty[Sentence])
 
     RelevanceDocumentAttachment.setRelevance(oldDocument, docSentRelevanceScores)
 
     val documentSerializer = new DocumentSerializer()
     val documentString = documentSerializer.save(oldDocument)
-
     val newDocument = documentSerializer.load(documentString)
-    val newRelevanceOpt = RelevanceDocumentAttachment.getRelevance(newDocument)
-    newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores.map{x => "%.4f".format(x)} should be (true)
-    oldDocument.getAttachment("relevanceScore").equals(newDocument.getAttachment("relevanceScore")) should be (true)
+    val newRelevance = RelevanceDocumentAttachment.getRelevanceDocumentAttachment(newDocument).get
 
+    newRelevance should be (RelevanceDocumentAttachment.getRelevanceDocumentAttachment(newDocument).get)
 
-    val docSentRelevanceScores2 = Seq(0.8f, 0.9f, 0.8f)
-    newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores2.map{x => "%.4f".format(x)} should be (false)
+    val relevance2 = new RelevanceDocumentAttachment(Seq(0.8f, 0.9f, 0.8f))
+    newRelevance should not be (relevance2)
+
+    val relevance3 = new RelevanceDocumentAttachment(Seq(0.71f, 0.8f))
+    newRelevance should not be (relevance3)
+
+    val relevance4 = new RelevanceDocumentAttachment(docSentRelevanceScores)
+    newRelevance should be (relevance4)
   }
 
   "Document with RelevanceDocumentAttachments" should "serialize as json" in {
@@ -129,22 +135,24 @@ class TestDocumentAttachment extends Test {
     RelevanceDocumentAttachment.setRelevance(oldDocument, docSentRelevanceScores)
 
     val documentString = prettyJson(renderJValue(oldDocument.jsonAST))
-
     val newDocument: Document = JSONSerializer.toDocument(parseJson(documentString))
-    val newRelevanceOpt = RelevanceDocumentAttachment.getRelevance(newDocument)
-    newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores.map{x => "%.4f".format(x)} should be (true)
-    oldDocument.getAttachment("relevanceScore").equals(newDocument.getAttachment("relevanceScore")) should be (true)
+    val newRelevance = RelevanceDocumentAttachment.getRelevanceDocumentAttachment(newDocument).get
 
+    newRelevance should be(RelevanceDocumentAttachment.getRelevanceDocumentAttachment(oldDocument).get)
 
-    val docSentRelevanceScores2 = Seq(0.8f, 0.9f, 0.8f)
-    newRelevanceOpt.get.map{x => "%.4f".format(x)}== docSentRelevanceScores2.map{x => "%.4f".format(x)} should be (false)
+    val relevance2 = new RelevanceDocumentAttachment(Seq(0.8f, 0.9f, 0.8f))
+    newRelevance should not be (relevance2)
+
+    val relevance3 = new RelevanceDocumentAttachment(Seq(0.71f, 0.8f))
+    newRelevance should not be (relevance3)
+
+    val relevance4 = new RelevanceDocumentAttachment(docSentRelevanceScores)
+    newRelevance should be (relevance4)
   }
 
-
-  val config: Config = EidosSystem.defaultConfig
-  val eidosSystem = new EidosSystem(config)
   "Document relevance score added by annotateDoc" should "have 6 non-negative scores" in {
-
+    val config: Config = EidosSystem.defaultConfig
+    val eidosSystem = new EidosSystem(config)
     // This text is randomly selected.
     val docText = "As I wrote about before the conventions, " +
       "all signs pointed to small convention bounces in the Biden-Trump matchup. " +
@@ -154,27 +162,13 @@ class TestDocumentAttachment extends Test {
       "A new ABC News/Ipsos poll shows that Biden's net favorability rating (favorable - unfavorable) is up compared to before the conventions. " +
       "Stock level and seasonality: according to traders, most commodities are imported, " +
       "with the highest flow of supply observed during the months of january to march, june to july and november to december. " +
-      "An additional environmental impact unique to flooded rice systems is an increase in insect-borne disease: flooded rice fields have been associated with an increase in malaria transmission among farmers, workers, and communities adjacent to flooded rice-producing areas in both africa and asia (larson et al. "
+      "An additional environmental impact unique to flooded rice systems is an increase in insect-borne disease: " +
+      "flooded rice fields have been associated with an increase in malaria transmission among farmers, workers, and " +
+      "communities adjacent to flooded rice-producing areas in both africa and asia (larson et al. "
+    val annotatedDoc = eidosSystem.extractFromText(docText)
+    val relevanceScore = RelevanceDocumentAttachment.getRelevance(annotatedDoc.document)
 
-    val docObj = eidosSystem.annotate(docText)
-    val relevanceScore = RelevanceDocumentAttachment.getRelevance(docObj)
-    relevanceScore.get.forall(x => x> -0.1f) should be (true)
-    relevanceScore.get.length==6 should be (true)
+    relevanceScore.get.forall(_ > -0.1f) should be (true)
+    relevanceScore.get.length should be (6)
   }
-
-  // TODO: do we really need this unit test? This is for printing the JSON ouptut.
-//  "A sentence" should "print json" in {
-//    val docText = "Rainfall can increase poverty. All signs pointed to small convention bounces in the Biden-Trump matchup. "
-//    val docAnnotated = eidosSystem.annotate(docText)
-//    val serial = pretty(render(docAnnotated.jsonAST))
-//
-//    println(serial)
-//
-//    true should be (true)
-//
-//    // If it needs to be actually written to a file, use FileUtils.write()
-//    // http://commons.apache.org/proper/commons-io/apidocs/org/apache/commons/io/FileUtils.html
-//
-//  }
-
 }

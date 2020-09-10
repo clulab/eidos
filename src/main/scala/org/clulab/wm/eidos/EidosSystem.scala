@@ -1,15 +1,15 @@
 package org.clulab.wm.eidos
 
 import com.typesafe.config.{Config, ConfigFactory}
+
 import org.clulab.odin._
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Timer
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
+import org.clulab.wm.eidos.utils.Timer
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable
 
@@ -108,14 +108,7 @@ class EidosSystem(val components: EidosComponents) {
   def annotateDoc(doc: Document): Document = {
     // It is assumed and not verified that the document has _not_ already been annotated.
     components.proc.annotate(doc)
-    //components.proc.annotate(doc)
-    // TODO: I notice sentence classifier is used in EidosRefiner, where each Eidos mention gets a relevance score.
-    // TODO: But I am not sure if we can utilize that score here.
-    val relevanceScores = doc.sentences.map{sent => this.components.eidosSentenceClassifier.classify(sent).get}
-    val attachment = RelevanceDocumentAttachment.setRelevance(doc, relevanceScores)
-    doc.addAttachment("relevanceScore", attachment)
     doc
-
   }
 
   // Annotate the text using a Processor and then populate lexicon labels.
@@ -195,7 +188,9 @@ class EidosSystem(val components: EidosComponents) {
   def extractFromDoc(doc: Document, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
     val odinRefiners = mkOdinRefiners(options)
     val eidosRefiners = mkEidosRefiners(options)
+    val relevanceOpts = doc.sentences.map { sent => components.eidosSentenceClassifier.classify(sent) }
 
+    RelevanceDocumentAttachment.setRelevanceOpt(doc, relevanceOpts)
     metadata.attachToDoc(doc)
     extractFromDoc(doc, odinRefiners, eidosRefiners)
   }
