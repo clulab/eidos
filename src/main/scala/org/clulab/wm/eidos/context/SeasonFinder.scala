@@ -109,6 +109,7 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
               Some(SeasonMention(seasonTokenIdx - 1, seasonTokenIdx, season(seasonType), timeStep))
             case _ => None
           }
+        case _ => None
       }
     } else {
       None
