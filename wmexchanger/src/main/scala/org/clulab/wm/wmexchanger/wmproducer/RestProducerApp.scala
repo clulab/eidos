@@ -36,7 +36,7 @@ import scala.io.Source
 // and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
 object RestProducerApp extends App {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  val version = "1.0.3"
+  val version = "1.0.4"
 
   def getPort(url: URL): Int = {
     val explicitPort = url.getPort
