@@ -38,6 +38,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.AdjectiveGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases
@@ -75,7 +76,8 @@ class IdAndSentence(id: String, sentence: Sentence) extends IdAndValue[Sentence]
 
 case class SentencesSpec(sentences: Array[Sentence], sentenceMap: Map[String, Int],
     timexes: Array[Seq[TimEx]], timexMap: Map[String, TimEx],
-    geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID])
+    geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID],
+    relevanceOpts: Array[Option[Float]])
 
 class IdAndDocument(id: String, document: Document) extends IdAndValue(id, document)
 
@@ -226,6 +228,7 @@ class JLDDeserializer {
     var timexMap: Map[String, TimEx] = Map.empty
     var geolocs: List[Seq[GeoPhraseID]] = List.empty
     var geolocMap: Map[String, GeoPhraseID] = Map.empty
+    var relevanceOpts: List[Option[Float]] = List.empty
     val sentencesOpt = sentencesValue.extractOpt[JArray].map(_.arr)
     val idsAndSentences = sentencesOpt.map { sentences => sentences.map { sentenceValue: JValue =>
       requireType(sentenceValue, JLDSentence.typename)
@@ -259,7 +262,9 @@ class JLDDeserializer {
       geolocs = geolocs :+ idsAndGeolocs.map(_.value)
       geolocMap = geolocMap ++ idsAndGeolocs.map { idAndGeoloc => idAndGeoloc.id -> idAndGeoloc.value }
 
-      // IntelliJ doesn't like these, but the compiler is OK with them.
+      val relevanceOpt = (sentenceValue \ "relevance").extractOpt[Float]
+      relevanceOpts = relevanceOpts :+ relevanceOpt
+
       val startOffsets: Array[Int] = idsAndWordSpecs.map(_.value.startOffset)
       val endOffsets: Array[Int] = idsAndWordSpecs.map(_.value.endOffset)
       val raw = mkRaw(idsAndWordSpecs, documentText)
@@ -279,7 +284,7 @@ class JLDDeserializer {
     // This is because Mention only uses index of sentence in document, not reference to Sentence itself.
     val sentenceMap = idsAndSentences.indices.map { index => idsAndSentences(index).id -> index }.toMap
 
-    SentencesSpec(sentences, sentenceMap, timexes.toArray, timexMap, geolocs.toArray, geolocMap)
+    SentencesSpec(sentences, sentenceMap, timexes.toArray, timexMap, geolocs.toArray, geolocMap, relevanceOpts.toArray)
   }
 
   def deserializeInterval(intervalValue: JValue, offset: Int, inclusiveEnd: Boolean): Interval = {
@@ -349,6 +354,7 @@ class JLDDeserializer {
     locationOpt.foreach { location =>
       LocationDocumentAttachment.setLocation(document, location)
     }
+    RelevanceDocumentAttachment.setRelevanceOpt(document, sentencesSpec.relevanceOpts)
 
     val idAndDocument = new IdAndDocument(id, document)
     DocumentSpec(idAndDocument, idAndDctOpt, sentencesSpec)
