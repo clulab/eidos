@@ -4,7 +4,7 @@ import org.clulab.odin.Mention
 import org.clulab.processors.Sentence
 import org.clulab.struct.{DirectedGraph, Interval}
 import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAttachment}
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, OntologyGrounding, PredicateGrounding}
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.{Canonicalizer, GroundingUtils}
 import org.slf4j.{Logger, LoggerFactory}
@@ -18,18 +18,23 @@ import scala.collection.mutable.ArrayBuffer
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
 case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGrounding, themeProcess: OntologyGrounding, themeProcessProperties: OntologyGrounding, predicates: Set[Int]) {
 
+  def nameAndScore(gr: OntologyGrounding): String = nameAndScore(gr.headOption.get)
+  def nameAndScore(gr: IndividualGrounding): String = {
+    s"${gr.name} (${gr.score})"
+  }
+
   val name: String = {
     if (theme.nonEmpty) {
       val sb = new ArrayBuffer[String]()
-      sb.append(s"THEME: ${theme.headName.get}")
+      sb.append(s"THEME: ${nameAndScore(theme)}")
       if (themeProperties.nonEmpty) {
-       sb.append(s" (Theme properties: ${themeProperties.take(5).map(_.name).mkString(", ")})")
+       sb.append(s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
       }
       if (themeProcess.nonEmpty) {
-        sb.append(s"; THEME PROCESS: ${themeProcess.headName.get}")
+        sb.append(s"; THEME PROCESS: ${nameAndScore(themeProcess)}")
       }
       if (themeProcessProperties.nonEmpty) {
-        sb.append(s" (Process properties: ${themeProcessProperties.take(5).map(_.name).mkString(", ")})")
+        sb.append(s", Process properties: ${themeProcessProperties.take(5).map(nameAndScore).mkString(", ")}")
       }
       sb.mkString("")
     } else {
@@ -39,10 +44,10 @@ case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGro
   val score: Float = {
     val themeScore = theme.grounding.headOption.map(_.score)
     val themeProcessScore = themeProcess.grounding.headOption.map(_.score)
-    val allScores = themeScore ++ themeProcessScore
+    val allScores = (themeScore ++ themeProcessScore).toSeq
     if (allScores.isEmpty) 0.0f
 //    else (allScores.toSeq.sum / allScores.toSeq.length)
-    else GroundingUtils.noisyOr(allScores.toSeq)
+    else GroundingUtils.noisyOr(allScores)
   }
 }
 
@@ -103,13 +108,19 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     groundSentenceSpan(s, tokenInterval, exclude, topN, threshold)
   }
 
+  // todo: am I using exclude right?
   def groundSentenceSpan(s: Sentence, tokenInterval: Interval, exclude: Set[String], topN: Option[Int], threshold: Option[Float]): Seq[OntologyGrounding] = {
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
     val srlGrounding = sentenceHelper.validPredicates match {
       case Seq() =>
         // No predicates
+        // check for properties, if there we'll attach to the pseudo-theme
+        val propertyOpt = maybeProperty(tokenInterval, sentenceHelper)
+        val themeProperty = propertyOpt.getOrElse(newOntologyGrounding())
+        // make a pseudo theme
+        // fixme: should we ground the pseudo theme to the process AND concept branches
         val pseudoTheme = groundToBranches(Seq(CONCEPT), tokenInterval, s, topN, threshold)
-        val predicateTuple = PredicateTuple(pseudoTheme, newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
+        val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
         Seq(PredicateGrounding(predicateTuple))
       case preds =>
         val groundings = new ArrayBuffer[PredicateGrounding]
@@ -136,8 +147,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   @tailrec
   private def packagePredicate(pred: Int, attachedProperties: Seq[OntologyGrounding], s: SentenceHelper, topN: Option[Int], threshold: Option[Float], predicatesCovered: Set[Int]): PredicateTuple = {
     val themes = getThemes(pred, s, backoff = true).sortBy(s.minGraphDistanceToSyntacticRoot)
+    // fixme: is THIS a problem? how often are there multiple themes???
     val theme = themes.headOption
 
+    // Check to see if the predicate is a Property
     val propertyOpt = maybeProperty(Interval(pred, pred + 1), s)
     if (propertyOpt.isEmpty) {
       // It's not a property
@@ -158,8 +171,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         packagePredicate(theme.get, attachedProperties ++ Seq(propertyOpt.get), s, topN, threshold, predicatesCovered ++ Set(pred, theme.get))
       } else {
         // property and no theme -- promote the property
-        // todo: should we do this?
-        logger.warn("Promoting Property with no Theme or Process")
         PredicateTuple(propertyOpt.get, newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), predicatesCovered++ Set(pred))
       }
     }
@@ -170,7 +181,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
     val propertyOpt = maybeProperty(Interval(tok, tok + 1), s)
     if (propertyOpt.isDefined) {
-      // it's a property and there's a theme
+      // it's a property, check if there's a theme (recall in SRL these properties are "predicates")
       val themes = getThemes(tok, s, backoff = false)
       if (themes.nonEmpty) {
         // there is a theme
@@ -181,9 +192,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val bestGroundedTheme = groundedThemes.head
         (bestGroundedTheme.grounding, propertyOpt.get)
       } else {
-        // there is no theme, promote the property?
-        // todo: do we want to do this?
-        logger.warn("Promoting Property with no Theme")
+        // there is no theme, promote the property???
         (propertyOpt.get, newOntologyGrounding())
       }
     } else {
@@ -196,10 +205,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   private def getThemes(predicate: Int, s: SentenceHelper, backoff: Boolean): Array[Int] = {
     val found = getArguments(predicate, THEME_ROLE, s)
     if (found.isEmpty && backoff) {
-      val other = getArguments(predicate, OTHER_ROLE, s).toSet
-      val compounds = s.outgoingOfType(predicate, Seq("compound")).toSet
-      // prevent infinite loops in edge cases
-      (other.intersect(compounds) - predicate).toArray
+      //val other = getArguments(predicate, OTHER_ROLE, s).toSet
+      // Handle "just in case" infinite loop -- seemed to happen earlier, but the algorithm was diff then...
+      s.outgoingOfType(predicate, Seq("compound")).filterNot(_ == predicate)
     } else {
       // prevent infinite loops in edge cases
       found.filterNot(_ == predicate)
@@ -207,6 +215,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   private def getArguments(predicate: Int, role: String, s: SentenceHelper): Array[Int] = {
+    if (predicate >= s.srls.outgoingEdges.length) return Array()
     s.srls.outgoingEdges(predicate)
       .filter(edge => edge._2 == role)
       .filter(edge => s.tokenInterval.contains(edge._1))
@@ -286,13 +295,19 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   // The roots of the SRL graph that are within the concept being grounded and aren't part of
   // an something we're ignoring (e.g., increase/decrease/quantification)
   val validPredicates: Seq[Int] = {
-    srls.roots.toSeq
+    val original = srls.roots.toSeq
       // keep only predicates that are within the mention
       .filter(tokenInterval contains _)
       // remove the predicates which correspond to our increase/decrease/quantifiers
       .filterNot(exclude contains words(_))
-      // start with those closest to the syntactic root of the sentence to begin with "higher level" predicates
-      .sortBy(minGraphDistanceToSyntacticRoot)
+    // add back in ones that SRL "missed"
+    val corrected = for {
+      i <- tokenInterval
+      if !original.contains(i)
+      if outgoingOfType(i, Seq("compound")).nonEmpty
+    } yield i
+    // start with those closest to the syntactic root of the sentence to begin with "higher level" predicates
+    (original ++ corrected).sortBy(minGraphDistanceToSyntacticRoot)
   }
 
   // Find the shortest distance (in the syntax graph) between a given token and any of the roots
