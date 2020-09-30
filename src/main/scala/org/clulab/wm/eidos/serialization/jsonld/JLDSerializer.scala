@@ -197,7 +197,7 @@ object JLDOntologyGrounding {
 }
 
 class JLDOntologyPredicateGrounding(serializer: JLDSerializer, predicateTuple: PredicateTuple, name: String, value: Float, display: String)
-  extends JLDObject(serializer, JLDOntologyGrounding.typename) {
+  extends JLDObject(serializer, JLDOntologyPredicateGrounding.typename) {
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
@@ -212,6 +212,7 @@ class JLDOntologyPredicateGrounding(serializer: JLDSerializer, predicateTuple: P
 
 object JLDOntologyPredicateGrounding {
   val typename = "PredicateGrounding"
+  // These are unused because under Groundings the term "values" is used.
   val singular = "predicateGrounding"
   val plural: String = singular // Mass noun
 }
