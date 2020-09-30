@@ -19,7 +19,7 @@ resolvers ++= Seq(
 val becky = ""
 
 libraryDependencies ++= {
-  val      procVer = "8.2.1-SNAPSHOT"
+  val      procVer = "8.2.1"
   val procModelVer = "7.5.4"
   val    luceneVer = "6.6.6"
   val   lihaoyiVer = "0.7.1"
