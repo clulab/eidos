@@ -86,7 +86,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   def add(config: Config): Unit = add(config, None)
 
   def add(config: Config, eidosComponents: EidosComponents): EidosComponentsBuilder =
-      add(config, Some(eidosComponents))
+    add(config, Some(eidosComponents))
 
   def add(config: Config, eidosComponentsOpt: Option[EidosComponents]): EidosComponentsBuilder = {
     val reloading: Boolean = eidosComponentsOpt.isDefined

@@ -47,7 +47,7 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
   override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
   val tagSet = new EnglishTagSet()
 
-  // TODO: This should be checked with each update of processors.
+  // This should be checked with each update of processors.
   def extractDocument(text: String): Document = {
     // This mkDocument will now be subject to all of the EidosProcessor changes.
     val document = mkDocument(text, keepText = false)
@@ -126,8 +126,8 @@ class ParagraphSplitter {
       if (!hasEos) {
         val beginPosition = prevToken.endPosition
         val endPosition =
-            if (nextTokenOpt.isDefined) nextTokenOpt.get.beginPosition
-            else text.length
+          if (nextTokenOpt.isDefined) nextTokenOpt.get.beginPosition
+          else text.length
         val whitespace = text.slice(beginPosition, endPosition)
         // Always end the document with EOP, especially since sentenceSplitter does add a period.
         val hasEop = eopMatcher.reset(whitespace).matches || nextTokenOpt.isEmpty
@@ -190,7 +190,7 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
   }
 
   def isSanitized(text: String): Boolean =
-      !text.exists { char => EidosTokenizer.unicodes.contains(char) || 0x80 <= char }
+    !text.exists { char => EidosTokenizer.unicodes.contains(char) || 0x80 <= char }
 
   def sanitize(oldText: String, oldRanges: Seq[(Int, Int)], keepAccents: Boolean = false): (String, Seq[(Int, Int)]) = {
     if (isSanitized(oldText))
@@ -228,9 +228,9 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     val (sanitizedText, sanitizedRanges) = sanitize(normalizedText, normalizedRanges, keepAccents = true)
     val redTokens = super.readTokens(sanitizedText)
     val rawTokens =
-        if (text.eq(sanitizedText)) // If it is literally the same object...
-          redTokens
-        else
+      if (text.eq(sanitizedText)) // If it is literally the same object...
+      redTokens
+          else
           redTokens.map { case RawToken(_, oldBeginPosition, oldEndPosition, word) =>
             val newBeginPosition = sanitizedRanges(oldBeginPosition)._1
             val newEndPosition = sanitizedRanges(oldEndPosition - 1)._2
@@ -253,24 +253,24 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     // The first major change is with the added paragraphSplitter.
     val splitTokens = paragraphSplitter.split(sanitizedText, stepTokens)
     val paragraphTokens =
-        if (text.eq(sanitizedText)) // If it is literally the same object...
-          splitTokens
-        else
+      if (text.eq(sanitizedText)) // If it is literally the same object...
+      splitTokens
+          else
           splitTokens.map { case RawToken(_, oldBeginPosition, oldEndPosition, word) =>
             // The paragraph splitter may have added tokens with positions beyond the string
             // boundaries and therefore beyond the boundaries of the sanitized ranges.
             val newBeginPosition =
-                if (oldBeginPosition < sanitizedRanges.length)
-                  sanitizedRanges(oldBeginPosition)._1
-                else
-                  text.length
+              if (oldBeginPosition < sanitizedRanges.length)
+                sanitizedRanges(oldBeginPosition)._1
+              else
+                text.length
             val newEndPosition =
-                if (oldEndPosition < sanitizedRanges.length)
-                  // This might more typically be (oldEndPosition)._1, and usually that would give
-                  // the same answer, but if characters have been deleted it might not be.
-                  sanitizedRanges(oldEndPosition - 1)._2
-                else
-                  text.length
+              if (oldEndPosition < sanitizedRanges.length)
+              // This might more typically be (oldEndPosition)._1, and usually that would give
+              // the same answer, but if characters have been deleted it might not be.
+              sanitizedRanges(oldEndPosition - 1)._2
+              else
+              text.length
             val newRaw = text.slice(newBeginPosition, newEndPosition)
 
             RawToken(newRaw, newBeginPosition, newEndPosition, word)
