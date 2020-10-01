@@ -38,30 +38,37 @@ object RoundTrip extends App {
     json
   }
 
-  files.foreach { file =>
-    val text = FileUtils.getTextFromFile(file)
+  files.par.foreach { file =>
+    try {
+      val text = FileUtils.getTextFromFile(file)
 
-    val oldCorpus = Seq(newTitledAnnotatedDocument(text, file.getName))
-    val oldJson = serialize(oldCorpus)
+      val oldCorpus = Seq(newTitledAnnotatedDocument(text, file.getName))
+      val oldJson = serialize(oldCorpus)
 
-    val newCorpus = new JLDDeserializer().deserialize(oldJson)
-    val newJson = serialize(newCorpus)
+      val newCorpus = new JLDDeserializer().deserialize(oldJson)
+      val newJson = serialize(newCorpus)
 
-    val oldLineCount = oldJson.count(_ == '\n')
-    val newLineCount = newJson.count(_ == '\n')
+      val oldLineCount = oldJson.count(_ == '\n')
+      val newLineCount = newJson.count(_ == '\n')
 
-    if (oldLineCount != newLineCount)
-      println(s"Line count differs for file ${file.getName}: old = $oldLineCount and new = $newLineCount")
-    else {
-      val oldLength = oldJson.length
-      val newlength = newJson.length
-
-      if (oldLength != newlength)
-        println(s"Length differs for file ${file.getName}: old = $oldLength and new = $newlength")
+      if (oldLineCount != newLineCount)
+        println(s"Line count differs for file ${file.getName}: old = $oldLineCount and new = $newLineCount")
       else {
-        if (oldJson != newJson)
-          println(s"Content differs for file ${file.getName}: old = $oldJson and new = $newJson")
+        val oldLength = oldJson.length
+        val newlength = newJson.length
+
+        if (oldLength != newlength)
+          println(s"Length differs for file ${file.getName}: old = $oldLength and new = $newlength")
+        else {
+          if (oldJson != newJson)
+            println(s"Content differs for file ${file.getName}: old = $oldJson and new = $newJson")
+        }
       }
+    }
+    catch {
+      case throwable: Throwable =>
+        println(s"Exception caught for file ${file.getName}:")
+        throwable.printStackTrace(System.out)
     }
   }
 }
