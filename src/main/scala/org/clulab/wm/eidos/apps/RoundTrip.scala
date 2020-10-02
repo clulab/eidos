@@ -9,12 +9,15 @@ import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Timer
 
 import scala.collection.Seq
 
 // This began life in TestJLDDeserializer, but it is starting
-// to be inapproprate there.
+// to be inappropriate there.
 object RoundTrip extends App {
+  class LocalException(message: String) extends Exception(message)
+
   val directoryName = args.headOption.getOrElse("../corpora/Doc52/txt")
   val ieSystem = new EidosSystem()
   val files = FileUtils.findFiles(directoryName, "txt")
@@ -38,37 +41,50 @@ object RoundTrip extends App {
     json
   }
 
-  files.par.foreach { file =>
-    try {
-      val text = FileUtils.getTextFromFile(file)
+//  Timer.time("EidosPrimer") {
+//    ieSystem.extractFromText("This is a test.")
+//  }
 
-      val oldCorpus = Seq(newTitledAnnotatedDocument(text, file.getName))
-      val oldJson = serialize(oldCorpus)
+  Timer.time("Whole thing") {
+    files.par.foreach { file =>
+      try {
+        val text = FileUtils.getTextFromFile(file)
 
-      val newCorpus = new JLDDeserializer().deserialize(oldJson)
-      val newJson = serialize(newCorpus)
+        val oldCorpus = Seq(newTitledAnnotatedDocument(text, file.getName))
+        val oldJson = serialize(oldCorpus)
 
-      val oldLineCount = oldJson.count(_ == '\n')
-      val newLineCount = newJson.count(_ == '\n')
+        val newCorpus = new JLDDeserializer().deserialize(oldJson)
+        val newJson = serialize(newCorpus)
 
-      if (oldLineCount != newLineCount)
-        println(s"Line count differs for file ${file.getName}: old = $oldLineCount and new = $newLineCount")
-      else {
-        val oldLength = oldJson.length
-        val newlength = newJson.length
+        {
+          val oldLineCount = oldJson.count(_ == '\n')
+          val newLineCount = newJson.count(_ == '\n')
 
-        if (oldLength != newlength)
-          println(s"Length differs for file ${file.getName}: old = $oldLength and new = $newlength")
-        else {
+          if (oldLineCount != newLineCount)
+            throw new LocalException(s"Line count differs for file ${file.getName}: old = $oldLineCount and new = $newLineCount")
+        }
+
+        {
+          val oldLength = oldJson.length
+          val newlength = newJson.length
+
+          if (oldLength != newlength)
+            throw new LocalException(s"Length differs for file ${file.getName}: old = $oldLength and new = $newlength")
+        }
+
+        {
           if (oldJson != newJson)
-            println(s"Content differs for file ${file.getName}: old = $oldJson and new = $newJson")
+            throw new LocalException(s"Content differs for file ${file.getName}: old = $oldJson and new = $newJson")
         }
       }
-    }
-    catch {
-      case throwable: Throwable =>
-        println(s"Exception caught for file ${file.getName}:")
-        throwable.printStackTrace(System.out)
+      catch {
+        case exception: LocalException =>
+          println(s"Local exception caught for file ${file.getName}:")
+          exception.printStackTrace(System.out)
+        case throwable: Throwable =>
+          println(s"Unexpected exception caught for file ${file.getName}:")
+          throwable.printStackTrace(System.out)
+      }
     }
   }
 }
