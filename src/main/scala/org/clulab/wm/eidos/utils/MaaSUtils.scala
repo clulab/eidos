@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.utils
 
-import org.clulab.embeddings.word2vec.Word2Vec
+import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.apps.OntologyMapper.{mostSimilar, mostSimilarIndicators}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, OntologyHandler}

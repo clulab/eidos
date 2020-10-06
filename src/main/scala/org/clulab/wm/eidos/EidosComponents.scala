@@ -9,6 +9,8 @@ import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, Ne
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.context.SeasonFinder
+import org.clulab.wm.eidos.document.EidosSentenceClassifier
+import org.clulab.wm.eidos.document.SentenceClassifier
 import org.clulab.wm.eidos.expansion.ConceptExpander
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
@@ -18,6 +20,7 @@ import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.wm.eidos.utils.Timer
@@ -36,7 +39,8 @@ case class EidosComponents(
   nestedArgumentExpander: NestedArgumentExpander,
   adjectiveGrounder: AdjectiveGrounder,
   corefHandler: CorefHandler,
-  attachmentHandler: AttachmentHandler
+  attachmentHandler: AttachmentHandler,
+  eidosSentenceClassifier: EidosSentenceClassifier
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = finders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
@@ -65,6 +69,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
   var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
   var corefHandlerOpt: Option[CorefHandler] = None
   var attachmentHandlerOpt: Option[AttachmentHandler] = None
+  var eidosSentenceClassifierOpt: Option[EidosSentenceClassifier] = None
 
   var useTimer = false
 
@@ -109,7 +114,6 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       val preComponentLoaders = Seq(
         new ComponentLoader("Processors", {
           EidosComponentsBuilder.logger.info("Loading processor...")
-
           procOpt = Some(EidosProcessor(language, cutoff = 150))
         })
       )
@@ -126,12 +130,13 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       Seq(
         new ComponentLoader("OntologyHandler", {
           ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, tagSet))
+          eidosSentenceClassifierOpt = Some(new EidosSentenceClassifier(SentenceClassifier.fromConfig(config[Config]("sentenceClassifier"), language, ontologyHandlerOpt.get)))
         }),
         new ComponentLoader("ProcessorsPrimer", {
           val eidosProcessor = procOpt.get
           val tokenizedDoc = eidosProcessor.mkDocument("This is a test.", keepText = true)
 
-          if (eidosProcessor.language == "english")
+          if (eidosProcessor.language == Language.ENGLISH)
             eidosProcessor.annotate(tokenizedDoc)
         }),
         new ComponentLoader("NegationHandler", { negationHandlerOpt = Some(NegationHandler(language)) })
@@ -180,7 +185,8 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
       nestedArgumentExpanderOpt.get,
       adjectiveGrounderOpt.get,
       corefHandlerOpt.get,
-      attachmentHandlerOpt.get
+      attachmentHandlerOpt.get,
+      eidosSentenceClassifierOpt.get
     )
   }
 }

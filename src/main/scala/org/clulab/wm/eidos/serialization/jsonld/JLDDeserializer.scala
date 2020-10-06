@@ -38,6 +38,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.AdjectiveGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases
@@ -75,7 +76,8 @@ class IdAndSentence(id: String, sentence: Sentence) extends IdAndValue[Sentence]
 
 case class SentencesSpec(sentences: Array[Sentence], sentenceMap: Map[String, Int],
     timexes: Array[Seq[TimEx]], timexMap: Map[String, TimEx],
-    geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID])
+    geolocs: Array[Seq[GeoPhraseID]], geolocMap: Map[String, GeoPhraseID],
+    relevanceOpts: Array[Option[Float]])
 
 class IdAndDocument(id: String, document: Document) extends IdAndValue(id, document)
 
@@ -84,7 +86,7 @@ case class DocumentSpec(idAndDocument: IdAndDocument, idAndDctOpt: Option[IdAndD
 class IdAndMention(id: String, mention: Mention) extends IdAndValue[Mention](id,mention)
 
 case class Extraction(id: String, extractionType: String, extractionSubtype: String, labels: List[String],
-    foundBy: String, canonicalNameOpt: Option[String], ontologyGroundingsOpt:  Option[OntologyAliases.OntologyGroundings],
+    foundBy: String, canonicalNameOpt: Option[String], classificationOpt: Option[Float], ontologyGroundingsOpt:  Option[OntologyAliases.OntologyGroundings],
     provenance: Provenance, triggerProvenanceOpt: Option[Provenance], argumentMap: Map[String, Seq[String]])
 
 object JLDDeserializer {
@@ -226,6 +228,7 @@ class JLDDeserializer {
     var timexMap: Map[String, TimEx] = Map.empty
     var geolocs: List[Seq[GeoPhraseID]] = List.empty
     var geolocMap: Map[String, GeoPhraseID] = Map.empty
+    var relevanceOpts: List[Option[Float]] = List.empty
     val sentencesOpt = sentencesValue.extractOpt[JArray].map(_.arr)
     val idsAndSentences = sentencesOpt.map { sentences => sentences.map { sentenceValue: JValue =>
       requireType(sentenceValue, JLDSentence.typename)
@@ -259,7 +262,9 @@ class JLDDeserializer {
       geolocs = geolocs :+ idsAndGeolocs.map(_.value)
       geolocMap = geolocMap ++ idsAndGeolocs.map { idAndGeoloc => idAndGeoloc.id -> idAndGeoloc.value }
 
-      // IntelliJ doesn't like these, but the compiler is OK with them.
+      val relevanceOpt = (sentenceValue \ "relevance").extractOpt[Float]
+      relevanceOpts = relevanceOpts :+ relevanceOpt
+
       val startOffsets: Array[Int] = idsAndWordSpecs.map(_.value.startOffset)
       val endOffsets: Array[Int] = idsAndWordSpecs.map(_.value.endOffset)
       val raw = mkRaw(idsAndWordSpecs, documentText)
@@ -279,7 +284,7 @@ class JLDDeserializer {
     // This is because Mention only uses index of sentence in document, not reference to Sentence itself.
     val sentenceMap = idsAndSentences.indices.map { index => idsAndSentences(index).id -> index }.toMap
 
-    SentencesSpec(sentences, sentenceMap, timexes.toArray, timexMap, geolocs.toArray, geolocMap)
+    SentencesSpec(sentences, sentenceMap, timexes.toArray, timexMap, geolocs.toArray, geolocMap, relevanceOpts.toArray)
   }
 
   def deserializeInterval(intervalValue: JValue, offset: Int, inclusiveEnd: Boolean): Interval = {
@@ -349,6 +354,7 @@ class JLDDeserializer {
     locationOpt.foreach { location =>
       LocationDocumentAttachment.setLocation(document, location)
     }
+    RelevanceDocumentAttachment.setRelevanceOpt(document, sentencesSpec.relevanceOpts)
 
     val idAndDocument = new IdAndDocument(id, document)
     DocumentSpec(idAndDocument, idAndDctOpt, sentencesSpec)
@@ -395,17 +401,16 @@ class JLDDeserializer {
     val extractionSubtype = (extractionValue \ "subtype").extract[String]
     val labels = (extractionValue \ "labels").extract[List[String]]
     val foundBy = (extractionValue \ "rule").extract[String]
-
     val canonicalNameOpt = (extractionValue \ "canonicalName").extractOpt[String]
+    val classificationOpt = (extractionValue \ "relevance").extractOpt[Float]
     val ontologyGroundingsOpt = (extractionValue \ "groundings").extractOpt[JArray].map { jArray =>
       deserializeGroundings(jArray)
     }
-
     val provenance = deserializeProvenance((extractionValue \ "provenance").extractOpt[JValue], documentMap, documentSentenceMap).get
     val triggerProvenanceOpt = deserializeTrigger((extractionValue \ "trigger").extractOpt[JValue], documentMap, documentSentenceMap)
     val argumentMap = deserializeArguments((extractionValue \ "arguments").extractOpt[JValue])
 
-    Extraction(extractionId, extractionType, extractionSubtype, labels, foundBy, canonicalNameOpt,
+    Extraction(extractionId, extractionType, extractionSubtype, labels, foundBy, canonicalNameOpt, classificationOpt,
         ontologyGroundingsOpt, provenance, triggerProvenanceOpt, argumentMap)
   }
 
@@ -801,6 +806,8 @@ class JLDDeserializer {
       extractionOpt.foreach { extraction =>
         extraction.canonicalNameOpt.foreach { canonicalName => eidosMention.canonicalName = canonicalName }
         extraction.ontologyGroundingsOpt.foreach { ontologyGroundings => eidosMention.grounding = ontologyGroundings }
+        // It is done this way in case the default value already in the EidosMention has been changed.
+        extraction.classificationOpt.foreach { classification => eidosMention.classificationOpt = Some(classification) }
       }
     }
 

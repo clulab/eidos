@@ -1,12 +1,282 @@
 ---
-"7909807":
-  lean:
+early: -1
+preamture: -1
+late: 1
+delayed: 1
+---
+triggers:
+  - afrasa
+  - belg
+  - belgi
+  - dada
+  - deyr
+  - gana
+  - gu
+  - hagaya
+  - heys
+  - karma
+  - keren
+  - kremt
+  - kremti
+  - meher
+  - season
+  - sugum
+---
+'337996': # Ethiopia
+  meher:
+    end: 9
+    start: 6
+  long rainy:
+    end: 9
+    start: 6
+  belg:
+    end: 5
     start: 3
-    end: 6
-  rainy:
+  short rainy:
+    end: 5
+    start: 3
+  planting:
+    end: 9
+    start: 6
+  harvest:
+    end: 12
+    start: 9
+  dry:
+    end: 3
+    start: 1
+'444179': # Afar
+  belg:
+    end: 5
     start: 4
-    end: 7
-"8909807":
+  crop:
+    end: 1
+    start: 6
+  harvest:
+    end: 1
+    start: 9
+  hunger:
+    end: 4
+    start: 1
+  karma:
+    end: 9
+    start: 6
+  kremt:
+    end: 9
+    start: 6
   lean:
-    start: 3
+    end: 3
+    start: 1
+  long rainy:
+    end: 9
+    start: 6
+  meher:
+    end: 9
+    start: 6
+  planting:
+    end: 9
+    start: 6
+  short rainy:
+    end: 5
+    start: 4
+  sugum:
+    end: 5
+    start: 4
+'444180': # Amhara
+  belg:
+    end: 5
+    start: 4
+  crop:
+    end: 1
+    start: 6
+  harvest:
+    end: 1
+    start: 9
+  hunger:
+    end: 10
+    start: 6
+  kremt:
+    end: 9
+    start: 6
+  lean:
+    end: 10
+    start: 6
+  long rainy:
+    end: 9
+    start: 6
+  meher:
+    end: 9
+    start: 6
+  planting:
+    end: 9
+    start: 6
+  short rainy:
+    end: 5
+    start: 4
+'444181': # Benishangul
+  crop:
+    end: 1
+    start: 6
+  harvest:
+    end: 1
+    start: 9
+  hunger:
+    end: 3
+    start: 1
+  kremt:
+    end: 10
+    start: 6
+  lean:
+    end: 3
+    start: 12
+  meher:
+    end: 10
+    start: 6
+  planting:
+    end: 9
+    start: 6
+  rainy:
+    end: 10
+    start: 6
+'444183': # Gambela
+  crop:
+    end: 1
+    start: 6
+  harvest:
+    end: 1
+    start: 9
+  hunger:
     end: 6
+    start: 2
+  kremt:
+    end: 10
+    start: 6
+  lean:
+    end: 6
+    start: 2
+  meher:
+    end: 10
+    start: 6
+  planting:
+    end: 9
+    start: 6
+  rainy:
+    end: 10
+    start: 6
+'444185': # Oromia
+  belg:
+    end: 5
+    start: 4
+  crop:
+    end: 8
+    start: 2
+  gana:
+    end: 5
+    start: 4
+  hagaya:
+    end: 11
+    start: 10
+  harvest:
+    end: 8
+    start: 4
+  hunger:
+    end: 4
+    start: 1
+  lean:
+    end: 4
+    start: 1
+  planting:
+    end: 4
+    start: 2
+  rainy:
+    end: 5
+    start: 4
+'444186': # Somali
+  belg:
+    end: 5
+    start: 4
+  crop:
+    end: 8
+    start: 2
+  deyr:
+    end: 11
+    start: 10
+  gu:
+    end: 5
+    start: 4
+  harvest:
+    end: 8
+    start: 4
+  hunger:
+    end: 4
+    start: 1
+  lean:
+    end: 4
+    start: 1
+  planting:
+    end: 4
+    start: 2
+  rainy:
+    end: 5
+    start: 4
+'444187': # Tigray
+  belg:
+    end: 5
+    start: 4
+  belgi:
+    end: 5
+    start: 4
+  crop:
+    end: 1
+    start: 6
+  harvest:
+    end: 1
+    start: 9
+  hunger:
+    end: 10
+    start: 6
+  kremt:
+    end: 9
+    start: 6
+  kremti:
+    end: 9
+    start: 6
+  lean:
+    end: 10
+    start: 6
+  long rainy:
+    end: 9
+    start: 6
+  meher:
+    end: 9
+    start: 6
+  planting:
+    end: 9
+    start: 6
+  short rainy:
+    end: 5
+    start: 4
+'444188': # SNNPR
+  belg:
+    end: 10
+    start: 6
+  crop:
+    end: 1
+    start: 6
+  harvest:
+    end: 1
+    start: 9
+  hunger:
+    end: 6
+    start: 2
+  kremt:
+    end: 10
+    start: 6
+  lean:
+    end: 6
+    start: 2
+  planting:
+    end: 9
+    start: 6
+  rainy:
+    end: 10
+    start: 6
