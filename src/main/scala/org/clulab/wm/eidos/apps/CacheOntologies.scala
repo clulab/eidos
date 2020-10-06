@@ -6,7 +6,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 import ai.lum.common.ConfigUtils._
-import org.clulab.embeddings.word2vec.CompactWord2Vec
+import org.clulab.embeddings.{CompactWordEmbeddingMap => CompactWord2Vec}
 import org.clulab.geonorm.GeoNamesIndex
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder

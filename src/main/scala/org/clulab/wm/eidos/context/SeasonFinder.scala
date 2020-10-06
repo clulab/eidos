@@ -13,83 +13,171 @@ import org.clulab.wm.eidos.attachments.{Location => LocationAttachment, Time => 
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
 
+import scala.math.max
 import scala.collection.JavaConverters._
 
 
+case class SeasonMention(firstToken: Int, lastToken: Int, season: Map[String, Int], timeInterval: TimeStep)
+
 object SeasonFinder {
 
+  // SeasonFinder needs two data structures:
+  //    - A Set of triggers that are used to find possible season mentions, e.g. "season", "meher"
+  //    - A Map (key = GeoNameID) of Maps (key = season type) of Maps (key = star month & end month). For example,
+  //      the planting season in Afar starts in June and ends in September:
+  //          * "444179" -> "planting" -> ("start" -> 6, "end" -> 9)
   def fromConfig(config: Config): SeasonFinder = {
     val yaml = new Yaml()
     val seasonDBPath: String = config[String]("seasonsDBPath")
     val seasonDBTxt = getTextFromResource(seasonDBPath)
-    val seasonJavaMap = yaml.load(seasonDBTxt).asInstanceOf[java.util.Map[String, java.util.Map[String, java.util.Map[String, Int]]]]
-    val seasonMap = seasonJavaMap.asScala.mapValues(_.asScala.mapValues(_.asScala.toMap).toMap).toMap
-    val seasonModifiersPath: String = config[String]("seasonModifiersPath")
-    val seasonModifiersTxt = getTextFromResource(seasonModifiersPath)
-    val seasonModifiersJavaMap = yaml.load(seasonModifiersTxt).asInstanceOf[java.util.Map[String, Int]]
+    val yamlDB = yaml.loadAll(seasonDBTxt).iterator()
+    val seasonModifiersJavaMap = yamlDB.next().asInstanceOf[java.util.Map[String, Int]]
     val seasonModifiersMap = seasonModifiersJavaMap.asScala.toMap
-    new SeasonFinder(seasonMap, seasonModifiersMap)
+    val seasonTriggersJavaList = yamlDB.next().asInstanceOf[java.util.Map[String, java.util.ArrayList[String]]]
+    val seasonTriggersSet = seasonTriggersJavaList.get("triggers").asScala.toSet
+    val seasonJavaMap = yamlDB.next().asInstanceOf[java.util.Map[String, java.util.Map[String, java.util.Map[String, Int]]]]
+    val seasonMap = seasonJavaMap.asScala.mapValues(_.asScala.mapValues(_.asScala.toMap).toMap).toMap
+    new SeasonFinder(seasonMap, seasonTriggersSet, seasonModifiersMap)
   }
 }
 
 
-class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], modifierMap: Map[String, Int]) extends Finder{
+class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], triggers: Set[String], modifierMap: Map[String, Int]) extends Finder{
 
-  // val modifierMap = Map("early" -> -1, "late" -> 1)
+  private def timeFilter(mention: Mention): Boolean = {
+    mention.label == "Time" && (mention.attachments.head match {
+      case attachment: TimeAttachment => attachment.interval.intervals.nonEmpty
+      case _ => false
+    })
+  }
 
-  private def closestMention(sentIdx: Int, sentSize: Int, firstTokenIdx: Int, secondTokenIdx: Int, initialState: State, label: String): Option[Mention] = {
-    val previousMentions = initialState.mentionsFor(sentIdx, 0 to firstTokenIdx, label).map(m => (firstTokenIdx - m.tokenInterval.start, m))
-    val followingMentions = initialState.mentionsFor(sentIdx, secondTokenIdx + 1 to sentSize, label).map(m => (m.tokenInterval.start - secondTokenIdx, m))
-    val sortedMentions = (previousMentions ++ followingMentions).sortBy(_._1).map(_._2)
-    sortedMentions.headOption
+  private def geoFilter(mention: Mention): Boolean = {
+    mention.label == "Location" && (mention.attachments.head match {
+      case attachment: LocationAttachment => attachment.geoPhraseID.geonameID.exists(seasonMap.contains)
+      case _ => false
+    })
+  }
+
+  // This function is used to filter out mentions with no Time or Location attachments.
+  private def filterMentions(distanceAndMention: (Int, Mention)): Boolean = {
+    val mention = distanceAndMention._2
+
+    // The two filters below can assume mention.attachments.head.
+    mention.attachments.nonEmpty && (timeFilter(mention) || geoFilter(mention))
+  }
+
+  private def createMention(seasonMatch: (String, Int), sentIdx: Int, lemmas: Array[String], initialState: State): Option[SeasonMention] = {
+    val seasonTrigger = seasonMatch._1
+    val seasonTokenIdx = seasonMatch._2
+    val sentSize = lemmas.length
+
+    // Take all the mentions before and after the season trigger in the same sentence and all the mentions
+    // in the previous 5 sentences. Sort them by their proximity to the trigger prioritizing same sentence:
+    //    - Mentions in same sentence: Distance in tokens to the trigger
+    //    - Mentions in previous sentences: Just their index in the reverse list + trigger's sentence length
+    val previousMentions = initialState.mentionsFor(sentIdx, 0 until seasonTokenIdx).map(m => (seasonTokenIdx - m.tokenInterval.start, m))
+    val followingMentions = initialState.mentionsFor(sentIdx, seasonTokenIdx + 1 until sentSize).map(m => (m.tokenInterval.start - seasonTokenIdx, m))
+    val previousSentencesMentions = (max(0, sentIdx - 5) until sentIdx).reverse.flatMap(initialState.mentionsFor).zipWithIndex.map(m => (sentSize + m._2, m._1))
+    val sortedMentions = (previousMentions ++ followingMentions ++ previousSentencesMentions).filter(filterMentions).sortBy(_._1).map(_._2)
+
+    // Find and get the closest normalized geonameID.
+    val geonameIDOpt: Option[String] = sortedMentions.find(geoFilter)
+        .map(_.attachments.head.asInstanceOf[LocationAttachment].geoPhraseID.geonameID.get)
+    // Find and get the closest timeStep.
+    val timeStepOpt: Option[TimeStep] = sortedMentions.find(timeFilter)
+        .map(_.attachments.head.asInstanceOf[TimeAttachment].interval.intervals.head)
+
+    // If we find both Location and Time normalized create a SeasonMention if the season type is in the
+    // seasons Map for that Location. SeasonMention is created with the first and last tokens
+    // of the mention, the starting and ending months of the season according to the seasons Map, and
+    // the timeInterval of Time that will be used as reference to normalize the season mention.
+    // The season type if checked with following priority:
+    //    1- The trigger is also the type (Uni-gram season expression), e.g. "meher"
+    //    2- Long format type (Tri-gram season expression), e.g. "short rainy season"
+    //    3- Short format type (Bi-gram season expression), e.g. "rainy season"
+    if (geonameIDOpt.isDefined && timeStepOpt.isDefined) {
+      val season = seasonMap(geonameIDOpt.get)
+      val timeStep = timeStepOpt.get
+      seasonTrigger match {
+        case trigger if season.contains(trigger) =>
+          Some(SeasonMention(seasonTokenIdx, seasonTokenIdx, season(trigger), timeStep))
+        case _ if seasonTokenIdx > 0 =>
+          val seasonType = lemmas(seasonTokenIdx - 1)
+          lemmas.lift(seasonTokenIdx - 2) match {
+            case Some(lemma) if season.contains(lemma + " " + seasonType) =>
+              val seasonLongType = lemma + " " + seasonType
+              Some(SeasonMention(seasonTokenIdx - 2, seasonTokenIdx, season(seasonLongType), timeStep))
+            case _ if season.contains(seasonType) =>
+              Some(SeasonMention(seasonTokenIdx - 1, seasonTokenIdx, season(seasonType), timeStep))
+            case _ => None
+          }
+        case _ => None
+      }
+    } else {
+      None
+    }
   }
 
   private def findModifier(sentence: Sentence, tokenIdx: Int): Option[Int] = {
-    sentence.dependencies.get.allEdges.map{
-      case (head, dependant, edge) if edge.matches("a(dv)?mod") && modifierMap.contains(sentence.lemmas.get(dependant)) &&
-        (head == tokenIdx || sentence.dependencies.get.outgoingEdges(head).map(_._1).contains(tokenIdx)) => Some(dependant)
-      case _ => None
-    }.find(_.isDefined).get
+    val incomingHeads = sentence.dependencies.get.incomingEdges(tokenIdx).map(_._1)
+    // Look for patterns like "late <- amod <- season" or "late <- amod <- start -> season"
+    val modifiers = for (
+      (head, dependant, edge) <- sentence.dependencies.get.allEdges
+      if edge.matches("a(dv)?mod")
+      if head == tokenIdx || incomingHeads.contains(head)
+      if modifierMap.contains(sentence.lemmas.get(dependant))
+    ) yield {
+      dependant
+    }
+    modifiers.headOption
   }
 
   def find(doc: Document, initialState: State): Seq[Mention] = {
     val Some(text) = doc.text // Document must have a text.
-    val mentions = for {(sentence, sentenceIndex) <- doc.sentences.zipWithIndex
-                        matches = sentence.lemmas.get.zipWithIndex.iterator.sliding(2, 1).filter(_(1)._1 == "season")
-                        m <- matches
-                        firstTokenIdx = m.head._2
-                        secondTokenIdx = m.last._2
-                        seasonName = m.head._1
-                        geoLocation <- closestMention(sentenceIndex, sentence.size, firstTokenIdx, secondTokenIdx, initialState, "Location")
-                        geoLocationID = geoLocation.attachments.head.asInstanceOf[LocationAttachment].geoPhraseID.geonameID.get
-                        timex <- closestMention(sentenceIndex, sentence.size, firstTokenIdx, secondTokenIdx, initialState, "Time")
-                        timeInterval = timex.attachments.head.asInstanceOf[TimeAttachment].interval.intervals.headOption
-                        if seasonMap(geoLocationID).contains(seasonName) && timeInterval.isDefined
-    } yield {
-      val seasonStartMonth = seasonMap(geoLocationID)(seasonName)("start")
-      val seasonEndMonth = seasonMap(geoLocationID)(seasonName)("end")
+    // For every season trigger found in text, try to create a SeasonMention and if it is defined
+    // normalize it and create a TimeAttachment.
+    val mentions = for {
+      (sentence, sentenceIndex) <- doc.sentences.zipWithIndex
+      lemmas = sentence.lemmas.get
+      m <- lemmas.zipWithIndex.filter(s => triggers.contains(s._1))
+      seasonMentionOpt = createMention(m, sentenceIndex, lemmas, initialState)
+      if seasonMentionOpt.isDefined
+      seasonMention = seasonMentionOpt.get
+     } yield {
+      val seasonStartMonth = seasonMention.season("start")
+      val seasonEndMonth = seasonMention.season("end")
 
-      val modifierTokenIdx = findModifier(sentence, secondTokenIdx)
-      val (modifier, seasonStartOffset, seasonEndOffset) = modifierTokenIdx match {
+      // Look for a modifier in the expression context, get the offset span and
+      // the number of months (shiftValue) to add/subtract to/from the time interval
+      val modifierTokenIdx = findModifier(sentence, seasonMention.lastToken)
+      val (modifierShift, seasonStartOffset, seasonEndOffset) = modifierTokenIdx match {
         case Some(tokenIdx) =>
-          val firstExtendedIdx = if (tokenIdx < firstTokenIdx) tokenIdx else firstTokenIdx
-          val lastExtendedIdx = if (tokenIdx > secondTokenIdx) tokenIdx else secondTokenIdx
-          (modifierMap.getOrElse(sentence.lemmas.get(tokenIdx), 0), sentence.startOffsets(firstExtendedIdx), sentence.endOffsets(lastExtendedIdx))
-        case None => (0, sentence.startOffsets(firstTokenIdx), sentence.endOffsets(secondTokenIdx))
+          val firstExtendedIdx = if (tokenIdx < seasonMention.firstToken) tokenIdx else seasonMention.firstToken
+          val lastExtendedIdx = if (tokenIdx > seasonMention.lastToken) tokenIdx else seasonMention.lastToken
+          val shiftValue = modifierMap(sentence.lemmas.get(tokenIdx))
+          (shiftValue, sentence.startOffsets(firstExtendedIdx), sentence.endOffsets(lastExtendedIdx))
+        case None =>
+          (0, sentence.startOffsets(seasonMention.firstToken), sentence.endOffsets(seasonMention.lastToken))
       }
 
+      // TextInterval for the TimEx
       val seasonTextInterval = TextInterval(seasonStartOffset, seasonEndOffset)
       val seasonText = text.substring(seasonStartOffset, seasonEndOffset)
 
-      val yearInterval = Year(timeInterval.head.startDate.getYear)
+      // Normalize the season using the Year of the Time mention found in closestMention as reference.
+      // Create a TimEx for this season.
+      val yearInterval = Year(seasonMention.timeInterval.startDate.getYear)
       val startInterval = ThisRI(yearInterval, RepeatingField(MONTH_OF_YEAR, seasonStartMonth))
       val endInterval = ThisRI(yearInterval, RepeatingField(MONTH_OF_YEAR, seasonEndMonth))
       val seasonInterval = Between(startInterval, endInterval, startIncluded = true, endIncluded = true)
-      val timeSteps: Seq[TimeStep] = Seq(TimeStep (seasonInterval.start.plusMonths(modifier), seasonInterval.end.plusMonths(modifier)))
+      val seasonStart = seasonInterval.start.plusMonths(modifierShift)
+      val seasonEnd = seasonInterval.end.plusMonths(modifierShift)
+      val timeSteps: Seq[TimeStep] = Seq(TimeStep (seasonStart, seasonEnd))
       val attachment = TimEx(seasonTextInterval, timeSteps, seasonText)
 
-      val wordInterval = TextInterval(firstTokenIdx, secondTokenIdx + 1)
-      // create the Mention for this time expression
+      // TextInterval for the TextBoundMention
+      val wordInterval = TextInterval(seasonMention.firstToken, seasonMention.lastToken + 1)
+      // create the Mention for this season expression
       new TextBoundMention(
         Seq("Time"),
         wordInterval,

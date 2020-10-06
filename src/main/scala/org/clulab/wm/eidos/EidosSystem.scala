@@ -1,14 +1,17 @@
 package org.clulab.wm.eidos
 
 import com.typesafe.config.{Config, ConfigFactory}
+
 import org.clulab.odin._
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.utils.Timer
+import org.slf4j.{Logger, LoggerFactory}
+
+import scala.collection.mutable
 
 /**
  * A system for text processing and information extraction
@@ -84,6 +87,16 @@ class EidosSystem(val components: EidosComponents) {
     }),
     new EidosRefiner("AdjectiveGrounder", (annotatedDocument: AnnotatedDocument) => {
       annotatedDocument.allEidosMentions.foreach(_.groundAdjectives(components.adjectiveGrounder))
+      annotatedDocument
+    }),
+    new EidosRefiner("SentenceClassifier", (annotatedDocument: AnnotatedDocument) => {
+      // This maps sentence index to the sentence classification so that sentences aren't classified twice.
+      val cache: mutable.HashMap[Int, Option[Float]] = mutable.HashMap.empty
+
+      annotatedDocument.allEidosMentions.foreach { eidosMention =>
+        eidosMention.classificationOpt = cache.getOrElseUpdate(eidosMention.odinMention.sentence,
+            components.eidosSentenceClassifier.classify(eidosMention.odinMention.sentenceObj))
+      }
       annotatedDocument
     })
   )
@@ -175,7 +188,9 @@ class EidosSystem(val components: EidosComponents) {
   def extractFromDoc(doc: Document, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
     val odinRefiners = mkOdinRefiners(options)
     val eidosRefiners = mkEidosRefiners(options)
+    val relevanceOpts = doc.sentences.map { sent => components.eidosSentenceClassifier.classify(sent) }
 
+    RelevanceDocumentAttachment.setRelevanceOpt(doc, relevanceOpts)
     metadata.attachToDoc(doc)
     extractFromDoc(doc, odinRefiners, eidosRefiners)
   }

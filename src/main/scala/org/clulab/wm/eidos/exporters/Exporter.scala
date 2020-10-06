@@ -1,5 +1,7 @@
 package org.clulab.wm.eidos.exporters
 
+import java.io.PrintWriter
+
 import org.clulab.odin.Attachment
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Decrease
@@ -24,6 +26,15 @@ object Exporter {
       case "serialized" => SerializedExporter(filename)
       case "grounding" => GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
       case "reground" => new RegroundExporter(filename + ".jsonld", reader)
+      case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
+    }
+  }
+
+  // This version is intended for use when all exports are to be output to the same file which has already
+  // been opened and is accessible through the printWriter.
+  def apply(exporterString: String, printWriter: PrintWriter, reader: EidosSystem, groundAs: Seq[String], topN: Int): Exporter = {
+    exporterString match {
+      case "incdec" => new IncDecExporter(printWriter)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }
