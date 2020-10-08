@@ -3,11 +3,11 @@ package org.clulab.wm.eidos
 import java.text.Normalizer
 import java.util.regex.Pattern
 
+import org.clulab.dynet.Utils
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
-import org.clulab.processors.clu.PortugueseCluProcessor
-import org.clulab.processors.clu.SpanishCluProcessor
+import org.clulab.processors.clu.{CluProcessor, PortugueseCluProcessor, SpanishCluProcessor}
 import org.clulab.processors.clu.tokenizer.RawToken
 import org.clulab.processors.clu.tokenizer.SentenceSplitter
 import org.clulab.processors.clu.tokenizer.Tokenizer
@@ -97,6 +97,29 @@ class EidosPortugueseProcessor(val language: String, cutoff: Int) extends Portug
     if (document.sentences.nonEmpty) {
       cheapLemmatize(document)
       tagPartsOfSpeech(document)
+      recognizeNamedEntities(document)
+    }
+    document
+  }
+
+  def getTagSet: TagSet = tagSet
+}
+
+class EidosCluProcessor(val language: String, cutoff: Int) extends CluProcessor
+  with SentencesExtractor with LanguageSpecific {
+  override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  val tagSet = new EnglishTagSet()
+
+  Utils.initializeDyNet()
+
+  // TODO: This should be checked with each update of processors.
+  def extractDocument(text: String): Document = {
+    // This mkDocument will now be subject to all of the EidosProcessor changes.
+    val document = mkDocument(text, keepText = false)
+
+    if (document.sentences.nonEmpty) {
+      tagPartsOfSpeech(document)
+      lemmatize(document)
       recognizeNamedEntities(document)
     }
     document
@@ -319,5 +342,6 @@ object EidosProcessor {
       new EidosEnglishProcessor(language, cutoff)
     case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
     case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
+    case Language.CLU => new EidosCluProcessor(language, cutoff)
   }
 }
