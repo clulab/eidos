@@ -200,6 +200,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |  "@type" : "Sentence",
         |  "@id" : "_:Sentence_1",
         |  "text" : "Contents .",
+        |  "relevance" : 0.5,
         |  "words" : [ {
         |    "@type" : "Word",
         |    "@id" : "_:Word_1",
@@ -312,7 +313,12 @@ class TestJLDDeserializer extends ExtractionTest {
         |  } ]
         |} ]""".stripMargin
       val sentencesValue = parse(json)
-      /*val sentenceSpec =*/ new JLDDeserializer().deserializeSentences(sentencesValue, Some(documentText))
+      val sentenceSpec = new JLDDeserializer().deserializeSentences(sentencesValue, Some(documentText))
+
+      sentenceSpec.relevanceOpts.length should be (2)
+      sentenceSpec.relevanceOpts.head.isDefined should be (true)
+      sentenceSpec.relevanceOpts.head.get should be (0.5f)
+      sentenceSpec.relevanceOpts.tail.head.isDefined should be (false)
     }
 
     it should "deserialize Interval from jsonld" in {
@@ -899,6 +905,8 @@ class TestJLDDeserializer extends ExtractionTest {
 
   // Do not run this last test on Travis, but instead periodically on a real corpus
   // with all options enabled (useGrounding, useTimeNorm, useGeoNorm, etc.)
+  // To do this with relevance checking, flat grounding must be available!
+  // It may need to be changed in ExtractionTest.this to be "eidos" rather than "englishTest".
 //  testTextFiles("../corpora/Doc52/txt")
 //  testJsonldFiles("../jsonldtmp")
 }

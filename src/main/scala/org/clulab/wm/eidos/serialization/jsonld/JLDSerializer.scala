@@ -24,6 +24,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document._
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
+import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
 import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
@@ -863,10 +864,9 @@ object JLDDCT {
 }
 
 class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sentence, timExs: Seq[TimEx],
-    geoPhraseIDs: Seq[GeoPhraseID])
+    geoPhraseIDs: Seq[GeoPhraseID], relevanceOpt: Option[Float])
     extends JLDObject(serializer, JLDSentence.typename, sentence)
 {
-
   protected def getSentenceText(sentence: Sentence): String = getSentenceFragmentText(sentence, 0, sentence.words.length)
 
   // This and the one above are copied almost verbatim from Sentence.scala.  We can't readily
@@ -901,11 +901,14 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     }
     // This is given access to the words because they are nicely in order and no searching need be done.
     val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue)
+    val rawTextOpt = document.text.map(_.substring(sentence.startOffsets.head, sentence.endOffsets.last))
 
     TidyJObject(List(
       serializer.mkType(this),
       serializer.mkId(this),
       "text" -> getSentenceText(sentence),
+      "rawText" -> rawTextOpt,
+      "relevance" -> relevanceOpt,
       JLDWord.plural -> jldWords.map(_.toJObject),
       JLDDependency.plural -> jldGraphMapPair,
       JLDTimex.plural -> timexes,
@@ -927,11 +930,12 @@ class JLDDocument(serializer: JLDSerializer, annotatedDocument: AnnotatedDocumen
     val sentences = annotatedDocument.document.sentences
     val timExs = TimeNormFinder.getTimExs(annotatedDocument.odinMentions, sentences)
     val geoPhraseIDs = GeoNormFinder.getGeoPhraseIDs(annotatedDocument.odinMentions, sentences)
-
+    val relevanceDocumentAttachmentOpt = RelevanceDocumentAttachment.getRelevanceDocumentAttachment(annotatedDocument.document)
     val jldSentences = sentences.zipWithIndex.map { case (sentence, index) =>
-      new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index)).toJObject
+      new JLDSentence(serializer, annotatedDocument.document, sentence, timExs(index), geoPhraseIDs(index),
+          relevanceDocumentAttachmentOpt.map(_.relevanceScores(index))).toJObject
     }.toSeq
-    val jldText = annotatedDocument.document.text.map(text => text)
+    val jldText = annotatedDocument.document.text
     val dctOpt = DctDocumentAttachment.getDct(annotatedDocument.document)
     val jldDCT = dctOpt.map(dct => new JLDDCT(serializer, dct).toJObject)
 
