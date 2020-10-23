@@ -4,8 +4,10 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
+import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.struct.Interval
 import org.clulab.utils.Configured
+import org.clulab.wm.eidos.EidosTokenizer
 import org.clulab.wm.eidos.{EidosProcessor, EidosSystem, SentencesExtractor}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
@@ -193,14 +195,14 @@ class OntologyHandler(
 object OntologyHandler {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  def fromConfig(config: Config = EidosSystem.defaultConfig): OntologyHandler = {
+  def fromConfig(config: Config = EidosSystem.defaultConfig, tokenizer: EidosTokenizer): OntologyHandler = {
     val sentenceExtractor  = EidosProcessor("english", cutoff = 150)
     val tagSet = sentenceExtractor.getTagSet
     val stopwordManager = StopwordManager.fromConfig(config, tagSet)
-    OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet)
+    OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet, tokenizer)
   }
 
-  def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager, tagSet: TagSet): OntologyHandler = {
+  def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager, tagSet: TagSet, tokenizer: EidosTokenizer): OntologyHandler = {
     val canonicalizer = new Canonicalizer(stopwordManager, tagSet)
     val cacheDir: String = config[String]("cacheDir")
     val useCacheForOntologies: Boolean = config[Boolean]("useCacheForOntologies")
@@ -228,7 +230,7 @@ object OntologyHandler {
           val path: String = config[String](ontologyName)
           val domainOntology = DomainHandler.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
               useCacheForOntologies, includeParents)
-          val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
+          val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer, tokenizer)
 
           grounder
         }
