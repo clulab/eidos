@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory
 class CdrText(cdr: JValue) extends EidosText {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-  protected val text: String = (cdr \ "extracted_text").extract[String]
+  protected val text: String = (cdr \ "extracted_text").extractOpt[String].getOrElse("")
   protected val metadata: Metadata = {
     // It would be nice if this threw an exception on bad data.
     // Check whether keys are there at all and throw exception if parsing returns None.
