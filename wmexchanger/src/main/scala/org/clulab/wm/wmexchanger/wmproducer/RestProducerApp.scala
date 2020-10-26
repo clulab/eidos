@@ -146,7 +146,7 @@ object RestProducerApp extends App {
   newCloseableHttpClient(url, username, password).autoClose { closeableHttpClient =>
     val files = FileUtils.findFiles(inputDir, "jsonld")
 
-    files.foreach { file =>
+    files.par.foreach { file =>
       try {
         logger.info(s"Uploading ${file.getName}")
         val storageKey = upload(file, closeableHttpClient, httpHost)
