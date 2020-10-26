@@ -168,6 +168,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   @tailrec
   private def packagePredicate(pred: Int, attachedProperties: Seq[OntologyGrounding], s: SentenceHelper, topN: Option[Int], threshold: Option[Float], predicatesCovered: Set[Int]): PredicateTuple = {
+    println(s"At location A, attachedProperties length is ${attachedProperties.length}.")
     val themes = getThemes(pred, s, backoff = true).sortBy(s.minGraphDistanceToSyntacticRoot)
     // fixme: is THIS a problem? how often are there multiple themes???
     val theme = themes.headOption
@@ -190,6 +191,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     else {
       // If the predicate was a property, it is "demoted" to a process property
       if (theme.nonEmpty) {
+        println(s"At location B, attachedProperties length is ${attachedProperties.length}.")
         packagePredicate(theme.get, attachedProperties ++ Seq(propertyOpt.get), s, topN, threshold, predicatesCovered ++ Set(pred, theme.get))
       } else {
         // property and no theme -- promote the property
