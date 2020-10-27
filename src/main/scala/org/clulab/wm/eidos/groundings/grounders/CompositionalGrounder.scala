@@ -5,11 +5,7 @@ import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.groundings.ConceptEmbedding
-import org.clulab.wm.eidos.groundings.ConceptPatterns
-import org.clulab.wm.eidos.groundings.DomainOntology
-import org.clulab.wm.eidos.groundings.EidosWordToVec
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.Namer
@@ -33,13 +29,13 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
     val property = newOntologyGrounding(strings.flatMap { string => nodesPatternMatched(string, conceptPatternsSeq(CompositionalGrounder.PROPERTY)) }, Some(CompositionalGrounder.PROPERTY))
-    val process = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)), Some(CompositionalGrounder.PROCESS))
-    val concept = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)), Some(CompositionalGrounder.CONCEPT))
+    val process = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)).map(SingleOntologyNodeGrounding(_)), Some(CompositionalGrounder.PROCESS))
+    val concept = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)).map(SingleOntologyNodeGrounding(_)), Some(CompositionalGrounder.CONCEPT))
 
     Seq(property, process, concept)
   }
 
-  override def groundOntology(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
+  override def groundEidosMention(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
     // Do nothing to non-groundableType mentions
     if (!EidosOntologyGrounder.groundableType(mention))
       Seq(newOntologyGrounding())
@@ -71,23 +67,28 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       // Each branch is its own grounding strategy to allow best performance.
       // The groundings of concepts and processes are competing at last, as it gains better performance.
       val propertySimilarities = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)))
-      val processSimilarities = allMentions.flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
+      val processSimilarities = allMentions
+        .flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
+        .map(SingleOntologyNodeGrounding(_))
       val conceptSimilarities = {
         val mentionHeadTagIsNN = mentionHeadOpt.map(m=>m.tags.head.head.startsWith("NN")).getOrElse(false)
         if (!mentionHeadTagIsNN) {
           if (modifierMentions.isEmpty) {
             val posTags = mention.odinMention.tags.getOrElse(Seq.empty)
             w2v.calculateSimilaritiesWeighted(mentionText, posTags, 5, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+              .map(SingleOntologyNodeGrounding(_))
           }
           else
           {
             val allMentionTags = allMentions.flatMap(mention =>mention.tags).flatten
             w2v.calculateSimilaritiesWeighted(allMentionTokens.toArray, allMentionTags, 1, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
+              .map(SingleOntologyNodeGrounding(_))
           }
         }
         else
         {
           allMentions.flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
+            .map(SingleOntologyNodeGrounding(_))
         }
       }
 
@@ -96,12 +97,12 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
 
       // Filtering procedure: let process and concept to compete with each other:
-      def getTopKGrounding(similarities: Seq[(Namer, Float)], branch:String):OntologyGrounding = {
+      def getTopKGrounding(similarities: Seq[SingleOntologyNodeGrounding], branch:String):OntologyGrounding = {
         val goodSimilarities = similarities
-            .filter(_._2 >= effectiveThreshold) // Filter these before sorting!
-            .sortBy(-_._2)
+            .filter(_.score >= effectiveThreshold) // Filter these before sorting!
+            .sortBy(-_.score)
             .take(effectiveTopN)
-            .filter(_._1.branch.get == branch)
+            .filter(_.namer.branch.get == branch)
         newOntologyGrounding(goodSimilarities, Some(branch))
       }
       val goodPropertyGroundings = getTopKGrounding(propertySimilarities, CompositionalGrounder.PROPERTY)

@@ -57,7 +57,7 @@ class TestGrounding extends EnglishTest {
     def split(text: String): Array[String] = text.split(' ')
 
     def groundings(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): OntologyGroundings = {
-      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(mention, topN = groundTopN, threshold = threshold)
+      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundEidosMention(mention, topN = groundTopN, threshold = threshold)
       val groundings = ontologyGroundings.map { ontologyGrounding =>
         val newName = name + ontologyGrounding.branch.map { branch => "/" + branch }.getOrElse("")
 
@@ -69,7 +69,7 @@ class TestGrounding extends EnglishTest {
 
     protected def topGroundingValue(mention: EidosMention, componentName: String): Float = {
       val allGroundings = groundings(mention)
-      val topGrounding = allGroundings(name + "/" + componentName).headOption.get._2
+      val topGrounding = allGroundings(name + "/" + componentName).headOption.get.score
       topGrounding
     }
 
@@ -83,7 +83,7 @@ class TestGrounding extends EnglishTest {
     def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[String] = {
       val allGroundings = groundings(mention, topN, threshold)
       val names = allGroundings.values.flatMap { ontologyGrounding =>
-        ontologyGrounding.grounding.map { grounding => grounding._1.name }
+        ontologyGrounding.grounding.map { grounding => grounding.name }
       }.toSeq
 
       names
@@ -92,7 +92,7 @@ class TestGrounding extends EnglishTest {
     def allGroundingInfo(mention: EidosMention): Seq[(String,Float)] = {
       val allGroundings = groundings(mention)
       val names = allGroundings.values.flatMap { ontologyGrounding =>
-        ontologyGrounding.grounding.map { grounding => (grounding._1.name, grounding._2) }
+        ontologyGrounding.grounding.map { grounding => (grounding.name, grounding.score) }
       }.toSeq
 
       names

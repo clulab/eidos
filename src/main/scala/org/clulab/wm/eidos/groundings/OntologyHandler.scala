@@ -5,6 +5,7 @@ import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
+import org.clulab.utils.Configured
 import org.clulab.wm.eidos.{EidosProcessor, EidosSystem, SentencesExtractor}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
@@ -21,7 +22,9 @@ class OntologyHandler(
   val wordToVec: EidosWordToVec,
   val sentencesExtractor: SentencesExtractor,
   val canonicalizer: Canonicalizer,
-  val includeParents: Boolean
+  val includeParents: Boolean,
+  val topN: Option[Int],
+  val threshold: Option[Float]
 ) {
 
   def ground(eidosMention: EidosMention): Unit = {
@@ -30,7 +33,7 @@ class OntologyHandler(
 
     val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
       val name: String = ontologyGrounder.name
-      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(eidosMention, topN = Option(5), threshold= Option(0.5f))
+      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundEidosMention(eidosMention, topN, threshold)
       val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
         OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
       }
@@ -152,7 +155,7 @@ class OntologyHandler(
 
     def reformat(grounding: OntologyGrounding): Array[(String, Float)] ={
       val topGroundings = grounding.take(topk).toArray
-      topGroundings.map(gr => (gr._1.name, gr._2))
+      topGroundings.map(gr => (gr.name, gr.score))
     }
 
     // FIXME: the original canonicalization needed the attachment words,
@@ -203,13 +206,15 @@ object OntologyHandler {
     val useCacheForOntologies: Boolean = config[Boolean]("useCacheForOntologies")
     val useCacheForW2V: Boolean = config[Boolean]("useCacheForW2V")
     val includeParents: Boolean = config[Boolean]("includeParents")
+    val topN: Option[Int] = config.get[Int]("groundTopN")
+    val threshold: Option[Float] = config.get[Double]("groundThreshold").map(_.toFloat)
     val eidosWordToVec: EidosWordToVec = {
       // This isn't intended to be (re)loadable.  This only happens once.
       OntologyHandler.logger.info("Loading W2V...")
       EidosWordToVec(
         config[Boolean]("useGrounding"),
         config[String]("wordToVecPath"),
-        config[Int]("topKNodeGroundings"),
+        config[Int]("topKNodeGroundings"), //TODO: I don't think the W2V should be the one slicing these if our grounding API takes it as a param
         cacheDir,
         useCacheForW2V
       )
@@ -228,8 +233,8 @@ object OntologyHandler {
           grounder
         }
 
-        new OntologyHandler(ontologyGrounders, eidosWordToVec, proc, canonicalizer, includeParents)
-      case _: FakeWordToVec => new OntologyHandler(Seq.empty, eidosWordToVec, proc, canonicalizer, includeParents)
+        new OntologyHandler(ontologyGrounders, eidosWordToVec, proc, canonicalizer, includeParents, topN, threshold)
+      case _: FakeWordToVec => new OntologyHandler(Seq.empty, eidosWordToVec, proc, canonicalizer, includeParents, topN, threshold)
      case _ => ???
     }
 

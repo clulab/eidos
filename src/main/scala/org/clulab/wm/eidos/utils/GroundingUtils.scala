@@ -1,8 +1,7 @@
 package org.clulab.wm.eidos.utils
 
-import org.clulab.wm.eidos.groundings.OntologyAliases
+import org.clulab.wm.eidos.groundings.{OntologyAliases, OntologyGrounding}
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
-import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 
 object GroundingUtils {
@@ -39,4 +38,10 @@ object GroundingUtils {
 
   def getGroundingsString(mention: EidosMention, namespace: String, topK: Int = 5, delim: String = ", "): String =
       getGroundingsStringOpt(mention, namespace, topK, delim).getOrElse("(namespace unavailable)")
+
+  def noisyOr(values: Seq[Float], scale: Float = 1.0f): Float = {
+    val epsilon = 0.01f
+    val result = 1.0f - values.fold(1.0f)((product, value) => product * (1.0f - (value - epsilon)))
+    result * scale
+  }
 }
