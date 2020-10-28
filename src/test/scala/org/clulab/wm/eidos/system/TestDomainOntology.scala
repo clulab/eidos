@@ -125,6 +125,6 @@ class TestDomainOntology extends Test {
 //  testOntology("topo", "topoFlow ontology", "/topoflow_ontology.yml")
 //  testOntology("mesh", "mesh ontology", "/mesh_ontology.yml")
   testOntology("props", "props ontology", "/un_properties.yml")
-  testOntology("wm", "wm ontology", "/wm_metadata.yml")
-  testOntology("wm_flattened", "wm flattened ontology", "/wm_with_flattened_interventions_metadata.yml")
+  // testOntology("wm", "wm ontology", "/wm_metadata.yml") // deprecated
+  // testOntology("wm_flattened", "wm flattened ontology", "/wm_with_flattened_interventions_metadata.yml") // deprecated
 }

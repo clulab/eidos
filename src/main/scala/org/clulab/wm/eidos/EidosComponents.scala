@@ -3,6 +3,7 @@ package org.clulab.wm.eidos
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.ExtractorEngine
+import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
@@ -129,7 +130,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
 
       Seq(
         new ComponentLoader("OntologyHandler", {
-          ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, tagSet))
+          ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, tagSet, procOpt.get.getTokenizer))
           eidosSentenceClassifierOpt = Some(new EidosSentenceClassifier(SentenceClassifier.fromConfig(config[Config]("sentenceClassifier"), language, ontologyHandlerOpt.get)))
         }),
         new ComponentLoader("ProcessorsPrimer", {

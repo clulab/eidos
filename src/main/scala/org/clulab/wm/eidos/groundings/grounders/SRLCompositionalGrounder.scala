@@ -11,6 +11,8 @@ import org.slf4j.{Logger, LoggerFactory}
 import SRLCompositionalGrounder._
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
+import org.clulab.processors.clu.tokenizer.Tokenizer
+import org.clulab.wm.eidos.EidosTokenizer
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -51,12 +53,15 @@ case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGro
   }
 }
 
-class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)
+class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer)
   extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
   lazy val proc = {
     Utils.initializeDyNet()
-    new CluProcessor()
+    new CluProcessor() {
+      // Reuse the EidosTokenizer from the EidosProcess, but replace its wrapped tokenizer with the localTokenizer.
+      override lazy val tokenizer = SRLCompositionalGrounder.this.tokenizer.copyWithNewTokenizer(localTokenizer)
+    }
   }
 
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
@@ -99,7 +104,24 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     // or else ground them.
     else {
       val reParsed = proc.annotate(mention.odinMention.sentenceObj.getSentenceText)
-      groundSentenceSpan(reParsed.sentences.head, mention.odinMention.start, mention.odinMention.end, attachmentStrings(mention.odinMention), topN, threshold)
+      // The same tokenizer should get the same number of sentences.
+      val oldSentenceLength = 1
+      val newSentenceLength = reParsed.sentences.length
+
+      if (oldSentenceLength == newSentenceLength) {
+        val oldWordsLength = mention.odinMention.sentenceObj.words.length
+        val newWordsLength = reParsed.sentences.head.words.length
+
+        // The same number of words should also be found.  If not, then the token indexes of the one tokenization
+        // will not align with the other tokenization and all further bets are off.  In the worst case, there will
+        // be a bounds error on an index and an exception.
+        if (oldWordsLength == newWordsLength)
+          groundSentenceSpan(reParsed.sentences.head, mention.odinMention.start, mention.odinMention.end, attachmentStrings(mention.odinMention), topN, threshold)
+        else
+          Seq.empty
+      }
+      else
+        Seq.empty
     }
   }
 
