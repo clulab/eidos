@@ -744,7 +744,7 @@ class JLDWord(serializer: JLDSerializer, val document: Document, val sentence: S
 
     val startOffset = sentence.startOffsets(index)
     val endOffset = sentence.endOffsets(index)
-    // This used to use the raw text and not show the processed word.  However, that does not work well
+    // This used to use the rawe text and not show the processed word.  However, that does not work well
     // when we round-trip the data, because the conversion from raw to processed does not take place then.
     // val jldText: Option[String] = document.text.map(text => text.substring(startOffset, endOffset))
     val jldText: Option[String] = Some(sentence.words(index))

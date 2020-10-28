@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings.grounders
 
+import org.clulab.wm.eidos.EidosTokenizer
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, IndividualGrounding, OntologyAliases, OntologyGrounder, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.groundings.OntologyAliases.{MultipleOntologyGrounding, OntologyGroundings}
 import org.clulab.wm.eidos.mentions.EidosMention
@@ -133,10 +134,10 @@ object EidosOntologyGrounder {
     new FlatOntologyGrounder(name, domainOntology, wordToVec, canonicalizer)
   }
 
-  def mkGrounder(ontologyName: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer): OntologyGrounder = {
+  def mkGrounder(ontologyName: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer): OntologyGrounder = {
     ontologyName match {
       //case WM_COMPOSITIONAL_NAMESPACE => new CompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer)
-      case WM_COMPOSITIONAL_NAMESPACE => new SRLCompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer)
+      case WM_COMPOSITIONAL_NAMESPACE => new SRLCompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer, tokenizer)
       case INTERVENTIONS_NAMESPACE => new InterventionGrounder(ontologyName, domainOntology, w2v, canonicalizer)
       case WM_FLAT_NAMESPACE => new InterventionSieveGrounder(ontologyName, domainOntology, w2v, canonicalizer)
       case _ => EidosOntologyGrounder(ontologyName, domainOntology, w2v, canonicalizer)
