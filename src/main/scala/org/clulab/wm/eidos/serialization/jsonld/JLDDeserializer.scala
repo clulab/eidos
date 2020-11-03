@@ -40,10 +40,9 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.AdjectiveGrounding
-import org.clulab.wm.eidos.groundings.OntologyAliases
-import org.clulab.wm.eidos.groundings.OntologyGrounding
-import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
+import org.clulab.wm.eidos.groundings.PredicateGrounding
+import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyAliases, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.PassThruNamer
 import org.json4s._
@@ -517,6 +516,27 @@ class JLDDeserializer {
   }
 
   def deserializeGroundings(groundingsValue: JArray): OntologyAliases.OntologyGroundings = {
+
+    def deserializeSingleOntologyNodeGrounding(value: JValue): SingleOntologyNodeGrounding = {
+      requireType(value, JLDOntologyGrounding.typename)
+      val ontologyConcept = (value \ "ontologyConcept").extract[String]
+      val floatVal = (value \ "value").extract[Double].toFloat
+      val namer = new PassThruNamer(ontologyConcept)
+
+      SingleOntologyNodeGrounding(namer, floatVal)
+    }
+
+    def deserializeOntologyGrounding(jValue: JValue, field: String): OntologyGrounding = {
+      val jArrayOpt = (jValue \ field).extractOpt[JArray]
+      val multipleOntologyGrounding = jArrayOpt.map { jArray =>
+        jArray.arr.map { jValue =>
+          deserializeSingleOntologyNodeGrounding(jValue)
+        }
+      }.getOrElse(List.empty[SingleOntologyNodeGrounding])
+
+      OntologyGrounding(version = None, date = None, grounding = multipleOntologyGrounding)
+    }
+
     val nameAndGroundings = groundingsValue.arr.map { groundingValue =>
       requireType(groundingValue, JLDOntologyGroundings.typename)
       val rawName = (groundingValue \ "name").extract[String]
@@ -533,12 +553,21 @@ class JLDDeserializer {
       }
       val valuesValue = (groundingValue \ "values").extractOpt[JArray].map { valueValue =>
         valueValue.arr.map { value =>
-          requireType(value, JLDOntologyGrounding.typename)
-          val ontologyConcept = (value \ "ontologyConcept").extract[String]
-          val floatVal = (value \ "value").extract[Double].toFloat
-          val namer = new PassThruNamer(ontologyConcept)
+          val typ = (value \ "@type").extract[String]
+          typ match {
+            case JLDOntologyGrounding.typename =>
+              deserializeSingleOntologyNodeGrounding(value)
+            case JLDOntologyPredicateGrounding.typename =>
+              val theme = deserializeOntologyGrounding(value, "theme")
+              val themeProperties = deserializeOntologyGrounding(value, "themeProperties")
+              val themeProcess = deserializeOntologyGrounding(value, "themeProcess")
+              val themeProcessProperties = deserializeOntologyGrounding(value, "themeProcessProperties")
+              val predicates = Set.empty[Int]
+              val predicateTuple = PredicateTuple(theme, themeProperties, themeProcess, themeProcessProperties, predicates)
 
-          (namer, floatVal)
+              PredicateGrounding(predicateTuple)
+            case _ => throw new Exception(s"Unknown grounding type: $typ")
+          }
         }
       }.getOrElse(List.empty)
 

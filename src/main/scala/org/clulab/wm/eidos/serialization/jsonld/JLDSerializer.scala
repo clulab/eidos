@@ -26,8 +26,8 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.AdjectiveGrounding
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
+import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosCrossSentenceEventMention
 import org.clulab.wm.eidos.mentions.EidosCrossSentenceMention
 import org.clulab.wm.eidos.mentions.EidosEventMention
@@ -197,10 +197,34 @@ object JLDOntologyGrounding {
   val plural: String = singular // Mass noun
 }
 
+class JLDOntologyPredicateGrounding(serializer: JLDSerializer, predicateTuple: PredicateTuple, name: String, value: Float, display: String)
+  extends JLDObject(serializer, JLDOntologyPredicateGrounding.typename) {
+
+  override def toJObject: TidyJObject = TidyJObject(List(
+    serializer.mkType(this),
+    "theme" -> new JLDOntologyGroundings(serializer, name, predicateTuple.theme).jldGroundings,
+    "themeProperties" -> new JLDOntologyGroundings(serializer, name, predicateTuple.themeProperties).jldGroundings,
+    "themeProcess" -> new JLDOntologyGroundings(serializer, name, predicateTuple.themeProcess).jldGroundings,
+    "themeProcessProperties" -> new JLDOntologyGroundings(serializer, name, predicateTuple.themeProcessProperties).jldGroundings,
+    "value" -> value,
+    "display" -> display
+  ))
+}
+
+object JLDOntologyPredicateGrounding {
+  val typename = "PredicateGrounding"
+  // These are unused because under Groundings the term "values" is used.
+  val singular = "predicateGrounding"
+  val plural: String = singular // Mass noun
+}
+
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, JLDOntologyGroundings.typename) {
-  val jldGroundings: Seq[JObject] = grounding.grounding.map { case (namer, value) =>
-    new JLDOntologyGrounding(serializer, namer.name, value).toJObject
+  val jldGroundings: Seq[JObject] = grounding.grounding.map {
+    case s: SingleOntologyNodeGrounding =>
+      new JLDOntologyGrounding(serializer, s.name, s.score).toJObject
+    case pred: PredicateGrounding =>
+      new JLDOntologyPredicateGrounding(serializer, pred.predicateTuple, name, pred.score, pred.name).toJObject
   }
 //  val versionOpt = if (name == "wm") Some("a1a6dbee0296bdd2b81a4a751fce17c9ed0a3af8") else None
 
@@ -302,6 +326,7 @@ class JLDContextAttachment(serializer: JLDSerializer, kind: String, contextAttac
 }
 
 // TODO: This format is not documented, nor is it used AFAICT.
+@deprecated("This attachment is deprecated", "08-31-2020")
 class JLDScoredAttachment(serializer: JLDSerializer, kind: String, scoredAttachment: Score)
   extends JLDAttachment(serializer, "Score") {
 

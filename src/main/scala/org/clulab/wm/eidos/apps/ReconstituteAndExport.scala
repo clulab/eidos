@@ -38,7 +38,8 @@ object ReconstituteAndExport extends App with Configured {
     val annotatedDocument = deserializer.deserialize(json).head
     // 3. Export to all desired formats
     exportAs.foreach { format =>
-      Exporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN).export(annotatedDocument)
+      val exporter = Exporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN)
+      exporter.export(annotatedDocument)
     }
   }
 }

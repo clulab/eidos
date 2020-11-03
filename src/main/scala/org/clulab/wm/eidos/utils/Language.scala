@@ -5,4 +5,5 @@ object Language {
   val ENGLISH = "english"
   val SPANISH = "spanish"
   val PORTUGUESE = "portuguese"
+  val CLU = "clu"
 }

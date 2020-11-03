@@ -2,9 +2,12 @@ package org.clulab.wm.eidos.serialization.jsonld
 
 import java.time.LocalDateTime
 
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.timenorm.scate.SimpleInterval
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.DCTime
 import org.clulab.wm.eidos.attachments.Decrease
 import org.clulab.wm.eidos.attachments.Hedging
@@ -23,6 +26,10 @@ import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
+import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
+import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
+import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.PredicateGrounding
 import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DctMap
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentMap
@@ -30,7 +37,9 @@ import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentSentence
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.GeolocMap
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.MentionMap
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.ProvenanceMap
+import org.clulab.wm.eidos.test.TestUtils.ContraptionTest
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidos.test.TestUtils.newEidosSystem
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidos.utils.FileUtils
 import org.json4s.JArray
@@ -654,6 +663,69 @@ class TestJLDDeserializer extends ExtractionTest {
         |} ]""".stripMargin
       val argumentsValue = parse(json).asInstanceOf[JArray]
       /*val argumentMap =*/ new JLDDeserializer().deserializeArguments(Option(argumentsValue))
+    }
+
+    it should "deserialize compositional groundings from jsonld" in {
+      val json = """
+        |[ {
+        |  "@type" : "Groundings",
+        |  "name" : "wm_compositional",
+        |  "version" : "27dea4a3c0665c5c6bdd095e568c1c534d09d1b1",
+        |  "versionDate" : "2020-09-07T05:12:11Z",
+        |  "values" : [ {
+        |	   "@type" : "PredicateGrounding",
+        |	   "theme" : [ {
+        |	     "@type" : "Grounding",
+        |	     "ontologyConcept" : "wm_compositional/concept/service/information/",
+        |	     "value" : 0.5029400587081909
+        |	   }, {
+        |	     "@type" : "Grounding",
+        |	     "ontologyConcept" : "wm_compositional/concept/government/government_program",
+        |	     "value" : 0.49185845255851746
+        |	   }, {
+        |	     "@type" : "Grounding",
+        |	     "ontologyConcept" : "wm_compositional/concept/physical_market",
+        |	     "value" : 0.4598035216331482
+        |	   } ],
+        |	   "value" : 0.4929400682449341,
+        |	   "display" : "THEME: wm_compositional/concept/service/information/"
+        |  }, {
+        |	   "@type" : "PredicateGrounding",
+        |	   "themeProcessProperties" : [ {
+        |	     "@type" : "Grounding",
+        |	     "ontologyConcept" : "wm_compositional/concept/population/density/",
+        |	     "value" : 0.34960877895355225
+        |	   }, {
+        |	     "@type" : "Grounding",
+        |	     "ontologyConcept" : "wm_compositional/concept/migration/returnees",
+        |	     "value" : 0.29021745920181274
+        |	   } ],
+        |	   "value" : 0.3396087884902954,
+        |	   "display" : "THEME: wm_compositional/concept/population/density/"
+        |  } ]
+        |} ]
+        |""".stripMargin
+      val jValue = parse(json).asInstanceOf[JArray]
+      val ontologyGroundings: OntologyGroundings = new JLDDeserializer().deserializeGroundings(jValue)
+
+      ontologyGroundings.size should be (1)
+
+      val ontologyGrounding: OntologyGrounding = ontologyGroundings("wm_compositional")
+      val multipleOntologyGrounding: MultipleOntologyGrounding = ontologyGrounding.grounding
+
+      multipleOntologyGrounding.size should be (2)
+
+      val multipleOntologyGrounding0 = multipleOntologyGrounding(0)
+
+      multipleOntologyGrounding0.isInstanceOf[PredicateGrounding] should be (true)
+      multipleOntologyGrounding0.asInstanceOf[PredicateGrounding].predicateTuple.theme.grounding.size should be (3)
+      multipleOntologyGrounding0.asInstanceOf[PredicateGrounding].predicateTuple.themeProcessProperties.grounding.size should be (0)
+
+      val multipleOntologyGrounding1 = multipleOntologyGrounding(1)
+
+      multipleOntologyGrounding1.isInstanceOf[PredicateGrounding] should be (true)
+      multipleOntologyGrounding1.asInstanceOf[PredicateGrounding].predicateTuple.theme.grounding.size should be (0)
+      multipleOntologyGrounding1.asInstanceOf[PredicateGrounding].predicateTuple.themeProcessProperties.grounding.size should be (2)
     }
 
     it should "deserialize Mention from jsonld" in {
