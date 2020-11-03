@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.exporters
 
-import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.{EidosCluProcessor, EidosSystem}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.PredicateGrounding
 import org.clulab.wm.eidos.utils.Closer._
@@ -27,12 +27,14 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
       pw.println("********************************************")
       val doc = annotatedDocument.document
       for (i <- doc.sentences.indices) {
-        pw.println(s"Sentence $i: ${doc.sentences(i)}.")
+        val clusent = reader.components.proc.asInstanceOf[EidosCluProcessor].cluproc.annotate(doc.sentences(i)
+          .getSentenceText).sentences.head
+        pw.println(s"Sentence $i: ${clusent.getSentenceText}.")
         pw.println("SRLS:")
-        pw.println(doc.sentences(i).semanticRoles.get)
+        pw.println(clusent.enhancedSemanticRoles.get)
         pw.println()
         pw.println("DEPS:")
-        pw.println(doc.sentences(i).dependencies.get)
+        pw.println(clusent.dependencies.get)
         val mentions = annotatedDocument.eidosMentions.filter(_.odinMention.sentence == i)
 
         mentions.filter(_.odinMention matches "Causal").foreach { em =>
@@ -66,8 +68,8 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
                   for (j <- labels.indices) {
                     pw.println(s"\t${labels(j)}")
                     for (g <- slots(j).grounding) {
-                      pw.println(s"  --> grounding ${j}: ${g.name}")
-                      pw.println(s"      score:          ${g.score}")
+                      pw.println(s"    --> grounding ${j}: ${g.name}")
+                      pw.println(s"        score:          ${g.score}")
                       pw.println()
                     }
 
