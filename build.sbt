@@ -41,6 +41,7 @@ libraryDependencies ++= {
     "com.github.jsonld-java"      % "jsonld-java"              % "0.12.0",
     "com.github.WorldModelers"    % "Ontologies"               % "master-SNAPSHOT",
     "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",
+    "com.typesafe.play"          %% "play-json"                % "2.6.7", // match the plug-in
     "org.apache.lucene"           % "lucene-core"              % luceneVer,
     "org.apache.lucene"           % "lucene-analyzers-common"  % luceneVer,
     "org.apache.lucene"           % "lucene-queryparser"       % luceneVer,

@@ -4,17 +4,24 @@ import java.util.{IdentityHashMap, TimeZone}
 import java.time.{LocalDate, LocalDateTime, LocalTime, ZoneId}
 import java.time.format.DateTimeFormatter
 
-import edu.stanford.nlp.time.Timex
 import ai.lum.common.ConfigUtils._
+
 import com.typesafe.config.Config
+
+import edu.stanford.nlp.time.Timex
+
 import org.clulab.anafora.Data
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.struct.{Interval => TextInterval}
-import org.clulab.timenorm.scate._
-import org.clulab.timenorm.scate.{Interval => TimExInterval, Intervals => TimExIntervals}
+import org.clulab.timenorm.scate.AnaforaReader
+import org.clulab.timenorm.scate.SimpleInterval
+import org.clulab.timenorm.scate.UnknownInterval
+import org.clulab.timenorm.scate.{Interval => TimExInterval}
+import org.clulab.timenorm.scate.{Intervals => TimExIntervals}
 import org.clulab.timenorm.scate.TemporalNeuralParser
+import org.clulab.timenorm.scate.TimeExpression
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
@@ -298,7 +305,7 @@ class TimeNormFinderSUTime() extends TimeNormFinder {
   private def normalizeDuration(text: String, timex: String, dct: DCT): Seq[TimeStep] = {
     // The form of the normalized timex must be PNU where N is an integer
     // and U a valid unit: Y (year), M (month), W (week) or D (day)
-    val periodRegex = "^P([0-9]+)(Y|M|W|D)$".r
+    val periodRegex = "^P([0-9]+)([YMWD])$".r
     val periodMatch = periodRegex.findFirstMatchIn(timex)
     val period = periodMatch.map(p => (p.group(1).toInt, p.group(2))).toSeq
     // if pastOperator the interval is: from (dct - N units) to dct
