@@ -4,18 +4,20 @@ import java.time.temporal.ChronoField.MONTH_OF_YEAR
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.yaml.snakeyaml.Yaml
-import org.clulab.timenorm.scate._
+import org.clulab.timenorm.scate.Between
+import org.clulab.timenorm.scate.RepeatingField
+import org.clulab.timenorm.scate.ThisRI
+import org.clulab.timenorm.scate.Year
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.wm.eidos.attachments.{Location => LocationAttachment, Time => TimeAttachment}
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.yaml.snakeyaml.Yaml
 
-import scala.math.max
 import scala.collection.JavaConverters._
-
+import scala.math.max
 
 case class SeasonMention(firstToken: Int, lastToken: Int, season: Map[String, Int], timeInterval: TimeStep)
 
