@@ -31,7 +31,8 @@ object GroundingUtils {
 
   // Get the top k groundings from the desired ontology (identified by namespace: String), with scores.
   def getGroundingsStringOpt(mention: EidosMention, namespace: String, topK: Int = 5, delim: String = ", "): Option[String] = {
-    val groundingOpt = getGroundingOpt(mention, namespace)
+//    val groundingOpt = getGroundingOpt(mention, namespace)
+    val groundingOpt = mention.grounding.headOption.map(_._2)
 
     groundingOpt.map(_.take(topK).mkString(delim))
   }
