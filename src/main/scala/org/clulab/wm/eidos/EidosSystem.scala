@@ -33,7 +33,7 @@ class EidosSystem(val components: EidosComponents) {
   // The "copy constructor" below will take cheap-to-update values from the config, but expensive
   // values from eidosSystem.components, if present  It is the new reload().
   def this(config: Config, eidosSystemOpt: Option[EidosSystem] = None) =
-      this(new EidosComponentsBuilder(EidosSystem.PREFIX).add(config, eidosSystemOpt.map(_.components)).build())
+      this(new EidosComponentsBuilder(config, EidosSystem.PREFIX, eidosSystemOpt.map(_.components)).build())
   def this() = this(EidosSystem.defaultConfig)
   // Python now uses the default, empty constructor above, but the line below remains for documentation purposes.
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
@@ -252,7 +252,7 @@ class EidosRefiner(val name: String, val refine: AnnotatedDocument => AnnotatedD
 object EidosSystem {
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  protected val PREFIX = "EidosSystem"
+  val PREFIX = "EidosSystem"
 
   // Taxonomy relations that should make it to final causal analysis graph
   val CAUSAL_LABEL = "Causal"
