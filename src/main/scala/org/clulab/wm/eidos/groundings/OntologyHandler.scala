@@ -4,11 +4,11 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
-import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.struct.Interval
-import org.clulab.utils.Configured
+import org.clulab.wm.eidos.EidosProcessor
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.EidosTokenizer
-import org.clulab.wm.eidos.{EidosProcessor, EidosSystem, SentencesExtractor}
+import org.clulab.wm.eidos.SentencesExtractor
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder.mkGrounder
@@ -16,7 +16,8 @@ import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTree
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.TagSet
-import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
+import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.utils.StopwordManager
 import org.slf4j.{Logger, LoggerFactory}
 
 class OntologyHandler(
