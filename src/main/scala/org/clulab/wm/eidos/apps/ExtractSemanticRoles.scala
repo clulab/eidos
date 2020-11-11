@@ -11,14 +11,14 @@ object ExtractSemanticRoles extends App {
 
   val files = FileUtils.findFiles(inputDir, "json")
   val processor = new FastNLPProcessorWithSemanticRoles {
-    annotate("This is a test.")
+    annotate("This is a test.") // prime the pump
   }
   val texts = files.map { file =>
     val eidosText = CdrText(file)
     val text = eidosText.getText
     file.getName -> text
   }.toMap
-  val fileNames = files.map(_.getName)
+  val fileNames = texts.keys
 
   while (true) {
     val shuffledNames = Random.shuffle(fileNames)
