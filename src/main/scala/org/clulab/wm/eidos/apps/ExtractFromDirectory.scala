@@ -29,5 +29,4 @@ object ExtractFromDirectory extends App {
       new JLDCorpus(annotatedDocument).serialize(printWriter)
     }
   }
-  Timer.summarize
 }
