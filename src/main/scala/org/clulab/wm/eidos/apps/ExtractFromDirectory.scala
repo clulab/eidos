@@ -6,7 +6,6 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Timer
 
 object ExtractFromDirectory extends App {
   val inputDir = args(0)
