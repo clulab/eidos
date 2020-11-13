@@ -49,7 +49,7 @@ case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, gr
 
   def writeMentions(mentions: Seq[EidosMention], csvWriter: CsvWriter): Unit = {
     val rows = getRows(mentions)
-    rows.foreach(csvWriter.print)
+    rows.foreach(csvWriter.println)
   }
 
   def getRows(mentions: Seq[EidosMention]): Seq[Seq[String]] = {
@@ -99,7 +99,7 @@ case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, gr
       "", // comments
       trigger,
       mention.odinMention.foundBy,
-      negation
+      negation,
     )
   }
 }
