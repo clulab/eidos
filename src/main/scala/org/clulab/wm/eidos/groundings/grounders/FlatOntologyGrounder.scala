@@ -15,6 +15,8 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   def groundEidosMention(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
+      // This assumes it to be highly unlikely that there will be an exact match or pattern match
+      // because otherwise the canonicalNameParts are never used and they shouldn't be calculated.
       val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
       val aggregated = groundPatternsThenEmbeddings(mention.odinMention.text, canonicalNameParts, conceptPatterns, conceptEmbeddings)
       val filtered = filterAndSlice(aggregated, topN, threshold)
