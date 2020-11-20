@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.apps.batch
 import java.nio.file.Files
 
 import org.clulab.wm.eidos.utils.FileEditor
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.StringUtils
 
 object RenameMetaFiles extends App {
   val textDir = args(0)

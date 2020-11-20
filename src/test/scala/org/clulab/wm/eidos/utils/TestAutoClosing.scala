@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.utils
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 
 class TestAutoClosing extends Test {
 

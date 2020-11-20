@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.system
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.{AttachmentHandler, Decrease, EidosAttachment, Increase, Quantification, TriggeredAttachment}
+import org.clulab.wm.eidos.attachments.{AttachmentHandler, Decrease, EidosAttachment, Increase, Quantification}
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
 import org.clulab.wm.eidos.utils.MentionUtils
 

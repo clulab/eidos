@@ -1,9 +1,8 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.processors.clu.tokenizer.RawToken
-import org.clulab.wm.eidos.EidosEnglishProcessor
-import org.clulab.wm.eidos.EidosTokenizer
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidoscommon.{EidosEnglishProcessor, EidosTokenizer}
 
 class TestEidosTokenizer extends EnglishTest {
 

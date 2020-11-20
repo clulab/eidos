@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.extraction
 
 import com.typesafe.scalalogging.LazyLogging
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.utils.TagSet
+import org.clulab.wm.eidoscommon.utils.TagSet
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex

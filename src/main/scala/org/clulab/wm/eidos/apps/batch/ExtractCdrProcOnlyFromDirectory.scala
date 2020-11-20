@@ -5,12 +5,12 @@ import java.io.File
 import org.clulab.processors.Document
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.serialization.json.DocOps
+import org.clulab.wm.eidos.groundings.grounders.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.meta.CdrText
 import org.slf4j.Logger

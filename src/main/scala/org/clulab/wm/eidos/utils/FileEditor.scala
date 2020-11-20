@@ -3,6 +3,8 @@ package org.clulab.wm.eidos.utils
 import java.io.File
 import java.nio.file.Paths
 
+import org.clulab.wm.eidoscommon.utils.StringUtils
+
 class FileEditor(protected var file: File) {
   import FileEditor._
 

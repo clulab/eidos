@@ -4,9 +4,9 @@ import org.clulab.odin.EventMention
 import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Canonicalizer
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Resourcer
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Resourcer
+import org.clulab.wm.eidoscommon.utils.Canonicalizer
 
 class TestOntologyGrounder extends EnglishTest {
 

@@ -7,8 +7,9 @@ import scala.collection.mutable.ListBuffer
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.printMention
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 object ExtractFromFile extends App {
   val inputDir = args(0)
@@ -27,7 +28,7 @@ object ExtractFromFile extends App {
       pw.println(s"Filename: ${filename.getName}")
 
       // keep the EidosMentions that are relevant to the CAG
-      val cagEdgeMentions = annotatedDoc.odinMentions.filter(m => EidosSystem.CAG_EDGES.contains(m.label))
+      val cagEdgeMentions = annotatedDoc.odinMentions.filter(m => EidosParameters.CAG_EDGES.contains(m.label))
       val cagEdgeArguments = cagEdgeMentions.flatMap(mention => mention.arguments.values.flatten.toSeq)
       val eidosMentions = annotatedDoc.eidosMentions.filter(em => ieSystem.components.stopwordManager.isCAGRelevant(em.odinMention, cagEdgeMentions, cagEdgeArguments))
 

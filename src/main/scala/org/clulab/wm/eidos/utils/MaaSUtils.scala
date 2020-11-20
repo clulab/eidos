@@ -3,8 +3,9 @@ package org.clulab.wm.eidos.utils
 import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.apps.OntologyMapper.{mostSimilar, mostSimilarIndicators}
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, DomainOntology, OntologyHandler}
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, OntologyHandler}
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
+import org.clulab.wm.eidoscommon.utils.{Canonicalizer, PassThruNamer}
 import upickle.default._
 import upickle.default.{ReadWriter, macroRW}
 

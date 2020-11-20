@@ -5,13 +5,12 @@ import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.{FileUtils, StopwordManaging, TagSet}
 
-trait StopwordManaging {
-  def containsStopword(stopword: String): Boolean
-  def containsStopwordStrict(stopword: String): Boolean = containsStopword(stopword)
-}
+
 
 class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: TagSet) extends StopwordManaging {
   protected val stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
@@ -42,13 +41,13 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: Ta
           // isn't a stopword
           !containsStopword(lemmas(i)) &&
           // and isn't a stop NER
-          !StopwordManager.STOP_NER.contains(entities(i))
+          !EidosParameters.STOP_NER.contains(entities(i))
     }
   }
 
   def resolvedCoref(mention: Mention, state: State): Boolean = {
     if (CorefHandler.hasCorefToResolve(mention)) {
-      val corefRelations = state.allMentions.filter(m => m.matches(EidosSystem.COREF_LABEL)) // fixme
+      val corefRelations = state.allMentions.filter(m => m.matches(EidosParameters.COREF_LABEL)) // fixme
       corefRelations.exists(cr => cr.arguments.values.toSeq.flatten.contains(mention))
     }
     else false
@@ -88,10 +87,10 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: Ta
 
   def releventEdge(m: Mention, state: State): Boolean = {
     m match {
-      case tb: TextBoundMention => EidosSystem.EXPAND.contains(tb.label)
-      case rm: RelationMention => EidosSystem.EXPAND.contains(rm.label)
-      case em: EventMention => EidosSystem.EXPAND.contains(em.label) && argumentsHaveContent(em, state)
-      case cs: CrossSentenceMention => EidosSystem.EXPAND.contains(cs.label)
+      case tb: TextBoundMention => EidosParameters.EXPAND.contains(tb.label)
+      case rm: RelationMention => EidosParameters.EXPAND.contains(rm.label)
+      case em: EventMention => EidosParameters.EXPAND.contains(em.label) && argumentsHaveContent(em, state)
+      case cs: CrossSentenceMention => EidosParameters.EXPAND.contains(cs.label)
       case _ => throw new UnsupportedClassVersionError()
     }
   }
@@ -109,7 +108,6 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: Ta
 }
 
 object StopwordManager {
-  val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MISC", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERSON", "PLACE", "SET", "TIME")
 
   // maybe use this to get missed Locations/Dates/etc?; not sure if necessary anymore?
   //  val STOP_NER: Set[String] = Set("DURATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "SET")

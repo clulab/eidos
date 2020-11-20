@@ -5,7 +5,8 @@ import java.time.ZonedDateTime
 import org.clulab.wm.eidos.groundings.OntologyAliases._
 import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidoscommon.utils.Namer
+import org.clulab.wm.ontologies.DomainOntology
 
 object OntologyAliases {
 //  type SingleOntologyGrounding = (Namer, Float)

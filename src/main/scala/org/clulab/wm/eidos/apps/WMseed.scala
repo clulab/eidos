@@ -12,7 +12,7 @@ import com.typesafe.config.Config
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 /**
   * Created by ajaynagesh on 5/31/17.

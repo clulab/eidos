@@ -8,7 +8,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidos.utils.Timer
 
 import scala.collection.Seq

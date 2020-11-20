@@ -4,15 +4,14 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
-import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
+import org.clulab.wm.eidoscommon.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology.FastDomainOntologyBuilder
+import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
+import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology
-import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology
+import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.utils.Canonicalizer
 
 import collection.JavaConverters._
 

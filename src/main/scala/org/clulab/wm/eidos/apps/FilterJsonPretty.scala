@@ -3,9 +3,9 @@ package org.clulab.wm.eidos.apps
 import java.io.File
 
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileEditor
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.json4s.DefaultFormats
 import org.json4s.JObject
 import org.json4s.JValue

@@ -1,11 +1,11 @@
-package org.clulab.wm.eidos.groundings
+package org.clulab.wm.ontologies
 
 import java.time.ZonedDateTime
 
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.utils.Canonicalizer
-import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidoscommon.SentencesExtractor
+import org.clulab.wm.eidoscommon.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.utils.Namer
 
 import scala.util.matching.Regex
 

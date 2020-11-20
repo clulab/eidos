@@ -1,15 +1,13 @@
 package org.clulab.wm.eidos.mentions
 
 import org.clulab.odin._
-import org.clulab.wm.eidos.groundings._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.utils.FoundBy
-import org.clulab.wm.eidos.utils.IdentityBagger
-import org.clulab.wm.eidos.utils.IdentityMapper
-import org.clulab.wm.eidos.utils.OdinMention
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounder
+import org.clulab.wm.eidos.utils.{FoundBy, IdentityBagger, IdentityMapper}
+import org.clulab.wm.eidoscommon.utils.Canonicalizer
+import org.slf4j.{Logger, LoggerFactory}
 
 // In order to create this all at once with all OdinMentions that are == being rerouted
 // to those being eq(), the mapping needs to be provided and all values calculated upon
@@ -147,6 +145,7 @@ object EidosMention {
 
     val allEidosMentions = eidosMentionMapper.getValues
     (eidosMentions, allEidosMentions)
+
   }
 
   def findAllByIdentity(surfaceMentions: Seq[EidosMention]): Seq[EidosMention] = {
@@ -154,6 +153,35 @@ object EidosMention {
     // and the underlying Odin mentions are known to be distinct.
     IdentityBagger[EidosMention](surfaceMentions, { eidosMention: EidosMention => eidosMention.getEidosNeighbors }).get
   }
+
+
+  // This is the filtering method for deciding what makes it into the canonical name and what doesn't.
+  def canonicalTokensSimple(canonicalizer: Canonicalizer, odinMention: Mention, excludedWords: Set[String]): Seq[String] = {
+    canonicalizer.canonicalWordsFromSentence(odinMention.sentenceObj, odinMention.tokenInterval, excludedWords)
+  }
+
+  /**
+    * To handle mentions that span multiple sentences, we sort the pieces of the mention and then filter each
+    * to get the tokens that will make it into the canonicalName.
+    */
+  def canonicalNameParts(canonicalizer: Canonicalizer, eidosMention: EidosMention, excludedWords: Set[String]): Array[String] = {
+    // Sentence has been added to account for cross sentence mentions.
+    def lessThan(left: Mention, right: Mention): Boolean =
+      if (left.sentence != right.sentence)
+        left.sentence < right.sentence
+      else if (left.start != right.start)
+        left.start < right.start
+      // This one shouldn't really be necessary.
+      else if (left.end != right.end)
+        left.end < right.end
+      else
+        false // False is needed to preserve order on tie.
+
+    eidosMention.canonicalMentions.sortWith(lessThan).flatMap(canonicalTokensSimple(canonicalizer, _, excludedWords)).toArray
+  }
+
+  def canonicalize(canonicalizer: Canonicalizer, eidosMention: EidosMention, excludedWords: Set[String]): String = canonicalNameParts(canonicalizer, eidosMention, excludedWords).mkString(" ")
+
 }
 
 class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper)

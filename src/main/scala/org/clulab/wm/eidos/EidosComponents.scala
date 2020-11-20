@@ -2,7 +2,7 @@ package org.clulab.wm.eidos
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
+import org.clulab.wm.eidoscommon.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
 import org.clulab.wm.eidos.context.GeoNormFinder
@@ -15,14 +15,12 @@ import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.groundings.AdjectiveGrounder
-import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
-import org.clulab.wm.eidos.utils.Language
-import org.clulab.wm.eidos.utils.Resourcer
+import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, EidosAdjectiveGrounder}
+import org.clulab.wm.eidoscommon.utils.{Language, Resourcer, TagSet}
 import org.clulab.wm.eidos.utils.StopwordManager
-import org.clulab.wm.eidos.utils.TagSet
 import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidoscommon.EidosProcessor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -104,7 +102,7 @@ class EidosComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosCom
   Resourcer.setConfig(config) // This is a hack which initializes a global variable.
 
   val eidosConf: Config = config[Config](eidosSystemPrefix)
-  val language = eidosConf[String]("language")
+  val language: String = eidosConf[String]("language")
   val componentLoaders = new ArrayBuffer[ComponentLoader[_, _]]()
 
   val processorLoader = newComponentLoader("Processors", eidosComponentsOpt.map(_.proc),

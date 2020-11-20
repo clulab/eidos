@@ -2,8 +2,9 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.odin._
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.{EidosAttachment, Negation, TriggeredAttachment}
+import org.clulab.wm.eidos.attachments.{EidosAttachment, Negation}
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidoscommon.utils.Canonicalizer
 
 import scala.collection.mutable.{Set => MutableSet}
 
@@ -82,6 +83,8 @@ object MentionUtils {
         triggerOrMention.startOffset - triggerOrMention.endOffset, isHead = false)
     }
   }
+
+
 
 
 }

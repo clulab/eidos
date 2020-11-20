@@ -6,8 +6,8 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidos.test.TestUtils.Test
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Sourcer
 
 import scala.collection.mutable.ArrayBuffer
 

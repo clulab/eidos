@@ -8,8 +8,8 @@ import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.Test
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 class TestSerialization extends Test {
   val config = this.defaultConfig

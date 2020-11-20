@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidoscommon.utils
 
 trait Namer {
   def name: String // gets the entire name with parts separated by /

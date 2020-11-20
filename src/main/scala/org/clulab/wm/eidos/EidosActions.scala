@@ -10,15 +10,15 @@ import org.clulab.odin._
 import org.clulab.odin.EventMention
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.attachments.{EidosAttachment, _}
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.MentionUtils
-import org.clulab.wm.eidos.utils.TagSet
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.TagSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 
 import scala.util.Try
 
@@ -44,7 +44,7 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
     val expanded = expansionHandler.map(_.expand(mentions, state)).getOrElse(mentions)
 
     // Stitch together causal chains
-    val (causal, nonCausal) = expanded.partition(m => EidosSystem.CAG_EDGES.contains(m.label))
+    val (causal, nonCausal) = expanded.partition(m => EidosParameters.CAG_EDGES.contains(m.label))
     val assembled = createEventChain(causal, "effect", "cause")
 
     // TODO: in the sentence below we stitch together the sequence of cause->effect events

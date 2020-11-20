@@ -9,7 +9,7 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.graph.TestResult.TestResults
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
-import org.clulab.wm.eidos.utils.Language
+import org.clulab.wm.eidoscommon.utils.Language
 
 import scala.collection.JavaConverters._
 import scala.collection.Seq

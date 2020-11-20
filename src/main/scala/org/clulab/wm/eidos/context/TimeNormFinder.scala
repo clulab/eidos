@@ -5,11 +5,8 @@ import java.time.{LocalDate, LocalDateTime, LocalTime, ZoneId}
 import java.time.format.DateTimeFormatter
 
 import ai.lum.common.ConfigUtils._
-
 import com.typesafe.config.Config
-
 import edu.stanford.nlp.time.Timex
-
 import org.clulab.anafora.Data
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
@@ -25,9 +22,9 @@ import org.clulab.timenorm.scate.TimeExpression
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.OdinMention
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidos.mentions.OdinMention
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Sourcer
 
 import scala.collection.JavaConverters._
 import scala.util.Try

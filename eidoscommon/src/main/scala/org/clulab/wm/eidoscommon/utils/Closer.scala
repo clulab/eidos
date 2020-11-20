@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidoscommon.utils
 
 import scala.language.reflectiveCalls
 import scala.util.control.NonFatal

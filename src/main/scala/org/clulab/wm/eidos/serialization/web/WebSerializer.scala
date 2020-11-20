@@ -5,8 +5,8 @@ import org.clulab.processors.Document
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.DomainParams
 import play.api.libs.json._
 

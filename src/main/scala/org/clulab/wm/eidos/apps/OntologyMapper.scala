@@ -3,13 +3,15 @@ package org.clulab.wm.eidos.apps
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.ConfigFactory
 import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
-import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
-import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, PassThruNamer, Sourcer}
+import org.clulab.wm.eidoscommon.EidosProcessor.EidosProcessor
+import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{Canonicalizer, PassThruNamer}
+import org.clulab.wm.ontologies.DomainOntology
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -19,7 +21,7 @@ object OntologyMapper {
   def main(args: Array[String]): Unit = {
     val config = EidosSystem.defaultConfig
     val outputFile = config[String]("apps.ontologymapper.outfile")
-    val topN = config[Int]("apps.groundTopN")
+    val topN: Int = config[Int]("apps.groundTopN")
     val reader = new EidosSystem(config)
 
     mapIndicators(reader, outputFile, topN)

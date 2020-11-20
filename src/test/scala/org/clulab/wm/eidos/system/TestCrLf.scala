@@ -4,9 +4,9 @@ import java.io.File
 import java.io.InputStreamReader
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Sourcer
 
 class TestCrLf extends Test {
   

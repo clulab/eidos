@@ -6,11 +6,7 @@ import org.clulab.odin.Mention
 import org.clulab.odin.RelationMention
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Sentence
-import org.clulab.wm.eidos.attachments.Decrease
-import org.clulab.wm.eidos.attachments.Increase
-import org.clulab.wm.eidos.attachments.NegChange
-import org.clulab.wm.eidos.attachments.PosChange
-import org.clulab.wm.eidos.attachments.Quantification
+import org.clulab.wm.eidos.attachments.{Decrease, Increase, NegChange, PosChange, Quantification}
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import play.api.libs.json.Json

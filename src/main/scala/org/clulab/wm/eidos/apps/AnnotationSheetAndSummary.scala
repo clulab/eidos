@@ -11,8 +11,10 @@ import org.clulab.wm.eidos.{EidosSystem, utils}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.GroundingAnnotationExporter
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
-import org.clulab.wm.eidos.utils.{CsvWriter, FileUtils, FoundBy, ThreadUtils}
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.{FoundBy, ThreadUtils}
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{CsvWriter, FileUtils}
 
 import scala.collection.Seq
 
@@ -75,7 +77,7 @@ object AnnotationSheetAndSummary extends App with Configured {
     // filter the eidos mentions in each to be only relevant ones
     .flatMap{ adOpt =>
       adOpt match {
-        case Some(ad) => reader.components.stopwordManager.relevantMentions(ad).filter(_.label == EidosSystem.CAUSAL_LABEL)
+        case Some(ad) => reader.components.stopwordManager.relevantMentions(ad).filter(_.label == EidosParameters.CAUSAL_LABEL)
         case None => Seq()
       }
     }

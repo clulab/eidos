@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.expansion
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.{Mention, State}
-import org.clulab.wm.eidos.utils.TagSet
+import org.clulab.wm.eidoscommon.utils.TagSet
 
 import scala.util.matching.Regex
 

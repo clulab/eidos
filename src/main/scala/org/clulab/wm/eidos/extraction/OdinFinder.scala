@@ -6,9 +6,9 @@ import org.clulab.odin.{ExtractorEngine, Mention, State}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.EidosActions
 import org.clulab.wm.eidos.expansion.Expander
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Resourcer
-import org.clulab.wm.eidos.utils.TagSet
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Resourcer
+import org.clulab.wm.eidoscommon.utils.TagSet
 
 class OdinFinder(val expanderOpt: Option[Expander], val engine: ExtractorEngine) extends Finder {
 

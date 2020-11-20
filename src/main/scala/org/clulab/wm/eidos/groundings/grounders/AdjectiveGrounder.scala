@@ -1,11 +1,10 @@
-package org.clulab.wm.eidos.groundings
+package org.clulab.wm.eidos.groundings.grounders
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.wm.eidos.Aliases.Quantifier
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
+import org.clulab.wm.eidoscommon.utils.Closer._
 
 case class AdjectiveGrounding(intercept: Option[Double], mu: Option[Double], sigma: Option[Double]) {
   protected def isGrounded: Boolean = intercept.isDefined && mu.isDefined && sigma.isDefined
@@ -77,7 +76,7 @@ object EidosAdjectiveGrounder {
   def apply(quantifierKBFile: String): EidosAdjectiveGrounder = new EidosAdjectiveGrounder(quantifierKBFile)
 
   def fromConfig(config: Config): AdjectiveGrounder = {
-    val useAdjectives = config[Boolean]("useAdjectives")
+    val useAdjectives: Boolean = config[Boolean]("useAdjectives")
 
     if (useAdjectives)
       apply(config.getString("quantifierKBPath"))

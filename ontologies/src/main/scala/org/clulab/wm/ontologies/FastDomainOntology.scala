@@ -1,13 +1,13 @@
-package org.clulab.wm.eidos.groundings.ontologies
+package org.clulab.wm.ontologies
 
 import java.time.ZonedDateTime
 import java.util
 
-import org.clulab.wm.eidos.groundings.DomainOntology
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Namer
-import org.clulab.wm.eidos.utils.TsvReader
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Namer
+import org.clulab.wm.eidoscommon.utils.TsvReader
+import org.clulab.wm.ontologies.DomainOntology
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer

@@ -4,8 +4,8 @@ import java.io.File
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidos.utils.meta.CluText
 
 object ExtractCluFromDirectoryFiltered extends App {

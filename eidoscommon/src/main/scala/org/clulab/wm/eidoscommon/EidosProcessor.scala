@@ -1,25 +1,15 @@
-package org.clulab.wm.eidos
+package org.clulab.wm.eidoscommon
 
 import java.text.Normalizer
 import java.util.regex.Pattern
 
-import org.clulab.processors.Document
-import org.clulab.processors.Processor
-import org.clulab.processors.Sentence
-import org.clulab.processors.clu.PortugueseCluProcessor
-import org.clulab.processors.clu.SpanishCluProcessor
-import org.clulab.processors.clu.tokenizer.RawToken
-import org.clulab.processors.clu.tokenizer.SentenceSplitter
-import org.clulab.processors.clu.tokenizer.Tokenizer
+import org.clulab.processors.clu.tokenizer.{RawToken, SentenceSplitter, Tokenizer}
+import org.clulab.processors.clu.{PortugueseCluProcessor, SpanishCluProcessor}
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
+import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.utils.ScienceUtils
-import org.clulab.wm.eidos.utils.EnglishTagSet
-import org.clulab.wm.eidos.utils.Language
-import org.clulab.wm.eidos.utils.PortugueseTagSet
-import org.clulab.wm.eidos.utils.SpanishTagSet
-import org.clulab.wm.eidos.utils.TagSet
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidoscommon.utils.{EnglishTagSet, Language, PortugueseTagSet, SpanishTagSet, TagSet}
+import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable.ArrayBuffer
 

@@ -6,8 +6,7 @@ import org.clulab.odin.RelationMention
 import org.clulab.odin.State
 import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.attachments.TriggeredAttachment
+import org.clulab.wm.eidos.attachments.{EidosAttachment, TriggeredAttachment}
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

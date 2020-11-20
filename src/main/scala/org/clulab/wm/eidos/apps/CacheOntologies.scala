@@ -9,11 +9,12 @@ import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.{CompactWordEmbeddingMap => CompactWord2Vec}
 import org.clulab.geonorm.GeoNamesIndex
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology.FastDomainOntologyBuilder
+import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
+import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology
-import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology
+import org.clulab.wm.ontologies.DomainOntology
+import org.clulab.wm.ontologies.FullTreeDomainOntology
+import org.clulab.wm.ontologies.HalfTreeDomainOntology
 
 object CacheOntologies extends App {
   val config = EidosSystem.defaultConfig

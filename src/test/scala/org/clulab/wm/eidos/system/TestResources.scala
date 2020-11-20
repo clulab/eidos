@@ -3,9 +3,9 @@ package org.clulab.wm.eidos.system
 import java.io.File
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Language
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.Language
 
 import scala.io.Source
 

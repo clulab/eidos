@@ -149,6 +149,7 @@ developers := List(
 
 lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
+  .dependsOn(ontologies, eidoscommon)
   .settings(
     buildInfoPackage := "org.clulab.wm.eidos",
     // This next line of code results in constantly changing source files which then require
@@ -171,6 +172,11 @@ lazy val webapp = project
 lazy val elasticsearch = project
 
 lazy val wmexchanger = project
+
+lazy val ontologies = project
+  .dependsOn(eidoscommon)
+
+lazy val eidoscommon = project
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {

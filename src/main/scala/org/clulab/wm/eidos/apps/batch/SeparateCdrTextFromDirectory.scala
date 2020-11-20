@@ -2,11 +2,11 @@ package org.clulab.wm.eidos.apps.batch
 
 import java.io.File
 
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.utils.FileEditor
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidos.utils.meta.CluText
+import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.json4s.DefaultFormats
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods

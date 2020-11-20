@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.extraction
 
 import org.clulab.odin.{Mention, TextBoundMention}
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.utils.TagSet
+import org.clulab.wm.eidoscommon.utils.TagSet
 
 import scala.annotation.tailrec
 

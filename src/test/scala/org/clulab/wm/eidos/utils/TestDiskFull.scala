@@ -9,7 +9,7 @@ import java.io.SyncFailedException
 import java.nio.charset.StandardCharsets
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 
 class TestDiskFull extends Test {
 

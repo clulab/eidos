@@ -4,8 +4,11 @@ import ai.lum.common.StringUtils.StringWrapper
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{CsvWriter, FileUtils, MentionUtils}
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidos.utils.MentionUtils
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.CsvWriter
 
 import scala.collection.Seq
 
@@ -43,7 +46,7 @@ case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, gr
   }
 
   def printRows(annotatedDocument: AnnotatedDocument, csvWriter: CsvWriter, reader: EidosSystem): Unit = {
-    val causalMentions = annotatedDocument.eidosMentions.filter(m => m.label == EidosSystem.CAUSAL_LABEL)
+    val causalMentions = annotatedDocument.eidosMentions.filter(m => m.label == EidosParameters.CAUSAL_LABEL)
     writeMentions(causalMentions, csvWriter)
   }
 

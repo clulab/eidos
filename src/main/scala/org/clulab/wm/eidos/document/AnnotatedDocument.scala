@@ -2,8 +2,7 @@ package org.clulab.wm.eidos.document
 
 import org.clulab.odin.Mention
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.OdinMention
+import org.clulab.wm.eidos.mentions.{EidosMention, OdinMention}
 
 // The someEidosMentions are probably "surface" mentions, not all the reachable mentions.
 class AnnotatedDocument(val document: Document, val eidosMentions: Seq[EidosMention], val allEidosMentions: Seq[EidosMention]) {

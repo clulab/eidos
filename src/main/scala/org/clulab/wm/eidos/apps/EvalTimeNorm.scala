@@ -8,8 +8,8 @@ import org.clulab.timenorm.scate.TimeNormScorer.Timex
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.Metadata
-import scala.io.Source
 
+import scala.io.Source
 import collection.JavaConverters._
 
 

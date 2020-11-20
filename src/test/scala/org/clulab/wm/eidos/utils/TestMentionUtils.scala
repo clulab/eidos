@@ -3,12 +3,13 @@ package org.clulab.wm.eidos.utils
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidoscommon.EidosParameters
 
 class TestMentionUtils extends ExtractionTest {
 
   it should "find (pseudo)trigger info from EventMention and its arguments" in {
     val text = "Heavy seasonal rainfall causes severe flooding."
-    val causal = extractMentions(text).filter(_ matches EidosSystem.CAUSAL_LABEL)
+    val causal = extractMentions(text).filter(_ matches EidosParameters.CAUSAL_LABEL)
     causal should have size(1)
 
     val causalTriggerInfo = MentionUtils.synHeadOfMentionOrTrigger(causal.head)
@@ -46,7 +47,7 @@ class TestMentionUtils extends ExtractionTest {
     // Raw text will have "; word, ``.  This can change offsets.
     // Raw text will have n-dash; word, plain dash.  Output the text, not the word.
     val text = "The locality\"s rain\u2013fall, in July, causes severe flooding."
-    val causal = extractMentions(text).filter(_ matches EidosSystem.CAUSAL_LABEL)
+    val causal = extractMentions(text).filter(_ matches EidosParameters.CAUSAL_LABEL)
 
     testTriggerInfo(text, causal, "causes")
     testTriggerInfo(text, causal.head.arguments("cause"), "rain\u2013fall")
