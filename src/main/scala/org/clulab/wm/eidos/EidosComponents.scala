@@ -49,9 +49,11 @@ case class EidosComponents(
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = finders.collectFirst { case f: GeoNormFinder => f }
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
+
   lazy val timeNormFinderOpt: Option[TimeNormFinder] = finders.collectFirst { case f: TimeNormFinder => f }
-  lazy val seasonFinderOpt: Option[SeasonFinder] = finders.collectFirst { case f: SeasonFinder => f }
   lazy val useTimeNorm: Boolean = timeNormFinderOpt.isDefined
+
+  lazy val seasonFinderOpt: Option[SeasonFinder] = finders.collectFirst { case f: SeasonFinder => f }
   lazy val language: String = proc.language
 }
 
