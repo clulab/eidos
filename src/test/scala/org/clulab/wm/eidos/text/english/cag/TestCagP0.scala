@@ -1,7 +1,5 @@
 package org.clulab.wm.eidos.text.english.cag
 
-import CAG._
-
 import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils._
 

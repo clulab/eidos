@@ -1,15 +1,12 @@
 package org.clulab.wm.eidos.text.english.cag
 
-import java.time.ZonedDateTime
-import java.util.HashMap
-
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.{EidosMention, OdinMention}
-import org.clulab.wm.eidos.utils.{EqualityBagger, IdentityBagger}
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.english.cag.CAG._
+import org.clulab.wm.eidos.utils.{EqualityBagger, IdentityBagger}
 
 class TestEidosMention extends ExtractionTest {
   

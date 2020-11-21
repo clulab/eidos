@@ -1,8 +1,8 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.odin.{EventMention, Mention}
-import org.clulab.wm.eidos.utils.MentionUtils.hasNegation
+import org.clulab.odin.EventMention
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.utils.MentionUtils.hasNegation
 
 
 class TestNegation extends ExtractionTest {

@@ -1,12 +1,9 @@
 package org.clulab.wm.eidos.utils
 
 import org.clulab.odin._
-import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.{EidosAttachment, Negation}
+import org.clulab.wm.eidos.attachments.Negation
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidoscommon.utils.Canonicalizer
 
-import scala.collection.mutable.{Set => MutableSet}
 
 case class TriggerInfo(text: String, start: Int, end: Int, wordCount: Int, isHead: Boolean)
 

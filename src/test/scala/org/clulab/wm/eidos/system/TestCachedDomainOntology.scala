@@ -1,19 +1,17 @@
 package org.clulab.wm.eidos.system
 
 import ai.lum.common.ConfigUtils._
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigValueFactory
-import org.clulab.wm.eidoscommon.EidosProcessor.EidosProcessor
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.groundings._
+import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidoscommon.EidosProcessor.EidosProcessor
+import org.clulab.wm.eidoscommon.utils.Canonicalizer
 import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
-import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidoscommon.utils.Canonicalizer
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 
 class TestCachedDomainOntology extends Test {
   val ontologies: Iterable[String] = Seq("one", "two")

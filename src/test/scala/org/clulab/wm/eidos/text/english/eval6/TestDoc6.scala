@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.text.english.eval6
 
-import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.graph._
+import org.clulab.wm.eidos.test.TestUtils._
 
 class TestDoc6 extends EnglishTest {
   // FEWSNET South Sudan Outlook January 2018 BG.pdf

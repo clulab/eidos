@@ -1,14 +1,11 @@
 package org.clulab.wm.eidos.test
 
 import com.typesafe.config.{Config, ConfigFactory}
-import org.scalatest._
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.context.GeoNormFinder
-import org.clulab.wm.eidos.graph
-import org.clulab.wm.eidos.rule
+import org.clulab.wm.eidos.{EidosSystem, graph, rule}
+import org.scalatest._
 
-import scala.collection.{Seq, mutable}
+import scala.collection.Seq
 
 object TestUtils {
 

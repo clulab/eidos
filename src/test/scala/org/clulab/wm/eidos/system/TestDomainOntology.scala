@@ -1,16 +1,15 @@
 package org.clulab.wm.eidos.system
 
-import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import ai.lum.common.ConfigUtils._
+import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.apps.CacheOntologies.config
-import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
-import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.wm.eidoscommon.utils.Canonicalizer
+import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
+import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
+import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
 class TestDomainOntology extends Test {
 

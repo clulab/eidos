@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.text.english.cag
 
-import org.clulab.wm.eidos.graph.{Causal, Correlation, Dec, EdgeSpec, Inc, NodeSpec, Pos, TimEx, Unmarked}
+import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.TestUtils.{EnglishTest, Somebody, successful}
 
 class TestExtraText extends EnglishTest {

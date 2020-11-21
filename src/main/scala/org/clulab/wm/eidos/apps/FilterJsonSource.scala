@@ -4,9 +4,7 @@ import java.io.File
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, StringUtils}
 import org.json4s.DefaultFormats
 import org.json4s.JObject
 import org.json4s.JValue

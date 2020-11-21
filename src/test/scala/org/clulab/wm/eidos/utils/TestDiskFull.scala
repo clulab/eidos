@@ -1,11 +1,6 @@
 package org.clulab.wm.eidos.utils
 
-import java.io.BufferedOutputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStreamWriter
-import java.io.PrintWriter
-import java.io.SyncFailedException
+import java.io._
 import java.nio.charset.StandardCharsets
 
 import org.clulab.wm.eidos.test.TestUtils._

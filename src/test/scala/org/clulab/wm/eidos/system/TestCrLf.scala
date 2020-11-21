@@ -1,12 +1,10 @@
 package org.clulab.wm.eidos.system
 
-import java.io.File
-import java.io.InputStreamReader
+import java.io.{File, InputStreamReader}
 
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
 
 class TestCrLf extends Test {
   

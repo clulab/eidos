@@ -2,33 +2,17 @@ package org.clulab.wm.eidos.serialization.jsonld
 
 import java.time.LocalDateTime
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.Interval
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.{DCTime, Decrease, Hedging, Increase, Location, NegChange, Negation, PosChange, Property, Provenance, Quantification, Time}
-import org.clulab.wm.eidos.context.DCT
-import org.clulab.wm.eidos.context.GeoPhraseID
-import org.clulab.wm.eidos.context.TimEx
-import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.context.{DCT, GeoPhraseID, TimEx, TimeStep}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
-import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
-import org.clulab.wm.eidos.groundings.OntologyGrounding
-import org.clulab.wm.eidos.groundings.PredicateGrounding
-import org.clulab.wm.eidos.mentions.CrossSentenceEventMention
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DctMap
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentMap
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.DocumentSentenceMap
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.GeolocMap
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.MentionMap
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer.ProvenanceMap
-import org.clulab.wm.eidos.test.TestUtils.ContraptionTest
+import org.clulab.wm.eidos.groundings.OntologyAliases.{MultipleOntologyGrounding, OntologyGroundings}
+import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding}
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer._
 import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
-import org.clulab.wm.eidos.test.TestUtils.newEidosSystem
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.json4s.JArray

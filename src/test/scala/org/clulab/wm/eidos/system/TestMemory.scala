@@ -1,8 +1,6 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.test.TestUtils._
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class TestMemory extends Test {
 

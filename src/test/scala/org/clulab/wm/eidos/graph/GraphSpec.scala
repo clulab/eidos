@@ -2,10 +2,7 @@ package org.clulab.wm.eidos.graph
 
 import java.util.{IdentityHashMap => JIdentityHashMap}
 
-import org.clulab.odin.Attachment
-import org.clulab.odin.EventMention
-import org.clulab.odin.Mention
-import org.clulab.odin.TextBoundMention
+import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.utils.QuicklyEqualable
@@ -19,7 +16,7 @@ object TestResult {
   type TestResults = JIdentityHashMap[GraphSpec, TestResult]
 }
 
-import TestResult.TestResults
+import org.clulab.wm.eidos.graph.TestResult.TestResults
 
 case class Unmodified(quantifier: Quantifier) extends Attachment
 

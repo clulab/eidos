@@ -4,8 +4,7 @@ import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
-import org.clulab.wm.eidos.groundings.OntologyGrounder
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils._
 

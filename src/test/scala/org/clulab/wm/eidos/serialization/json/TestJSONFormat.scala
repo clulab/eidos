@@ -4,7 +4,7 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.serialization.jsonld.TidyJObject
 import org.clulab.wm.eidos.test.TestUtils.Test
 import org.clulab.wm.eidos.utils.PlayUtils
-import org.json4s.{JField, JObject}
+import org.json4s.JObject
 import org.json4s.JsonDSL._
 
 

@@ -2,9 +2,9 @@ package org.clulab.wm.eidos.groundings
 
 // Switch these back and forth to test code generation
 //import org.clulab.wm.eidos.groundings.{MockVersions => TestVersions, MockVersion => TestVersion }
-import com.github.clulab.eidos.{Versions => TestVersions, Version => TestVersion }
 import java.time.ZonedDateTime
 
+import com.github.clulab.eidos.{Version => TestVersion, Versions => TestVersions}
 import org.scalatest._
 
 class TestVersioner extends FlatSpec with Matchers {

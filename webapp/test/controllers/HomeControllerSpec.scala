@@ -1,6 +1,5 @@
 package controllers
 
-import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._

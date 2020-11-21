@@ -4,10 +4,7 @@ import java.io.File
 
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.Sourcer
-import org.clulab.wm.eidoscommon.utils.Language
-
-import scala.io.Source
+import org.clulab.wm.eidoscommon.utils.{Language, Sourcer}
 
 class TestResources extends Test {
   

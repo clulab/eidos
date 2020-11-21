@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.text.english.raps
 
-import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.graph._
+import org.clulab.wm.eidos.test.TestUtils._
 
 class TestRaps extends EnglishTest {
 

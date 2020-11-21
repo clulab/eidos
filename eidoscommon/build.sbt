@@ -21,6 +21,5 @@ libraryDependencies ++= {
     "org.apache.logging.log4j"    % "log4j-core"       % "2.12.0",
     // config
     "com.typesafe"                % "config"           % "1.4.0",
-
   )
 }

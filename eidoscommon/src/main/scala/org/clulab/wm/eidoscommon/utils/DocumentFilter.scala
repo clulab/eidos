@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidoscommon.utils
 
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.processors.shallownlp.ShallowNLPProcessor

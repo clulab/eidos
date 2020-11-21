@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.wm.eidos.EidosComponentsBuilder
-import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.{EidosComponentsBuilder, EidosSystem}
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestEidosComponents extends Test {

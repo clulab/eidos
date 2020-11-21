@@ -1,27 +1,19 @@
 package org.clulab.wm.eidos.document
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.time.LocalDateTime
 
 import com.typesafe.config.Config
-import org.clulab.processors.Document
-import org.clulab.processors.Sentence
+import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.DocumentSerializer
-import org.clulab.serialization.json.JSONSerializer
-import org.clulab.serialization.json._
+import org.clulab.serialization.json.{JSONSerializer, _}
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.attachments.{DctDocumentAttachment, RelevanceDocumentAttachment}
 import org.clulab.wm.eidos.test.TestUtils._
-import org.json4s.jackson.JsonMethods.{pretty, render}
-import org.json4s.jackson.parseJson
-import org.json4s.jackson.prettyJson
-import org.json4s.jackson.renderJValue
+import org.json4s.jackson.{parseJson, prettyJson, renderJValue}
 
 class TestDocumentAttachment extends Test {
 
