@@ -50,6 +50,7 @@ case class EidosComponentOpts(
 )
 
 object EidosComponentOpts {
+  def apply(): EidosComponentOpts = new EidosComponentOpts()
 
   def none(): EidosComponentOpts = new EidosComponentOpts(
     false, false, false, false, false,

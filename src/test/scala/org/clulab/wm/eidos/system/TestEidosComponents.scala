@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.system
 
+import org.clulab.wm.eidos.EidosComponentOpts
 import org.clulab.wm.eidos.EidosComponentsBuilder
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.test.TestUtils._
@@ -8,25 +9,25 @@ class TestEidosComponents extends Test {
   val config = EidosSystem.defaultConfig
 
   def test(parallel: Boolean): Unit = {
-    val eidosComponentsBuilder = new EidosComponentsBuilder(config, EidosSystem.PREFIX, None, parallel)
+    val eidosComponentsBuilder = new EidosComponentsBuilder(config, EidosSystem.PREFIX, None, EidosComponentOpts(), parallel)
     val eidosComponents = eidosComponentsBuilder.build()
 
-    val eidosComponentsRebuilder = new EidosComponentsBuilder(config, EidosSystem.PREFIX, Some(eidosComponents), parallel)
+    val eidosComponentsRebuilder = new EidosComponentsBuilder(config, EidosSystem.PREFIX, Some(eidosComponents), EidosComponentOpts(), parallel)
     val eidosRecomponents = eidosComponentsRebuilder.build()
 
-    eidosRecomponents.proc                     should     be theSameInstanceAs (eidosComponents.proc)
-    eidosRecomponents.negationHandler          should     be theSameInstanceAs (eidosComponents.negationHandler)
-    eidosRecomponents.stopwordManager          should     be theSameInstanceAs (eidosComponents.stopwordManager)
-    eidosRecomponents.ontologyHandler          should     be theSameInstanceAs (eidosComponents.ontologyHandler)
-    eidosRecomponents.mostCompleteEventsKeeper should not be theSameInstanceAs (eidosComponents.mostCompleteEventsKeeper)
-    eidosRecomponents.hedgingHandler           should not be theSameInstanceAs (eidosComponents.hedgingHandler)
-    eidosRecomponents.finders                  should not be theSameInstanceAs (eidosComponents.finders)
-    eidosRecomponents.conceptExpander          should not be theSameInstanceAs (eidosComponents.conceptExpander)
-    eidosRecomponents.nestedArgumentExpander   should not be theSameInstanceAs (eidosComponents.nestedArgumentExpander)
-    eidosRecomponents.adjectiveGrounder        should not be theSameInstanceAs (eidosComponents.adjectiveGrounder)
-    eidosRecomponents.corefHandler             should not be theSameInstanceAs (eidosComponents.corefHandler)
-    eidosRecomponents.attachmentHandler        should not be theSameInstanceAs (eidosComponents.attachmentHandler)
-    eidosRecomponents.eidosSentenceClassifier  should not be theSameInstanceAs (eidosComponents.eidosSentenceClassifier)
+    eidosRecomponents.procOpt.get                     should     be theSameInstanceAs (eidosComponents.procOpt.get)
+    eidosRecomponents.negationHandlerOpt.get          should     be theSameInstanceAs (eidosComponents.negationHandlerOpt.get)
+    eidosRecomponents.stopwordManagerOpt.get          should     be theSameInstanceAs (eidosComponents.stopwordManagerOpt.get)
+    eidosRecomponents.ontologyHandlerOpt.get          should     be theSameInstanceAs (eidosComponents.ontologyHandlerOpt.get)
+    eidosRecomponents.mostCompleteEventsKeeperOpt.get should not be theSameInstanceAs (eidosComponents.mostCompleteEventsKeeperOpt.get)
+    eidosRecomponents.hedgingHandlerOpt.get           should not be theSameInstanceAs (eidosComponents.hedgingHandlerOpt.get)
+    eidosRecomponents.findersOpt.get                  should not be theSameInstanceAs (eidosComponents.findersOpt.get)
+    eidosRecomponents.conceptExpanderOpt.get          should not be theSameInstanceAs (eidosComponents.conceptExpanderOpt.get)
+    eidosRecomponents.nestedArgumentExpanderOpt.get   should not be theSameInstanceAs (eidosComponents.nestedArgumentExpanderOpt.get)
+    eidosRecomponents.adjectiveGrounderOpt.get        should not be theSameInstanceAs (eidosComponents.adjectiveGrounderOpt.get)
+    eidosRecomponents.corefHandlerOpt.get             should not be theSameInstanceAs (eidosComponents.corefHandlerOpt.get)
+    eidosRecomponents.attachmentHandlerOpt.get        should not be theSameInstanceAs (eidosComponents.attachmentHandlerOpt.get)
+    eidosRecomponents.eidosSentenceClassifierOpt.get  should not be theSameInstanceAs (eidosComponents.eidosSentenceClassifierOpt.get)
   }
 
   behavior of "EidosComponents"
