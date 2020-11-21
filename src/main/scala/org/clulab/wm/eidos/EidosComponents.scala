@@ -32,47 +32,68 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
-// Set all true by default.  Make false example.  Add in true with copy.
+// Set all true by default.
 case class EidosComponentOpts(
+  // proc
   proc: Boolean = true,
-  negationHandler: Boolean = true,
-  stopwordManager: Boolean = true,
-  ontologyHandler: Boolean = true,
-  mostCompleteEventsKeeper: Boolean = true,
-  hedgingHandler: Boolean = true,
+  // finder
   finders: Boolean = true,
-  conceptExpander: Boolean = true,
-  nestedArgumentExpander: Boolean = true,
-  adjectiveGrounder: Boolean = true,
-  corefHandler: Boolean = true,
+  // odin
   attachmentHandler: Boolean = true,
-  eidosSentenceClassifier: Boolean = true
+  conceptExpander: Boolean = true,
+  corefHandler: Boolean = true,
+  hedgingHandler: Boolean = true,
+  mostCompleteEventsKeeper: Boolean = true,
+  negationHandler: Boolean = true,
+  nestedArgumentExpander: Boolean = true,
+  stopwordManager: Boolean = true,
+  // eidos
+  adjectiveGrounder: Boolean = true,
+  eidosSentenceClassifier: Boolean = true,
+  ontologyHandler: Boolean = true
 )
 
 object EidosComponentOpts {
-  def apply(): EidosComponentOpts = new EidosComponentOpts()
-
-  def none(): EidosComponentOpts = new EidosComponentOpts(
+  protected lazy val cachedAll = new EidosComponentOpts()
+  protected lazy val cachedNone = new EidosComponentOpts(
     false, false, false, false, false,
     false, false, false, false, false,
     false, false, false
   )
+
+  def apply(): EidosComponentOpts = all()
+
+  def all(): EidosComponentOpts = cachedAll
+
+  def none(): EidosComponentOpts = cachedNone
+
+  def proc(): EidosComponentOpts = cachedNone.copy(proc = true)
+
+  def finders(): EidosComponentOpts = cachedNone.copy(proc = true, finders = true)
+
+  def odin(): EidosComponentOpts = cachedAll.copy(adjectiveGrounder = false, eidosSentenceClassifier = false, ontologyHandler = false)
+
+  def eidos(): EidosComponentOpts = cachedAll
 }
 
 case class EidosComponents(
+  // proc
   procOpt: Option[EidosProcessor],
-  negationHandlerOpt: Option[NegationHandler],
-  stopwordManagerOpt: Option[StopwordManager],
-  ontologyHandlerOpt: Option[OntologyHandler],
-  mostCompleteEventsKeeperOpt: Option[MostCompleteEventsKeeper],
-  hedgingHandlerOpt: Option[HypothesisHandler],
+  // finder
   findersOpt: Option[Seq[Finder]],
-  conceptExpanderOpt: Option[ConceptExpander],
-  nestedArgumentExpanderOpt: Option[NestedArgumentExpander],
-  adjectiveGrounderOpt: Option[AdjectiveGrounder],
-  corefHandlerOpt: Option[CorefHandler],
+  // odin
   attachmentHandlerOpt: Option[AttachmentHandler],
-  eidosSentenceClassifierOpt: Option[EidosSentenceClassifier]
+  conceptExpanderOpt: Option[ConceptExpander],
+  corefHandlerOpt: Option[CorefHandler],
+  hedgingHandlerOpt: Option[HypothesisHandler],
+  mostCompleteEventsKeeperOpt: Option[MostCompleteEventsKeeper],
+  negationHandlerOpt: Option[NegationHandler],
+  nestedArgumentExpanderOpt: Option[NestedArgumentExpander],
+  stopwordManagerOpt: Option[StopwordManager],
+  // eidos
+  adjectiveGrounderOpt: Option[AdjectiveGrounder],
+  eidosSentenceClassifierOpt: Option[EidosSentenceClassifier],
+  ontologyHandlerOpt: Option[OntologyHandler]
 ) {
   lazy val geoNormFinderOpt: Option[GeoNormFinder] = findersOpt.flatMap(_.collectFirst { case f: GeoNormFinder => f })
   lazy val useGeoNorm: Boolean = geoNormFinderOpt.isDefined
@@ -267,19 +288,23 @@ class EidosComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosCom
         componentLoaders.foreach(_.get)
     }
     EidosComponents(
+      // proc
       processorLoader.getOpt,
-      negationHandlerLoader.getOpt,
-      stopwordManagerLoader.getOpt,
-      ontologyHandlerLoader.getOpt,
-      mostCompleteEventsKeeperLoader.getOpt,
-      hedgingHandlerLoader.getOpt,
+      // finders
       findersLoader.getOpt,
-      conceptExpanderLoader.getOpt,
-      nestedArgumentExpanderLoader.getOpt,
-      adjectiveGrounderLoader.getOpt,
-      corefHandlerLoader.getOpt,
+      // odin
       attachmentHandlerLoader.getOpt,
-      eidosSentenceClassifierLoader.getOpt
+      conceptExpanderLoader.getOpt,
+      corefHandlerLoader.getOpt,
+      hedgingHandlerLoader.getOpt,
+      mostCompleteEventsKeeperLoader.getOpt,
+      negationHandlerLoader.getOpt,
+      nestedArgumentExpanderLoader.getOpt,
+      stopwordManagerLoader.getOpt,
+      // eidos
+      adjectiveGrounderLoader.getOpt,
+      eidosSentenceClassifierLoader.getOpt,
+      ontologyHandlerLoader.getOpt
     )
   }
 }
