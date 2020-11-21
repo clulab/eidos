@@ -1,14 +1,13 @@
 package org.clulab.wm.eidos
 
 import com.typesafe.config.{Config, ConfigFactory}
-
 import org.clulab.odin._
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidoscommon.utils.Timer
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable

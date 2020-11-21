@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.utils
 
 import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidoscommon.utils.Timer
 
 import scala.annotation.tailrec
 

@@ -11,10 +11,10 @@ import org.clulab.wm.eidos.{EidosSystem, utils}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.GroundingAnnotationExporter
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
-import org.clulab.wm.eidos.utils.{FoundBy, ThreadUtils}
+import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{CsvWriter, FileUtils}
+import org.clulab.wm.eidoscommon.utils.{CsvWriter, FileUtils, ThreadUtils}
 
 import scala.collection.Seq
 

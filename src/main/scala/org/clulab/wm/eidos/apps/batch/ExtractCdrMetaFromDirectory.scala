@@ -3,9 +3,7 @@ package org.clulab.wm.eidos.apps.batch
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils}
-import org.clulab.wm.eidos.utils.ThreadUtils
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, ThreadUtils, Timer}
 import org.clulab.wm.eidos.utils.meta.CdrText
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

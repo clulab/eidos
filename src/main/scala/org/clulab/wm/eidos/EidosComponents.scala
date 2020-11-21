@@ -17,9 +17,8 @@ import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, EidosAdjectiveGrounder}
-import org.clulab.wm.eidoscommon.utils.{Language, Resourcer, TagSet}
+import org.clulab.wm.eidoscommon.utils.{Language, Resourcer, TagSet, Timer}
 import org.clulab.wm.eidos.utils.StopwordManager
-import org.clulab.wm.eidos.utils.Timer
 import org.clulab.wm.eidoscommon.EidosProcessor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

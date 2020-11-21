@@ -1,11 +1,8 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidoscommon.utils
 
 import java.util.{Map => JMap}
-
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
-
-import scala.collection.JavaConverters._
 
 object YamlUtils {
   val yaml = new Yaml

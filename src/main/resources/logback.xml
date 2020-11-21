@@ -71,7 +71,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.clulab.wm.eidos.utils.Timer" level="all" additivity="true">
+    <logger name="org.clulab.wm.eidoscommon.utils.Timer" level="all" additivity="true">
         <appender-ref ref="timer" />
     </logger>
 

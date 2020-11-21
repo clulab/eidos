@@ -1,17 +1,6 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidoscommon.utils
 
-import scala.collection.parallel.ForkJoinTasks
-
-import scala.collection.parallel.ForkJoinTaskSupport
-import scala.collection.parallel.ParSeq
-
-// For Scala 2.11, this is required.
-//import scala.concurrent.forkjoin.ForkJoinPool
-
-// For Scala 2.12, this is deprecated.
-// import scala.concurrent.forkjoin.ForkJoinPool
-// Alternative for Scala 2.12, which doesn't compile for 2.11.
-//import java.util.concurrent.ForkJoinPool
+import scala.collection.parallel.{ForkJoinTaskSupport, ForkJoinTasks, ParSeq}
 
 object ThreadUtils {
   // This is a work-around for Scala version incompatibility.
