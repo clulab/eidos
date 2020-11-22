@@ -4,6 +4,8 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
+import org.clulab.wm.eidos.components.EidosComponents
+import org.clulab.wm.eidos.components.ComponentsBuilder
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.Metadata
@@ -42,7 +44,7 @@ class EidosSystem(val components: EidosComponents) {
   // The "copy constructor" below will take cheap-to-update values from the config, but expensive
   // values from eidosSystem.components, if present  It is the new reload().
   def this(config: Config, eidosSystemOpt: Option[EidosSystem] = None) =
-      this(new EidosComponentsBuilder(config, EidosSystem.PREFIX, eidosSystemOpt.map(_.components)).build())
+      this(new ComponentsBuilder(config, EidosSystem.PREFIX, eidosSystemOpt.map(_.components)).build())
   def this() = this(EidosSystem.defaultConfig)
   // Python now uses the default, empty constructor above, but the line below remains for documentation purposes.
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration

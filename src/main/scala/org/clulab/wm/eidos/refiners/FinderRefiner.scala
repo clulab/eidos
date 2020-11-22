@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.refiners
 import org.clulab.odin.Mention
 import org.clulab.odin.State
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.EidosComponents
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.utils.Timer
 
