@@ -7,12 +7,12 @@ import org.clulab.wm.eidos.utils.Timer
 
 import scala.collection.mutable
 
-class EidosRefiner(val name: String, val refine: AnnotatedDocument => Option[AnnotatedDocument])
+class EidosRefiner(name: String, val refine: AnnotatedDocument => Option[AnnotatedDocument]) extends Refiner(name)
 
 object EidosRefiner {
 
   // This is the pipeline for EidosMentions.
-  def mkEidosRefiners(components: EidosComponents, options: EidosSystem.Options): Seq[EidosRefiner] = Seq(
+  def mkRefiners(components: EidosComponents, options: EidosSystem.RefinerOptions): Seq[EidosRefiner] = Seq(
     new EidosRefiner("OntologyHandler",   (annotatedDocument: AnnotatedDocument) => {
       components.ontologyHandlerOpt.map { ontologyHandler =>
         annotatedDocument.allEidosMentions.foreach(ontologyHandler.ground)
@@ -40,7 +40,7 @@ object EidosRefiner {
     })
   )
 
-  def refineEidosMentions(eidosRefiners: Seq[EidosRefiner], annotatedDocument: AnnotatedDocument, useTimer: Boolean): AnnotatedDocument = {
+  def refine(eidosRefiners: Seq[EidosRefiner], annotatedDocument: AnnotatedDocument, useTimer: Boolean): AnnotatedDocument = {
     val lastAnnotatedDocument = eidosRefiners.foldLeft(annotatedDocument) { (prevAnnotatedDocument, refiner) =>
       Timer.time("Run " + refiner.name, useTimer) {
         val nextAnnotatedDocument = refiner

@@ -3,22 +3,18 @@ package org.clulab.wm.eidos
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin._
 import org.clulab.processors.Document
-import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.components.ComponentsBuilder
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.refiners.EidosRefiner
 import org.clulab.wm.eidos.refiners.FinderRefiner
 import org.clulab.wm.eidos.refiners.OdinRefiner
+import org.clulab.wm.eidos.refiners.DocumentRefiner
 import org.clulab.wm.eidos.refiners.ProcessorRefiner
-import org.clulab.wm.eidos.utils.Timer
 import org.slf4j.{Logger, LoggerFactory}
-
-import scala.collection.mutable
 
 /**
  * A system for text processing and information extraction
@@ -57,27 +53,20 @@ class EidosSystem(val components: EidosComponents) {
   // ---------------------------------------------------------------------------------------------
 
   def annotateDoc(doc: Document): Document = {
-    // It is assumed and not verified that the document has _not_ already been annotated.
-    components.procOpt.map { proc =>
-      Timer.time("Run Processors.annotate", useTimer) {
-        proc.annotate(doc)
-        doc
-      }
-    }
-    .getOrElse(doc)
+    val annotateRefiner = DocumentRefiner.mkAnnotateRefiner(components, EidosSystem.RefinerOptions.irrelevant)
+    val annotatedDoc = DocumentRefiner.refine(Seq(annotateRefiner), doc, useTimer)
+
+    annotatedDoc
   }
 
   // Annotate the text using a Processor and then populate lexicon labels.
   // If there is a document time involved, please place it in the metadata
   // and use one of the calls that takes it into account.
   def annotate(text: String): Document = {
-    val annotatedDoc = components.procOpt.map { proc =>
-      val tokenizedDoc = Timer.time("Run Processors.mkDocument", useTimer) {
-        proc.mkDocument(text, keepText = true) // This must now be true.
-      }
-      annotateDoc(tokenizedDoc)
-    }
-    .getOrElse(Document(Array.empty[Sentence]))
+    val processorRefiner = ProcessorRefiner.mkRefiner(components, EidosSystem.RefinerOptions.irrelevant)
+    val doc = ProcessorRefiner.refine(processorRefiner, text, useTimer)
+
+    val annotatedDoc = annotateDoc(doc)
 
     annotatedDoc
   }
@@ -87,34 +76,37 @@ class EidosSystem(val components: EidosComponents) {
   // ---------------------------------------------------------------------------------------------
 
   // This is a partial version, mostly legacy.
-  def extractMentionsFrom(doc: Document): Seq[Mention] = {
-    val finderRefiners = FinderRefiner.mkFinderRefiners(components)
-    val odinMentions = FinderRefiner.mkMentions(finderRefiners, doc, useTimer)
+  def extractMentionsFrom(annotatedDoc: Document): Seq[Mention] = {
+    val finderRefiners = FinderRefiner.mkRefiners(components)
+    val odinMentions = FinderRefiner.refine(finderRefiners, annotatedDoc, useTimer)
 
-    OdinRefiner.refineOdinMentions(OdinRefiner.mkHeadOdinRefiners(components), odinMentions, useTimer)
+    val odinRefiners = OdinRefiner.mkHeadOdinRefiners(components, EidosSystem.RefinerOptions.irrelevant)
+    val refinedMentions = OdinRefiner.refine(odinRefiners, odinMentions, useTimer)
+
+    refinedMentions
   }
 
   // This could be used with more dynamically configured refiners, especially if made public.
   // Refining is where, e.g., grounding and filtering happens.
-  protected def extractFromDoc(annotatedDoc: Document, finderRefiners: Seq[Finder], processorRefiners: Seq[ProcessorRefiner], odinRefiners: Seq[OdinRefiner],
+  protected def extractFromDoc(annotatedDoc: Document, documentRefiners: Seq[DocumentRefiner], finderRefiners: Seq[Finder], odinRefiners: Seq[OdinRefiner],
       eidosRefiners: Seq[EidosRefiner]): AnnotatedDocument = {
-    val refinedDoc = ProcessorRefiner.refineProcessorDocument(processorRefiners, annotatedDoc, useTimer)
-    val odinMentions = FinderRefiner.mkMentions(finderRefiners, refinedDoc, useTimer)
-    val refinedOdinMentions = OdinRefiner.refineOdinMentions(odinRefiners, odinMentions, useTimer)
+    val refinedDoc = DocumentRefiner.refine(documentRefiners, annotatedDoc, useTimer)
+    val odinMentions = FinderRefiner.refine(finderRefiners, refinedDoc, useTimer)
+    val refinedOdinMentions = OdinRefiner.refine(odinRefiners, odinMentions, useTimer)
     val annotatedDocument = AnnotatedDocument(annotatedDoc, refinedOdinMentions)
-    val refinedAnnotatedDocument = EidosRefiner.refineEidosMentions(eidosRefiners, annotatedDocument, useTimer)
+    val refinedAnnotatedDocument = EidosRefiner.refine(eidosRefiners, annotatedDocument, useTimer)
 
     refinedAnnotatedDocument
   }
 
   // MAIN PIPELINE METHOD if given doc
-  def extractFromDoc(annotatedDoc: Document, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
-    val finderRefiners = FinderRefiner.mkFinderRefiners(components)
-    val processorRefiners = ProcessorRefiner.mkProcessorRefiners(components, options, metadata)
-    val odinRefiners = OdinRefiner.mkOdinRefiners(components, options)
-    val eidosRefiners = EidosRefiner.mkEidosRefiners(components, options)
+  def extractFromDoc(annotatedDoc: Document, options: EidosSystem.RefinerOptions, metadata: Metadata): AnnotatedDocument = {
+    val documentRefiners = DocumentRefiner.mkRefiners(components, options, metadata)
+    val finderRefiners = FinderRefiner.mkRefiners(components)
+    val odinRefiners = OdinRefiner.mkRefiners(components, options)
+    val eidosRefiners = EidosRefiner.mkRefiners(components, options)
 
-    extractFromDoc(annotatedDoc, finderRefiners, processorRefiners, odinRefiners, eidosRefiners)
+    extractFromDoc(annotatedDoc, documentRefiners, finderRefiners, odinRefiners, eidosRefiners)
   }
 
   // Legacy version
@@ -124,11 +116,11 @@ class EidosSystem(val components: EidosComponents) {
     dctOpt: Option[DCT] = None,
     idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromDoc(annotatedDoc, EidosSystem.Options(cagRelevantOnly), Metadata(dctOpt, idOpt))
+    extractFromDoc(annotatedDoc, EidosSystem.RefinerOptions(cagRelevantOnly), Metadata(dctOpt, idOpt))
   }
 
   // MAIN PIPELINE METHOD if given text
-  def extractFromText(text: String, options: EidosSystem.Options, metadata: Metadata): AnnotatedDocument = {
+  def extractFromText(text: String, options: EidosSystem.RefinerOptions, metadata: Metadata): AnnotatedDocument = {
     val annotatedDoc = annotate(text)
 
     extractFromDoc(annotatedDoc, options, metadata)
@@ -141,7 +133,7 @@ class EidosSystem(val components: EidosComponents) {
     dctStringOpt: Option[String] = None,
     idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromText(text, EidosSystem.Options(cagRelevantOnly), Metadata(this, dctStringOpt, idOpt))
+    extractFromText(text, EidosSystem.RefinerOptions(cagRelevantOnly), Metadata(this, dctStringOpt, idOpt))
   }
 
   def extractFromTextWithDct(
@@ -150,7 +142,7 @@ class EidosSystem(val components: EidosComponents) {
     dctOpt: Option[DCT] = None,
     idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromText(text, EidosSystem.Options(cagRelevantOnly), Metadata(dctOpt, idOpt))
+    extractFromText(text, EidosSystem.RefinerOptions(cagRelevantOnly), Metadata(dctOpt, idOpt))
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -162,7 +154,6 @@ class EidosSystem(val components: EidosComponents) {
   protected def debugMentions(mentions: Seq[Mention]): Unit =
       mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
 }
-
 
 object EidosSystem {
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
@@ -188,11 +179,12 @@ object EidosSystem {
   // Turn off warnings from this class.
   edu.stanford.nlp.ie.NumberNormalizer.setVerbose(false)
 
-  class Options(val cagRelevantOnly: Boolean) {
+  class RefinerOptions(val cagRelevantOnly: Boolean) {
   }
 
-  object Options {
+  object RefinerOptions {
+    lazy val irrelevant: RefinerOptions = RefinerOptions()
 
-    def apply(cagRelevantOnly: Boolean = true): Options = new Options(cagRelevantOnly)
+    def apply(cagRelevantOnly: Boolean = true): RefinerOptions = new RefinerOptions(cagRelevantOnly)
   }
 }

@@ -1,48 +1,34 @@
 package org.clulab.wm.eidos.refiners
 
 import org.clulab.processors.Document
+import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.components.EidosComponents
-import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.utils.Timer
 
-// If the relevant component is not configured, None should be returned.
-// The system then converts the None back into the original Seq[Mention].
-// This just simplifies much of the otherwise boilerplate code.
-class ProcessorRefiner(val name: String, val refine: Document => Option[Document])
+class ProcessorRefiner(name: String, val refine: String => Option[Document]) extends Refiner(name)
 
 object ProcessorRefiner {
 
-  def mkProcessorRefiners(components: EidosComponents, options: EidosSystem.Options, metadata: Metadata): Seq[ProcessorRefiner] = {
-    Seq(
-      new ProcessorRefiner("SentenceClassifier-sentences", (doc: Document) => {
-        components.eidosSentenceClassifierOpt.map { eidosSentenceClassifier =>
-          val relevanceOpts = doc.sentences.map { sent => eidosSentenceClassifier.classify(sent) }
-
-          RelevanceDocumentAttachment.setRelevanceOpt(doc, relevanceOpts)
-          doc
-        }
-      }),
-      new ProcessorRefiner("MetadataHandler", (doc: Document) => {
-        Some {
-          metadata.attachToDoc(doc)
-          doc
-        }
-      })
-    )
+  // This is really a Converter and the conversion can only happen once.
+  def mkRefiner(components: EidosComponents, options: EidosSystem.RefinerOptions): ProcessorRefiner = {
+    new ProcessorRefiner("Processors.mkDocument", (text: String) => {
+      components.procOpt.map { proc =>
+        proc.mkDocument(text, keepText = true) // This must now be true.
+      }
+    })
   }
 
-  def refineProcessorDocument(processorRefiners: Seq[ProcessorRefiner], doc: Document, useTimer: Boolean): Document = {
-    val lastDoc = processorRefiners.foldLeft(doc) { (prevDoc, refiner) =>
-      Timer.time("Run " + refiner.name, useTimer) {
-        val nextDoc = refiner
-            .refine(prevDoc)
-            .getOrElse(prevDoc)
+  def refine(textRefiner: ProcessorRefiner, text: String, useTimer: Boolean): Document = {
+    val document = {
+      Timer.time("Run " + textRefiner.name, useTimer) {
+        val document = textRefiner
+            .refine(text)
+            .getOrElse(Document(Array.empty[Sentence]))
 
-        nextDoc
+        document
       }
     }
-    lastDoc
+    document
   }
 }

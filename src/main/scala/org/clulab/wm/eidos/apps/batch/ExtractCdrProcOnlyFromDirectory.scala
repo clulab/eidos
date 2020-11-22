@@ -38,7 +38,7 @@ object ExtractCdrProcOnlyFromDirectory extends App {
     // to any particular document.
     val config = EidosSystem.defaultConfig
     val reader = new EidosSystem(config)
-    val options = EidosSystem.Options()
+    val options = EidosSystem.RefinerOptions()
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 

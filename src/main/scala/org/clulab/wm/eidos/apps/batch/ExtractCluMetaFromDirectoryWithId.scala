@@ -58,7 +58,7 @@ object ExtractCluMetaFromDirectoryWithId extends App {
     // Prime it first.  This counts on overall time, but should not be attributed
     // to any particular document.
     val reader = new EidosSystem()
-    val options = EidosSystem.Options()
+    val options = EidosSystem.RefinerOptions()
 
     reader.extractFromText("This is a test.")
     timer.stop()

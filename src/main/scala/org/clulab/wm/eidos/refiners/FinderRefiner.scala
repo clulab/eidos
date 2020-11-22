@@ -7,14 +7,16 @@ import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.utils.Timer
 
+class FinderRefiner(name: String, finder: Finder) extends Refiner(name)
+
 object FinderRefiner {
   protected val emptyState = new State() // Keep this around for reuse.
 
-  def mkFinderRefiners(components: EidosComponents): Seq[Finder] = {
+  def mkRefiners(components: EidosComponents): Seq[Finder] = {
     components.findersOpt.getOrElse(Seq.empty)
   }
 
-  def mkMentions(finders: Seq[Finder], doc: Document, useTimer: Boolean): Seq[Mention] = {
+  def refine(finders: Seq[Finder], doc: Document, useTimer: Boolean): Seq[Mention] = {
     require(doc.text.isDefined)
 
     // Perform the information extraction in the sequence set in the config, using Finders
