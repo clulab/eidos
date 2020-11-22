@@ -4,7 +4,6 @@ import org.clulab.processors.Document
 import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
-import org.clulab.wm.eidos.utils.Timer
 
 // If the relevant component is not configured, None should be returned.
 // The system then converts the None back into the original Seq[Mention].

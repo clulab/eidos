@@ -3,7 +3,6 @@ package org.clulab.wm.eidos.refiners
 import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
-import org.clulab.wm.eidos.utils.Timer
 
 import scala.collection.mutable
 

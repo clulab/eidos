@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.refiners
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.components.EidosComponents
-import org.clulab.wm.eidos.utils.Timer
 
 class OdinRefiner(name: String, val refine: Seq[Mention] => Option[Seq[Mention]]) extends Refiner(name)
 
