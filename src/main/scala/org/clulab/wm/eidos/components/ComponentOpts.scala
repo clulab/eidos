@@ -19,7 +19,10 @@ case class ComponentOpts(
   adjectiveGrounder: Boolean = true,
   eidosSentenceClassifier: Boolean = true,
   ontologyHandler: Boolean = true
-)
+) {
+
+  def withoutGrounding = copy(ontologyHandler = false)
+}
 
 object ComponentOpts {
   protected lazy val cachedAll = new ComponentOpts()
@@ -42,4 +45,6 @@ object ComponentOpts {
   def odin(): ComponentOpts = cachedAll.copy(adjectiveGrounder = false, eidosSentenceClassifier = false, ontologyHandler = false)
 
   def eidos(): ComponentOpts = cachedAll
+
+  def eidosWithoutGrounding(): ComponentOpts = cachedAll.copy(ontologyHandler = false)
 }

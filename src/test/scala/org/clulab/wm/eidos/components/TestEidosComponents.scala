@@ -1,18 +1,16 @@
-package org.clulab.wm.eidos.system
+package org.clulab.wm.eidos.components
 
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.components.ComponentOpts
-import org.clulab.wm.eidos.components.ComponentsBuilder
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestEidosComponents extends Test {
   val config = EidosSystem.defaultConfig
 
   def test(parallel: Boolean): Unit = {
-    val eidosComponentsBuilder = new ComponentsBuilder(config, EidosSystem.PREFIX, None, ComponentOpts(), parallel)
+    val eidosComponentsBuilder = new ComponentsBuilder(config, EidosSystem.PREFIX, None, ComponentOpts.all, parallel)
     val eidosComponents = eidosComponentsBuilder.build()
 
-    val eidosComponentsRebuilder = new ComponentsBuilder(config, EidosSystem.PREFIX, Some(eidosComponents), ComponentOpts(), parallel)
+    val eidosComponentsRebuilder = new ComponentsBuilder(config, EidosSystem.PREFIX, Some(eidosComponents), ComponentOpts.all, parallel)
     val eidosRecomponents = eidosComponentsRebuilder.build()
 
     eidosRecomponents.procOpt.get                     should     be theSameInstanceAs (eidosComponents.procOpt.get)
