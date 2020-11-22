@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.refiners
 
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.utils.Timer
@@ -12,7 +11,7 @@ class EidosRefiner(name: String, val refine: AnnotatedDocument => Option[Annotat
 object EidosRefiner {
 
   // This is the pipeline for EidosMentions.
-  def mkRefiners(components: EidosComponents, options: EidosSystem.RefinerOptions): Seq[EidosRefiner] = Seq(
+  def mkRefiners(components: EidosComponents, options: RefinerOptions): Seq[EidosRefiner] = Seq(
     new EidosRefiner("OntologyHandler",   (annotatedDocument: AnnotatedDocument) => {
       components.ontologyHandlerOpt.map { ontologyHandler =>
         annotatedDocument.allEidosMentions.foreach(ontologyHandler.ground)

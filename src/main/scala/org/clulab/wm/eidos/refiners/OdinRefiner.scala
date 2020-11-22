@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.refiners
 
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.utils.Timer
 
@@ -13,7 +12,7 @@ object OdinRefiner {
   // Note: In main pipeline we filter to only CAG relevant after this method.  Since the filtering happens at the
   // next stage, currently all mentions make it to the webapp, even ones that we filter out for the CAG exports.
   // val cagRelevant = keepCAGRelevant(events)
-  def mkHeadOdinRefiners(components: EidosComponents, options: EidosSystem.RefinerOptions): Seq[OdinRefiner] = Seq(
+  def mkHeadOdinRefiners(components: EidosComponents, options: RefinerOptions): Seq[OdinRefiner] = Seq(
     // Merge attachments: look for mentions with the same span and label and merge their attachments so none get lost
     new OdinRefiner("AttachmentHandler",        (odinMentions: Seq[Mention]) => {
       components.attachmentHandlerOpt.map(_.mergeAttachments(odinMentions))
@@ -29,7 +28,7 @@ object OdinRefiner {
   )
 
   // This is the pipeline for odin Mentions.
-  def mkTailOdinRefiners(components: EidosComponents, options: EidosSystem.RefinerOptions): Seq[OdinRefiner] = Seq(
+  def mkTailOdinRefiners(components: EidosComponents, options: RefinerOptions): Seq[OdinRefiner] = Seq(
     // Try to find additional causal relations by resolving simple event coreference
     new OdinRefiner("CorefHandler",           (odinMentions: Seq[Mention]) => {
       components.corefHandlerOpt.map(_.resolveCoref(odinMentions))
@@ -59,7 +58,7 @@ object OdinRefiner {
   )
 
   // This is the pipeline for odin Mentions.
-  def mkRefiners(components: EidosComponents, options: EidosSystem.RefinerOptions): Seq[OdinRefiner] = {
+  def mkRefiners(components: EidosComponents, options: RefinerOptions): Seq[OdinRefiner] = {
     mkHeadOdinRefiners(components, options) ++ mkTailOdinRefiners(components, options)
   }
 

@@ -14,6 +14,7 @@ import org.clulab.wm.eidos.refiners.FinderRefiner
 import org.clulab.wm.eidos.refiners.OdinRefiner
 import org.clulab.wm.eidos.refiners.DocumentRefiner
 import org.clulab.wm.eidos.refiners.ProcessorRefiner
+import org.clulab.wm.eidos.refiners.RefinerOptions
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
@@ -53,7 +54,7 @@ class EidosSystem(val components: EidosComponents) {
   // ---------------------------------------------------------------------------------------------
 
   def annotateDoc(doc: Document): Document = {
-    val annotateRefiner = DocumentRefiner.mkAnnotateRefiner(components, EidosSystem.RefinerOptions.irrelevant)
+    val annotateRefiner = DocumentRefiner.mkAnnotateRefiner(components, RefinerOptions.irrelevant)
     val annotatedDoc = DocumentRefiner.refine(Seq(annotateRefiner), doc, useTimer)
 
     annotatedDoc
@@ -63,7 +64,7 @@ class EidosSystem(val components: EidosComponents) {
   // If there is a document time involved, please place it in the metadata
   // and use one of the calls that takes it into account.
   def annotate(text: String): Document = {
-    val processorRefiner = ProcessorRefiner.mkRefiner(components, EidosSystem.RefinerOptions.irrelevant)
+    val processorRefiner = ProcessorRefiner.mkRefiner(components, RefinerOptions.irrelevant)
     val doc = ProcessorRefiner.refine(processorRefiner, text, useTimer)
 
     val annotatedDoc = annotateDoc(doc)
@@ -80,7 +81,7 @@ class EidosSystem(val components: EidosComponents) {
     val finderRefiners = FinderRefiner.mkRefiners(components)
     val odinMentions = FinderRefiner.refine(finderRefiners, annotatedDoc, useTimer)
 
-    val odinRefiners = OdinRefiner.mkHeadOdinRefiners(components, EidosSystem.RefinerOptions.irrelevant)
+    val odinRefiners = OdinRefiner.mkHeadOdinRefiners(components, RefinerOptions.irrelevant)
     val refinedMentions = OdinRefiner.refine(odinRefiners, odinMentions, useTimer)
 
     refinedMentions
@@ -100,7 +101,7 @@ class EidosSystem(val components: EidosComponents) {
   }
 
   // MAIN PIPELINE METHOD if given doc
-  def extractFromDoc(annotatedDoc: Document, options: EidosSystem.RefinerOptions, metadata: Metadata): AnnotatedDocument = {
+  def extractFromDoc(annotatedDoc: Document, options: RefinerOptions, metadata: Metadata): AnnotatedDocument = {
     val documentRefiners = DocumentRefiner.mkRefiners(components, options, metadata)
     val finderRefiners = FinderRefiner.mkRefiners(components)
     val odinRefiners = OdinRefiner.mkRefiners(components, options)
@@ -116,14 +117,14 @@ class EidosSystem(val components: EidosComponents) {
     dctOpt: Option[DCT] = None,
     idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromDoc(annotatedDoc, EidosSystem.RefinerOptions(cagRelevantOnly), Metadata(dctOpt, idOpt))
+    extractFromDoc(annotatedDoc, RefinerOptions(cagRelevantOnly), Metadata(dctOpt, idOpt))
   }
 
   // MAIN PIPELINE METHOD if given text
-  def extractFromText(text: String, options: EidosSystem.RefinerOptions, metadata: Metadata): AnnotatedDocument = {
+  def extractFromText(text: String, options: EidosOptions, metadata: Metadata): AnnotatedDocument = {
     val annotatedDoc = annotate(text)
 
-    extractFromDoc(annotatedDoc, options, metadata)
+    extractFromDoc(annotatedDoc, options.refinerOptions, metadata)
   }
 
   // Legacy versions
@@ -133,7 +134,7 @@ class EidosSystem(val components: EidosComponents) {
     dctStringOpt: Option[String] = None,
     idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromText(text, EidosSystem.RefinerOptions(cagRelevantOnly), Metadata(this, dctStringOpt, idOpt))
+    extractFromText(text, EidosOptions(cagRelevantOnly), Metadata(this, dctStringOpt, idOpt))
   }
 
   def extractFromTextWithDct(
@@ -142,7 +143,7 @@ class EidosSystem(val components: EidosComponents) {
     dctOpt: Option[DCT] = None,
     idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromText(text, EidosSystem.RefinerOptions(cagRelevantOnly), Metadata(dctOpt, idOpt))
+    extractFromText(text, EidosOptions(cagRelevantOnly), Metadata(dctOpt, idOpt))
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -178,13 +179,4 @@ object EidosSystem {
 
   // Turn off warnings from this class.
   edu.stanford.nlp.ie.NumberNormalizer.setVerbose(false)
-
-  class RefinerOptions(val cagRelevantOnly: Boolean) {
-  }
-
-  object RefinerOptions {
-    lazy val irrelevant: RefinerOptions = RefinerOptions()
-
-    def apply(cagRelevantOnly: Boolean = true): RefinerOptions = new RefinerOptions(cagRelevantOnly)
-  }
 }

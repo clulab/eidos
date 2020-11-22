@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.refiners
 
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
@@ -14,7 +13,7 @@ class DocumentRefiner(val name: String, val refine: Document => Option[Document]
 
 object DocumentRefiner {
 
-  def mkAnnotateRefiner(components: EidosComponents, options: EidosSystem.RefinerOptions): DocumentRefiner = {
+  def mkAnnotateRefiner(components: EidosComponents, options: RefinerOptions): DocumentRefiner = {
     new DocumentRefiner("Processors.annotate", (document: Document) => {
       components.procOpt.map { proc =>
         proc.annotate(document)
@@ -22,7 +21,7 @@ object DocumentRefiner {
     })
   }
 
-  def mkRefiners(components: EidosComponents, options: EidosSystem.RefinerOptions, metadata: Metadata): Seq[DocumentRefiner] = {
+  def mkRefiners(components: EidosComponents, options: RefinerOptions, metadata: Metadata): Seq[DocumentRefiner] = {
     Seq(
       new DocumentRefiner("SentenceClassifier-sentences", (doc: Document) => {
         components.eidosSentenceClassifierOpt.map { eidosSentenceClassifier =>
