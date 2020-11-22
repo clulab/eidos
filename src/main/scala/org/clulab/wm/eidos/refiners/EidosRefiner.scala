@@ -41,7 +41,7 @@ object EidosRefiner {
 
   def refine(eidosRefiners: Seq[EidosRefiner], annotatedDocument: AnnotatedDocument, useTimer: Boolean): AnnotatedDocument = {
     val lastAnnotatedDocument = eidosRefiners.foldLeft(annotatedDocument) { (prevAnnotatedDocument, refiner) =>
-      Timer.time("Run " + refiner.name, useTimer) {
+      refiner.time(useTimer) {
         val nextAnnotatedDocument = refiner
             .refine(prevAnnotatedDocument)
             .getOrElse(prevAnnotatedDocument)

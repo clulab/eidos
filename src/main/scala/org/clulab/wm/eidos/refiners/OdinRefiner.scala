@@ -64,7 +64,7 @@ object OdinRefiner {
 
   def refine(odinRefiners: Seq[OdinRefiner], odinMentions: Seq[Mention], useTimer: Boolean): Seq[Mention] = {
     val lastMentions = odinRefiners.foldLeft(odinMentions) { (prevMentions, refiner) =>
-      Timer.time("Run " + refiner.name, useTimer) {
+      refiner.time(useTimer) {
         val nextMentions = refiner
             .refine(prevMentions)
             .getOrElse(prevMentions)

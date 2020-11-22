@@ -3,7 +3,6 @@ package org.clulab.wm.eidos.refiners
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.components.EidosComponents
-import org.clulab.wm.eidos.utils.Timer
 
 class ProcessorRefiner(name: String, val refine: String => Option[Document]) extends Refiner(name)
 
@@ -18,10 +17,10 @@ object ProcessorRefiner {
     })
   }
 
-  def refine(textRefiner: ProcessorRefiner, text: String, useTimer: Boolean): Document = {
+  def refine(processorRefiner: ProcessorRefiner, text: String, useTimer: Boolean): Document = {
     val document = {
-      Timer.time("Run " + textRefiner.name, useTimer) {
-        val document = textRefiner
+      processorRefiner.time(useTimer) {
+        val document = processorRefiner
             .refine(text)
             .getOrElse(Document(Array.empty[Sentence]))
 

@@ -9,7 +9,7 @@ import org.clulab.wm.eidos.utils.Timer
 // If the relevant component is not configured, None should be returned.
 // The system then converts the None back into the original Seq[Mention].
 // This just simplifies much of the otherwise boilerplate code.
-class DocumentRefiner(val name: String, val refine: Document => Option[Document])
+class DocumentRefiner(name: String, val refine: Document => Option[Document]) extends Refiner(name)
 
 object DocumentRefiner {
 
@@ -42,7 +42,7 @@ object DocumentRefiner {
 
   def refine(documentRefiners: Seq[DocumentRefiner], doc: Document, useTimer: Boolean): Document = {
     val lastDoc = documentRefiners.foldLeft(doc) { (prevDoc, refiner) =>
-      Timer.time("Run " + refiner.name, useTimer) {
+      refiner.time(useTimer) {
         val nextDoc = refiner
             .refine(prevDoc)
             .getOrElse(prevDoc)

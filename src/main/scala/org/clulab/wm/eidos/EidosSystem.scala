@@ -8,7 +8,6 @@ import org.clulab.wm.eidos.components.ComponentsBuilder
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.refiners.EidosRefiner
 import org.clulab.wm.eidos.refiners.FinderRefiner
 import org.clulab.wm.eidos.refiners.OdinRefiner
@@ -89,7 +88,7 @@ class EidosSystem(val components: EidosComponents) {
 
   // This could be used with more dynamically configured refiners, especially if made public.
   // Refining is where, e.g., grounding and filtering happens.
-  protected def extractFromDoc(annotatedDoc: Document, documentRefiners: Seq[DocumentRefiner], finderRefiners: Seq[Finder], odinRefiners: Seq[OdinRefiner],
+  protected def extractFromDoc(annotatedDoc: Document, documentRefiners: Seq[DocumentRefiner], finderRefiners: Seq[FinderRefiner], odinRefiners: Seq[OdinRefiner],
       eidosRefiners: Seq[EidosRefiner]): AnnotatedDocument = {
     val refinedDoc = DocumentRefiner.refine(documentRefiners, annotatedDoc, useTimer)
     val odinMentions = FinderRefiner.refine(finderRefiners, refinedDoc, useTimer)
