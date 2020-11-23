@@ -13,7 +13,6 @@ import org.clulab.processors.clu.tokenizer.SentenceSplitter
 import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.utils.ScienceUtils
-import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.utils.EnglishTagSet
 import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.PortugueseTagSet

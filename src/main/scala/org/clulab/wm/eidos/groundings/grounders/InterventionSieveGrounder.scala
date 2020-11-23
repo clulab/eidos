@@ -119,6 +119,6 @@ object InterventionSieveGrounder {
     """(integrat)(\s|\w)+into(\s|\w)+(policy|policies|program)""".r,
     """(capacity)(\s|\w)+building""".r,
     """(public\s+sector\s+support)""".r,
-    """(invest)(\s|\w)+(in)""".r,
+    """(invest)(\s|\w)+(in)""".r
   )
 }

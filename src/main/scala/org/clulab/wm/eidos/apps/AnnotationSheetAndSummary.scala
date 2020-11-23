@@ -28,7 +28,7 @@ object AnnotationSheetAndSummary extends App with Configured {
   lazy val deserializer = new JLDDeserializer()
   val groundAs = getArgStrings("apps.groundAs", None)
   val topN = getArgInt("apps.groundTopN", Some(5))
-  val exporter = GroundingAnnotationExporter("", reader, groundAs, topN)
+  val exporter = new GroundingAnnotationExporter("", reader, groundAs, topN)
 
   val inputDir = getArgString("apps.inputDirectory", None)
   val outputDir = getArgString("apps.outputDirectory", None)

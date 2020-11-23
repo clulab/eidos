@@ -20,6 +20,7 @@ import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
+import org.clulab.wm.eidos.utils.Domain
 import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.Resourcer
@@ -96,6 +97,7 @@ class EidosComponentsBuilder(eidosSystemPrefix: String) {
 
     val eidosConf: Config = config[Config](eidosSystemPrefix)
     Resourcer.setConfig(config) // This is a hack which initializes a global variable.
+    Domain.setConfig(config) // likewise
 
     val headComponentLoaders: Seq[ComponentLoader] = if (reloading) {
       // When reloading, the expensive things and those required to make them are borrowed from previous components.
