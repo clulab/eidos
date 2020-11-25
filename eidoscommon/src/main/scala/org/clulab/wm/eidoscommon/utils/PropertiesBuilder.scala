@@ -1,8 +1,7 @@
-package org.clulab.wm.wmexchanger.utils
+package org.clulab.wm.eidoscommon.utils
 
 import java.util.Properties
-
-import org.clulab.wm.wmexchanger.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Closer._
 
 import scala.collection.JavaConverters._
 

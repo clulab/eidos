@@ -6,7 +6,6 @@ import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.{EidosMention, OdinMention}
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidos.utils.IdentityBagger
 import org.clulab.wm.eidoscommon.utils.{EqualityBagger, IdentityBagger}
 
 class TestEidosMention extends ExtractionTest {

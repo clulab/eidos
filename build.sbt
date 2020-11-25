@@ -172,6 +172,7 @@ lazy val webapp = project
 lazy val elasticsearch = project
 
 lazy val wmexchanger = project
+  .dependsOn(eidoscommon)
 
 lazy val ontologies = project
   .dependsOn(eidoscommon)

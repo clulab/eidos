@@ -1,11 +1,8 @@
 package org.clulab.wm.wmexchanger.wmproducer
 
 import com.typesafe.config.ConfigFactory
-import org.clulab.wm.wmexchanger.utils.Closer.AutoCloser
-import org.clulab.wm.wmexchanger.utils.FileUtils
-import org.clulab.wm.wmexchanger.utils.PropertiesBuilder
-import org.clulab.wm.wmexchanger.utils.Sinker
-import org.clulab.wm.wmexchanger.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{FileUtils, PropertiesBuilder, Sinker, StringUtils}
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
