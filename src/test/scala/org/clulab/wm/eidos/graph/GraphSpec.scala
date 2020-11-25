@@ -5,7 +5,7 @@ import java.util.{IdentityHashMap => JIdentityHashMap}
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.utils.QuicklyEqualable
+import org.clulab.wm.eidoscommon.utils.QuicklyEqualable
 
 import scala.annotation.tailrec
 import scala.util.hashing.MurmurHash3.mix

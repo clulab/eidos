@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.mentions
 
 import org.clulab.odin.{CrossSentenceMention, EventMention, Mention}
-import org.clulab.wm.eidos.utils.IdentityBagger
+import org.clulab.wm.eidoscommon.utils.IdentityBagger
 
 object OdinMention {
 

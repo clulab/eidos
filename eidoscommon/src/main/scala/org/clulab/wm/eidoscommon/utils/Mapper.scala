@@ -1,9 +1,8 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidoscommon.utils
 
 import java.util
 
-import collection.JavaConverters._
-
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 abstract class MentionMapper[K, V] {

@@ -4,9 +4,7 @@ import java.io.File
 
 import ai.lum.common.FileUtils._
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidos.utils.First
-import org.clulab.wm.eidoscommon.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.{FileUtils, First, Sourcer}
 
 object ConcatenateXsvs extends App {
   val inputDir = args(0)

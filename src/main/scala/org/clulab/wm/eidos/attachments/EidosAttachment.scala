@@ -10,7 +10,7 @@ import org.clulab.wm.eidos.Aliases.Quantifier
 import org.clulab.wm.eidos.context.{DCT, GeoPhraseID, TimEx, TimeStep}
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.serialization.jsonld.{JLDAttachment, JLDContextAttachment, JLDScoredAttachment, JLDSerializer, JLDTriggeredAttachment}
-import org.clulab.wm.eidos.utils.QuicklyEqualable
+import org.clulab.wm.eidoscommon.utils.QuicklyEqualable
 import org.json4s.JsonDSL._
 import org.json4s._
 

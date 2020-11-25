@@ -7,8 +7,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.{IndividualGrounding, OntologyAliases, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.First
-import org.clulab.wm.eidoscommon.utils.{StringUtils, TsvReader, TsvWriter}
+import org.clulab.wm.eidoscommon.utils.{First, StringUtils, TsvReader, TsvWriter}
 
 import scala.io.Source
 

@@ -7,10 +7,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Counter
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Sourcer
-import org.clulab.wm.eidoscommon.utils.{StringUtils, TsvReader, TsvWriter}
+import org.clulab.wm.eidoscommon.utils.{Counter, FileUtils, Sourcer, StringUtils, TsvReader, TsvWriter}
 
 // This app reads in a tsv file with gold groundings, regrounds the entities,
 // and compares with the gold groundings.
