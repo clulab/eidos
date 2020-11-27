@@ -19,7 +19,6 @@ import org.clulab.wm.eidos.utils.TagSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-
 import scala.util.Try
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`

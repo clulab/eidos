@@ -18,6 +18,7 @@ import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
+import org.clulab.wm.eidos.utils.Domain
 import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.StopwordManager
@@ -100,12 +101,13 @@ object ComponentLoader {
 }
 
 class EidosComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponentsOpt: Option[EidosComponents] = None,
-    implicit val parallel: Boolean = true) {
-  Resourcer.setConfig(config) // This is a hack which initializes a global variable.
-
+    implicit val parallel: Boolean = true) {  
   val eidosConf: Config = config[Config](eidosSystemPrefix)
   val language = eidosConf[String]("language")
   val componentLoaders = new ArrayBuffer[ComponentLoader[_, _]]()
+
+  Resourcer.setConfig(config) // This is a hack which initializes a global variable.
+  Domain.setConfig(config) // likewise
 
   val processorLoader = newComponentLoader("Processors", eidosComponentsOpt.map(_.proc),
     (),

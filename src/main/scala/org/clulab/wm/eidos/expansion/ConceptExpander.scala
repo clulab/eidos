@@ -35,7 +35,7 @@ class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boole
     if (!keepStatefulConcepts || expanderOpt.isEmpty)
       mentions
     else {
-      // Split the mentions into Cpncepts and Relations by the label
+      // Split the mentions into Concepts and Relations by the label
       val (concepts, relations) = mentions.partition(_ matches EidosSystem.CONCEPT_LABEL)
       // Check to see if any of the Concepts have state attachments
       val (expandable, notExpandable) = concepts.partition(_.attachments.exists(isExpandableMod))
