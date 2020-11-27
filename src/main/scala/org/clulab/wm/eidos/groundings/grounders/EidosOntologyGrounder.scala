@@ -14,6 +14,7 @@ import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.utils.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -76,17 +77,17 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, embeddings)
   }
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
-    val exactMatch = embeddings.filter(ce => ce.namer.name.split("/").last == text.toLowerCase)
-    if (exactMatch.nonEmpty) {
-      return exactMatch.map(em => SingleOntologyNodeGrounding(em.namer, 1.0f))
-    }
-    val matchedPatterns = nodesPatternMatched(text, patterns)
-    if (matchedPatterns.nonEmpty) {
-      matchedPatterns
-    }
-    // Otherwise, back-off to the w2v-based approach
+    val lowerText = text.toLowerCase
+    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name, '/', true) == lowerText)
+    if (exactMatches.nonEmpty)
+      exactMatches.map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f))
     else {
-      wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_))
+      val matchedPatterns = nodesPatternMatched(text, patterns)
+      if (matchedPatterns.nonEmpty)
+        matchedPatterns
+      else
+        // Otherwise, back-off to the w2v-based approach
+        wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_))
     }
   }
 

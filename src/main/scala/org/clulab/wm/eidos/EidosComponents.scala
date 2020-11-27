@@ -2,8 +2,6 @@ package org.clulab.wm.eidos
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.odin.ExtractorEngine
-import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.attachments.{AttachmentHandler, HypothesisHandler, NegationHandler}
@@ -21,13 +19,19 @@ import org.clulab.wm.eidos.groundings.AdjectiveGrounder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.utils.Domain
-import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.StopwordManager
+import org.clulab.wm.eidos.utils.TagSet
 import org.clulab.wm.eidos.utils.Timer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 case class EidosComponents(
   proc: EidosProcessor,
@@ -52,144 +56,194 @@ case class EidosComponents(
   lazy val language: String = proc.language
 }
 
-class ComponentLoader(val name: String, loader: => Unit) {
-  // This is just here to shorten definitions of loader in constructor calls.
-  // "(Unit) =>" is no longer required there.  The raw block can be used.
-  def load(): Unit = loader
-}
-
-class EidosComponentsBuilder(eidosSystemPrefix: String) {
-  var procOpt: Option[EidosProcessor] = None
-  var negationHandlerOpt: Option[NegationHandler] = None
-  var stopwordManagerOpt: Option[StopwordManager] = None
-  var mostCompleteEventsKeeperOpt: Option[MostCompleteEventsKeeper] = None
-  var ontologyHandlerOpt: Option[OntologyHandler] = None
-  var hedgingHandlerOpt: Option[HypothesisHandler] = None
-  var findersOpt: Option[Seq[Finder]] = None
-  var conceptExpanderOpt: Option[ConceptExpander] = None
-  var nestedArgumentExpanderOpt: Option[NestedArgumentExpander] = None
-  var adjectiveGrounderOpt: Option[AdjectiveGrounder] = None
-  var corefHandlerOpt: Option[CorefHandler] = None
-  var attachmentHandlerOpt: Option[AttachmentHandler] = None
-  var eidosSentenceClassifierOpt: Option[EidosSentenceClassifier] = None
-
-  var useTimer = false
-
-  def loadComponents(componentLoaders: Seq[ComponentLoader]): Unit = {
-    Timer.time("Complete parallel load", useTimer) {
-      componentLoaders.par.foreach { componentLoader =>
-        Timer.time("Load " + componentLoader.name, useTimer) {
-          componentLoader.load()
+class ComponentLoader[I, T](val name: String, oldLoadedOpt: Option[T], initializer: => I, loader: I => T)
+    (implicit parallel: Boolean) {
+  // The lazy is so that nothing begins before the timer is started.
+  protected lazy val initializedOpt: Option[Future[I]] =
+      // The result of the previous initialization is not saved, so if we are reloading,
+      // initialized is not recalculated.  Return None in that case.
+      if (oldLoadedOpt.isDefined)
+        None
+      else {
+        val initializing = Future {
+          Timer.time(s"Init $name", ComponentLoader.useTimer) {
+            initializer
+          }
+        }
+        if (!parallel) Await.result(initializing, Duration.Inf) // If it isn't parallel, wait for the result.
+        Some(initializing)
+      }
+  lazy val loaded: Future[T] = oldLoadedOpt
+      .map { oldLoaded =>
+        Future {
+          // If there is an old value available, use it.
+          Timer.time(s"Reload $name", ComponentLoader.useTimer) {
+            oldLoaded
+          }
         }
       }
+      .getOrElse {
+        val initialized = initializedOpt.get
+        val loading = initialized.map { initialized =>
+          Timer.time(s"Load $name", ComponentLoader.useTimer) {
+            loader(initialized)
+          }
+        }
+        if (!parallel) Await.result(loading, Duration.Inf) // If it isn't parallel, wait for the result.
+        loading
+      }
+
+  def get: T = Await.result(loaded, Duration.Inf)
+}
+
+object ComponentLoader {
+  var useTimer = true
+}
+
+class EidosComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponentsOpt: Option[EidosComponents] = None,
+    implicit val parallel: Boolean = true) {  
+  val eidosConf: Config = config[Config](eidosSystemPrefix)
+  val language = eidosConf[String]("language")
+  val componentLoaders = new ArrayBuffer[ComponentLoader[_, _]]()
+
+  Resourcer.setConfig(config) // This is a hack which initializes a global variable.
+  Domain.setConfig(config) // likewise
+
+  val processorLoader = newComponentLoader("Processors", eidosComponentsOpt.map(_.proc),
+    (),
+    { _: Unit =>
+      EidosProcessor(language, cutoff = 150)
     }
-  }
-
-  def add(config: Config): Unit = add(config, None)
-
-  def add(config: Config, eidosComponents: EidosComponents): EidosComponentsBuilder =
-      add(config, Some(eidosComponents))
-
-  def add(config: Config, eidosComponentsOpt: Option[EidosComponents]): EidosComponentsBuilder = {
-    val reloading: Boolean = eidosComponentsOpt.isDefined
-
-    EidosComponentsBuilder.logger.info((if (reloading) "Reloading" else "Loading") + " config...")
-
-    val eidosConf: Config = config[Config](eidosSystemPrefix)
-    Resourcer.setConfig(config) // This is a hack which initializes a global variable.
-    Domain.setConfig(config) // likewise
-
-    val headComponentLoaders: Seq[ComponentLoader] = if (reloading) {
-      // When reloading, the expensive things and those required to make them are borrowed from previous components.
-      val eidosComponents = eidosComponentsOpt.get
-
-      procOpt = Some(eidosComponents.proc)
-      stopwordManagerOpt = Some(eidosComponents.stopwordManager)
-      // This involves reloading of very large vector files and is what we're trying to avoid.
-      ontologyHandlerOpt = Some(eidosComponents.ontologyHandler)
-      // This only depends on language, not any settings, so a reload is safe.
-      negationHandlerOpt = Some(eidosComponents.negationHandler)
-
-      Seq.empty
+  )
+  val stopwordManagerLoader = newComponentLoader("StopwordManager", eidosComponentsOpt.map(_.stopwordManager),
+    processorLoader.get.getTagSet,
+    { tagSet: TagSet =>
+      StopwordManager.fromConfig(config, tagSet)
     }
-    else {
-      val language = eidosConf[String]("language")
-      val preComponentLoaders = Seq(
-        new ComponentLoader("Processors", {
-          EidosComponentsBuilder.logger.info("Loading processor...")
-          procOpt = Some(EidosProcessor(language, cutoff = 150))
-        })
-      )
-      // Get these out of the way so that the ontologyHandler can take its time about it
-      // even while the processor is busy priming.
-      loadComponents(preComponentLoaders)
-
-      val tagSet = procOpt.get.getTagSet
-      val postpreComponentLoaders = Seq(
-        new ComponentLoader("StopwordManager", { stopwordManagerOpt = Some(StopwordManager.fromConfig(config, tagSet)) })
-      )
-      loadComponents(postpreComponentLoaders)
-
-      Seq(
-        new ComponentLoader("OntologyHandler", {
-          ontologyHandlerOpt = Some(OntologyHandler.load(config[Config]("ontologies"), procOpt.get, stopwordManagerOpt.get, tagSet, procOpt.get.getTokenizer))
-          eidosSentenceClassifierOpt = Some(new EidosSentenceClassifier(SentenceClassifier.fromConfig(config[Config]("sentenceClassifier"), language, ontologyHandlerOpt.get)))
-        }),
-        new ComponentLoader("ProcessorsPrimer", {
-          val eidosProcessor = procOpt.get
-          val tokenizedDoc = eidosProcessor.mkDocument("This is a test.", keepText = true)
-
-          if (eidosProcessor.language == Language.ENGLISH)
-            eidosProcessor.annotate(tokenizedDoc)
-        }),
-        new ComponentLoader("NegationHandler", { negationHandlerOpt = Some(NegationHandler(language)) })
-      )
+  )
+  val ontologyHandlerLoader = newComponentLoader("OntologyHandler", eidosComponentsOpt.map(_.ontologyHandler),
+    {
+      // Make sure these are both being worked on before any waiting is done.
+      (processorLoader.loaded, stopwordManagerLoader.loaded)
+      (processorLoader.get, stopwordManagerLoader.get)
+    },
+    { processorAndStopwordManager: (EidosProcessor, StopwordManager) =>
+      val (processor, stopwordManager) = processorAndStopwordManager
+      OntologyHandler.load(config[Config]("ontologies"), processor, stopwordManager, processor.getTagSet, processor.getTokenizer)
     }
+  )
+  val eidosSentenceClassifierLoader = newComponentLoader("SentenceClassifier", None,
+    ontologyHandlerLoader.get,
+    { ontologyHandler: OntologyHandler =>
+      new EidosSentenceClassifier(SentenceClassifier.fromConfig(config[Config]("sentenceClassifier"), language, ontologyHandler))
+    }
+  )
+  val processorsPrimerLoader = newComponentLoader("ProcessorsPrimer", None,
+    processorLoader.get,
+    { eidosProcessor: EidosProcessor =>
+      val tokenizedDoc = eidosProcessor.mkDocument("This is a test.", keepText = true)
 
-    val tailComponentLoaders = Seq(
-      new ComponentLoader("MostCompleteEventsKeeper", {
-        val actions = EidosActions.fromConfig(config[Config]("actions"), procOpt.get.getTagSet)
+      if (eidosProcessor.language == Language.ENGLISH)
+        eidosProcessor.annotate(tokenizedDoc)
+    }
+  )
+  val negationHandlerLoader = newComponentLoader("NegationHandler", eidosComponentsOpt.map(_.negationHandler),
+    (),
+    { _: Unit =>
+      NegationHandler(language)
+    }
+  )
+  val mostCompleteEventsKeeperLoader = newComponentLoader("MostCompleteEventsKeeper", None,
+    processorLoader.get.getTagSet,
+    { tagSet: TagSet =>
+      val actions = EidosActions.fromConfig(config[Config]("actions"), tagSet)
+      actions.mostCompleteEventsKeeper
+    }
+  )
+  val hedgingHandlerLoader = newComponentLoader("HedgingHandler", None,
+    (),
+    { _: Unit =>
+      HypothesisHandler(eidosConf[String]("hedgingPath"))
+    }
+  )
+  val findersLoader = newComponentLoader("Finders", None,
+    processorLoader.get.getTagSet,
+    { tagSet: TagSet =>
+      Finder.fromConfig(eidosSystemPrefix + ".finders", config, tagSet)
+    }
+  )
+  // This one is not used externally, but may benefit from parallelism.
+  val expanderOptLoader = newComponentLoader("Expander", None,
+    processorLoader.get.getTagSet,
+    { tagSet: TagSet =>
+      eidosConf.get[Config]("conceptExpander").map(Expander.fromConfig(_, tagSet))
+    }
+  )
+  val conceptExpanderLoader = newComponentLoader("ConceptExpander", None,
+    expanderOptLoader.get,
+    { expanderOpt: Option[Expander] =>
+      // Expander for expanding the bare events
+      val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
+      if (keepStatefulConcepts && expanderOpt.isEmpty)
+        EidosComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")
+      new ConceptExpander(expanderOpt, keepStatefulConcepts)
+    }
+  )
+  val nestedArgumentExpanderLoader = newComponentLoader("NestedArgumentExpander", None,
+    (),
+    { _: Unit =>
+      new NestedArgumentExpander
+    }
+  )
+  val adjectiveGrounderLoader = newComponentLoader("AdjectiveGrounder", None,
+    (),
+    { _: Unit =>
+      EidosAdjectiveGrounder.fromConfig(config[Config]("adjectiveGrounder"))
+    }
+  )
+  val corefHandlerLoader = newComponentLoader("CorefHandler", None,
+    (),
+    { _: Unit =>
+      CorefHandler.fromConfig(config[Config]("coref"))
+    }
+  )
+  val attachmentHandlerLoader = newComponentLoader("AttachmentHandler", None,
+    (),
+    { _: Unit =>
+      AttachmentHandler()
+    }
+  )
 
-        mostCompleteEventsKeeperOpt = Some(actions.mostCompleteEventsKeeper)
-      }),
-      new ComponentLoader("HedgingHandler", { hedgingHandlerOpt = Some(HypothesisHandler(eidosConf[String]("hedgingPath"))) }),
-      // Extraction is performed using a sequence of finders.
-      new ComponentLoader("Finders", { findersOpt = Some(Finder.fromConfig(eidosSystemPrefix + ".finders", config, procOpt.get.getTagSet)) }),
-      new ComponentLoader("ConceptExpander", { conceptExpanderOpt = {
-        // Expander for expanding the bare events
-        val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
-        // ConceptExpander, also
-        val expander: Option[Expander] = eidosConf.get[Config]("conceptExpander").map(Expander.fromConfig(_, procOpt.get.getTagSet))
-
-        if (keepStatefulConcepts && expander.isEmpty)
-          EidosComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")
-        Some(new ConceptExpander(expander, keepStatefulConcepts))
-      } }),
-      new ComponentLoader("NestedArgumentExpander", { nestedArgumentExpanderOpt = Some(new NestedArgumentExpander) }),
-      new ComponentLoader("AdjectiveGrounder", { adjectiveGrounderOpt = Some(EidosAdjectiveGrounder.fromConfig(config[Config]("adjectiveGrounder"))) }),
-      new ComponentLoader("CorefHandler", { corefHandlerOpt = Some(CorefHandler.fromConfig(config[Config]("coref"))) }),
-      new ComponentLoader("AttachmentHandler", { attachmentHandlerOpt = Some(AttachmentHandler()) })
-    )
-    val componentLoaders = headComponentLoaders ++ tailComponentLoaders
-    loadComponents(componentLoaders)
-    this
+  def newComponentLoader[I, T](name: String, oldLoadedOpt: Option[T], initializer: => I, loader: I => T): ComponentLoader[I, T] = {
+    val componentLoader = new ComponentLoader(name, oldLoadedOpt, initializer, loader)
+    componentLoaders += componentLoader
+    componentLoader
   }
 
   def build(): EidosComponents = {
+    Timer.time(s"Load components", ComponentLoader.useTimer) {
+      if (parallel) {
+        val futures = componentLoaders.map(_.loaded)
+        val future = Future.sequence(futures)
+        Await.result(future, Duration.Inf)
+      }
+      else
+        componentLoaders.foreach(_.get)
+    }
     EidosComponents(
-      procOpt.get,
-      negationHandlerOpt.get,
-      stopwordManagerOpt.get,
-      ontologyHandlerOpt.get,
-      mostCompleteEventsKeeperOpt.get,
-      hedgingHandlerOpt.get,
-      findersOpt.get,
-      conceptExpanderOpt.get,
-      nestedArgumentExpanderOpt.get,
-      adjectiveGrounderOpt.get,
-      corefHandlerOpt.get,
-      attachmentHandlerOpt.get,
-      eidosSentenceClassifierOpt.get
+      processorLoader.get,
+      negationHandlerLoader.get,
+      stopwordManagerLoader.get,
+      ontologyHandlerLoader.get,
+      mostCompleteEventsKeeperLoader.get,
+      hedgingHandlerLoader.get,
+      findersLoader.get,
+      conceptExpanderLoader.get,
+      nestedArgumentExpanderLoader.get,
+      adjectiveGrounderLoader.get,
+      corefHandlerLoader.get,
+      attachmentHandlerLoader.get,
+      eidosSentenceClassifierLoader.get
     )
   }
 }
