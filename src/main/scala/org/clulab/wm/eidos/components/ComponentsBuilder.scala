@@ -18,6 +18,7 @@ import org.clulab.wm.eidos.expansion.NestedArgumentExpander
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
+import org.clulab.wm.eidos.utils.Domain
 import org.clulab.wm.eidos.utils.Language
 import org.clulab.wm.eidos.utils.Resourcer
 import org.clulab.wm.eidos.utils.StopwordManager
@@ -35,11 +36,12 @@ class ComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponen
     componentOpts: ComponentOpts = ComponentOpts(), implicit val parallel: Boolean = true) {
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  Resourcer.setConfig(config) // This is a hack which initializes a global variable.
-
   val eidosConf: Config = config[Config](eidosSystemPrefix)
   val language = eidosConf[String]("language")
   val componentLoaders = new ArrayBuffer[ComponentLoader[_, _]]()
+
+  Resourcer.setConfig(config) // This is a hack which initializes a global variable.
+  Domain.setConfig(config) // likewise
 
   val processorLoader = newComponentLoader("Processors", componentOpts.proc, eidosComponentsOpt.flatMap(_.procOpt),
     (),
