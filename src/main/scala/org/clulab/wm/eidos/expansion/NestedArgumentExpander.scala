@@ -19,7 +19,6 @@ class NestedArgumentExpander {
         case m +: rest => traverse(rest, results, seen)
       }
     }
-
     traverse(odinMentions, Seq.empty, Set.empty)
   }
 }

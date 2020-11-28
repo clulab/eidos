@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.groundings.grounders
 
 import org.clulab.wm.eidos.groundings.{DomainOntology, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{Canonicalizer, GroundingUtils}
+import org.clulab.wm.eidos.utils.Canonicalizer
 
 class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {

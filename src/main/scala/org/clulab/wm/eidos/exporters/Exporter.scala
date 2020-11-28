@@ -24,7 +24,7 @@ object Exporter {
     exporterString match {
       case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
       case "serialized" => SerializedExporter(filename)
-      case "grounding" => GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
+      case "grounding" => new GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
       case "reground" => new RegroundExporter(filename + ".jsonld", reader)
       case "debugGrounding" => new DebugGroundingExporter(filename)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
@@ -35,7 +35,7 @@ object Exporter {
   // been opened and is accessible through the printWriter.
   def apply(exporterString: String, printWriter: PrintWriter, reader: EidosSystem, groundAs: Seq[String], topN: Int): Exporter = {
     exporterString match {
-      case "incdec" => new IncDecExporter(printWriter)
+      case "incdec" => IncDecExporter(printWriter)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }

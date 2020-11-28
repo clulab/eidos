@@ -140,8 +140,6 @@ class TestSentenceClassifier extends Test {
 
       val label = sentenceClassifierEvaluationData(i)._2
       labels.append(label)
-
-
     }
     val (acc, precision, recall, f1) = getEvaluationStatistics(preds, labels)
 

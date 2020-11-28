@@ -59,4 +59,3 @@ symptom
 treatment
 woman
 work
-

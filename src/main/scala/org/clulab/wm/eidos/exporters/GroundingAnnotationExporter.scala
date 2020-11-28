@@ -9,7 +9,7 @@ import org.clulab.wm.eidos.utils.Closer.AutoCloser
 
 import scala.collection.Seq
 
-case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
+class GroundingAnnotationExporter(filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
 
   override def export(annotatedDocument: AnnotatedDocument): Unit = {
     new CsvWriter(FileUtils.printWriterFromFile(filename)).autoClose { csvWriter =>
