@@ -14,6 +14,7 @@ class Metadata(val dctOpt: Option[DCT], val idOpt: Option[String],
     doc.id = idOpt
     dctOpt.foreach { dct =>
       DctDocumentAttachment.setDct(doc, dct)
+      doc.setDCT(dct.text)
     }
     titleOpt.foreach { title =>
       TitleDocumentAttachment.setTitle(doc, title)

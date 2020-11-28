@@ -10,6 +10,7 @@ import java.io.SyncFailedException
 import java.nio.charset.StandardCharsets
 
 import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
@@ -78,7 +79,7 @@ object ExtractCluMetaFromDirectoryFiltered extends App {
   val allFiles = FileUtils.findFiles(inputDir, "txt")
   val config = EidosSystem.defaultConfig
   val reader = new EidosSystem(config)
-  val options = EidosSystem.Options()
+  val options = EidosOptions()
   // 0. Optionally include adjective grounding
   val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 

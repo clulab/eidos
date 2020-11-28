@@ -11,6 +11,7 @@ import org.clulab.wm.eidos.utils.FileUtils
 import org.clulab.wm.eidos.utils.ThreadUtils
 import org.clulab.wm.eidos.utils.Timer
 import org.clulab.serialization.json.DocOps
+import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.meta.CdrText
 import org.slf4j.Logger
@@ -38,7 +39,6 @@ object ExtractCdrProcOnlyFromDirectory extends App {
     // to any particular document.
     val config = EidosSystem.defaultConfig
     val reader = new EidosSystem(config)
-    val options = EidosSystem.Options()
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 

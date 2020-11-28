@@ -11,23 +11,23 @@ import upickle.default.{ReadWriter, macroRW}
 
 object MaaSUtils {
   def mapOntology(reader: EidosSystem, ontologyName: String, ontologyString: String, topN: Int = 10): String = {
-    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders.collect{ case g: EidosOntologyGrounder => g }
+    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandlerOpt.get.ontologyGrounders.collect{ case g: EidosOntologyGrounder => g }
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
     val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings
     val primaryKeys = primaryConceptEmbeddings.map(_.namer.name)
-    val canonicalizer = new Canonicalizer(reader.components.stopwordManager, reader.components.proc.getTagSet)
+    val canonicalizer = new Canonicalizer(reader.components.stopwordManagerOpt.get, reader.components.procOpt.get.getTagSet)
     val providedOntology = OntologyHandler.mkDomainOntologyFromYaml(
       ontologyName,
       ontologyString,
-      reader.components.proc,
+      reader.components.procOpt.get,
       canonicalizer,
       includeParents = true
     )
     val grounder = EidosOntologyGrounder(
       ontologyName,
       providedOntology,
-      reader.components.ontologyHandler.wordToVec,
+      reader.components.ontologyHandlerOpt.get.wordToVec,
       canonicalizer
     )
     val concepts = grounder.conceptEmbeddings
@@ -47,13 +47,13 @@ object MaaSUtils {
     val examples = json("examples").arr.map(_.toString)
     // create a bag of words, and sanitize them
     val sanitizedExampleBag = examples.flatMap(_.split("\\s+")).map(w => Word2Vec.sanitizeWord(w))
-    val w2v = reader.components.ontologyHandler.wordToVec
+    val w2v = reader.components.ontologyHandlerOpt.get.wordToVec
     // average the word embeddings
     val embedding = w2v.makeCompositeVector(sanitizedExampleBag)
     // convert to a ConceptEmbedding
     val conceptEmbed = ConceptEmbedding(new PassThruNamer(node), embedding)
 
-    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders.collect{ case g: EidosOntologyGrounder => g }
+    val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandlerOpt.get.ontologyGrounders.collect{ case g: EidosOntologyGrounder => g }
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
     val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings

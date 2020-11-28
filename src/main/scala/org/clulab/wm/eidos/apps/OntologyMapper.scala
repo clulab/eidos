@@ -74,7 +74,7 @@ object OntologyMapper {
 
   def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Float] = {
     val words = s.split("[ |_]").map(Word2Vec.sanitizeWord(_)).map(replaceSofiaAbbrev)
-    reader.components.ontologyHandler.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.components.proc))
+    reader.components.ontologyHandlerOpt.get.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.components.procOpt.get))
   }
 
   def mweStringSimilarity(a: String, b: String, reader: EidosSystem): Float = {
@@ -154,7 +154,7 @@ object OntologyMapper {
   }
 
   def eidosGrounders(reader: EidosSystem): Seq[EidosOntologyGrounder] = {
-    reader.components.ontologyHandler.ontologyGrounders.collect{
+    reader.components.ontologyHandlerOpt.get.ontologyGrounders.collect{
       case e: FlatOntologyGrounder => e
     }
   }
@@ -212,15 +212,15 @@ object OntologyMapper {
   def mapOntologies(reader: EidosSystem, sofiaPath: String, providedOntology: Option[String], providedOntName: String = "ProvidedOntology",
       exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f, topN: Int = 0): String = {
     // EidosSystem stuff
-    val proc = reader.components.proc
-    val w2v = reader.components.ontologyHandler.wordToVec
-    val canonicalizer = reader.components.ontologyHandler.canonicalizer
-    val includeParents = reader.components.ontologyHandler.includeParents
-    val tagSet = reader.components.proc.getTagSet
+    val proc = reader.components.procOpt.get
+    val w2v = reader.components.ontologyHandlerOpt.get.wordToVec
+    val canonicalizer = reader.components.ontologyHandlerOpt.get.canonicalizer
+    val includeParents = reader.components.ontologyHandlerOpt.get.includeParents
+    val tagSet = reader.components.procOpt.get.getTagSet
 
     // Load
     val eidosConceptEmbeddings = if (providedOntology.nonEmpty) {
-      val ontology = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManager, tagSet), includeParents = includeParents)
+      val ontology = OntologyHandler.mkDomainOntologyFromYaml(providedOntName, providedOntology.get, proc, new Canonicalizer(reader.components.stopwordManagerOpt.get, tagSet), includeParents = includeParents)
       val grounder = EidosOntologyGrounder(providedOntName, ontology, w2v, canonicalizer)
       grounder.conceptEmbeddings
     } else {

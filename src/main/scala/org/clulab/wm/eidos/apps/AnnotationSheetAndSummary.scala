@@ -75,7 +75,7 @@ object AnnotationSheetAndSummary extends App with Configured {
     // filter the eidos mentions in each to be only relevant ones
     .flatMap{ adOpt =>
       adOpt match {
-        case Some(ad) => reader.components.stopwordManager.relevantMentions(ad).filter(_.label == EidosSystem.CAUSAL_LABEL)
+        case Some(ad) => reader.components.stopwordManagerOpt.get.relevantMentions(ad).filter(_.label == EidosSystem.CAUSAL_LABEL)
         case None => Seq()
       }
     }

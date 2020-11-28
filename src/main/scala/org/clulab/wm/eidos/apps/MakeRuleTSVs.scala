@@ -30,7 +30,7 @@ object MakeRuleTSVs extends App {
 
   // Organize
   val mentions = annotatedDocuments.seq.flatMap(ad => ad.odinMentions)
-  val keptMentions = reader.components.stopwordManager.keepCAGRelevant(mentions)
+  val keptMentions = reader.components.stopwordManagerOpt.get.keepCAGRelevant(mentions)
   // create a map where the key is the Set of rule/rule components and the values are the Mentions
   val byRules = keptMentions.groupBy(_.foundBy)
     .map(grouping => (FoundBy.split(grouping._1).toSet, grouping._2))

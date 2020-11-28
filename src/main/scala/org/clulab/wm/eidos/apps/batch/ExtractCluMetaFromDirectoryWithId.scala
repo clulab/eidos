@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.apps.batch
 
+import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.Closer.AutoCloser
@@ -58,7 +59,7 @@ object ExtractCluMetaFromDirectoryWithId extends App {
     // Prime it first.  This counts on overall time, but should not be attributed
     // to any particular document.
     val reader = new EidosSystem()
-    val options = EidosSystem.Options()
+    val options = EidosOptions()
 
     reader.extractFromText("This is a test.")
     timer.stop()
