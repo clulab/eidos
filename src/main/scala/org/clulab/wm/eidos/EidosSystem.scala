@@ -52,9 +52,9 @@ class EidosSystem(val components: EidosComponents) {
   //                                 Annotation Methods
   // ---------------------------------------------------------------------------------------------
 
-  def annotateDoc(doc: Document): Document = {
-    val annotateRefiner = DocumentRefiner.mkAnnotateRefiner(components, RefinerOptions.irrelevant)
-    val annotatedDoc = DocumentRefiner.refine(Seq(annotateRefiner), doc, useTimer)
+  def annotateDoc(doc: Document, metadata: Metadata = Metadata()): Document = {
+    val annotateRefiners = DocumentRefiner.mkAnnotateRefiners(components, RefinerOptions.irrelevant, metadata)
+    val annotatedDoc = DocumentRefiner.refine(annotateRefiners, doc, useTimer)
 
     annotatedDoc
   }
@@ -62,11 +62,11 @@ class EidosSystem(val components: EidosComponents) {
   // Annotate the text using a Processor and then populate lexicon labels.
   // If there is a document time involved, please place it in the metadata
   // and use one of the calls that takes it into account.
-  def annotate(text: String): Document = {
+  def annotate(text: String, metadata: Metadata = Metadata()): Document = {
     val processorRefiner = ProcessorRefiner.mkRefiner(components, RefinerOptions.irrelevant)
     val doc = ProcessorRefiner.refine(processorRefiner, text, useTimer)
 
-    val annotatedDoc = annotateDoc(doc)
+    val annotatedDoc = annotateDoc(doc, metadata)
 
     annotatedDoc
   }
@@ -121,7 +121,7 @@ class EidosSystem(val components: EidosComponents) {
 
   // MAIN PIPELINE METHOD if given text
   def extractFromText(text: String, options: EidosOptions, metadata: Metadata): AnnotatedDocument = {
-    val annotatedDoc = annotate(text)
+    val annotatedDoc = annotate(text, metadata)
 
     extractFromDoc(annotatedDoc, options.refinerOptions, metadata)
   }

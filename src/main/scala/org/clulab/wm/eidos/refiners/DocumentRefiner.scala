@@ -12,12 +12,21 @@ class DocumentRefiner(name: String, val refine: Document => Option[Document]) ex
 
 object DocumentRefiner {
 
-  def mkAnnotateRefiner(components: EidosComponents, options: RefinerOptions): DocumentRefiner = {
-    new DocumentRefiner("Processors.annotate", (document: Document) => {
-      components.procOpt.map { proc =>
-        proc.annotate(document)
-      }
-    })
+  def mkAnnotateRefiners(components: EidosComponents, options: RefinerOptions, metadata: Metadata): Seq[DocumentRefiner] = {
+    // The metadata, in particular the DCT must be present before annotation.
+    Seq(
+      new DocumentRefiner("MetadataHandler", (doc: Document) => {
+        Some {
+          metadata.attachToDoc(doc)
+          doc
+        }
+      }),
+      new DocumentRefiner("Processors.annotate", (document: Document) => {
+        components.procOpt.map { proc =>
+          proc.annotate(document)
+        }
+      })
+    )
   }
 
   def mkRefiners(components: EidosComponents, options: RefinerOptions, metadata: Metadata): Seq[DocumentRefiner] = {
@@ -27,12 +36,6 @@ object DocumentRefiner {
           val relevanceOpts = doc.sentences.map { sent => eidosSentenceClassifier.classify(sent) }
 
           RelevanceDocumentAttachment.setRelevanceOpt(doc, relevanceOpts)
-          doc
-        }
-      }),
-      new DocumentRefiner("MetadataHandler", (doc: Document) => {
-        Some {
-          metadata.attachToDoc(doc)
           doc
         }
       })
