@@ -14,6 +14,7 @@ object DocumentRefiner {
 
   def mkAnnotateRefiners(components: EidosComponents, options: RefinerOptions, metadata: Metadata): Seq[DocumentRefiner] = {
     // The metadata, in particular the DCT must be present before annotation.
+    // It can't hurt to put it all in at once, can it?
     Seq(
       new DocumentRefiner("MetadataHandler", (doc: Document) => {
         Some {
