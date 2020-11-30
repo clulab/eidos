@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.components
 
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidoscommon.utils.Timer
 
 import scala.concurrent.Await
 import scala.concurrent.Future

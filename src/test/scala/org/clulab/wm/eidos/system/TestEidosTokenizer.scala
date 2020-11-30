@@ -8,7 +8,7 @@ class TestEidosTokenizer extends EnglishTest {
 
   behavior of "normalization"
 
-  val eidosTokenizer: EidosTokenizer = ieSystem.components.procOpt.get.asInstanceOf[EidosEnglishProcessor].tokenizer
+  val eidosTokenizer: EidosTokenizer = ieSystem.components.procOpt.get.asInstanceOf[EidosEnglishProcessor].eidosTokenizer
 
   it should "not change plain text" in {
     val oldText = "This is a test."

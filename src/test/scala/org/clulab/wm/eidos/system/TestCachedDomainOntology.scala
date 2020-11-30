@@ -5,7 +5,7 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidoscommon.EidosProcessor.EidosProcessor
+import org.clulab.wm.eidoscommon.EidosProcessor
 import org.clulab.wm.eidoscommon.utils.Canonicalizer
 import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
