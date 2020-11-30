@@ -10,7 +10,6 @@ import org.clulab.wm.eidoscommon.utils.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.Resourcer
-import org.clulab.wm.ontologies.DomainOntology
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
