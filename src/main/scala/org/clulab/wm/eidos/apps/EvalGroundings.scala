@@ -78,7 +78,7 @@ object EvalGroundings {
     }
 
     val eidosSystem = new EidosSystem(config)
-    val ontologyHandler: OntologyHandler = eidosSystem.components.ontologyHandler
+    val ontologyHandler: OntologyHandler = eidosSystem.components.ontologyHandlerOpt.get
     val tsvReader = new TsvReader()
 
     new TsvWriter(FileUtils.printWriterFromFile(outFilename), isExcel = false).autoClose { tsvWriter =>

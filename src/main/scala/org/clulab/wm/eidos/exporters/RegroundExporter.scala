@@ -9,7 +9,7 @@ import org.clulab.wm.eidoscommon.utils.FileUtils
 
 class RegroundExporter(filename: String, reader: EidosSystem) extends JSONLDExporter(filename, reader) {
   override def export(annotatedDocument: AnnotatedDocument): Unit = {
-    val ontologyHandler = reader.components.ontologyHandler
+    val ontologyHandler = reader.components.ontologyHandlerOpt.get
     // Reground
     annotatedDocument.allEidosMentions.foreach { eidosMention =>
       ontologyHandler.ground(eidosMention)

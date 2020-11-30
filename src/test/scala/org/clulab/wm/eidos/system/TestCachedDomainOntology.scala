@@ -21,8 +21,8 @@ class TestCachedDomainOntology extends Test {
   val baseDir = "/org/clulab/wm/eidos/english/ontologies"
   val cacheDir: String = config[String]("ontologies.cacheDir")
   val reader: EidosSystem = new EidosSystem(config)
-  val proc: EidosProcessor = reader.components.proc
-  val canonicalizer = new Canonicalizer(reader.components.stopwordManager, reader.components.proc.getTagSet)
+  val proc: EidosProcessor = reader.components.procOpt.get
+  val canonicalizer = new Canonicalizer(reader.components.stopwordManagerOpt.get, reader.components.procOpt.get.getTagSet)
   val filter = true
 
   case class OntologySpec(abbrev: String, path: String)

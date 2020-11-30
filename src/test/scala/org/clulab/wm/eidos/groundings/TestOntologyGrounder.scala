@@ -66,7 +66,7 @@ class TestOntologyGrounder extends EnglishTest {
       }
 
       val ontologyYaml = Resourcer.getText("/org/clulab/wm/eidos/english/ontologies/un_ontology.yml")
-      val ontologyHandler = ieSystem.components.ontologyHandler
+      val ontologyHandler = ieSystem.components.ontologyHandlerOpt.get
       val text = odinMention.text
       val canonicalName = eidosMention.canonicalName
 

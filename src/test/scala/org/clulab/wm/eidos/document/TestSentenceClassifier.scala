@@ -16,7 +16,7 @@ class TestSentenceClassifier extends Test {
   val config: Config = EidosSystem.defaultConfig
   val eidosSystem = new EidosSystem(config)
   // Classification threshold can be set in the eidos.conf file.
-  val classificationThreshold = eidosSystem.components.eidosSentenceClassifier.classificationThreshold
+  val classificationThreshold = eidosSystem.components.eidosSentenceClassifierOpt.get.classificationThreshold
 
   //Get accuracy and f1 score of the predictions.
   def getEvaluationStatistics(preds:Seq[Int], labels:Seq[Int]):(Float, Float, Float, Float) = {
@@ -96,11 +96,11 @@ class TestSentenceClassifier extends Test {
 
     for (i <- sentenceClassifierEvaluationData.indices) {
       val sentence = sentenceClassifierEvaluationData(i)._1
-      val sentenceObj = eidosSystem.components.proc.annotate(sentence).sentences.head
+      val sentenceObj = eidosSystem.components.procOpt.get.annotate(sentence).sentences.head
       val label = sentenceClassifierEvaluationData(i)._2
       labels.append(label)
 
-      val classifierPred = eidosSystem.components.eidosSentenceClassifier.classify(sentenceObj).get
+      val classifierPred = eidosSystem.components.eidosSentenceClassifierOpt.get.classify(sentenceObj).get
 
       preds.append(if (classifierPred > classificationThreshold) 1 else 0)
     }
@@ -120,9 +120,9 @@ class TestSentenceClassifier extends Test {
     var invalidSentCount = 0
     for (i <- sentenceClassifierEvaluationData.indices) {
       val sentence = sentenceClassifierEvaluationData(i)._1
-      if (eidosSystem.components.proc.annotate(sentence).sentences.nonEmpty){
-        val sentenceObj = eidosSystem.components.proc.annotate(sentence).sentences.head
-        val classifierPred = eidosSystem.components.eidosSentenceClassifier.classify(sentenceObj).get
+      if (eidosSystem.components.procOpt.get.annotate(sentence).sentences.nonEmpty){
+        val sentenceObj = eidosSystem.components.procOpt.get.annotate(sentence).sentences.head
+        val classifierPred = eidosSystem.components.eidosSentenceClassifierOpt.get.classify(sentenceObj).get
 
         // This classification threshold is largely determined by the python experiment, but I also tuned it a little bit.
         // In python, when t = 0.82, p = 0.81 and r = 0.15
@@ -139,8 +139,6 @@ class TestSentenceClassifier extends Test {
 
       val label = sentenceClassifierEvaluationData(i)._2
       labels.append(label)
-
-
     }
     val (acc, precision, recall, f1) = getEvaluationStatistics(preds, labels)
 

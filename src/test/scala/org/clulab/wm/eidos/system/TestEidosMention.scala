@@ -94,7 +94,7 @@ than in the corresponding period two years earlier.
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
     val (eidosMentions3, _) = EidosMention.asEidosMentions(odinMentions3)
-    val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
+    val canonicalizer = ieSystem.components.ontologyHandlerOpt.get.canonicalizer
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)

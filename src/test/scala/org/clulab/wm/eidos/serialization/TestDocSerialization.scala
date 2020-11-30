@@ -19,7 +19,7 @@ class TestDocSerialization extends Test {
   val config: Config = this.defaultConfig // Do not use EidosSystem's defaultConfig!
   val reader: EidosSystem = new EidosSystem(config)
   val adjectiveGrounder: AdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
-  val canonicalizer: Canonicalizer = reader.components.ontologyHandler.canonicalizer
+  val canonicalizer: Canonicalizer = reader.components.ontologyHandlerOpt.get.canonicalizer
 
   def testObjectSerialization(annotatedDocument: AnnotatedDocument): Unit = {
     val document = annotatedDocument.document

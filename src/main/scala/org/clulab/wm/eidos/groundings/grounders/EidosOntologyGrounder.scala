@@ -5,11 +5,11 @@ import org.clulab.wm.eidos.groundings.ConceptPatterns
 import org.clulab.wm.eidos.groundings.EidosWordToVec
 import org.clulab.wm.eidos.groundings.IndividualGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases
+import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
+import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.OntologyGrounder
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.groundings.SingleOntologyNodeGrounding
-import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
-import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.EidosTokenizer
 import org.clulab.wm.eidoscommon.utils.{Canonicalizer, StringUtils}

@@ -55,7 +55,7 @@ object EvalTimeNorm {
       val docText = Source.fromInputStream(docStream).getLines().mkString("\n")
 
       // Get a document of tokens
-      val tokenizedDoc = eidosSystem.components.proc.mkDocument(docText, keepText = true)
+      val tokenizedDoc = eidosSystem.components.procOpt.get.mkDocument(docText, keepText = true)
       // if useNeuralParser, parse the document creation time
       // else set the DCT of the document
       if (useNeuralParser) {

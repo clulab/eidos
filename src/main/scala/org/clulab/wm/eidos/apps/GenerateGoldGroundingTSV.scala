@@ -14,7 +14,7 @@ import org.clulab.wm.eidoscommon.utils.{StringUtils, TsvReader, TsvWriter}
 object GenerateGoldGroundingTSV extends App {
 
   class Evaluator(eidosSystem: EidosSystem) {
-    protected val ontologyHandler: OntologyHandler = eidosSystem.components.ontologyHandler
+    protected val ontologyHandler: OntologyHandler = eidosSystem.components.ontologyHandlerOpt.get
 
     def evaluate(causeOrEffect: String, sentence: String): (String, Seq[(String, String)]) = {
       val start = sentence.indexOf(causeOrEffect)

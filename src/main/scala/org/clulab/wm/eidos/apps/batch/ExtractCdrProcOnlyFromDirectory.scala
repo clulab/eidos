@@ -8,7 +8,8 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, ThreadUtils, Timer}
 import org.clulab.serialization.json.DocOps
-import org.clulab.wm.eidos.groundings.grounders.EidosAdjectiveGrounder
+import org.clulab.wm.eidos.EidosOptions
+import org.clulab.wm.eidos.utils.FileEditor
 import org.clulab.wm.eidos.utils.meta.CdrText
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -35,7 +36,6 @@ object ExtractCdrProcOnlyFromDirectory extends App {
     // to any particular document.
     val config = EidosSystem.defaultConfig
     val reader = new EidosSystem(config)
-    val options = EidosSystem.Options()
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 

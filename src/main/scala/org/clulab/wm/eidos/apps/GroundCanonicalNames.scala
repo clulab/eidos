@@ -12,7 +12,7 @@ object GroundCanonicalNames extends App {
 
   class Grounder {
     val name = "wm"
-    protected val ontologyHandler: OntologyHandler = new EidosSystem().components.ontologyHandler
+    protected val ontologyHandler: OntologyHandler = new EidosSystem().components.ontologyHandlerOpt.get
     protected val ontologyGrounder: OntologyGrounder = ontologyHandler.ontologyGrounders.find(_.name == name).get
     protected val nameToIsLeaf: Map[String, Boolean] = {
       val domainOntology = ontologyGrounder.domainOntology
