@@ -4,7 +4,7 @@ import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.collection.immutable.HashSet
 
-class TestEidosAttachment extends Test {
+class TestEidosAttachment extends EidosTest {
 
   {
     behavior of "a Quantification"

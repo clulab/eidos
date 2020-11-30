@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.entities
 import org.clulab.wm.eidos.extraction.EntityConstraints
 import org.clulab.wm.eidos.test.TestUtils._
 
-class TestEntityConstraints extends Test {
+class TestEntityConstraints extends EidosTest {
 
   def matchBrackets(text: String) =
       EntityConstraints.matchingBrackets(text.split(' ').toSeq)

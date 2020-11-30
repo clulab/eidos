@@ -11,7 +11,7 @@ import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuild
 import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
-class TestDomainOntology extends Test {
+class TestDomainOntology extends EidosTest {
 
   def matches(left: DomainOntology, right: DomainOntology): Boolean = {
 

@@ -13,7 +13,7 @@ import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTre
 
 import scala.collection.JavaConverters._
 
-class TestCachedDomainOntology extends Test {
+class TestCachedDomainOntology extends EidosTest {
   val ontologies: Iterable[String] = Seq("one", "two")
   val config: Config = ConfigFactory.load(this.defaultConfig)
       .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false, "Vectors are not necessary."))

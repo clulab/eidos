@@ -8,7 +8,6 @@ import org.clulab.processors.clu.{PortugueseCluProcessor, SpanishCluProcessor}
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.utils.ScienceUtils
-import org.clulab.wm.eidoscommon.utils.SpanishTagSet
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable.ArrayBuffer

@@ -5,7 +5,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.test.TestUtils._
 
-class TestConfig extends Test with Configured {
+class TestConfig extends EidosTest with Configured {
   
   override def getConf: Config = config
   

@@ -6,7 +6,7 @@ import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
 
-class TestCrLf extends Test {
+class TestCrLf extends EidosTest {
   
   behavior of "resources"
 

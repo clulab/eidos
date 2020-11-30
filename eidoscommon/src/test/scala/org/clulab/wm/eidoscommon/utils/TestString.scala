@@ -1,6 +1,4 @@
-package org.clulab.wm.eidos.test.util
-
-import org.clulab.wm.eidos.test.TestUtils._
+package org.clulab.wm.eidoscommon.utils
 
 class TestString extends Test {
   

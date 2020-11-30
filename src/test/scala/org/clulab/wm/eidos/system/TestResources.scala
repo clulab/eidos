@@ -7,7 +7,7 @@ import org.clulab.wm.eidoscommon.Language
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
 
-class TestResources extends Test {
+class TestResources extends EidosTest {
   
   behavior of "resources"
 

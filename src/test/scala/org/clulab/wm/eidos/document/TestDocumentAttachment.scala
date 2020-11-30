@@ -15,7 +15,7 @@ import org.clulab.wm.eidos.document.attachments.{DctDocumentAttachment, Relevanc
 import org.clulab.wm.eidos.test.TestUtils._
 import org.json4s.jackson.{parseJson, prettyJson, renderJValue}
 
-class TestDocumentAttachment extends Test {
+class TestDocumentAttachment extends EidosTest {
 
   def serialize(any: Any): Array[Byte] = {
     new ByteArrayOutputStream().autoClose { byteArrayOutputStream =>

@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.apps.EvalGroundings
-import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.test.TestUtils.EidosTest
 
-class TestEvalGroundings extends Test {
+class TestEvalGroundings extends EidosTest {
 
   behavior of "grounding algorithm"
 

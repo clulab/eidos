@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.test
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.{EidosSystem, graph, rule}
+import org.clulab.wm.eidoscommon.utils.Test
 import org.scalatest._
 
 import scala.collection.Seq
@@ -59,7 +60,7 @@ object TestUtils {
     eidosSystem
   }
 
-  class Test extends FlatSpec with Matchers {
+  class EidosTest extends Test {
     val defaultConfig: Config = ConfigFactory.load("englishTest")
 
     val passingTest = it
@@ -74,7 +75,7 @@ object TestUtils {
     val waitingForProcessors = ignore  // type of futureWorkTest -- added for tests which are now failing because they where designed using a SNAPSHOT version of processors
   }
 
-  class ContraptionTest extends Test
+  class ContraptionTest extends EidosTest
 
   class ExtractionTest(val ieSystem: EidosSystem, val config: Config) extends ContraptionTest {
     // These multiple configs are to ensure that the same config that was used to initialize the EidosSystem
