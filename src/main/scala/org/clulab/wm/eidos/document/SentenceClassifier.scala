@@ -9,7 +9,7 @@ import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
 import java.io.FileNotFoundException
 
-import org.clulab.wm.eidoscommon.utils.Language
+import org.clulab.wm.eidoscommon.Language
 
 class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[String, Float], ontologyHandler: OntologyHandler, flatOntologyGrounder: FlatOntologyGrounder) {
   val conceptEmbeddings: Seq[ConceptEmbedding] = flatOntologyGrounder.conceptEmbeddings

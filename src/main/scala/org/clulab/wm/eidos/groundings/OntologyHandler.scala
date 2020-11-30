@@ -12,8 +12,9 @@ import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.StopwordManager
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.TagSet
 import org.clulab.wm.eidoscommon.{EidosProcessor, EidosTokenizer, SentencesExtractor}
-import org.clulab.wm.eidoscommon.utils.{Canonicalizer, TagSet}
 import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.DomainOntology

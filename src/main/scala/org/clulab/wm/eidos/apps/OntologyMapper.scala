@@ -9,8 +9,9 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
+import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{Canonicalizer, PassThruNamer}
+import org.clulab.wm.eidoscommon.utils.PassThruNamer
 import org.clulab.wm.ontologies.DomainOntology
 
 import scala.collection.mutable.ArrayBuffer

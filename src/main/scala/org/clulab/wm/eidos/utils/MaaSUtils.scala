@@ -5,7 +5,8 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.apps.OntologyMapper.{mostSimilar, mostSimilarIndicators}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, OntologyHandler}
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
-import org.clulab.wm.eidoscommon.utils.{Canonicalizer, PassThruNamer}
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.utils.PassThruNamer
 import upickle.default._
 import upickle.default.{ReadWriter, macroRW}
 

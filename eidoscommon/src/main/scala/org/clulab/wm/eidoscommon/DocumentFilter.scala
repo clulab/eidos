@@ -1,9 +1,11 @@
-package org.clulab.wm.eidoscommon.utils
+package org.clulab.wm.eidoscommon
 
+import org.clulab.processors.Document
+import org.clulab.processors.Processor
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
-import org.clulab.processors.{Document, Processor}
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 trait DocumentFilter {
   def whileFiltered(document: Document)(transform: Document => Document): Document

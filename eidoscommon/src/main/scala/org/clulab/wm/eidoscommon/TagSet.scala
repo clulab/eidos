@@ -1,4 +1,4 @@
-package org.clulab.wm.eidoscommon.utils
+package org.clulab.wm.eidoscommon
 
 abstract class TagSet {
   def isAnyNoun(tag: String): Boolean

@@ -19,9 +19,9 @@ import org.clulab.wm.eidos.groundings.grounders.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.utils.Domain
 import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.wm.eidoscommon.EidosProcessor
-import org.clulab.wm.eidoscommon.utils.Language
+import org.clulab.wm.eidoscommon.Language
+import org.clulab.wm.eidoscommon.TagSet
 import org.clulab.wm.eidoscommon.utils.Resourcer
-import org.clulab.wm.eidoscommon.utils.TagSet
 import org.clulab.wm.eidoscommon.utils.Timer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

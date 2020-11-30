@@ -16,7 +16,7 @@ import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.wm.eidoscommon.EidosParameters
-import org.clulab.wm.eidoscommon.utils.TagSet
+import org.clulab.wm.eidoscommon.TagSet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

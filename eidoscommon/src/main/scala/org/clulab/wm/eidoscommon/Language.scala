@@ -1,4 +1,4 @@
-package org.clulab.wm.eidoscommon.utils
+package org.clulab.wm.eidoscommon
 
 object Language {
   // For now these are simple constant strings.  Later...

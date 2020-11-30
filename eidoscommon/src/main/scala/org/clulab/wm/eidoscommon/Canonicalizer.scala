@@ -1,8 +1,5 @@
-package org.clulab.wm.eidoscommon.utils
+package org.clulab.wm.eidoscommon
 
-
-import org.clulab.odin.Mention
-import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 
@@ -31,5 +28,4 @@ class Canonicalizer(stopwordManaging: StopwordManaging, tagSet: TagSet) {
     else
       contentWords
   }
-
 }

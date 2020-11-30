@@ -3,8 +3,8 @@ package org.clulab.wm.ontologies
 import java.time.ZonedDateTime
 
 import org.clulab.struct.Interval
+import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
-import org.clulab.wm.eidoscommon.utils.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.Namer
 
 import scala.util.matching.Regex

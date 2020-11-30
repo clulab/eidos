@@ -8,7 +8,7 @@ import org.clulab.sequences.LexiconNER
 import org.clulab.wm.eidos.expansion.Expander
 import GazetteerEntityFinder.NER_OUTSIDE
 import org.clulab.wm.eidos.utils.DisplayUtils
-import org.clulab.wm.eidoscommon.utils.TagSet
+import org.clulab.wm.eidoscommon.TagSet
 
 /**
   * The GazetteerEntityFinder finds mentions of gazetteer elements.  The matching uses a processors LexiconNER,

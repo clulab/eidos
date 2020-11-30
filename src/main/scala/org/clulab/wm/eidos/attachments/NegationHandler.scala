@@ -6,7 +6,7 @@ import org.clulab.wm.eidos.EidosSystem
 import scala.collection.mutable.ArrayBuffer
 import org.clulab.struct.Interval
 import org.clulab.wm.eidoscommon.EidosParameters
-import org.clulab.wm.eidoscommon.utils.Language
+import org.clulab.wm.eidoscommon.Language
 
 /**
   * Taken from Reach (1.4.0), the information system developed for the DARPA Big Mechanism program

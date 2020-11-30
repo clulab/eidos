@@ -8,7 +8,9 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.EidosParameters
-import org.clulab.wm.eidoscommon.utils.{FileUtils, StopwordManaging, TagSet}
+import org.clulab.wm.eidoscommon.StopwordManaging
+import org.clulab.wm.eidoscommon.TagSet
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 
 

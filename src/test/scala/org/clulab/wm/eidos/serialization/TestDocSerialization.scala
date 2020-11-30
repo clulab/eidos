@@ -11,8 +11,9 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, EidosAdjectiveGrounder}
 import org.clulab.wm.eidos.serialization.jsonld.{JLDCorpus, JLDDeserializer}
 import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{Canonicalizer, FileUtils}
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.json4s.jackson.JsonMethods.{parse, pretty, render}
 
 class TestDocSerialization extends Test {

@@ -7,7 +7,7 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.extraction.EntityHelper
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.expansion.ArgumentExpander.logger
-import org.clulab.wm.eidoscommon.utils.TagSet
+import org.clulab.wm.eidoscommon.TagSet
 
 import scala.collection.mutable.ArrayBuffer
 

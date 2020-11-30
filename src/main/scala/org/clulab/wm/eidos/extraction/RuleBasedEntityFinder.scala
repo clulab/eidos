@@ -8,7 +8,7 @@ import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.clulab.wm.eidoscommon.EidosParameters
-import org.clulab.wm.eidoscommon.utils.TagSet
+import org.clulab.wm.eidoscommon.TagSet
 
 class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: ExtractorEngine,
     val avoidEngine: ExtractorEngine, tagSet: TagSet) extends Finder {

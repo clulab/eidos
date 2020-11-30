@@ -12,8 +12,8 @@ import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
-import org.clulab.wm.eidoscommon.utils.Canonicalizer
 import org.clulab.wm.ontologies.DomainOntology
 
 import scala.annotation.tailrec
