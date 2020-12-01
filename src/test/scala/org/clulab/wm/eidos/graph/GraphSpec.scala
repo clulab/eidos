@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.graph
 import java.util.{IdentityHashMap => JIdentityHashMap}
 
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
-import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.EidosAliases.Quantifier
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidoscommon.utils.QuicklyEqualable
 

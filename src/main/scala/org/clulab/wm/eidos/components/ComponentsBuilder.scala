@@ -2,8 +2,8 @@ package org.clulab.wm.eidos.components
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.wm.eidos.EidosActions
 import org.clulab.wm.eidos.actions.CorefHandler
+import org.clulab.wm.eidos.actions.EidosActions
 import org.clulab.wm.eidos.attachments.AttachmentHandler
 import org.clulab.wm.eidos.attachments.HypothesisHandler
 import org.clulab.wm.eidos.attachments.NegationHandler

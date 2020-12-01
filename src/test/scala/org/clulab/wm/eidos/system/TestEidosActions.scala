@@ -7,7 +7,8 @@ import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.{EidosActions, EidosSystem}
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.actions.EidosActions
 
 import scala.collection.JavaConverters._
 

@@ -59,7 +59,7 @@ object EvalTimeNorm {
       // if useNeuralParser, parse the document creation time
       // else set the DCT of the document
       if (useNeuralParser) {
-        val metadata = Metadata(eidosSystem, Some(dct), None)
+        val metadata = Metadata(eidosSystem.components.timeNormFinderOpt, Some(dct), None)
         metadata.attachToDoc(tokenizedDoc)
       } else tokenizedDoc.setDCT(dct)
       val doc = eidosSystem.annotateDoc(tokenizedDoc)

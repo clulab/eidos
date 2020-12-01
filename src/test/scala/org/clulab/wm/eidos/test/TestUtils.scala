@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.test
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.{EidosSystem, graph, rule}
-import org.clulab.wm.eidoscommon.utils.Test
+//import org.clulab.wm.eidoscommon.utils.Test
 import org.scalatest._
 
 import scala.collection.Seq
@@ -60,7 +60,7 @@ object TestUtils {
     eidosSystem
   }
 
-  class EidosTest extends Test {
+  class EidosTest extends FlatSpec with Matchers {
     val defaultConfig: Config = ConfigFactory.load("englishTest")
 
     val passingTest = it

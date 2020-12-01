@@ -5,12 +5,12 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.{DirectedGraph, Interval}
 import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAttachment}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
-import org.clulab.wm.eidos.utils.GroundingUtils
 import org.slf4j.{Logger, LoggerFactory}
 import SRLCompositionalGrounder._
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.clu.tokenizer.Tokenizer
+import org.clulab.wm.eidos.groundings.GroundingUtils
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer

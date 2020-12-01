@@ -6,7 +6,7 @@ import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.EidosAliases.Quantifier
 import org.clulab.wm.eidos.context.{DCT, GeoPhraseID, TimEx, TimeStep}
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.serialization.jsonld.{JLDAttachment, JLDContextAttachment, JLDScoredAttachment, JLDSerializer, JLDTriggeredAttachment}

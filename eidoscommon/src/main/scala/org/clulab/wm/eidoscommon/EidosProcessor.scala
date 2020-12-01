@@ -328,4 +328,7 @@ object EidosProcessor {
     case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
     case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
   }
+
+  // Turn off warnings from this class.
+  edu.stanford.nlp.ie.NumberNormalizer.setVerbose(false)
 }

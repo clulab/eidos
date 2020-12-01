@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.serialization.web
 
 import org.clulab.odin.Attachment
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.Aliases._
+import org.clulab.wm.eidos.EidosAliases._
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, AdjectiveGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention

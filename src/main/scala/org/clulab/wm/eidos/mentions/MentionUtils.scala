@@ -1,8 +1,7 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidos.mentions
 
 import org.clulab.odin._
 import org.clulab.wm.eidos.attachments.Negation
-import org.clulab.wm.eidos.mentions.EidosMention
 
 
 case class TriggerInfo(text: String, start: Int, end: Int, wordCount: Int, isHead: Boolean)

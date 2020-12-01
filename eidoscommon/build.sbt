@@ -16,6 +16,6 @@ libraryDependencies ++= {
     "org.apache.logging.log4j"    % "log4j-core"               % "2.12.0",
     // config
     "com.typesafe"                % "config"                   % "1.4.0",
-    "org.scalatest"              %% "scalatest"                % "3.0.4" % "test"
+    "org.scalatest"              %% "scalatest"                % "3.0.4"  // % "test"
   )
 }

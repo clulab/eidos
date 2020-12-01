@@ -133,7 +133,7 @@ class EidosSystem(val components: EidosComponents) {
     dctStringOpt: Option[String] = None,
     idOpt: Option[String] = None
   ): AnnotatedDocument = {
-    extractFromText(text, EidosOptions(cagRelevantOnly), Metadata(this, dctStringOpt, idOpt))
+    extractFromText(text, EidosOptions(cagRelevantOnly), Metadata(components.timeNormFinderOpt, dctStringOpt, idOpt))
   }
 
   def extractFromTextWithDct(
@@ -156,14 +156,7 @@ class EidosSystem(val components: EidosComponents) {
 }
 
 object EidosSystem {
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
   val PREFIX = "EidosSystem"
-
-
-
-  def defaultConfig: Config = ConfigFactory.load("eidos")
-
-  // Turn off warnings from this class.
-  edu.stanford.nlp.ie.NumberNormalizer.setVerbose(false)
+  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+  lazy val defaultConfig: Config = ConfigFactory.load("eidos")
 }

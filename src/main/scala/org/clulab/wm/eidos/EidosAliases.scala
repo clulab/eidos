@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos
 
-object Aliases {
+object EidosAliases {
 
   type Trigger = String
   type Param = String

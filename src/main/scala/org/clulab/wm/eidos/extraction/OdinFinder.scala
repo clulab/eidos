@@ -4,7 +4,7 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.{ExtractorEngine, Mention, State}
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.EidosActions
+import org.clulab.wm.eidos.actions.EidosActions
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidoscommon.TagSet
 import org.clulab.wm.eidoscommon.utils.FileUtils

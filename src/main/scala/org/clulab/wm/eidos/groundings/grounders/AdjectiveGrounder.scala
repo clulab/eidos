@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.groundings.grounders
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.clulab.wm.eidos.Aliases.Quantifier
+import org.clulab.wm.eidos.EidosAliases.Quantifier
 import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
 import org.clulab.wm.eidoscommon.utils.Closer._
 

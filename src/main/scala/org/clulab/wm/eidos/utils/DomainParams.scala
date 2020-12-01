@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.utils
 
 import com.typesafe.config.Config
-import org.clulab.wm.eidos.Aliases.Param
+import org.clulab.wm.eidos.EidosAliases.Param
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
 
