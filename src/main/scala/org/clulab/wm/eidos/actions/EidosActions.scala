@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos
+package org.clulab.wm.eidos.actions
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -6,15 +6,15 @@ import java.util.regex.Pattern
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import org.clulab.odin._
 import org.clulab.odin.EventMention
+import org.clulab.odin._
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.{EidosAttachment, _}
+import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
+import org.clulab.wm.eidos.mentions.MentionUtils
 import org.clulab.wm.eidos.utils.FoundBy
-import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.TagSet
 import org.slf4j.Logger
