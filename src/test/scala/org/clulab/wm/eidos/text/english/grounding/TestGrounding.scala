@@ -6,6 +6,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.test.EnglishTest
 import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.collection.Seq

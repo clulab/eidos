@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.components
 
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
 
 class TestEidosComponents extends EidosTest {
   val config = EidosSystem.defaultConfig

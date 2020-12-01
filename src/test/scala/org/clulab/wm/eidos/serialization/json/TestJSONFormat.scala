@@ -2,11 +2,10 @@ package org.clulab.wm.eidos.serialization.json
 
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.serialization.jsonld.TidyJObject
-import org.clulab.wm.eidos.test.TestUtils.EidosTest
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidos.utils.PlayUtils
 import org.json4s.JObject
 import org.json4s.JsonDSL._
-
 
 class TestJSONFormat extends EidosTest {
   private val occupiedList = List[Int](1, 2, 3, 4)

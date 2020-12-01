@@ -5,7 +5,7 @@ import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.mentions.MentionUtils
-import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidos.test.ExtractionTest
 
 class TestAttachmentHandler extends ExtractionTest {
 

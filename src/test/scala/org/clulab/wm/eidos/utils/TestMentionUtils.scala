@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.mentions.MentionUtils
-import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidoscommon.EidosParameters
 
 class TestMentionUtils extends ExtractionTest {

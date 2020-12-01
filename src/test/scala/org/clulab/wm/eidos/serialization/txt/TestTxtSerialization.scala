@@ -6,7 +6,7 @@ import org.clulab.serialization.DocumentSerializer
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, EidosAdjectiveGrounder}
-import org.clulab.wm.eidos.test.TestUtils.EidosTest
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidoscommon.Canonicalizer
 
 class TestTxtSerialization extends EidosTest {

@@ -4,7 +4,7 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.Timer
 import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder

@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.attachments
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
 
 import scala.collection.immutable.HashSet
 

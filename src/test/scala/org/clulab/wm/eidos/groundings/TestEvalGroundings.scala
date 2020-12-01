@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.apps.EvalGroundings
-import org.clulab.wm.eidos.test.TestUtils.EidosTest
+import org.clulab.wm.eidos.test.EidosTest
 
 class TestEvalGroundings extends EidosTest {
 

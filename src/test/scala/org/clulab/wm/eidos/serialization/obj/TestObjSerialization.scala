@@ -4,7 +4,7 @@ import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 
 import org.clulab.odin.{EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.test.TestUtils.EidosTest
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
 

@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.system
 
 import org.clulab.odin.{CrossSentenceMention, Mention}
 import org.clulab.wm.eidos.actions.CorefHandler
-import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidoscommon.EidosParameters
 
 class TestCorefHandler extends ExtractionTest {

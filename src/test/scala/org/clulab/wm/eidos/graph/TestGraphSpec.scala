@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.graph
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
 
 class TestGraphSpec extends EidosTest {
   val rainfallNode = NodeSpec("in rainfall", Dec("decrease"))

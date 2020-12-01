@@ -11,7 +11,7 @@ import org.clulab.wm.eidos.context.{DCT, GeoPhraseID, TimEx, TimeStep}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
-import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 
 import scala.collection.Seq

@@ -4,7 +4,7 @@ import com.typesafe.config.Config
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.{JLDCorpus, JLDDeserializer}
-import org.clulab.wm.eidos.test.TestUtils.EidosTest
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
 

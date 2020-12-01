@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.graph._
+import org.clulab.wm.eidos.test.EnglishTest
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidoscommon.utils.Resourcer
 
