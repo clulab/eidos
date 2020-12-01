@@ -24,15 +24,17 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
     // top 5 tuples
     FileUtils.printWriterFromFile(filename + ".debug.txt").autoClose { pw =>
 
-      pw.println("********************************************")
+//      pw.println("********************************************")
       val doc = annotatedDocument.document
       for (i <- doc.sentences.indices) {
         val clusent = reader.components.proc.asInstanceOf[EidosCluProcessor].cluproc.annotate(doc.sentences(i)
+          //asInstanceOf[EidosCluProcessor].cluproc.annotate(doc.sentences(i)
           .getSentenceText).sentences.head
-        pw.println(s"Sentence $i: ${clusent.getSentenceText}.")
+        pw.println("********************************************\n")
+        pw.println(s"Sentence $i: ${clusent.getSentenceText}.\n")
         pw.println("SRLS:")
         pw.println(clusent.enhancedSemanticRoles.get)
-        pw.println()
+//        pw.println()
         pw.println("DEPS:")
         pw.println(clusent.dependencies.get)
         val mentions = annotatedDocument.eidosMentions.filter(_.odinMention.sentence == i)
@@ -41,42 +43,49 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
           val args = em.eidosArguments("cause") ++ em.eidosArguments("effect")
           val info = args.map(m => (m.odinMention.text, m.grounding.get("wm_compositional"), m.grounding.get("wm_flattened")))
           for ((text, groundingComp, groundingFlat) <- info) {
-            pw.println(s"mention text: ${text}")
-
-            pw.println(s"Flat Grounding:")
-            groundingFlat match {
-              case None => pw.println("no grounding...")
-              case Some(grounding) =>
-                grounding.grounding.foreach { gr =>
-                  pw.println(s"  --> grounding: ${gr.name}")
-                  pw.println(s"      score: ${gr.score}")
-                }
+            if (text=="famine") {
+              //do nothing
             }
-            pw.println()
+            else {
+              pw.println(s"mention text: ${text}\n")
+              pw.println(s"mention entities: ${args.head.odinMention.entities}\t")
 
-            pw.println(s"Compositional Grounding:")
-            groundingComp match {
-              case None => pw.println("no grounding...")
-              case Some(grounding) =>
-                var tupNum: Int = 0
-                grounding.grounding.foreach { gr =>
-                  pw.println(s"Tuple $tupNum")
-                  tupNum += 1
-                  val tuple = gr.asInstanceOf[PredicateGrounding].predicateTuple
-                  val labels = Seq("Theme", "Theme Prop", "Process", "Process Prop")
-                  val slots = Seq(tuple.theme, tuple.themeProperties, tuple.themeProcess, tuple.themeProcessProperties)
-                  for (j <- labels.indices) {
-                    pw.println(s"\t${labels(j)}")
-                    for (g <- slots(j).grounding) {
-                      pw.println(s"    --> grounding ${j}: ${g.name}")
-                      pw.println(s"        score:          ${g.score}")
-                      pw.println()
-                    }
-
+              pw.println(s"Flat Grounding:")
+              groundingFlat match {
+                case None => pw.println("no grounding...")
+                case Some(grounding) =>
+                  grounding.grounding.foreach { gr =>
+                    pw.println(s"  --> grounding:  ${gr.name}")
+                    pw.println(s"      score:      ${gr.score}")
                   }
-                }
+              }
+              pw.println()
 
-                }
+              pw.println(s"Compositional Grounding:")
+              groundingComp match {
+                case None => pw.println("no grounding...")
+                case Some(grounding) =>
+                  var tupNum: Int = 0
+                  grounding.grounding.foreach { gr =>
+                    pw.println(s"Tuple $tupNum")
+                    tupNum += 1
+                    val tuple = gr.asInstanceOf[PredicateGrounding].predicateTuple
+                    val labels = Seq("Theme", "Theme Prop", "Process", "Process Prop")
+                    val slots = Seq(tuple.theme, tuple.themeProperties, tuple.themeProcess, tuple.themeProcessProperties)
+                    for (j <- labels.indices) {
+                      pw.println(s"\t${labels(j)}")
+                      for (g <- slots(j).grounding) {
+                        pw.println(s"    --> grounding ${j}:   ${g.name}")
+                        pw.println(s"        score:        ${g.score}")
+                        //                      pw.println()
+                      }
+                      pw.println()
+
+                    }
+                  }
+              }
+            }
+
             }
 
           }

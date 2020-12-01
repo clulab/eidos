@@ -119,7 +119,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val themeProperty = propertyOpt.getOrElse(newOntologyGrounding())
         // make a pseudo theme
         // fixme: should we ground the pseudo theme to the process AND concept branches
-        val pseudoTheme = groundToBranches(Seq(CONCEPT), tokenInterval, s, topN, threshold)
+        val pseudoTheme = groundToBranches(Seq(CONCEPT, ENTITY), tokenInterval, s, topN, threshold)
         val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
         Seq(PredicateGrounding(predicateTuple))
       case preds =>
@@ -249,7 +249,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       GroundedSpan(trimmedChunk, propertyOpt.get, isProperty = true)
     } else {
       // Otherwise, ground as either a process or concept
-      GroundedSpan(trimmedChunk, groundToBranches(Seq(CONCEPT, PROCESS), trimmedChunk, s.sentence, topN, threshold), isProperty = false)
+      GroundedSpan(trimmedChunk, groundToBranches(Seq(CONCEPT, ENTITY, PROCESS), trimmedChunk, s.sentence, topN,
+        threshold), isProperty = false)
     }
   }
 
@@ -447,5 +448,6 @@ object SRLCompositionalGrounder{
   val PROCESS = "process"
   val CONCEPT = "concept"
   val PROPERTY = "property"
+  val ENTITY = "entity"
 
 }

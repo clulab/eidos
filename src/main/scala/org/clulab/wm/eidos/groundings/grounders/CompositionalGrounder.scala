@@ -136,8 +136,9 @@ object CompositionalGrounder {
   val PROCESS = "process"
   val PROPERTY = "property"
   val CONCEPT =  "concept"
+  val ENTITY = "entity"
 
-  val branches: Seq[String] = Seq(PROCESS, PROPERTY, CONCEPT)
+  val branches: Seq[String] = Seq(PROCESS, PROPERTY, CONCEPT, ENTITY)
 
   // FIXME: these should connect to a config probably...?
   val defaultThreshold: Float = 0.5f
