@@ -48,7 +48,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
             }
             else {
               pw.println(s"mention text: ${text}\n")
-              pw.println(s"mention entities: ${args.head.odinMention.entities}\t")
+              pw.println(s"mention entities: ${args.head.odinMention.entities.get}\t")
 
               pw.println(s"Flat Grounding:")
               groundingFlat match {

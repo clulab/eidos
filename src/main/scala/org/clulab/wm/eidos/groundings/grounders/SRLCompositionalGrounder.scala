@@ -92,11 +92,24 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     groundingResult
   }
 
+  // Everything after TIME is new to the grounder
+  val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MISC", "MONEY", "NUMBER", "ORDINAL",
+    "ORGANIZATION", "PERSON", "PLACE", "SET", "TIME", "NATIONALITY", "COUNTRY", "TITLE", "STATE_OR_PROVINCE")
+
   override def groundEidosMention(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
     // Do nothing to non-groundable mentions
     if (!EidosOntologyGrounder.groundableType(mention))
       Seq(newOntologyGrounding())
     // or else ground them.
+//    if (!mention.odinMention.entities.get.forall(_ == mention.odinMention.entities.get.head)) {
+//      Seq(newOntologyGrounding())
+//    }
+//    if (!mention.odinMention.entities.get.contains("O")) {
+//      Seq(newOntologyGrounding())
+//    }
+    if (mention.odinMention.entities.get.toSet.intersect(STOP_NER).nonEmpty) {
+      Seq(newOntologyGrounding())
+    }
     else {
       val reParsed = proc.annotate(mention.odinMention.sentenceObj.getSentenceText)
       groundSentenceSpan(reParsed.sentences.head, mention.odinMention.start, mention.odinMention.end, attachmentStrings(mention.odinMention), topN, threshold)
