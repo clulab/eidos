@@ -3,9 +3,9 @@ package org.clulab.wm.eidos.system
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.{AttachmentHandler, Decrease, EidosAttachment, Increase, Quantification, TriggeredAttachment}
-import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
-import org.clulab.wm.eidos.utils.MentionUtils
+import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.mentions.MentionUtils
+import org.clulab.wm.eidos.test.ExtractionTest
 
 class TestAttachmentHandler extends ExtractionTest {
 

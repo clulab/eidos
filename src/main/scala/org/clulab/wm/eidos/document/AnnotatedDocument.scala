@@ -2,8 +2,7 @@ package org.clulab.wm.eidos.document
 
 import org.clulab.odin.Mention
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.OdinMention
+import org.clulab.wm.eidos.mentions.{EidosMention, OdinMention}
 
 class AnnotatedDocument(val document: Document, val eidosMentions: Seq[EidosMention], val allEidosMentions: Seq[EidosMention]) {
   lazy val odinMentions: Seq[Mention] = eidosMentions.map(_.odinMention)

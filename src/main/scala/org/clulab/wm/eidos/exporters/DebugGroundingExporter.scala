@@ -1,8 +1,8 @@
 package org.clulab.wm.eidos.exporters
 
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.utils.Closer._
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer._
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 class DebugGroundingExporter(filename: String) extends Exporter {
 

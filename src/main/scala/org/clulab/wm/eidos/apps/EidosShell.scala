@@ -4,7 +4,7 @@ import com.typesafe.config.Config
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.web.WebSerializer
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
-import org.clulab.wm.eidos.utils.{CliReader, IdeReader}
+import org.clulab.wm.eidoscommon.utils.{CliReader, IdeReader}
 
 import scala.collection.immutable.ListMap
 

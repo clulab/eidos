@@ -1,8 +1,10 @@
 package org.clulab.wm.eidos.groundings.grounders
 
-import org.clulab.wm.eidos.groundings.{DomainOntology, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.groundings.{EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.ontologies.DomainOntology
 
 class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
@@ -17,7 +19,8 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
     if (EidosOntologyGrounder.groundableType(mention)) {
       // This assumes it to be highly unlikely that there will be an exact match or pattern match
       // because otherwise the canonicalNameParts are never used and they shouldn't be calculated.
-      val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
+      val attachmentWords = mention.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
+      val canonicalNameParts = EidosMention.canonicalNameParts(canonicalizer, mention, attachmentWords)
       val aggregated = groundPatternsThenEmbeddings(mention.odinMention.text, canonicalNameParts, conceptPatterns, conceptEmbeddings)
       val filtered = filterAndSlice(aggregated, topN, threshold)
       Seq(newOntologyGrounding(filtered))

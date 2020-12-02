@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
-import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidoscommon.utils.Namer
 
 import scala.util.matching.Regex
 

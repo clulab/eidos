@@ -6,9 +6,7 @@ import java.time.format.DateTimeFormatter
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.utils.FileEditor
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, StringUtils}
 import org.json4s.DefaultFormats
 import org.json4s.JValue
 import org.json4s.JsonAST.JField
@@ -23,7 +21,7 @@ class CluText(eidosSystem: EidosSystem, text: String, jValueOpt: Option[JValue])
     val dctStringOpt: Option[String] = getDocumentCreationTime
     val titleOpt: Option[String] = getDocumentTitle
 
-    Metadata(eidosSystem, dctStringOpt, titleOpt)
+    Metadata(eidosSystem.components.timeNormFinderOpt, dctStringOpt, titleOpt)
   }
 
   override def getText: String = text

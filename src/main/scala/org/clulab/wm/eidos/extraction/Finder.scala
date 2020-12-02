@@ -4,8 +4,8 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.{Mention, State}
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.context.{GeoNormFinder, TimeNormFinder, SeasonFinder}
-import org.clulab.wm.eidos.utils.TagSet
+import org.clulab.wm.eidos.context.{GeoNormFinder, SeasonFinder, TimeNormFinder}
+import org.clulab.wm.eidoscommon.TagSet
 
 trait Finder {
   def find(doc: Document, initialState: State = new State()): Seq[Mention]

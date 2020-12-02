@@ -3,13 +3,14 @@ package org.clulab.wm.eidos.apps
 import org.clulab.odin.{Attachment, EventMention, Mention}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{FileUtils, ThreadUtils}
 import org.clulab.wm.eidos.utils.FoundBy
 
 import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
-import org.clulab.wm.eidos.utils.ThreadUtils
+import org.clulab.wm.eidoscommon.EidosParameters
+
 
 object MakeRuleTSVs extends App {
 
@@ -51,7 +52,7 @@ object MakeRuleTSVs extends App {
 
   // ok print them
   for ((rule, mentionsForRule) <- byRulesSet) {
-    if (rule.contains(EidosSystem.CAUSAL_LABEL)) {
+    if (rule.contains(EidosParameters.CAUSAL_LABEL)) {
       (FileUtils.printWriterFromFile(s"${outputDir}/${rule}.tsv")).autoClose { pw =>
         pw.println(header)
         //      println(s"MENTIONS for RULE: ${rule}")

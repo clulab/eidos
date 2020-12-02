@@ -1,15 +1,91 @@
 import ReleaseTransformations._
 import Tests._
+import sbt.Keys.{developers, homepage, licenses, scmInfo}
+import sbt.url
 
 name := "eidos"
-organization := "org.clulab"
 
+// This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
+// If it isn't here, sbt test can seemingly only be run once before it will fail with
+// java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
+// Caused by: java.lang.UnsatisfiedLinkError: Native Library jnihdf5.dll already loaded in another classloader
+// However, this also doubles the testing time, so it is disabled here.  Enable it if the exception appears.
+// The value of fork is also set above to preserve order, so this remains only for documentation purposes.
 fork := true
 
-scalaVersion := "2.12.4"
-crossScalaVersions := Seq("2.11.11", "2.12.4")
+// ensures that all the subprojects have the same settings for things like this
+lazy val commonSettings = Seq(
+  organization := "org.clulab",
+  scalaVersion := "2.12.4",
+  crossScalaVersions := Seq("2.11.11", "2.12.4"),
+  scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
 
-scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
+  //
+  // publishing settings
+  //
+
+  // publish to a maven repo
+  publishMavenStyle := true,
+
+  // the standard maven repository
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value)
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    else
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  },
+
+  // let’s remove any repositories for optional dependencies in our artifact
+  pomIncludeRepository := { (repo: MavenRepository) =>
+    repo.root.startsWith("http://artifactory.cs.arizona.edu")
+  },
+
+  // mandatory stuff to add to the pom for publishing
+  pomExtra :=
+    <url>https://github.com/clulab/processors</url>
+      <licenses>
+        <license>
+          <name>Apache License, Version 2.0</name>
+          <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+      <scm>
+        <url>https://github.com/clulab/processors</url>
+        <connection>https://github.com/clulab/processors</connection>
+      </scm>
+      <developers>
+        <developer>
+          <id>mihai.surdeanu</id>
+          <name>Mihai Surdeanu</name>
+          <email>mihai@surdeanu.info</email>
+        </developer>
+      </developers>,
+
+      scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/clulab/eidos"),
+        "scm:git:https://github.com/clulab/eidos.git"
+      )
+      ),
+
+      licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
+
+      homepage := Some(url("https://github.com/clulab/eidos")),
+
+      developers := List(
+      Developer(
+        id    = "mihai.surdeanu",
+        name  = "Mihai Surdeanu",
+        email = "mihai@surdeanu.info",
+        url   = url("http://surdeanu.info/mihai/")
+      )
+      ),
+  //
+  // end publishing settings
+  //
+)
 
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // com.github.WorldModelers/Ontologies
@@ -95,60 +171,11 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
   testGrouping in Test := groupByLanguage((definedTests in Test).value)
 }
 
-
-// This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
-// If it isn't here, sbt test can seemingly only be run once before it will fail with
-// java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
-// Caused by: java.lang.UnsatisfiedLinkError: Native Library jnihdf5.dll already loaded in another classloader
-// However, this also doubles the testing time, so it is disabled here.  Enable it if the exception appears.
-// The value of fork is also set above to preserve order, so this remains only for documentation purposes.
-// fork := true
-
-//
-// publishing settings
-//
-// publish to a maven repo
-publishMavenStyle := true
-
-// the standard maven repository
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases" at nexus + "service/local/staging/deploy/maven2")
-}
-
-// account for dependency on glove vector file
-pomIncludeRepository := { (repo: MavenRepository) =>
-  repo.root.startsWith("http://artifactory.cs.arizona.edu")
-}
-
-scmInfo := Some(
-  ScmInfo(
-    url("https://github.com/clulab/eidos"),
-    "scm:git:https://github.com/clulab/eidos.git"
-  )
-)
-
-licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html"))
-
-homepage := Some(url("https://github.com/clulab/eidos"))
-
-developers := List(
-  Developer(
-    id    = "mihai.surdeanu",
-    name  = "Mihai Surdeanu",
-    email = "mihai@surdeanu.info",
-    url   = url("http://surdeanu.info/mihai/")
-  )
-)
-//
-// end publishing settings
-//
-
 lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
+  .aggregate(elasticsearch, eidoscommon, wmexchanger, ontologies) // , webapp
+  .dependsOn(ontologies, eidoscommon)
+  .settings(commonSettings: _*)
   .settings(
     buildInfoPackage := "org.clulab.wm.eidos",
     // This next line of code results in constantly changing source files which then require
@@ -163,14 +190,34 @@ lazy val core = (project in file("."))
     )
   )
 
+// Prevents "error: recursive lazy value core needs type"
+lazy val coreRef = LocalProject("core")
+
+// ----------------------------
+//          subprojects
+// ----------------------------
+
 lazy val webapp = project
+  .settings(commonSettings: _*)
   .enablePlugins(PlayScala)
-  .aggregate(core)
-  .dependsOn(core)
+  .dependsOn(coreRef)
 
 lazy val elasticsearch = project
+  .settings(commonSettings: _*)
+  .dependsOn(eidoscommon)
 
 lazy val wmexchanger = project
+  .settings(commonSettings: _*)
+  .dependsOn(eidoscommon)
+
+lazy val ontologies = project
+  .settings(commonSettings: _*)
+  .dependsOn(eidoscommon)
+
+lazy val eidoscommon = project
+  .settings(commonSettings: _*)
+
+// ----------------------------
 
 test in assembly := {}
 assemblyMergeStrategy in assembly := {
@@ -214,4 +261,3 @@ releaseProcess := Seq[ReleaseStep](
 enablePlugins(SiteScaladocPlugin)
 enablePlugins(GhpagesPlugin)
 git.remoteRepo := "git@github.com:clulab/eidos.git"
-

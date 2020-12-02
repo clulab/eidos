@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.refiners
 
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidoscommon.utils.Timer
 
 class Refiner(val name: String) {
 

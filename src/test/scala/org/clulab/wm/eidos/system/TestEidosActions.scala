@@ -2,13 +2,15 @@ package org.clulab.wm.eidos.system
 
 import java.util.IdentityHashMap
 
-import scala.collection.JavaConverters._
 import org.clulab.odin._
 import org.clulab.serialization.json.stringify
-import org.clulab.wm.eidos.{EidosActions, EidosSystem}
-import org.clulab.wm.eidos.attachments._
+import org.clulab.wm.eidos.attachments.Property
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.actions.EidosActions
+import org.clulab.wm.eidos.test.ExtractionTest
+
+import scala.collection.JavaConverters._
 
 class TestEidosActions extends ExtractionTest {
 

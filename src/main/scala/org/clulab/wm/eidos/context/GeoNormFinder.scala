@@ -12,7 +12,7 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.utils.OdinMention
+import org.clulab.wm.eidos.mentions.OdinMention
 
 import scala.collection.JavaConverters._
 

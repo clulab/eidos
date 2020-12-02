@@ -4,11 +4,7 @@ import java.io.PrintWriter
 
 import org.clulab.odin.Attachment
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments.Decrease
-import org.clulab.wm.eidos.attachments.Hedging
-import org.clulab.wm.eidos.attachments.Increase
-import org.clulab.wm.eidos.attachments.Negation
-import org.clulab.wm.eidos.attachments.Quantification
+import org.clulab.wm.eidos.attachments.{Decrease, Hedging, Increase, Negation, Quantification}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 

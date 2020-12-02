@@ -4,12 +4,10 @@ import ai.lum.common.ConfigUtils._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.{IndividualGrounding, OntologyHandler}
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
-import org.clulab.wm.eidos.utils.StringUtils
-import org.clulab.wm.eidos.utils.TsvReader
-import org.clulab.wm.eidos.utils.TsvWriter
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.{StringUtils, TsvReader, TsvWriter}
 
 // This app creates a spreadsheet to be filled in with gold groundings.
 

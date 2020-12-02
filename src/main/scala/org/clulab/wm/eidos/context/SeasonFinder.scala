@@ -11,9 +11,9 @@ import org.clulab.timenorm.scate.Year
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.{Interval => TextInterval}
-import org.clulab.wm.eidos.attachments.{Location => LocationAttachment, Time => TimeAttachment}
+import org.clulab.wm.eidos.attachments.{Location, Time}
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.clulab.wm.eidoscommon.utils.FileUtils.getTextFromResource
 import org.yaml.snakeyaml.Yaml
 
 import scala.collection.JavaConverters._
@@ -46,14 +46,14 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
 
   private def timeFilter(mention: Mention): Boolean = {
     mention.label == "Time" && (mention.attachments.head match {
-      case attachment: TimeAttachment => attachment.interval.intervals.nonEmpty
+      case attachment: Time => attachment.interval.intervals.nonEmpty
       case _ => false
     })
   }
 
   private def geoFilter(mention: Mention): Boolean = {
     mention.label == "Location" && (mention.attachments.head match {
-      case attachment: LocationAttachment => attachment.geoPhraseID.geonameID.exists(seasonMap.contains)
+      case attachment: Location => attachment.geoPhraseID.geonameID.exists(seasonMap.contains)
       case _ => false
     })
   }
@@ -82,10 +82,10 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
 
     // Find and get the closest normalized geonameID.
     val geonameIDOpt: Option[String] = sortedMentions.find(geoFilter)
-        .map(_.attachments.head.asInstanceOf[LocationAttachment].geoPhraseID.geonameID.get)
+        .map(_.attachments.head.asInstanceOf[Location].geoPhraseID.geonameID.get)
     // Find and get the closest timeStep.
     val timeStepOpt: Option[TimeStep] = sortedMentions.find(timeFilter)
-        .map(_.attachments.head.asInstanceOf[TimeAttachment].interval.intervals.head)
+        .map(_.attachments.head.asInstanceOf[Time].interval.intervals.head)
 
     // If we find both Location and Time normalized create a SeasonMention if the season type is in the
     // seasons Map for that Location. SeasonMention is created with the first and last tokens
@@ -158,7 +158,7 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
         doc,
         true,
         getClass.getSimpleName,
-        Set(TimeAttachment(attachment))
+        Set(Time(attachment))
       )
     }
     mentions

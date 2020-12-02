@@ -8,8 +8,8 @@ import org.clulab.timenorm.scate.TimeNormScorer.Timex
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.Metadata
-import scala.io.Source
 
+import scala.io.Source
 import collection.JavaConverters._
 
 
@@ -59,7 +59,7 @@ object EvalTimeNorm {
       // if useNeuralParser, parse the document creation time
       // else set the DCT of the document
       if (useNeuralParser) {
-        val metadata = Metadata(eidosSystem, Some(dct), None)
+        val metadata = Metadata(eidosSystem.components.timeNormFinderOpt, Some(dct), None)
         metadata.attachToDoc(tokenizedDoc)
       } else tokenizedDoc.setDCT(dct)
       val doc = eidosSystem.annotateDoc(tokenizedDoc)

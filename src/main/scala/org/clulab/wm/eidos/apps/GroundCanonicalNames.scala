@@ -3,12 +3,10 @@ package org.clulab.wm.eidos.apps
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyHandler, PredicateGrounding, SingleOntologyNodeGrounding}
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Sinker
-import org.clulab.wm.eidos.utils.Sourcer
-import org.clulab.wm.eidos.utils.TsvReader
-import org.clulab.wm.eidos.utils.XsvUtils
-import org.clulab.wm.eidos.utils.TsvWriter
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Sinker
+import org.clulab.wm.eidoscommon.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.{TsvReader, TsvWriter, XsvUtils}
 
 object GroundCanonicalNames extends App {
 

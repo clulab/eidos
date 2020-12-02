@@ -5,19 +5,19 @@ import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.EidosProcessor
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.EidosTokenizer
-import org.clulab.wm.eidos.SentencesExtractor
+import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder.mkGrounder
-import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.TagSet
-import org.clulab.wm.eidos.utils.Canonicalizer
 import org.clulab.wm.eidos.utils.StopwordManager
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.TagSet
+import org.clulab.wm.eidoscommon.{EidosProcessor, EidosTokenizer, SentencesExtractor}
+import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.ontologies.DomainOntology
 import org.slf4j.{Logger, LoggerFactory}
 
 class OntologyHandler(
@@ -32,7 +32,8 @@ class OntologyHandler(
 
   def ground(eidosMention: EidosMention): Unit = {
     // If any of the grounders needs their own version, they'll have to make it themselves.
-    eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
+    val attachmentWords = eidosMention.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
+    eidosMention.canonicalName = EidosMention.canonicalize(canonicalizer, eidosMention, attachmentWords)
 
     val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
       val name: String = ontologyGrounder.name
@@ -167,7 +168,7 @@ class OntologyHandler(
       for {
         s <- sentencesExtractor.extractSentences(text)
         // FIXME: added a reminder here that we are NOT currently omitting attachment words in the regrounding!
-        word <- canonicalizer.canonicalWordsFromSentence(s, Interval(0, s.words.length), attachmentWords = Set())
+        word <- canonicalizer.canonicalWordsFromSentence(s, Interval(0, s.words.length), excludedWords = Set())
       } yield word
     }
 

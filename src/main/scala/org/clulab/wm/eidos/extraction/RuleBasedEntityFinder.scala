@@ -6,9 +6,9 @@ import org.clulab.odin.{ExtractorEngine, Mention, State}
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.expansion.Expander
-import org.clulab.wm.eidos.utils.Resourcer
-import org.clulab.wm.eidos.utils.TagSet
-import org.clulab.wm.eidos.utils.{FileUtils, StopwordManager}
+import org.clulab.wm.eidoscommon.utils.Resourcer
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.TagSet
 
 class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: ExtractorEngine,
     val avoidEngine: ExtractorEngine, tagSet: TagSet) extends Finder {
@@ -76,7 +76,7 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
 
       // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
       tags.indices.exists { i =>
-        (tagSet.isAnyNoun(tags(i)) || tagSet.isAnyVerb(tags(i))) && !StopwordManager.STOP_NER.contains(entities(i))
+        (tagSet.isAnyNoun(tags(i)) || tagSet.isAnyVerb(tags(i))) && !EidosParameters.STOP_NER.contains(entities(i))
       }
     }
     // If there's a non-named entity noun in the entity, it's valid
@@ -124,11 +124,11 @@ object RuleBasedEntityFinder {
   val DEFAULT_MAX_LENGTH = 50 // maximum length (in tokens) for an entity // FIXME read in?
 
   def fromConfig(config: Config, tagSet: TagSet): RuleBasedEntityFinder = {
-    val entityRulesPath = config[String]("ruleBasedEntityFinder.entityRulesPath")
+    val entityRulesPath: String = config[String]("ruleBasedEntityFinder.entityRulesPath")
     val entityRules = Resourcer.getText(entityRulesPath)
     val entityEngine = ExtractorEngine(entityRules)
 
-    val avoidRulesPath = config[String]("ruleBasedEntityFinder.avoidRulesPath")
+    val avoidRulesPath: String = config[String]("ruleBasedEntityFinder.avoidRulesPath")
     val avoidRules = Resourcer.getText(avoidRulesPath)
     val avoidEngine = ExtractorEngine(avoidRules)
 

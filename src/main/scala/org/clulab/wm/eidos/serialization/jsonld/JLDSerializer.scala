@@ -26,13 +26,9 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
-import org.clulab.wm.eidos.mentions.EidosCrossSentenceEventMention
-import org.clulab.wm.eidos.mentions.EidosCrossSentenceMention
-import org.clulab.wm.eidos.mentions.EidosEventMention
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.mentions.EidosTextBoundMention
+import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
+import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.mentions.{EidosCrossSentenceEventMention, EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._

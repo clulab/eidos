@@ -5,12 +5,11 @@ import org.clulab.processors.Document
 import org.clulab.serialization.DocumentSerializer
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.AdjectiveGrounder
-import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.test.TestUtils.Test
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, EidosAdjectiveGrounder}
+import org.clulab.wm.eidos.test.EidosTest
+import org.clulab.wm.eidoscommon.Canonicalizer
 
-class TestTxtSerialization extends Test {
+class TestTxtSerialization extends EidosTest {
   val config: Config = this.defaultConfig // Do not use EidosSystem's defaultConfig!
   val reader: EidosSystem = new EidosSystem(config)
   val adjectiveGrounder: AdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)

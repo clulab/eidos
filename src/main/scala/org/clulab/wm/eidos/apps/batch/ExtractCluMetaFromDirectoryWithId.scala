@@ -3,13 +3,8 @@ package org.clulab.wm.eidos.apps.batch
 import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileEditor
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
-import org.clulab.wm.eidos.utils.StringUtils
-import org.clulab.wm.eidos.utils.ThreadUtils
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Sourcer, StringUtils, ThreadUtils, Timer}
 import org.clulab.wm.eidos.utils.meta.CluText
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods

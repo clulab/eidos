@@ -5,7 +5,8 @@ import org.clulab.wm.eidos.EidosSystem
 
 import scala.collection.mutable.ArrayBuffer
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.utils.Language
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.Language
 
 /**
   * Taken from Reach (1.4.0), the information system developed for the DARPA Big Mechanism program
@@ -107,7 +108,7 @@ class NegationHandler(val language: String) {
 
   // Alter Negation modifications in-place
   def handleNegations(m: EventMention, negations: Set[Mention]): Mention = {
-    if (m matches EidosSystem.RELATION_LABEL) {
+    if (m matches EidosParameters.RELATION_LABEL) {
       // count the negations
       val withNeg = negations match {
         // 0 Neg modifications means no change...

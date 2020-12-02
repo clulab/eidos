@@ -5,8 +5,9 @@ import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.odin.impl.Taxonomy
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Resourcer
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
@@ -92,7 +93,7 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
                   // Note: Overly simplistic, this is a first pass
                   // todo: expand approach
                   val corefMention = new CrossSentenceMention(
-                    labels = taxonomy.hypernymsFor(EidosSystem.COREF_LABEL),
+                    labels = taxonomy.hypernymsFor(EidosParameters.COREF_LABEL),
                     anchor = antecedent,
                     neighbor = anaphor,
                     arguments = Map[String, Seq[Mention]]((CorefHandler.ANTECEDENT, Seq(antecedent)), (CorefHandler.ANAPHOR, Seq(anaphor))),
@@ -117,14 +118,14 @@ class CausalBasicCorefHandler(taxonomy: Taxonomy) extends CorefHandler {
 
   def getPreviousSentenceCausal(orderedBySentence: Map[Int, Seq[Mention]], i: Int): Seq[Mention] = {
     val prevSentenceMentions = orderedBySentence.getOrElse(i - 1, Seq.empty[Mention])
-    prevSentenceMentions.filter(_ matches EidosSystem.CAUSAL_LABEL)
+    prevSentenceMentions.filter(_ matches EidosParameters.CAUSAL_LABEL)
   }
 
 }
 
 object CausalBasicCorefHandler {
   def fromConfig(config: Config): CausalBasicCorefHandler = {
-    val taxonomyPath = config[String]("taxonomyPath")
+    val taxonomyPath: String = config[String]("taxonomyPath")
     val taxonomy = readTaxonomy(taxonomyPath)
     new CausalBasicCorefHandler(taxonomy)
   }

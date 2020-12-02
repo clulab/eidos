@@ -1,15 +1,12 @@
 package org.clulab.wm.eidos.graph
 
-import java.io.PrintWriter
-import java.io.StringWriter
+import java.io.{PrintWriter, StringWriter}
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.graph.TestResult.TestResults
-import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.TestUtils
-import org.clulab.wm.eidos.utils.Language
+import org.clulab.wm.eidoscommon.Language
 
 import scala.collection.JavaConverters._
 import scala.collection.Seq

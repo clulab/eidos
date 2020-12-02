@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.text.portuguese
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.PortugueseTest
 
 class TestConfig extends PortugueseTest {
 

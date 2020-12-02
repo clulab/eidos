@@ -5,14 +5,13 @@ import java.time.ZonedDateTime
 import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
-import org.clulab.wm.eidos.SentencesExtractor
-import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
-import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology
-import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology
-import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
-import org.clulab.wm.eidos.utils.Canonicalizer
-import org.clulab.wm.eidos.utils.StringUtils
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.SentencesExtractor
+import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.ontologies.{CompactDomainOntology, DomainOntology, FastDomainOntology}
+import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

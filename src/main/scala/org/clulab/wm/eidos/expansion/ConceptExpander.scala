@@ -5,7 +5,8 @@ import org.clulab.odin.Mention
 import org.clulab.odin.State
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, NegChange, PosChange, Quantification}
-import org.clulab.wm.eidos.utils.MentionUtils
+import org.clulab.wm.eidos.mentions.MentionUtils
+import org.clulab.wm.eidoscommon.EidosParameters
 
 class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boolean) extends Expander {
 
@@ -26,7 +27,7 @@ class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boole
       // Expand
       val expanded = expanderOpt.get.expand(notYetExpanded, new State())
       // Modify the label to flag them for keeping
-      val relabeled = expanded.map(m => MentionUtils.withLabel(m, EidosSystem.CONCEPT_EXPANDED_LABEL))
+      val relabeled = expanded.map(m => MentionUtils.withLabel(m, EidosParameters.CONCEPT_EXPANDED_LABEL))
 
       relabeled
     }
@@ -35,12 +36,12 @@ class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boole
     if (!keepStatefulConcepts || expanderOpt.isEmpty)
       mentions
     else {
-      // Split the mentions into Concepts and Relations by the label
-      val (concepts, relations) = mentions.partition(_ matches EidosSystem.CONCEPT_LABEL)
+      // Split the mentions into Cpncepts and Relations by the label
+      val (concepts, relations) = mentions.partition(_ matches EidosParameters.CONCEPT_LABEL)
       // Check to see if any of the Concepts have state attachments
       val (expandable, notExpandable) = concepts.partition(_.attachments.exists(isExpandableMod))
       // Get the already expanded mentions for this document
-      val prevExpandableState = State(relations.filter(rel => EidosSystem.CAG_EDGES.contains(rel.label)))
+      val prevExpandableState = State(relations.filter(rel => EidosParameters.CAG_EDGES.contains(rel.label)))
       // Expand the Concepts if they weren't already part of an expanded Relation
       val expandedConcepts = expandIfNotExpanded(expandable, prevExpandableState)
       expandedConcepts ++ notExpandable ++ relations

@@ -8,7 +8,7 @@ import java.util.TimeZone
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.json4s.DefaultFormats
 import org.json4s.JObject
 import org.json4s.JValue

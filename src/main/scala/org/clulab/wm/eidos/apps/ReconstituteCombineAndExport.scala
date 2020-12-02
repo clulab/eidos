@@ -6,8 +6,8 @@ import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.exporters.Exporter
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 /**
   * App used to extract mentions from files in a directory and produce the desired output format (i.e., jsonld, mitre

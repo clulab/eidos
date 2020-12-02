@@ -17,19 +17,7 @@ import org.clulab.struct.Edge
 import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.wm.eidos.attachments.DCTime
-import org.clulab.wm.eidos.attachments.Decrease
-import org.clulab.wm.eidos.attachments.Hedging
-import org.clulab.wm.eidos.attachments.Increase
-import org.clulab.wm.eidos.attachments.Location
-import org.clulab.wm.eidos.attachments.NegChange
-import org.clulab.wm.eidos.attachments.Negation
-import org.clulab.wm.eidos.attachments.PosChange
-import org.clulab.wm.eidos.attachments.Property
-import org.clulab.wm.eidos.attachments.Provenance
-import org.clulab.wm.eidos.attachments.Quantification
-import org.clulab.wm.eidos.attachments.Time
-import org.clulab.wm.eidos.attachments.TriggeredAttachment
+import org.clulab.wm.eidos.attachments.{DCTime, Decrease, Hedging, Increase, Location, NegChange, Negation, PosChange, Property, Provenance, Quantification, Time, TriggeredAttachment}
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
@@ -41,10 +29,10 @@ import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.PredicateGrounding
-import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
-import org.clulab.wm.eidos.groundings.{AdjectiveGrounding, OntologyAliases, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
+import org.clulab.wm.eidos.groundings.{OntologyAliases, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.PassThruNamer
+import org.clulab.wm.eidoscommon.utils.PassThruNamer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 

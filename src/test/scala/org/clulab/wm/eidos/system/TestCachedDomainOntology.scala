@@ -1,22 +1,19 @@
 package org.clulab.wm.eidos.system
 
 import ai.lum.common.ConfigUtils._
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigValueFactory
-import org.clulab.wm.eidos.EidosProcessor.EidosProcessor
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology
-import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology
-import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.test.EidosTest
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.EidosProcessor
+import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
+import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
+import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 
-class TestCachedDomainOntology extends Test {
+class TestCachedDomainOntology extends EidosTest {
   val ontologies: Iterable[String] = Seq("one", "two")
   val config: Config = ConfigFactory.load(this.defaultConfig)
       .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false, "Vectors are not necessary."))

@@ -1,8 +1,10 @@
 package org.clulab.wm.eidos.groundings.grounders
 
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.ontologies.DomainOntology
 
 class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
@@ -42,7 +44,8 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
       }
       // Otherwise, back-off to the w2v-based approach for main branch and a sieve for interventions
       else {
-        val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
+        val attachmentWords = mention.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
+        val canonicalNameParts = EidosMention.canonicalNameParts(canonicalizer, mention, attachmentWords)
 
         // Main Portion of the ontology
         val mainConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.REST)
