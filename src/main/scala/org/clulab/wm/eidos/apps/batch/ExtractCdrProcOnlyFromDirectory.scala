@@ -1,15 +1,16 @@
 package org.clulab.wm.eidos.apps.batch
 
-import java.io.File
-
 import org.clulab.processors.Document
+import org.clulab.serialization.json.DocOps
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, ThreadUtils, Timer}
-import org.clulab.serialization.json.DocOps
 import org.clulab.wm.eidos.groundings.grounders.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.utils.meta.CdrText
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.ThreadUtils
+import org.clulab.wm.eidoscommon.utils.Timer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -35,7 +36,6 @@ object ExtractCdrProcOnlyFromDirectory extends App {
     // to any particular document.
     val config = EidosSystem.defaultConfig
     val reader = new EidosSystem(config)
-    val options = EidosSystem.Options()
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 

@@ -4,7 +4,7 @@ import org.clulab.odin.Mention
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.{EidosMention, OdinMention}
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidoscommon.utils.{EqualityBagger, IdentityBagger}
 
@@ -94,7 +94,7 @@ than in the corresponding period two years earlier.
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
     val (eidosMentions3, _) = EidosMention.asEidosMentions(odinMentions3)
-    val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
+    val canonicalizer = ieSystem.components.ontologyHandlerOpt.get.canonicalizer
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)

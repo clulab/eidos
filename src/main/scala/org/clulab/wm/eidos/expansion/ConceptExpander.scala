@@ -5,7 +5,7 @@ import org.clulab.odin.Mention
 import org.clulab.odin.State
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, NegChange, PosChange, Quantification}
-import org.clulab.wm.eidos.utils.MentionUtils
+import org.clulab.wm.eidos.mentions.MentionUtils
 import org.clulab.wm.eidoscommon.EidosParameters
 
 class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boolean) extends Expander {

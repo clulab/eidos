@@ -4,13 +4,14 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidoscommon.utils.{Canonicalizer, Timer}
+import org.clulab.wm.eidos.test.EidosTest
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.utils.Timer
 import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
-class TestDomainOntology extends Test {
+class TestDomainOntology extends EidosTest {
 
   def matches(left: DomainOntology, right: DomainOntology): Boolean = {
 
@@ -65,8 +66,8 @@ class TestDomainOntology extends Test {
   val config = ConfigFactory.load(this.defaultConfig)
       .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false, "Don't use vectors when caching ontologies."))
   val reader = new EidosSystem(config)
-  val proc = reader.components.proc
-  val canonicalizer = new Canonicalizer(reader.components.stopwordManager, proc.getTagSet)
+  val proc = reader.components.procOpt.get
+  val canonicalizer = new Canonicalizer(reader.components.stopwordManagerOpt.get, proc.getTagSet)
   val useCacheForOntologies = config[Boolean]("ontologies.useCacheForOntologies")
   val includeParents = config[Boolean]("ontologies.includeParents")
   val filter = true

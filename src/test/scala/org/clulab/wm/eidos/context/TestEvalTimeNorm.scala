@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.context
 
 import org.clulab.wm.eidos.apps.EvalTimeNorm
-import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.test.EidosTest
 
-class TestEvalTimeNorm extends Test {
+class TestEvalTimeNorm extends EidosTest {
 
   behavior of "temporal parser"
 

@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.groundings.grounders
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings.{EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidoscommon.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.ontologies.DomainOntology
 
 // TODO: Zupon

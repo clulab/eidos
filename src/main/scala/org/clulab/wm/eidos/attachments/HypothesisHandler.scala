@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.attachments
 import org.clulab.odin._
 import org.clulab.struct.{DirectedGraph, Interval}
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.mentions.MentionUtils
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidos.utils.MentionUtils
 import org.clulab.wm.eidoscommon.EidosParameters
 
 /**

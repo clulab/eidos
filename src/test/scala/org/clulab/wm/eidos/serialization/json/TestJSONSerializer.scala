@@ -8,11 +8,11 @@ import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.{DCT, GeoPhraseID, TimEx, TimeStep}
-import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.test.EidosTest
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods
 
-class TestJSONSerializer extends Test {
+class TestJSONSerializer extends EidosTest {
   val config = this.defaultConfig
   val reader = new EidosSystem(config)
 

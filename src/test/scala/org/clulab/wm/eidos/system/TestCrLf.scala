@@ -2,11 +2,11 @@ package org.clulab.wm.eidos.system
 
 import java.io.{File, InputStreamReader}
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
 
-class TestCrLf extends Test {
+class TestCrLf extends EidosTest {
   
   behavior of "resources"
 

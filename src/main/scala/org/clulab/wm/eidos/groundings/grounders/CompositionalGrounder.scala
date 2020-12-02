@@ -8,7 +8,8 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.OdinUtils
-import org.clulab.wm.eidoscommon.utils.{Canonicalizer, Namer}
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.ontologies.DomainOntology
 
 class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer)

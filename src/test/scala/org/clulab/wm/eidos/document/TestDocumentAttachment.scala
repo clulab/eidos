@@ -12,10 +12,10 @@ import org.clulab.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.attachments.{DctDocumentAttachment, RelevanceDocumentAttachment}
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
 import org.json4s.jackson.{parseJson, prettyJson, renderJValue}
 
-class TestDocumentAttachment extends Test {
+class TestDocumentAttachment extends EidosTest {
 
   def serialize(any: Any): Array[Byte] = {
     new ByteArrayOutputStream().autoClose { byteArrayOutputStream =>

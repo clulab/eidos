@@ -4,11 +4,10 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.extraction.EntityHelper
 import org.slf4j.{Logger, LoggerFactory}
 import org.clulab.wm.eidos.expansion.ArgumentExpander.logger
-import org.clulab.wm.eidoscommon.utils.TagSet
+import org.clulab.wm.eidoscommon.TagSet
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -67,7 +66,7 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
 
     // Get the trigger of the mention, if there is one so that it isn't expanded over
     val trigger = m match {
-      case rm: RelationMention => None
+      case _: RelationMention => None
       case em: EventMention => Some(em.trigger)
       case _ => throw new RuntimeException("Trying to get the trigger from a mention with no trigger")
     }
@@ -142,8 +141,6 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
     case _ => sys.error("M is not a textboundmention, I don't know what to do")
   }
 
-
-
   // Return a copy of the orig EventMention, but with the expanded arguments
   // The changes made to the mention are the args, the token interval, foundby, and the paths.
   def copyWithNewArgs(orig: Mention, expandedArgs: Map[String, Seq[Mention]], foundByAffix: Option[String] = None, mkNewInterval: Boolean = true): Mention = {
@@ -160,19 +157,23 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
 
     val paths = for {
       (argName, argPathsMap) <- orig.paths
-      origPath = argPathsMap(orig.arguments(argName).head)
-    } yield (argName, Map(expandedArgs(argName).head -> origPath))
+        newMap = try {
+          val origPath = argPathsMap(orig.arguments(argName).head)
+          Map(expandedArgs(argName).head -> origPath)
+        } catch {
+          case _: java.util.NoSuchElementException => Map.empty[Mention, SynPath]
+        }
+      } yield (argName, newMap)
 
     // Make the copy based on the type of the Mention
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy
 
     orig match {
-      case tb: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
+      case _: TextBoundMention => throw new RuntimeException("Textbound mentions are incompatible with argument expansion")
       case rm: RelationMention => rm.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy)
       case em: EventMention => em.copy(arguments = expandedArgs, tokenInterval = newTokenInterval, foundBy = copyFoundBy, paths = paths)
     }
   }
-
 }
 
 object ArgumentExpander {

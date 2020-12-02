@@ -4,7 +4,7 @@ import ai.lum.common.StringUtils.StringWrapper
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.MentionUtils
+import org.clulab.wm.eidos.mentions.MentionUtils
 import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
@@ -12,7 +12,7 @@ import org.clulab.wm.eidoscommon.utils.CsvWriter
 
 import scala.collection.Seq
 
-case class GroundingAnnotationExporter(filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
+class GroundingAnnotationExporter(filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int = 5) extends Exporter {
 
   override def export(annotatedDocument: AnnotatedDocument): Unit = {
     new CsvWriter(FileUtils.printWriterFromFile(filename)).autoClose { csvWriter =>

@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidoscommon.EidosParameters
 
 
@@ -11,7 +11,7 @@ class TestFiltering extends ExtractionTest {
     val mentions1 = extractMentions(text1)
     val causal = mentions1.filter(_ matches EidosParameters.CAUSAL_LABEL)
     causal should have size(1)
-    val valid = ieSystem.components.stopwordManager.keepCAGRelevant(causal)
+    val valid = ieSystem.components.stopwordManagerOpt.get.keepCAGRelevant(causal)
     valid should be(empty)
   }
 
@@ -20,7 +20,7 @@ class TestFiltering extends ExtractionTest {
     val mentions1 = extractMentions(text1)
     val causal = mentions1.filter(_ matches EidosParameters.CAUSAL_LABEL)
     causal should have size(1)
-    val valid = ieSystem.components.stopwordManager.keepCAGRelevant(causal)
+    val valid = ieSystem.components.stopwordManagerOpt.get.keepCAGRelevant(causal)
     valid should be(empty)
   }
 
@@ -29,7 +29,7 @@ class TestFiltering extends ExtractionTest {
     val mentions1 = extractMentions(text1)
     val causal = mentions1.filter(_ matches EidosParameters.CAUSAL_LABEL)
     causal should have size(1)
-    val valid = ieSystem.components.stopwordManager.keepCAGRelevant(causal)
+    val valid = ieSystem.components.stopwordManagerOpt.get.keepCAGRelevant(causal)
     valid should be(empty)
   }
 }

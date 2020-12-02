@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.text.english.cag
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 
-class TestCag extends Test {
+class TestCag extends EidosTest {
   def getSpecialCharsSize(s: String) = s.filter(c => c > 127).size
   
   "p1" should "have the correct number of special characters" in {

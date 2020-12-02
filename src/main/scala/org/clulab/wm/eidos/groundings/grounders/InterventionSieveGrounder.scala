@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.groundings.grounders
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidoscommon.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.ontologies.DomainOntology
 
 class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
@@ -122,6 +122,6 @@ object InterventionSieveGrounder {
     """(integrat)(\s|\w)+into(\s|\w)+(policy|policies|program)""".r,
     """(capacity)(\s|\w)+building""".r,
     """(public\s+sector\s+support)""".r,
-    """(invest)(\s|\w)+(in)""".r,
+    """(invest)(\s|\w)+(in)""".r
   )
 }

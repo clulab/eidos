@@ -171,10 +171,9 @@ Test / parallelExecution := false // Keeps groups in their order   false then tr
   testGrouping in Test := groupByLanguage((definedTests in Test).value)
 }
 
-
 lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
-  .aggregate(webapp, elasticsearch, eidoscommon, wmexchanger, ontologies)
+  .aggregate(elasticsearch, eidoscommon, wmexchanger, ontologies) // , webapp
   .dependsOn(ontologies, eidoscommon)
   .settings(commonSettings: _*)
   .settings(
@@ -205,6 +204,7 @@ lazy val webapp = project
 
 lazy val elasticsearch = project
   .settings(commonSettings: _*)
+  .dependsOn(eidoscommon)
 
 lazy val wmexchanger = project
   .settings(commonSettings: _*)
@@ -261,4 +261,3 @@ releaseProcess := Seq[ReleaseStep](
 enablePlugins(SiteScaladocPlugin)
 enablePlugins(GhpagesPlugin)
 git.remoteRepo := "git@github.com:clulab/eidos.git"
-

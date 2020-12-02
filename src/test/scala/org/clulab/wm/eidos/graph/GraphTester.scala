@@ -6,7 +6,7 @@ import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.graph.TestResult.TestResults
 import org.clulab.wm.eidos.test.TestUtils
-import org.clulab.wm.eidoscommon.utils.Language
+import org.clulab.wm.eidoscommon.Language
 
 import scala.collection.JavaConverters._
 import scala.collection.Seq
@@ -27,7 +27,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       .replace('\t', ' ')
       .replaceAll("  +", " ")
 
-    if (ieSystem.components.language == Language.ENGLISH) {
+    if (ieSystem.components.languageOpt.get == Language.ENGLISH) {
       val specialChars = getSpecialChars(cleanText)
       if (!specialChars.isEmpty)
         throw new IllegalArgumentException("Text contained a special chars: " + specialChars)

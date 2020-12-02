@@ -135,7 +135,7 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
       val isAlreadyCanonicalized = extract("isAlreadyCanonicalized").asOpt[Boolean].getOrElse(true)
 
       try {
-        val ontologyHandler = ieSystem.components.ontologyHandler
+        val ontologyHandler = ieSystem.components.ontologyHandlerOpt.get
         val regroundings = ontologyHandler.reground(name, ontologyYaml, texts, filter, topk, isAlreadyCanonicalized)
         val result = JsArray { regroundings.map { regrounding =>
             JsArray { regrounding.map { case (grounding, score) =>

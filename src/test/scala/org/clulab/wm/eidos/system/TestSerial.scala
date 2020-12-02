@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.ExtractionTest
 
 import scala.util.Random
 

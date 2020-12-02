@@ -2,11 +2,12 @@ package org.clulab.wm.eidos.system
 
 import java.io.File
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
+import org.clulab.wm.eidoscommon.Language
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{Language, Sourcer}
+import org.clulab.wm.eidoscommon.utils.Sourcer
 
-class TestResources extends Test {
+class TestResources extends EidosTest {
   
   behavior of "resources"
 

@@ -4,11 +4,11 @@ import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 
 import org.clulab.odin.{EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
 
-class TestSerialization extends Test {
+class TestSerialization extends EidosTest {
   val config = this.defaultConfig
   val reader = new EidosSystem(config)
 

@@ -8,10 +8,15 @@ import org.clulab.processors.clu.{PortugueseCluProcessor, SpanishCluProcessor}
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.utils.ScienceUtils
-import org.clulab.wm.eidoscommon.utils.{EnglishTagSet, Language, PortugueseTagSet, SpanishTagSet, TagSet}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.mutable.ArrayBuffer
+
+trait EidosTokenizing {
+  val eidosTokenizer: EidosTokenizer
+}
+
+trait EidosProcessor extends Processor with SentencesExtractor with LanguageSpecific with Tokenizing with EidosTokenizing
 
 // This interface is needed by the TreeDomainOntologyBuilder that wants sentences
 // that are not quite as complete as the processors normally provide.
@@ -33,9 +38,9 @@ trait LanguageSpecific {
 }
 
 class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
-    with SentencesExtractor with LanguageSpecific with Tokenizing {
-  protected lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
-  override lazy val tokenizer = eidosTokenizer
+    with EidosProcessor {
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new EnglishTagSet()
 
   def getTokenizer: EidosTokenizer = eidosTokenizer
@@ -57,9 +62,9 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
 }
 
 class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
-    with SentencesExtractor with LanguageSpecific with Tokenizing {
-  protected lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
-  override lazy val tokenizer = eidosTokenizer
+    with EidosProcessor {
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new SpanishTagSet()
 
   def getTokenizer: EidosTokenizer = eidosTokenizer
@@ -81,9 +86,9 @@ class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCl
 }
 
 class EidosPortugueseProcessor(val language: String, cutoff: Int) extends PortugueseCluProcessor
-    with SentencesExtractor with LanguageSpecific with Tokenizing {
-  protected lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
-  override lazy val tokenizer = eidosTokenizer
+    with EidosProcessor {
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new PortugueseTagSet()
 
   def getTokenizer: EidosTokenizer = eidosTokenizer
@@ -317,12 +322,13 @@ trait Tokenizing {
 object EidosProcessor {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  type EidosProcessor = Processor with SentencesExtractor with LanguageSpecific with Tokenizing
-
   def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
     case Language.ENGLISH =>
       new EidosEnglishProcessor(language, cutoff)
     case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
     case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
   }
+
+  // Turn off warnings from this class.
+  edu.stanford.nlp.ie.NumberNormalizer.setVerbose(false)
 }

@@ -255,9 +255,11 @@ class TimeNormFinderSUTime() extends TimeNormFinder {
   private val nextOperators = Array("next", "following", "coming")
   // The text of the time expression must start with "the last", "the following",...
   private val normalizableRegex = s"^the (${(pastOperators ++ nextOperators).mkString("|")})".r
+  // The form of the normalized timex must be PNU where N is an integer
+  // and U a valid unit: Y (year), M (month), W (week) or D (day)
+  val periodRegex = "^P([0-9]+)([YMWD])$".r
   private val timeZoneId = ZoneId.of("UTC")
   TimeZone.setDefault(TimeZone.getTimeZone(timeZoneId))
-
 
   def parseDctString(dctString: String): Option[DCT] = {
     Try {
@@ -300,9 +302,6 @@ class TimeNormFinderSUTime() extends TimeNormFinder {
 
   // Normalize DURATION like "the last 5 years" with norm values like "P5Y"
   private def normalizeDuration(text: String, timex: String, dct: DCT): Seq[TimeStep] = {
-    // The form of the normalized timex must be PNU where N is an integer
-    // and U a valid unit: Y (year), M (month), W (week) or D (day)
-    val periodRegex = "^P([0-9]+)([YMWD])$".r
     val periodMatch = periodRegex.findFirstMatchIn(timex)
     val period = periodMatch.map(p => (p.group(1).toInt, p.group(2))).toSeq
     // if pastOperator the interval is: from (dct - N units) to dct

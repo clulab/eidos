@@ -5,7 +5,8 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 
 import com.github.clulab.eidos.{Version => TestVersion, Versions => TestVersions}
-import org.scalatest._
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
 
 class TestVersioner extends FlatSpec with Matchers {
   val now = ZonedDateTime.now

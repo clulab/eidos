@@ -4,16 +4,16 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidoscommon.EidosProcessor.EidosProcessor
-import org.clulab.wm.eidoscommon.utils.Canonicalizer
+import org.clulab.wm.eidos.test.EidosTest
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.EidosProcessor
 import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
 import scala.collection.JavaConverters._
 
-class TestCachedDomainOntology extends Test {
+class TestCachedDomainOntology extends EidosTest {
   val ontologies: Iterable[String] = Seq("one", "two")
   val config: Config = ConfigFactory.load(this.defaultConfig)
       .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false, "Vectors are not necessary."))
@@ -21,8 +21,8 @@ class TestCachedDomainOntology extends Test {
   val baseDir = "/org/clulab/wm/eidos/english/ontologies"
   val cacheDir: String = config[String]("ontologies.cacheDir")
   val reader: EidosSystem = new EidosSystem(config)
-  val proc: EidosProcessor = reader.components.proc
-  val canonicalizer = new Canonicalizer(reader.components.stopwordManager, reader.components.proc.getTagSet)
+  val proc: EidosProcessor = reader.components.procOpt.get
+  val canonicalizer = new Canonicalizer(reader.components.stopwordManagerOpt.get, reader.components.procOpt.get.getTagSet)
   val filter = true
 
   case class OntologySpec(abbrev: String, path: String)

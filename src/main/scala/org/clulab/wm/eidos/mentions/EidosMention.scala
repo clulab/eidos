@@ -6,7 +6,8 @@ import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounder
 import org.clulab.wm.eidos.utils.FoundBy
-import org.clulab.wm.eidoscommon.utils.{Canonicalizer, IdentityBagger, IdentityMapper}
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.utils.{IdentityBagger, IdentityMapper}
 import org.slf4j.{Logger, LoggerFactory}
 
 // In order to create this all at once with all OdinMentions that are == being rerouted

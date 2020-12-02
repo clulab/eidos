@@ -1,8 +1,8 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EidosTest
 
-class TestMemory extends Test {
+class TestMemory extends EidosTest {
 
   behavior of "memory"
   

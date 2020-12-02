@@ -21,7 +21,7 @@ class CluText(eidosSystem: EidosSystem, text: String, jValueOpt: Option[JValue])
     val dctStringOpt: Option[String] = getDocumentCreationTime
     val titleOpt: Option[String] = getDocumentTitle
 
-    Metadata(eidosSystem, dctStringOpt, titleOpt)
+    Metadata(eidosSystem.components.timeNormFinderOpt, dctStringOpt, titleOpt)
   }
 
   override def getText: String = text

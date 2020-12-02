@@ -12,7 +12,7 @@ import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
 import org.clulab.wm.eidos.groundings.OntologyAliases.{MultipleOntologyGrounding, OntologyGroundings}
 import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding}
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer._
-import org.clulab.wm.eidos.test.TestUtils.ExtractionTest
+import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.json4s.JArray

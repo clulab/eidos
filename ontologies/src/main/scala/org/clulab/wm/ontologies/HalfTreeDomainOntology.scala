@@ -5,12 +5,11 @@ import java.util.{Collection => JCollection}
 import java.util.{Map => JMap}
 
 import org.clulab.utils.Serializer
+import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
-import org.clulab.wm.eidoscommon.utils.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.Resourcer
-import org.clulab.wm.ontologies.DomainOntology
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
