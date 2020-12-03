@@ -5,22 +5,22 @@ import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.StopwordManaging
 import org.clulab.wm.eidoscommon.TagSet
 import org.clulab.wm.eidoscommon.utils.FileUtils
 
-
-
 class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: TagSet) extends StopwordManaging {
   protected val stopwords: Set[String] = FileUtils.getCommentedTextSetFromResource(stopwordsPath)
-  protected def transparentWords: Set[String] = FileUtils.getCommentedTextSetFromResource(transparentPath)
-
   protected val bothWords: Set[String] = stopwords ++ transparentWords
 
+  protected def transparentWords: Set[String] = FileUtils.getCommentedTextSetFromResource(transparentPath)
+
+  def containsStopwordNer(stopword: String): Boolean = StopwordManager.STOPWORD_NER.contains(stopword)
+
   def containsStopword(stopword: String): Boolean = bothWords.contains(stopword)
+
   override def containsStopwordStrict(stopword: String): Boolean = stopwords.contains(stopword)
 
   def hasContent(mention: Mention, state: State): Boolean = hasContent(mention) || resolvedCoref(mention, state)
@@ -43,7 +43,7 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: Ta
           // isn't a stopword
           !containsStopword(lemmas(i)) &&
           // and isn't a stop NER
-          !EidosParameters.STOP_NER.contains(entities(i))
+          !containsStopwordNer(entities(i))
     }
   }
 
@@ -110,10 +110,9 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: Ta
 }
 
 object StopwordManager {
-
   // maybe use this to get missed Locations/Dates/etc?; not sure if necessary anymore?
   //  val STOP_NER: Set[String] = Set("DURATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "SET")
-
+  val STOPWORD_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MISC", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERSON", "PLACE", "SET", "TIME")
 
   def apply(stopwordsPath: String, transparentPath: String, tagSet: TagSet) =
       new StopwordManager(stopwordsPath, transparentPath, tagSet)

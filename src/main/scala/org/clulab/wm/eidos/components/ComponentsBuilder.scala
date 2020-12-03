@@ -100,9 +100,14 @@ class ComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponen
     }
   )
   val findersLoader = newComponentLoader("Finders", componentOpts.finders, None,
-    processorLoader.get.getTagSet,
-    { tagSet: TagSet =>
-      Finder.fromConfig(eidosSystemPrefix + ".finders", config, tagSet)
+    {
+      // Make sure these are both being worked on before any waiting is done.
+      (processorLoader.loaded, stopwordManagerLoader.loaded)
+      (processorLoader.get, stopwordManagerLoader.get)
+    },
+    { processorAndStopwordManager: (EidosProcessor, StopwordManager) =>
+      val (processor, stopwordManager) = processorAndStopwordManager
+      Finder.fromConfig(eidosSystemPrefix + ".finders", config, processor.getTagSet, stopwordManager)
     }
   )
   // This one is not used externally, but may benefit from parallelism.
