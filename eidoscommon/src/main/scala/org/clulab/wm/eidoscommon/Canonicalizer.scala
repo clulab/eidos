@@ -9,7 +9,7 @@ class Canonicalizer(stopwordManaging: StopwordManaging, tagSet: TagSet) {
   def isCanonicalLemma(lemma: String, tag: String, ner: String): Boolean =
     tagSet.isOntologyContent(tag) &&
         !stopwordManaging.containsStopwordStrict(lemma) &&
-        !EidosParameters.STOP_NER.contains(ner)
+        !stopwordManaging.containsStopwordNer(ner)
 
   def canonicalWordsFromSentence(s: Sentence, tokenInterval: Interval, excludedWords: Set[String] = Set()): Seq[String] = {
     val words = s.words

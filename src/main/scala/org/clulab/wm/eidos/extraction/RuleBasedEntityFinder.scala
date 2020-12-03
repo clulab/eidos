@@ -8,10 +8,11 @@ import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.StopwordManaging
 import org.clulab.wm.eidoscommon.TagSet
 
 class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: ExtractorEngine,
-    val avoidEngine: ExtractorEngine, tagSet: TagSet) extends Finder {
+    val avoidEngine: ExtractorEngine, tagSet: TagSet, stopwordManaging: StopwordManaging) extends Finder {
   /**
     * Performs rule-based entity extraction with selective expansion along syntactic dependencies.
     * For filtering, see filterEntities.
@@ -42,8 +43,6 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
     }
     res
   }
-
-
 
   def extractAndFilter(doc: Document): Seq[Mention] = {
     val entities = find(doc)
@@ -76,7 +75,7 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
 
       // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
       tags.indices.exists { i =>
-        (tagSet.isAnyNoun(tags(i)) || tagSet.isAnyVerb(tags(i))) && !EidosParameters.STOP_NER.contains(entities(i))
+        (tagSet.isAnyNoun(tags(i)) || tagSet.isAnyVerb(tags(i))) && !stopwordManaging.containsStopwordNer(entities(i))
       }
     }
     // If there's a non-named entity noun in the entity, it's valid
@@ -106,7 +105,6 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
     } yield m
   }
 
-
   /** Keeps the longest mention for each group of overlapping mentions **/
   def keepLongest(mentions: Seq[Mention], state: State = new State()): Seq[Mention] = {
     val mns: Iterable[Mention] = for {
@@ -123,7 +121,7 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
 object RuleBasedEntityFinder {
   val DEFAULT_MAX_LENGTH = 50 // maximum length (in tokens) for an entity // FIXME read in?
 
-  def fromConfig(config: Config, tagSet: TagSet): RuleBasedEntityFinder = {
+  def fromConfig(config: Config, tagSet: TagSet, stopwordManaging: StopwordManaging): RuleBasedEntityFinder = {
     val entityRulesPath: String = config[String]("ruleBasedEntityFinder.entityRulesPath")
     val entityRules = Resourcer.getText(entityRulesPath)
     val entityEngine = ExtractorEngine(entityRules)
@@ -135,6 +133,6 @@ object RuleBasedEntityFinder {
     val expanderConfig = config.get[Config]("ruleBasedEntityFinder.expander")
     val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig(_, tagSet))
 
-    new RuleBasedEntityFinder(expander, entityEngine, avoidEngine, tagSet)
+    new RuleBasedEntityFinder(expander, entityEngine, avoidEngine, tagSet, stopwordManaging)
   }
 }
