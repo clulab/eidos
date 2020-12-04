@@ -6,8 +6,12 @@ import java.util.regex.Pattern
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
+import org.clulab.odin.Actions
 import org.clulab.odin.EventMention
-import org.clulab.odin._
+import org.clulab.odin.Mention
+import org.clulab.odin.RelationMention
+import org.clulab.odin.State
+import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.EidosAttachment
@@ -218,8 +222,6 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 
   def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
-
-
 }
 
 object EidosActions extends Actions {

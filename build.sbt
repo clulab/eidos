@@ -41,47 +41,25 @@ lazy val commonSettings = Seq(
     repo.root.startsWith("http://artifactory.cs.arizona.edu")
   },
 
-  // mandatory stuff to add to the pom for publishing
-  pomExtra :=
-    <url>https://github.com/clulab/processors</url>
-      <licenses>
-        <license>
-          <name>Apache License, Version 2.0</name>
-          <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-          <distribution>repo</distribution>
-        </license>
-      </licenses>
-      <scm>
-        <url>https://github.com/clulab/processors</url>
-        <connection>https://github.com/clulab/processors</connection>
-      </scm>
-      <developers>
-        <developer>
-          <id>mihai.surdeanu</id>
-          <name>Mihai Surdeanu</name>
-          <email>mihai@surdeanu.info</email>
-        </developer>
-      </developers>,
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/clulab/eidos"),
+      "scm:git:https://github.com/clulab/eidos.git"
+    )
+  ),
 
-      scmInfo := Some(
-      ScmInfo(
-        url("https://github.com/clulab/eidos"),
-        "scm:git:https://github.com/clulab/eidos.git"
-      )
-      ),
+  licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
 
-      licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
+  homepage := Some(url("https://github.com/clulab/eidos")),
 
-      homepage := Some(url("https://github.com/clulab/eidos")),
-
-      developers := List(
-      Developer(
-        id    = "mihai.surdeanu",
-        name  = "Mihai Surdeanu",
-        email = "mihai@surdeanu.info",
-        url   = url("http://surdeanu.info/mihai/")
-      )
-      ),
+  developers := List(
+    Developer(
+      id    = "mihai.surdeanu",
+      name  = "Mihai Surdeanu",
+      email = "mihai@surdeanu.info",
+      url   = url("http://surdeanu.info/mihai/")
+    )
+  )
   //
   // end publishing settings
   //
@@ -104,9 +82,10 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-odin"          % procVer,
     "org.clulab"                 %% "processors-modelsmain"    % procModelVer,
     "org.clulab"                 %% "processors-modelscorenlp" % procModelVer,
-    "org.clulab"                 %% "geonorm"                  % "1.0.0",
-    "org.clulab"                  % "geonames"                 % "1.0.0+20200518T005330Z.gadmworedas",
     "org.clulab"                 %% "timenorm"                 % "1.0.5",
+    "org.clulab"                 %% "geonorm"                  % "1.0.0",
+    // These are not needed for the docker file if the cache is used.
+    "org.clulab"                  % "geonames"                 % "1.0.0+20200518T005330Z.gadmworedas",
     "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
     "ai.lum"                     %% "common"                   % "0.0.8",
     "org.scalatest"              %% "scalatest"                % "3.0.4" % "test",
@@ -197,16 +176,10 @@ lazy val coreRef = LocalProject("core")
 //          subprojects
 // ----------------------------
 
-lazy val webapp = project
+lazy val eidoscommon = project
   .settings(commonSettings: _*)
-  .enablePlugins(PlayScala)
-  .dependsOn(coreRef)
 
 lazy val elasticsearch = project
-  .settings(commonSettings: _*)
-  .dependsOn(eidoscommon)
-
-lazy val wmexchanger = project
   .settings(commonSettings: _*)
   .dependsOn(eidoscommon)
 
@@ -214,8 +187,14 @@ lazy val ontologies = project
   .settings(commonSettings: _*)
   .dependsOn(eidoscommon)
 
-lazy val eidoscommon = project
+lazy val webapp = project
   .settings(commonSettings: _*)
+  .enablePlugins(PlayScala)
+  .dependsOn(coreRef)
+
+lazy val wmexchanger = project
+  .settings(commonSettings: _*)
+  .dependsOn(eidoscommon)
 
 // ----------------------------
 
@@ -228,7 +207,7 @@ assemblyMergeStrategy in assembly := {
   case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
   case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
   case PathList("module-info.class")        => MergeStrategy.discard // This might not be right, but it stops the complaints.
-  case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyones licenses and notices.
+  case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyone's licenses and notices.
   case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
   case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
   case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat

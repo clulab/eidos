@@ -30,7 +30,7 @@ class OntologyHandler(
   val threshold: Option[Float]
 ) {
 
-  def ground(eidosMention: EidosMention): Unit = {
+  def ground(eidosMention: EidosMention): EidosMention = {
     // If any of the grounders needs their own version, they'll have to make it themselves.
     val attachmentWords = eidosMention.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
     eidosMention.canonicalName = EidosMention.canonicalize(canonicalizer, eidosMention, attachmentWords)
@@ -46,6 +46,7 @@ class OntologyHandler(
     }.toMap
 
     eidosMention.grounding = ontologyGroundings
+    eidosMention
   }
 
   def reground(sentenceText: String, interval: Interval, document: Document): OntologyAliases.OntologyGroundings = {
