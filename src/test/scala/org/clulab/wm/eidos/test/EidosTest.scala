@@ -13,7 +13,7 @@ import org.scalatest.Matchers
 import scala.collection.Seq
 
 class EidosTest extends FlatSpec with Matchers {
-  val defaultConfig: Config = ConfigFactory.load("englishTest")
+  val defaultConfig: Config = ConfigFactory.load(EidosTest.config)
 
   val passingTest = it
   val failingTest = ignore
@@ -27,12 +27,16 @@ class EidosTest extends FlatSpec with Matchers {
   val waitingForProcessors = ignore  // type of futureWorkTest -- added for tests which are now failing because they where designed using a SNAPSHOT version of processors
 }
 
+object EidosTest {
+  val config = "englishTest" // CLU Lab version
+}
+
 class ContraptionTest extends EidosTest
 
 class ExtractionTest(val ieSystem: EidosSystem, val config: Config) extends ContraptionTest {
   // These multiple configs are to ensure that the same config that was used to initialize the EidosSystem
   // is available to the test framework without EidosSystem needing to record it in some way.
-  def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config), config)
+  def this(config: Config = ConfigFactory.load(EidosTest.config)) = this(newEidosSystem(config), config)
 
   class GraphTester(text: String) extends graph.GraphTester(ieSystem, text)
 
@@ -45,10 +49,9 @@ class ExtractionTest(val ieSystem: EidosSystem, val config: Config) extends Cont
 }
 
 class EnglishTest(ieSystem: EidosSystem, config: Config) extends ExtractionTest(ieSystem, config) {
-  def this(config: Config = ConfigFactory.load("englishTest")) = this(newEidosSystem(config), config)
+  def this(config: Config = ConfigFactory.load(EidosTest.config)) = this(newEidosSystem(config), config)
 }
 
 class PortugueseTest(ieSystem: EidosSystem, config: Config) extends ExtractionTest(ieSystem, config) {
   def this(config: Config = ConfigFactory.load("portugueseTest")) = this(newEidosSystem(config), config)
 }
-
