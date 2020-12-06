@@ -59,5 +59,5 @@ class ComponentLoader[I, T](val name: String, opt: Boolean, oldLoadedOpt: Option
 }
 
 object ComponentLoader {
-  var useTimer = true
+  var useTimer = false
 }

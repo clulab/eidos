@@ -45,7 +45,7 @@ class EidosSystem(val components: EidosComponents) {
   // Python now uses the default, empty constructor above, but the line below remains for documentation purposes.
   // def this(x: Object) = this() // Dummy constructor crucial for Python integration
 
-  protected val debug = true
+  protected val debug = false
   protected val useTimer = false
 
   // ---------------------------------------------------------------------------------------------
@@ -157,6 +157,8 @@ class EidosSystem(val components: EidosComponents) {
 
 object EidosSystem {
   val PREFIX = "EidosSystem"
+  val config = "eidos" // CLU Lab version
+
   lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-  lazy val defaultConfig: Config = ConfigFactory.load("eidos")
+  lazy val defaultConfig: Config = ConfigFactory.load(config)
 }
