@@ -5,7 +5,7 @@ import org.clulab.wm.eidos.actions.CorefHandler
 import org.clulab.wm.eidos.attachments.AttachmentHandler
 import org.clulab.wm.eidos.attachments.HypothesisHandler
 import org.clulab.wm.eidos.attachments.NegationHandler
-import org.clulab.wm.eidos.context.GeoNormFinder
+import org.clulab.wm.eidos.context.{DynetGeoNormFinder => GeoNormFinder}
 import org.clulab.wm.eidos.context.SeasonFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.document.EidosSentenceClassifier

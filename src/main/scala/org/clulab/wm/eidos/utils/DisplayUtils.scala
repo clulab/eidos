@@ -4,7 +4,7 @@ import java.io.PrintWriter
 
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
-import org.clulab.wm.eidos.context.GeoNormFinder
+import org.clulab.wm.eidos.context.{DynetGeoNormFinder => GeoNormFinder}
 
 import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
 import org.clulab.wm.eidos.context.GeoPhraseID

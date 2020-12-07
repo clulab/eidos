@@ -4,7 +4,7 @@ import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.odin.{Mention, State}
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.context.{GeoNormFinder, SeasonFinder, TimeNormFinder}
+import org.clulab.wm.eidos.context.{DynetGeoNormFinder => GeoNormFinder, SeasonFinder, TimeNormFinder}
 import org.clulab.wm.eidoscommon.StopwordManaging
 import org.clulab.wm.eidoscommon.TagSet
 

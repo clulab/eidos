@@ -16,7 +16,7 @@ import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.DCT
-import org.clulab.wm.eidos.context.GeoNormFinder
+import org.clulab.wm.eidos.context.{DynetGeoNormFinder => GeoNormFinder}
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder

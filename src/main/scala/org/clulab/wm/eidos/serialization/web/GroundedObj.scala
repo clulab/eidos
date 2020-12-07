@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.serialization.web
 
-import org.clulab.wm.eidos.context.GeoNormFinder
+import org.clulab.wm.eidos.context.{DynetGeoNormFinder => GeoNormFinder}
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
