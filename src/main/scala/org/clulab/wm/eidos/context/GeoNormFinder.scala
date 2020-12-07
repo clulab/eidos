@@ -2,10 +2,13 @@ package org.clulab.wm.eidos.context
 
 import java.nio.file.{Files, Path, Paths}
 import java.util.IdentityHashMap
-
+import org.clulab.dynet.Metal
+import org.clulab.dynet.Utils
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
+import org.clulab.dynet.AnnotatedSentence
 import org.clulab.geonorm.{GeoLocationExtractor, GeoLocationNormalizer, GeoNamesIndex}
+import org.clulab.geonorm.{GeoLocationNormalizer, GeoNamesIndex}
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.processors.Sentence
@@ -16,23 +19,78 @@ import org.clulab.wm.eidos.mentions.OdinMention
 
 import scala.collection.JavaConverters._
 
+trait GeoExtractor {
+  def extract(sentenceWords: Array[Array[String]]): Array[Array[(Int, Int)]]
+}
+
+class GeoNormGeoExtractor(geoLocationExtractor: GeoLocationExtractor) extends GeoExtractor {
+
+  def extract(sentenceWords: Array[Array[String]]): Array[Array[(Int, Int)]] = geoLocationExtractor(sentenceWords)
+}
+
+class MetalGeoExtractor(metal: Metal) extends GeoExtractor {
+
+  def extract(sentenceWords: Array[Array[String]]): Array[Array[(Int, Int)]] = {
+    sentenceWords.map { words =>
+      val annotatedSentence = new AnnotatedSentence(words)
+      val predictions = metal.predict(0, annotatedSentence).toArray
+
+      // convert word-level class predictions into span-level geoname predictions
+      // trim off any predictions on padding words
+      // val wordPredictions = paddedWordPredictions.take(words.length)
+      for {
+        (prediction, index) <- predictions.zipWithIndex
+
+        // a start is either a B, or an I that is following an O
+        if prediction == "B_LOC" || (prediction == "I_LOC" &&
+            // an I at the beginning of a sentence is not considered to be a start,
+            // since as of Jun 2019, such tags seemed to be mostly errors (non-locations)
+            index != 0 && predictions(index - 1) == "O_LOC")
+      } yield {
+        // the end index is the first B or O (i.e., non-I) following the start
+        val end = predictions.indices.indexWhere(predictions(_) != "I_LOC", index + 1)
+        val endIndex = if (end == -1) words.length else end
+
+        // yield the token span
+        (index, endIndex)
+      }
+    }
+  }
+}
+
 @SerialVersionUID(1L)
 case class GeoPhraseID(text: String, geonameID: Option[String], startOffset: Int, endOffset: Int)
 
 object GeoNormFinder {
 
   def fromConfig(config: Config): GeoNormFinder = {
-    val geoNamesDir: Path = Paths.get(config[String]("geoNamesDir")).toAbsolutePath.normalize
-    val geoNamesIndex =
+    val geoExtractor = {
+      val useMetal = config[Boolean]("useMetal")
+
+      if (useMetal) {
+        val modelFilenamePrefix = config[String]("modelFilenamePrefix")
+        val metal = {
+          Utils.initializeDyNet()
+          Metal(modelFilenamePrefix)
+        }
+
+        new MetalGeoExtractor(metal)
+      }
+      else
+        new GeoNormGeoExtractor(new GeoLocationExtractor())
+      }
+    val geoLocationNormalizer = {
+      val geoNamesDir: Path = Paths.get(config[String]("geoNamesDir")).toAbsolutePath.normalize
+      val geoNamesIndex =
         if (Files.exists(geoNamesDir) && Files.list(geoNamesDir).count() > 0)
           new GeoNamesIndex(geoNamesDir)
         else
           GeoNamesIndex.fromClasspathJar(geoNamesDir)
 
-    new GeoNormFinder(
-      new GeoLocationExtractor(),
       new GeoLocationNormalizer(geoNamesIndex)
-    )
+    }
+
+    new GeoNormFinder(geoExtractor, geoLocationNormalizer)
   }
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention]): Array[GeoPhraseID]= {
@@ -76,7 +134,7 @@ object GeoNormFinder {
   }
 }
 
-class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNormalizer) extends Finder {
+class GeoNormFinder(geoExtractor: GeoExtractor, normalizer: GeoLocationNormalizer) extends Finder {
 
   def getGeoPhraseIDs(odinMentions: Seq[Mention], sentences: Array[Sentence]): Array[Seq[GeoPhraseID]] =
       GeoNormFinder.getGeoPhraseIDs(odinMentions, sentences)
@@ -100,7 +158,8 @@ class GeoNormFinder(extractor: GeoLocationExtractor, normalizer: GeoLocationNorm
       m.withAttachment(Location(geoPhraseID))
     }
 
-    val sentenceLocations = extractor(doc.sentences.map(_.raw))
+    val sentenceLocations = geoExtractor.extract(doc.sentences.map(_.raw))
+
     val mentions = for {
       sentenceIndex <- doc.sentences.indices
       sentence = doc.sentences(sentenceIndex)

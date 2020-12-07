@@ -86,6 +86,8 @@ libraryDependencies ++= {
     "org.clulab"                 %% "geonorm"                  % "1.0.0",
     // These are not needed for the docker file if the cache is used.
     "org.clulab"                  % "geonames"                 % "1.0.0+20200518T005330Z.gadmworedas",
+    "org.clulab"                  % "metal-loc-ner"            % "1.0.0",
+    "org.clulab"                 %% "timenorm"                 % "1.0.5",
     "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
     "ai.lum"                     %% "common"                   % "0.0.8",
     "org.scalatest"              %% "scalatest"                % "3.0.4" % "test",
