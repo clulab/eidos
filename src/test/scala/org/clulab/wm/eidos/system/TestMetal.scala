@@ -4,9 +4,10 @@ import ai.lum.common.ConfigUtils._
 import org.clulab.dynet.Metal
 import org.clulab.dynet.Utils
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidos.test.TestUtils._
 
-class TestMetal extends Test {
+class TestMetal extends EidosTest {
   
   behavior of "Metal"
 
@@ -15,7 +16,7 @@ class TestMetal extends Test {
     val modelFilenamePrefix = config[String]("geonorm.modelFilenamePrefix")
     val metal = {
       Utils.initializeDyNet()
-      Metal(modelFilenamePrefix.drop(1))
+      Metal(modelFilenamePrefix)
     }
   }
 }

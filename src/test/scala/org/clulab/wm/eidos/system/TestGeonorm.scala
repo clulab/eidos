@@ -1,8 +1,11 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.dynet.SeqScorer
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.test.ExtractionTest
+
+import scala.collection.mutable.ListBuffer
+import scala.io.Source
+
 class TestGeonorm extends ExtractionTest {
 
 //  val file = new File("/Users/vikasy/SEM_8/RA DARPA/eidos/src/test/scala/org/clulab/wm/eidos/system/ner_result_conll_format.txt")
