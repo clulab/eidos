@@ -53,7 +53,7 @@ lazy val publishSettings = {
         Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
 
-    // let’s remove any repositories for optional dependencies in our artifact
+    // Let’s remove any repositories for optional dependencies in our artifact.
     pomIncludeRepository := { (repo: MavenRepository) =>
       repo.root.startsWith("http://artifactory.cs.arizona.edu")
     },
@@ -157,7 +157,7 @@ lazy val core = (project in file("."))
     releaseProcess / aggregate := false
   )
 
-// prevents "error: recursive lazy value core needs type"
+// This prevents "error: recursive lazy value core needs type".
 lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
