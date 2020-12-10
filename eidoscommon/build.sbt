@@ -1,7 +1,9 @@
 
 name := "eidos-eidoscommon"
 
-resolvers += "jitpack" at "https://jitpack.io"
+resolvers ++= Seq(
+  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // needed by processors-main
+)
 
 libraryDependencies ++= {
   val procVer = "8.2.3"

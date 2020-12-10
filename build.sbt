@@ -66,8 +66,8 @@ lazy val commonSettings = Seq(
 )
 
 resolvers ++= Seq(
-  "jitpack" at "https://jitpack.io", // com.github.WorldModelers/Ontologies
-  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d
+  "jitpack" at "https://jitpack.io", // com.github.WorldModelers/Ontologies needed by Versioner
+  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d needed by processors-main
 )
 
 libraryDependencies ++= {
@@ -83,9 +83,10 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-modelsmain"    % procModelVer,
     "org.clulab"                 %% "processors-modelscorenlp" % procModelVer,
     "org.clulab"                 %% "timenorm"                 % "1.0.5",
-    "org.clulab"                 %% "geonorm"                  % "1.0.0",
-    // These are not needed for the docker file if the cache is used.
+    "org.clulab"                 %% "geonorm"                  % "1.0.0",	
+    // This one below is not needed for the docker file if the cache is used.
     "org.clulab"                  % "geonames"                 % "1.0.0+20200518T005330Z.gadmworedas",
+    // This one below is not needed for the docker file if the cache is used.
     "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
     "ai.lum"                     %% "common"                   % "0.0.8",
     "org.scalatest"              %% "scalatest"                % "3.0.4" % "test",
@@ -126,7 +127,7 @@ sourceGenerators in Compile += Def.task {
 }.taskValue
 
 Test / fork := true // Also forces sequential operation
-Test / parallelExecution := false // Keeps groups in their order   false then true worked 4:14 and portuguese last
+Test / parallelExecution := false // Keeps groups in their order, false then true
 //Test / testForkedParallel := true // Allow parallel within group?
 
 {
