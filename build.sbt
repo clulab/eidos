@@ -43,7 +43,6 @@ lazy val publishSettings = {
   Seq(
     // publish to a maven repo
     publishMavenStyle := true,
-
     // the standard maven repository
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
@@ -52,23 +51,18 @@ lazy val publishSettings = {
       else
         Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
-
     // Let’s remove any repositories for optional dependencies in our artifact.
     pomIncludeRepository := { (repo: MavenRepository) =>
       repo.root.startsWith("http://artifactory.cs.arizona.edu")
     },
-
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/clulab/eidos"),
         "scm:git:https://github.com/clulab/eidos.git"
       )
     ),
-
     licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
-
     homepage := Some(url("https://github.com/clulab/eidos")),
-
     developers := List(
       Developer(
         id    = "mihai.surdeanu",
