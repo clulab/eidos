@@ -2,7 +2,7 @@
 name := "eidos-ontologies"
 
 resolvers ++= Seq(
-  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // org.clulab/glove-840b-300d needed by processors-main
+  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // needed by processors-main
 )
 
 libraryDependencies ++= {
