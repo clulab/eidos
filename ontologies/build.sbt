@@ -1,3 +1,4 @@
+
 name := "eidos-ontologies"
 
 resolvers ++= Seq(
