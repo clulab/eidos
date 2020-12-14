@@ -33,6 +33,7 @@ object RunDynetGeoNorm extends App {
   val eidosSystem = new EidosSystem(config)
   val doc = eidosSystem.annotate(text)
   val mentions = eidosSystem.extractMentionsFrom(doc)
+
   // val state = new State()
 
   // find(doc, state)
