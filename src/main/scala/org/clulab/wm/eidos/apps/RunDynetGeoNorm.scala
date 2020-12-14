@@ -11,29 +11,29 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 object RunDynetGeoNorm extends App {
 
   def fromConfig(config: Config): GeoNormFinder = {
-    val model = config[String]("model")
+    // val model = config[String]("model")
     // Do metal stuff.
 
     // Eventually the code should be just
-    // dynetGeoNorm.fromConfig(config)
+    GeoNormFinder.fromConfig(config)
     // but for now, it is this:
-    null
+    // null
   }
 
   def find(doc: Document, initialState: State): Seq[Mention] = {
     // Eventually the code should be just
-    // dynetGeoNorm.find(doc, initialState)
+    dynetGeoNormFinder.find(doc, initialState)
     // but for now, it is this:
-    Seq.empty
+    // Seq.empty
   }
-
-  val text = "Early rainfall in Ethiopia improves harvests tremendously." // args(0)
+  val text = "West Indian all-rounder Phil Simmons took four for 38 on Friday"
+  //val text = "Early rainfall in Ethiopia improves harvests tremendously." // args(0)
   val config = EidosSystem.defaultConfig
   val dynetGeoNormFinder = fromConfig(config[Config]("geonorm"))
   val eidosSystem = new EidosSystem(config)
   val doc = eidosSystem.annotate(text)
   val mentions = eidosSystem.extractMentionsFrom(doc)
-  val state = new State()
+  // val state = new State()
 
-  find(doc, state)
+  // find(doc, state)
 }

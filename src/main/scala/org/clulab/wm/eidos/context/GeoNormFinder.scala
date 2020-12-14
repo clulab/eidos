@@ -34,7 +34,6 @@ class MetalGeoExtractor(metal: Metal) extends GeoExtractor {
     sentenceWords.map { words =>
       val annotatedSentence = new AnnotatedSentence(words)
       val predictions = metal.predict(0, annotatedSentence).toArray
-
       // convert word-level class predictions into span-level geoname predictions
       // trim off any predictions on padding words
       // val wordPredictions = paddedWordPredictions.take(words.length)
@@ -42,13 +41,13 @@ class MetalGeoExtractor(metal: Metal) extends GeoExtractor {
         (prediction, index) <- predictions.zipWithIndex
 
         // a start is either a B, or an I that is following an O
-        if prediction == "B_LOC" || (prediction == "I_LOC" &&
+        if prediction == "B-LOC" || (prediction == "I-LOC" &&
             // an I at the beginning of a sentence is not considered to be a start,
             // since as of Jun 2019, such tags seemed to be mostly errors (non-locations)
-            index != 0 && predictions(index - 1) == "O_LOC")
+            index != 0 && predictions(index - 1) == "O-LOC")
       } yield {
         // the end index is the first B or O (i.e., non-I) following the start
-        val end = predictions.indices.indexWhere(predictions(_) != "I_LOC", index + 1)
+        val end = predictions.indices.indexWhere(predictions(_) != "I-LOC", index + 1)
         val endIndex = if (end == -1) words.length else end
 
         // yield the token span
