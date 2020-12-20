@@ -36,7 +36,7 @@ class TestCagP3 extends EnglishTest {
     val economic = NodeSpec("economic collapse", Dec("collapse"))
     val conflict = NodeSpec("conflict")
     val production = NodeSpec("agricultural production", Dec("reduced"))
-    val insecurity = NodeSpec("2017, food insecurity in Unity, Jonglei and parts of Greater Equatoria and Greater Bahr el Ghazal remained critical", Quant("critical"), TimEx("2017"), GeoLoc("Jonglei"))
+    val insecurity = NodeSpec("2017, food insecurity in Unity, Jonglei and parts of Greater Equatoria and Greater Bahr el Ghazal remained critical", Quant("critical"), TimEx("2017"), GeoLoc("Jonglei"), GeoLoc("Greater Equatoria"), GeoLoc("Greater Bahr el Ghazal"))
     
     behavior of "p3s2"
 

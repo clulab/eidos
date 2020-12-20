@@ -50,7 +50,7 @@ class TestJointAdjectives extends EnglishTest {
 
     val tester = new GraphTester(text)
 
-    val redStates = NodeSpec("Red states")
+    val redStates = NodeSpec("Red states", GeoLoc("Red"))
     val blueStates = NodeSpec("blue states")
     val antiRedStatesAndBlueStates = AntiNodeSpec("Red states and blue states")
     val confusion = NodeSpec("confusion")

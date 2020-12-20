@@ -218,7 +218,7 @@ reportedly left their living areas.
 
     // Sentence 2
     val production = NodeSpec("crop production", Dec("lower"))
-    val displacements = NodeSpec("recent massive displacements", Quant("massive"))
+    val displacements = NodeSpec("recent massive displacements", Quant("massive"), GeoLoc("Central"), GeoLoc("Eastern Equatoria"))
 
     // Sentence 3
     val population = NodeSpec("population of the former Central Equatoria State", Quant("75 percent"))

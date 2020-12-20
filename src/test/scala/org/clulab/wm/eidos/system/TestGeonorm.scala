@@ -57,7 +57,7 @@ class TestGeonorm extends ExtractionTest {
     var All_gold_tok_labels = new ListBuffer[String]()
 
     var conll_format_predictions = ()
-    val source = Source.fromFile("/Users/vikasy/SEM_8/RA DARPA/eidos/src/test/scala/org/clulab/wm/eidos/system/valid_just_loc.txt")
+    val source = Source.fromFile("./src/test/resources/valid_just_loc.txt")
     for (line <- source.getLines())
       if (line.length==0) {
 

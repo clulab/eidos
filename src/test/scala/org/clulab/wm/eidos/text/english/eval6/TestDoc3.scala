@@ -53,7 +53,7 @@ class TestDoc3 extends EnglishTest {
     val rainfall = NodeSpec("rainfall", Inc("heavy"), Quant("well above average"), Quant("persistently heavy"), TimEx("the past month"))
     val agrConditions = NodeSpec("favorable agricultural conditions", Quant("favorable"), Pos("favorable"))
     val flooding = NodeSpec("potential for flooding")
-    val rainfall2 = NodeSpec("above-average rainfall", Quant("Average to above-average"), Inc("above-average"))
+    val rainfall2 = NodeSpec("above-average rainfall", Quant("Average to above-average"), Inc("above-average"), GeoLoc("Yemen"), GeoLoc("Eritrea"), GeoLoc("South Sudan"), GeoLoc("Uganda"), GeoLoc("Kenya"))
     val rainfall3 = NodeSpec("rainfall", Quant("below average"), GeoLoc("Afar"))
 
     behavior of "TestDoc3 Paragraph 2"

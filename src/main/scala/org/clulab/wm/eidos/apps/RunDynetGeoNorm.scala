@@ -26,7 +26,8 @@ object RunDynetGeoNorm extends App {
     // but for now, it is this:
     // Seq.empty
   }
-  val text = "West Indian all-rounder Phil Simmons took four for 38 on Friday"
+  //val text = "West Indian all-rounder Phil Simmons took four for 38 on Friday"
+  val text = "Red states and blue states cause confusion."
   //val text = "Early rainfall in Ethiopia improves harvests tremendously." // args(0)
   val config = EidosSystem.defaultConfig
   val dynetGeoNormFinder = fromConfig(config[Config]("geonorm"))
