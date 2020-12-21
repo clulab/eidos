@@ -53,7 +53,7 @@ class TestDoc3 extends EnglishTest {
     val rainfall = NodeSpec("rainfall", Inc("heavy"), Quant("well above average"), Quant("persistently heavy"), TimEx("the past month"))
     val agrConditions = NodeSpec("favorable agricultural conditions", Quant("favorable"), Pos("favorable"))
     val flooding = NodeSpec("potential for flooding")
-    val rainfall2 = NodeSpec("above-average rainfall", Quant("Average to above-average"), Inc("above-average"), GeoLoc("Yemen"), GeoLoc("Eritrea"), GeoLoc("South Sudan"), GeoLoc("Uganda"), GeoLoc("Kenya"))
+    val rainfall2 = NodeSpec("above-average rainfall", Quant("Average to above-average"), Inc("above-average"), GeoLoc("Yemen"))
     val rainfall3 = NodeSpec("rainfall", Quant("below average"), GeoLoc("Afar"))
 
     behavior of "TestDoc3 Paragraph 2"
@@ -131,8 +131,9 @@ class TestDoc3 extends EnglishTest {
 
     val rainfall1 = NodeSpec("rainfall in July", Quant("average to above average"), TimEx("July"), GeoLoc("South Sudan"))
     val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Pos("favorable"), Quant("favorable"))
-    val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr"), GeoLoc("Ghazal"), GeoLoc("Greater Upper Nile"), Pos("favorable"))
-    val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight"), TimEx("July"), TimEx("the previous month")) // todo (temporal?): really should capture the "compared to the previous month"...
+    val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr el Ghazal"), GeoLoc("Greater Upper Nile"), Pos("favorable"))
+    //, GeoLoc("Jur River"), GeoLoc("Western Bhar el Gazal"), GeoLoc("Gogrial East"), GeoLoc("Gogrial West"), GeoLoc("Tonj East"), GeoLoc("Warrap"), GeoLoc("Aweil Centre County"), GeoLoc("Northern Bhar el Gazal")
+    val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight"), TimEx("July"), TimEx("the previous month"), GeoLoc("Wau")) // todo (temporal?): really should capture the "compared to the previous month"...
     val rainfall4 = NodeSpec("rainfall", Dec("decline"))
     val moistureStress = NodeSpec("moisture stress on crops")
     val rainfall5 = NodeSpec("Meanwhile, in Greater Equatoria, favorable rainfall", GeoLoc("Greater Equatoria"), Pos("favorable"), Quant("favorable"), TimEx("the start of July"))
@@ -433,7 +434,7 @@ class TestDoc3 extends EnglishTest {
     val tester = new GraphTester(text)
 
     // Nodes here
-    val rainfall = NodeSpec("rainfall", Quant("average to above average"), TimEx("the past month"))
+    val rainfall = NodeSpec("rainfall", Quant("average to above average"), TimEx("the past month"), GeoLoc("Karamoja"))
     val rainfall2 = NodeSpec("rainfall", Dec("below-average"), Quant("below-average"))
     val rainfall3 = NodeSpec("rainfall forecast", Inc("above-average"), Quant("above-average")) //Note: Adding rainfall forecast here
     val cropProd = NodeSpec("crop production prospects", Inc("improve"))

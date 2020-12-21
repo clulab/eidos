@@ -27,7 +27,7 @@ object RunDynetGeoNorm extends App {
     // Seq.empty
   }
   //val text = "West Indian all-rounder Phil Simmons took four for 38 on Friday"
-  val text = "Red states and blue states cause confusion."
+  val text = "In the traditionally surplus-producing areas of southern Greater Equatoria Region, crop production is expected to be lower than the already poor 2016 output due to recent massive displacements outside the former Central and Eastern Equatoria states."
   //val text = "Early rainfall in Ethiopia improves harvests tremendously." // args(0)
   val config = EidosSystem.defaultConfig
   val dynetGeoNormFinder = fromConfig(config[Config]("geonorm"))
