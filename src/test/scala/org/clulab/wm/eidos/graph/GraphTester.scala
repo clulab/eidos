@@ -1,10 +1,11 @@
 package org.clulab.wm.eidos.graph
 
 import java.io.{PrintWriter, StringWriter}
-
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.graph.TestResult.TestResults
+import org.clulab.wm.eidos.serialization.json.JsonUtils
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidoscommon.Language
 
@@ -45,7 +46,20 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
   }
 
   protected def mentionId(mention: Mention): String = {
-    val id = s"${mention.getClass.getSimpleName}@${System.identityHashCode(mention)}[${mention.text}]"
+    val attachmentIds = mention.attachments.map { attachment =>
+      val eidosAttachment = attachment.asInstanceOf[EidosAttachment]
+      val text = JsonUtils.stringify(eidosAttachment.toJson, false)
+      s"+${eidosAttachment.getClass.getSimpleName}@${System.identityHashCode(eidosAttachment)}($text)"
+    }
+    val attachmentsId =
+      if (attachmentIds.isEmpty) ""
+      else attachmentIds.mkString("")
+    val id = s"[{${mention.getClass.getSimpleName}@${System.identityHashCode(mention)}}${mention.text}" +
+        {
+          if (attachmentsId.isEmpty) ""
+          else "|" + attachmentsId
+        } +
+        "]"
     val argumentIds = mention.arguments.toSeq.map { case (key, values) =>
       s"$key = ${mentionIds(values)}"
     }
@@ -53,7 +67,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
         if (argumentIds.isEmpty) ""
         else argumentIds.mkString("(", ", ", ")")
 
-    id + argumentsId
+    id + attachmentsId + argumentsId
   }
 
   protected def annotateTest(graphSpec: GraphSpec, result: Seq[String]): Seq[String] = {
