@@ -49,10 +49,6 @@ class MetalGeoExtractor(metal: Metal) extends GeoExtractor {
         // the end index is the first B or O (i.e., non-I) following the start
         val end = predictions.indices.indexWhere(predictions(_) != "I-LOC", index + 1)
         val endIndex = if (end == -1) words.length else end
-        println("index is ")
-        println(index)
-        println(endIndex)
-        println(words.mkString(" "))
         // yield the token span
         (index, endIndex)
       }
