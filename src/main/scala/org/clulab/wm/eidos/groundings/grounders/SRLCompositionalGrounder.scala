@@ -173,13 +173,16 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     val theme = themes.headOption
 
     // Check to see if the predicate is a Property
+    // Andrew: no need to expand here
     val propertyOpt = maybeProperty(Interval(pred, pred + 1), s)
     if (propertyOpt.isEmpty) {
       // It's not a property
+      // andrew: todo: check to see if we subsumed the other stuff.... or something..?
       val groundedPred = groundChunk(pred, s, topN, threshold)
       val groundedAttachedProps = attachedProperties.headOption.getOrElse(newOntologyGrounding())
       if (theme.isDefined) {
         // If there's a theme, it occupies the theme position in the tuple
+        // andrew: another call to groundChunk is in here:
         val (groundedTheme, groundedThemeProps) = tupelize(theme.get, s, topN, threshold)
         PredicateTuple(groundedTheme, groundedThemeProps, groundedPred.grounding, groundedAttachedProps, predicatesCovered ++ Set(pred, theme.get))
       } else {
@@ -255,23 +258,34 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   // Ground the chunk that the token is in, but in isolation from the rest of the sentence
+  // TODO: rename, indicate that we may be expanding
   private def groundChunk(token: Int, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): GroundedSpan = {
-//    val chunkSpan = s.chunkIntervals.collect{ case c if c.contains(token) => c} match {
-//      case Seq() =>
-//        logger.warn(s"Token $token is not in a chunk.  chunks: ${s.chunks.mkString(", ")}")
-//        Interval(token, token + 1)  // if empty, backoff
-//      case Seq(chunk) => chunk      // one found, yay! We'll use it
-//      case chunks => throw new RuntimeException(s"Chunks have overlapped, there is a problem.  \n\ttoken: $token\n\tchunks: ${chunks.mkString(", ")}")
-//    }
+    // the whole syntactic chunk
+    val chunkSpan = s.chunkIntervals.collect{ case c if c.contains(token) => c} match {
+      case Seq() =>
+        logger.warn(s"Token $token is not in a chunk.  chunks: ${s.chunks.mkString(", ")}")
+        Interval(token, token + 1)  // if empty, backoff
+      case Seq(chunk) => chunk      // one found, yay! We'll use it
+      case chunks => throw new RuntimeException(s"Chunks have overlapped, there is a problem.  \n\ttoken: $token\n\tchunks: ${chunks.mkString(", ")}")
+    }
 //    val trimmedChunk = s.chunkAvoidingSRLs(chunkSpan, token)
     val trimmedChunk = Interval(token, token+1)
+
     // First check to see if it's a property, if it is, ground as that
     val propertyOpt = maybeProperty(trimmedChunk, s)
     if (propertyOpt.isDefined) {
       GroundedSpan(trimmedChunk, propertyOpt.get, isProperty = true)
     } else {
+
+      // mihai: check if it's a N*, if so, try expanding, else just use the token
+
       // Otherwise, ground as either a process or concept
-      GroundedSpan(trimmedChunk, groundToBranches(Seq(CONCEPT, PROCESS), trimmedChunk, s.sentence, topN, threshold), isProperty = false)
+      val chunkScore = groundToBranches(Seq(CONCEPT, PROCESS), trimmedChunk, s.sentence, topN, threshold)
+      val tokenScore = groundToBranches(Seq(CONCEPT, PROCESS), Interval(token, token + 1), s.sentence, topN, threshold)
+      // check which highest, make a GroundedSpan from it
+      val bestGrounding = ???
+
+      GroundedSpan(trimmedChunk, bestGrounding, isProperty = false)
     }
   }
 
