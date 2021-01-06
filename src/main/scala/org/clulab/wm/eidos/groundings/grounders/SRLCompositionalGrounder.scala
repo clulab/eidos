@@ -14,6 +14,7 @@ import org.clulab.processors.clu.CluProcessor
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.util.{Try,Success,Failure}
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
 case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGrounding, themeProcess: OntologyGrounding, themeProcessProperties: OntologyGrounding, predicates: Set[Int]) {
@@ -148,8 +149,111 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
     }
 
-    Seq(newOntologyGrounding(srlGrounding))
+    // TODO: make this work - IN PROGRESS
+    //  This attempts to filter out the Theme Process if it is a duplicate of the theme.
+    val tempReturn = Seq(newOntologyGrounding(srlGrounding))
+//    val tuple = srlGrounding.head.predicateTuple
+//    val toReturn = new ArrayBuffer[Seq[OntologyGrounding]]()
 
+    // OntologyGrounding = Map {theme -> List[IndivGr], ...}
+    val bestGrounding: OntologyGrounding = tempReturn.head
+    val themeName = bestGrounding.headName.getOrElse("No head name")
+//    val themeName = tempReturn.head.grounding.head.name//.split("; ").head
+    val otherSlots = new ArrayBuffer[OntologyGrounding]()
+    println("\n*****************")
+    println("\nSentence:\t"+s.words.mkString(" "))
+    println("\nbestGrounding:\t"+bestGrounding)
+    println("themeName:\t"+themeName)
+
+    val bestIndividual: IndividualGrounding = bestGrounding.grounding.head
+    println("\nbestIndividual:\t"+bestIndividual)
+    val bestName = bestIndividual.name
+    println("\nbestName:\t"+bestName)
+
+    def tryTuple(groundings: Seq[OntologyGrounding]): Try[PredicateGrounding] = {
+      println("grounding head name:\t"+groundings.head.grounding.head.name)
+      Try(groundings.head.grounding.asInstanceOf[PredicateGrounding])
+    }
+
+//    val returned: Seq[OntologyGrounding] = tryTuple(tempReturn) match {
+//      case Success(tuple) =>
+//        println("SUCCESS")
+//        val slots = Seq(tuple.predicateTuple.theme, tuple.predicateTuple.themeProperties, tuple.predicateTuple
+//          .themeProcess, tuple.predicateTuple.themeProcessProperties)
+//        val themeName2 = tuple.predicateTuple.theme.grounding.head.name
+//        println("themeName2:\t"+themeName2)
+//        slots
+//      case Failure(f) =>
+//        println("FAILURE")
+//        Seq(newOntologyGrounding())
+//    }
+    tempReturn
+//    for (gr <- bestGrounding.grounding) {
+//      val tuple = gr.asInstanceOf[PredicateGrounding].predicateTuple
+//      val name = tuple.theme.grounding.head.name
+//
+//    }
+//    val bestTuple = bestGrounding.grounding.head.asInstanceOf[PredicateGrounding].predicateTuple
+//    val themeName = bestTuple.theme.grounding.head.name
+//    println("themeName:\t"+themeName)
+//    val slots = Seq(tuple.theme, tuple.themeProperties, tuple.themeProcess, tuple.themeProcessProperties)
+//    val themeName2 =  if (tuple.theme.nonEmpty) slots.head.grounding.head.name else None
+
+//    for (slot <- slots.tail) {
+//      println("slot name:\t"+slot.grounding.head.name)
+//      if (slot.nonEmpty) {
+//        val newGroundings = slot.grounding.filter(gr => gr.name != themeName)
+//        val newSlot = OntologyGrounding(slot.version, slot.date, newGroundings)
+//        otherSlots.append(newSlot)
+//      }
+//    }
+//    tempReturn.head+:otherSlots
+//      val tuple = gr.asInstanceOf[PredicateGrounding].predicateTuple
+//      val slots = Seq(tuple.theme, tuple.themeProperties, tuple.themeProcess, tuple.themeProcessProperties)
+//      val themeName = tuple.theme.grounding.head.name
+
+//      for (slot <- slots.tail) {
+//        if (slot.nonEmpty) {
+//          val newGroundings = slot.grounding.filter(gr => gr.name != themeName)
+//          val newSlot = OntologyGrounding(slot.version, slot.date, newGroundings)
+//          otherSlots.append(newSlot)
+//        }
+//      }
+//      val returned = tuple.theme +: otherSlots
+//      returned
+//    }
+
+//      for (slot <- slots.tail) {
+//        val newGroundings = new ArrayBuffer[IndividualGrounding]
+//        for (gr <- slot.grounding) {
+//          if (gr.name != themeName) {
+//            newGroundings.append(gr)
+//          }
+//        }
+//      }
+
+//      val otherSlots = for {
+//        slot <- slots.tail
+//        gr <- slot.grounding
+//        if gr.name != themeName
+//      } yield new OntologyGrounding(slot.grounding)
+
+//      val names = gr.grounding.map(item => item.name)
+//    }
+//    val tuple = tempReturn.head.grounding.foreach{ gr =>
+//      val tuple = gr.asInstanceOf[PredicateGrounding].predicateTuple
+//      val theme = tuple.theme
+//      val themeProp = tuple.themeProperties
+//      val themeProc = tuple.themeProcess
+//      val themeProcProp = tuple.themeProcessProperties
+//      toReturn.append(Seq(theme, themeProp, themeProc, themeProcProp))
+//    }
+//    val themeName = if (theme.grounding.nonEmpty) theme.grounding.head.name else None
+
+//    val themeProc = if (tuple.themeProcess.grounding.head.name == themeName) tuple.themeProcess.grounding(1)
+//      .asInstanceOf[OntologyGrounding] else tuple.themeProcess
+//    val returned = Seq(theme, themeProp, themeProc, themeProcProp)
+//    tempReturn
     // Am I done here? or do I need to filter and slice?
   }
 
