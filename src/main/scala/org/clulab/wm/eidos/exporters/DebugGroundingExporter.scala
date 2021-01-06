@@ -72,9 +72,17 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
                     val tuple = gr.asInstanceOf[PredicateGrounding].predicateTuple
                     val labels = Seq("Theme", "Theme Prop", "Process", "Process Prop")
                     val slots = Seq(tuple.theme, tuple.themeProperties, tuple.themeProcess, tuple.themeProcessProperties)
+//                    val theme_name = if (tuple.theme.nonEmpty) slots.head.grounding.head.name else None
                     for (j <- labels.indices) {
                       pw.println(s"\t${labels(j)}")
                       for (g <- slots(j).grounding) {
+//                        if (g.name == theme_name && j != 0) {
+//                          //do nothing
+//                        }
+//                        else {
+//                          pw.println(s"    --> grounding ${j}:   ${g.name}")
+//                          pw.println(s"        score:        ${g.score}")
+//                        }
                         pw.println(s"    --> grounding ${j}:   ${g.name}")
                         pw.println(s"        score:        ${g.score}")
                         //                      pw.println()
