@@ -3,14 +3,12 @@ package org.clulab.wm.eidos.apps.batch
 import java.io.File
 
 import org.clulab.serialization.json.stringify
+import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
+import org.clulab.wm.eidos.groundings.grounders.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileEditor
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.ThreadUtils
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, ThreadUtils, Timer}
 import org.clulab.wm.eidos.utils.meta.CluText
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,7 +38,7 @@ object ExtractCluMetaFromDirectory extends App {
     // to any particular document.
     val config = EidosSystem.defaultConfig
     val reader = new EidosSystem(config)
-    val options = EidosSystem.Options()
+    val options = EidosOptions()
     // 0. Optionally include adjective grounding
     val adjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
 

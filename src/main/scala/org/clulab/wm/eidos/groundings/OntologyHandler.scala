@@ -5,16 +5,19 @@ import com.typesafe.config.Config
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.utils.Configured
-import org.clulab.wm.eidos.{EidosProcessor, EidosSystem, SentencesExtractor}
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder.mkGrounder
-import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.TagSet
-import org.clulab.wm.eidos.utils.{Canonicalizer, StopwordManager}
+import org.clulab.wm.eidos.utils.StopwordManager
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.TagSet
+import org.clulab.wm.eidoscommon.{EidosProcessor, EidosTokenizer, SentencesExtractor}
+import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
+import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.ontologies.DomainOntology
 import org.slf4j.{Logger, LoggerFactory}
 
 class OntologyHandler(
@@ -27,9 +30,10 @@ class OntologyHandler(
   val threshold: Option[Float]
 ) {
 
-  def ground(eidosMention: EidosMention): Unit = {
+  def ground(eidosMention: EidosMention): EidosMention = {
     // If any of the grounders needs their own version, they'll have to make it themselves.
-    eidosMention.canonicalName = canonicalizer.canonicalize(eidosMention)
+    val attachmentWords = eidosMention.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
+    eidosMention.canonicalName = EidosMention.canonicalize(canonicalizer, eidosMention, attachmentWords)
 
     val ontologyGroundings = ontologyGrounders.flatMap { ontologyGrounder =>
       val name: String = ontologyGrounder.name
@@ -42,6 +46,7 @@ class OntologyHandler(
     }.toMap
 
     eidosMention.grounding = ontologyGroundings
+    eidosMention
   }
 
   def reground(sentenceText: String, interval: Interval, document: Document): OntologyAliases.OntologyGroundings = {
@@ -164,7 +169,7 @@ class OntologyHandler(
       for {
         s <- sentencesExtractor.extractSentences(text)
         // FIXME: added a reminder here that we are NOT currently omitting attachment words in the regrounding!
-        word <- canonicalizer.canonicalWordsFromSentence(s, Interval(0, s.words.length), attachmentWords = Set())
+        word <- canonicalizer.canonicalWordsFromSentence(s, Interval(0, s.words.length), excludedWords = Set())
       } yield word
     }
 
@@ -193,14 +198,14 @@ class OntologyHandler(
 object OntologyHandler {
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  def fromConfig(config: Config = EidosSystem.defaultConfig): OntologyHandler = {
+  def fromConfig(config: Config = EidosSystem.defaultConfig, tokenizer: EidosTokenizer): OntologyHandler = {
     val sentenceExtractor  = EidosProcessor("english", cutoff = 150)
     val tagSet = sentenceExtractor.getTagSet
     val stopwordManager = StopwordManager.fromConfig(config, tagSet)
-    OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet)
+    OntologyHandler.load(config[Config]("ontologies"), sentenceExtractor, stopwordManager, tagSet, tokenizer)
   }
 
-  def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager, tagSet: TagSet): OntologyHandler = {
+  def load(config: Config, proc: SentencesExtractor, stopwordManager: StopwordManager, tagSet: TagSet, tokenizer: EidosTokenizer): OntologyHandler = {
     val canonicalizer = new Canonicalizer(stopwordManager, tagSet)
     val cacheDir: String = config[String]("cacheDir")
     val useCacheForOntologies: Boolean = config[Boolean]("useCacheForOntologies")
@@ -228,7 +233,7 @@ object OntologyHandler {
           val path: String = config[String](ontologyName)
           val domainOntology = DomainHandler.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
               useCacheForOntologies, includeParents)
-          val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer)
+          val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer, tokenizer)
 
           grounder
         }

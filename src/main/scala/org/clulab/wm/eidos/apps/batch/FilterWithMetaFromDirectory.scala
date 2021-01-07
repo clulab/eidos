@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.DCT
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidos.utils.meta.CluText
 
 object FilterWithMetaFromDirectory extends App {

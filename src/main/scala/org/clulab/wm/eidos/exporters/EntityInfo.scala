@@ -3,8 +3,8 @@ package org.clulab.wm.eidos.exporters
 import ai.lum.common.StringUtils.StringWrapper
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.GroundingUtils.getBaseGroundingString
-import org.clulab.wm.eidos.utils.GroundingUtils.getGroundingsString
+import org.clulab.wm.eidos.groundings.GroundingUtils.getBaseGroundingString
+import org.clulab.wm.eidos.groundings.GroundingUtils.getGroundingsString
 
 case class EntityInfo(
   m: EidosMention,

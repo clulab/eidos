@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.utils
 
 import play.api.libs.{ json => pjson }
-import org.{ json4s => j4s }
+import org.{json4s => j4s}
 
 object PlayUtils {
   implicit val implicitConversions = scala.language.implicitConversions

@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.mentions
 
 import org.clulab.odin
-import org.clulab.odin.{Attachment, EventMention, Mention, SynPath, TextBoundMention}
+import org.clulab.odin._
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
 

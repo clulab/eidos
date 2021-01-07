@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.text.english.cag
 
-import org.clulab.wm.eidos.test.TestUtils
+import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidos.utils.Timer
+import org.clulab.wm.eidoscommon.utils.Timer
 
 class TestCags extends ExtractionTest {
 

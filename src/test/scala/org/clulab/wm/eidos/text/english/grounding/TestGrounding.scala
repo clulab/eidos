@@ -4,9 +4,9 @@ import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
-import org.clulab.wm.eidos.groundings.OntologyGrounder
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.test.EnglishTest
 import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.collection.Seq
@@ -31,7 +31,7 @@ class TestGrounding extends EnglishTest {
   object CompositionalGroundingTextTester {
 
     def apply(name: String): CompositionalGroundingTextTester = {
-      val ontologyGrounderOpt: Option[OntologyGrounder] = ieSystem.components.ontologyHandler.ontologyGrounders.find { ontologyGrounder =>
+      val ontologyGrounderOpt: Option[OntologyGrounder] = ieSystem.components.ontologyHandlerOpt.get.ontologyGrounders.find { ontologyGrounder =>
         ontologyGrounder.name == name
       }
 
@@ -110,7 +110,7 @@ class TestGrounding extends EnglishTest {
         val eidosCauses = annotatedDocument.eidosMentions
 
         // This only grounds the surfact mentions, but that is sufficient for the test.
-        eidosCauses.foreach(ieSystem.components.ontologyHandler.ground)
+        eidosCauses.foreach(ieSystem.components.ontologyHandlerOpt.get.ground)
         eidosCauses
       }
 
@@ -121,7 +121,7 @@ class TestGrounding extends EnglishTest {
         val eidosEffects = annotatedDocument.eidosMentions
 
         // This only grounds the surfact mentions, but that is sufficient for the test.
-        eidosEffects.foreach(ieSystem.components.ontologyHandler.ground)
+        eidosEffects.foreach(ieSystem.components.ontologyHandlerOpt.get.ground)
         eidosEffects
       }
 

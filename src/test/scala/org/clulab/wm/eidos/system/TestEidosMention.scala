@@ -1,15 +1,12 @@
 package org.clulab.wm.eidos.text.english.cag
 
-import java.time.ZonedDateTime
-import java.util.HashMap
-
 import org.clulab.odin.Mention
+import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings.OntologyGrounding
-import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{EqualityBagger, IdentityBagger}
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.mentions.{EidosMention, OdinMention}
+import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidos.utils.OdinMention
+import org.clulab.wm.eidoscommon.utils.{EqualityBagger, IdentityBagger}
 
 class TestEidosMention extends ExtractionTest {
   
@@ -97,23 +94,23 @@ than in the corresponding period two years earlier.
     val text3 = "The seasonal rainfall in July was decreased by the government policy and the price of oil."
     val odinMentions3 = extractMentions(text3)
     val (eidosMentions3, _) = EidosMention.asEidosMentions(odinMentions3)
-    val canonicalizer = ieSystem.components.ontologyHandler.canonicalizer
+    val canonicalizer = ieSystem.components.ontologyHandlerOpt.get.canonicalizer
 
     val rainfall = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July")
     rainfall should have size(1)
-    rainfall.head.canonicalName = canonicalizer.canonicalize(rainfall.head)
+    rainfall.head.canonicalName = EidosMention.canonicalize(canonicalizer, rainfall.head, rainfall.head.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a)))
     rainfall.head.canonicalName should be ("seasonal rainfall")
 
     val decrease = eidosMentions3.filter(m => m.odinMention.text == "seasonal rainfall in July was decreased by the government policy")
     decrease should have size(1)
-    decrease.head.canonicalName = canonicalizer.canonicalize(decrease.head)
+    decrease.head.canonicalName = EidosMention.canonicalize(canonicalizer, decrease.head, decrease.head.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a)))
     decrease.head.canonicalName should be ("seasonal rainfall decreased government policy")
 
     // Since we filter out the text from attachments, "price" should be removed (Property attachment)
     val oil = eidosMentions3.filter(m => m.odinMention.text == "price of oil")
     oil should have size(1)
-    oil.head.canonicalName = canonicalizer.canonicalize(oil.head)
-    canonicalizer.canonicalize(oil.head) should be ("oil")
+    oil.head.canonicalName = EidosMention.canonicalize(canonicalizer, oil.head, oil.head.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a)))
+    oil.head.canonicalName should be ("oil")
   }
 
   behavior of "mentions resulting from reading"

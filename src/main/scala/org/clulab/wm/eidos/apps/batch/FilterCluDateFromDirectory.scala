@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.apps.batch
 
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidos.utils.meta.CluText
 
 object FilterCluDateFromDirectory extends App {

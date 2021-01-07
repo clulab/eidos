@@ -6,13 +6,8 @@ import org.clulab.struct.MutableNumber
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.OntologyHandler
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Counter
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sourcer
-import org.clulab.wm.eidos.utils.StringUtils
-import org.clulab.wm.eidos.utils.TsvReader
-import org.clulab.wm.eidos.utils.TsvWriter
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{Counter, FileUtils, Sourcer, StringUtils, TsvReader, TsvWriter}
 
 // This app reads in a tsv file with gold groundings, regrounds the entities,
 // and compares with the gold groundings.
@@ -83,7 +78,7 @@ object EvalGroundings {
     }
 
     val eidosSystem = new EidosSystem(config)
-    val ontologyHandler: OntologyHandler = eidosSystem.components.ontologyHandler
+    val ontologyHandler: OntologyHandler = eidosSystem.components.ontologyHandlerOpt.get
     val tsvReader = new TsvReader()
 
     new TsvWriter(FileUtils.printWriterFromFile(outFilename), isExcel = false).autoClose { tsvWriter =>

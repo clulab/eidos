@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.text.portuguese
 
 import org.clulab.wm.eidos.graph._
+import org.clulab.wm.eidos.test.PortugueseTest
 import org.clulab.wm.eidos.test.TestUtils._
 
 class TestPortugueseDoc1 extends PortugueseTest {

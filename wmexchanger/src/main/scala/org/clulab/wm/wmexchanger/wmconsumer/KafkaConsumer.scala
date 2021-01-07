@@ -7,9 +7,9 @@ import java.util.ConcurrentModificationException
 import java.util.Properties
 
 import org.apache.kafka.clients.consumer.{KafkaConsumer => ApacheKafkaConsumer}
-import org.clulab.wm.wmexchanger.utils.Closer.AutoCloser
-import org.clulab.wm.wmexchanger.utils.FileUtils
-import org.clulab.wm.wmexchanger.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.json4s._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

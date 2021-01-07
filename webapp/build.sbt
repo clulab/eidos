@@ -1,5 +1,4 @@
-name := """webapp"""
-scalaVersion := "2.12.4"
+name := """eidos-webapp"""
 
 resolvers += "jitpack" at "https://jitpack.io"
 

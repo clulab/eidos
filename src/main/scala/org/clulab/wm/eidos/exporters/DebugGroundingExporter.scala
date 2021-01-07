@@ -1,21 +1,21 @@
 package org.clulab.wm.eidos.exporters
 
-import org.clulab.wm.eidos.{EidosCluProcessor, EidosSystem}
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.PredicateGrounding
-import org.clulab.wm.eidos.utils.Closer._
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.FileUtils.printWriterFromFile
+import org.clulab.wm.eidoscommon.{EidosCluProcessor, EidosProcessor}
+import org.clulab.wm.eidoscommon.utils.Closer._
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Boolean = true) extends Exporter {
 
   // FIXME: the regound is never being passed, will always be true
   override def export(annotatedDocument: AnnotatedDocument): Unit = {
     if (reground) {
-      val ontologyHandler = reader.components.ontologyHandler
+      val ontologyHandler = reader.components.ontologyHandlerOpt
       // Reground
       annotatedDocument.allEidosMentions.foreach { eidosMention =>
-        ontologyHandler.ground(eidosMention)
+        ontologyHandler.get.ground(eidosMention)
       }
     }
 
@@ -27,13 +27,12 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
 //      pw.println("********************************************")
       val doc = annotatedDocument.document
       for (i <- doc.sentences.indices) {
-        val clusent = reader.components.proc.asInstanceOf[EidosCluProcessor].cluproc.annotate(doc.sentences(i)
-          //asInstanceOf[EidosCluProcessor].cluproc.annotate(doc.sentences(i)
+        val clusent = reader.components.procOpt.get.asInstanceOf[EidosCluProcessor].annotate(doc.sentences(i)
           .getSentenceText).sentences.head
         pw.println("********************************************\n")
         pw.println(s"Sentence $i: ${clusent.getSentenceText}.\n")
         pw.println("SRLS:")
-        pw.println(clusent.enhancedSemanticRoles.get)
+        pw.println(clusent.enhancedSemanticRoles.getOrElse(None))
 //        pw.println()
         pw.println("DEPS:")
         pw.println(clusent.dependencies.get)

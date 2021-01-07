@@ -1,12 +1,11 @@
 package org.clulab.wm.eidos.apps
 
-
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.exporters.Exporter
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 /**
   * App used to extract mentions from files in a directory and produce the desired output format (i.e., jsonld, mitre
@@ -14,8 +13,6 @@ import org.clulab.wm.eidos.utils.FileUtils
   * in eidos.conf (located in src/main/resources).
   */
 object ReconstituteAndExport extends App with Configured {
-
-
   val config = EidosSystem.defaultConfig
   override def getConf: Config = config
 
@@ -38,8 +35,13 @@ object ReconstituteAndExport extends App with Configured {
     val annotatedDocument = deserializer.deserialize(json).head
     // 3. Export to all desired formats
     exportAs.foreach { format =>
-      val exporter = Exporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN)
-      exporter.export(annotatedDocument)
+      try {
+        Exporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN)
+            .export(annotatedDocument)
+      }
+      catch {
+        case throwable: Throwable => throwable.printStackTrace()
+      }
     }
   }
 }

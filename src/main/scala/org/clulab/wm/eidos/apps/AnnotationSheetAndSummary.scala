@@ -1,22 +1,20 @@
 package org.clulab.wm.eidos.apps
 
-
 import java.io.File
 import java.util.Calendar
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.struct.Counter
 import org.clulab.utils.Configured
-import org.clulab.wm.eidos.{EidosSystem, utils}
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.GroundingAnnotationExporter
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
-import org.clulab.wm.eidos.utils.{CsvWriter, FileUtils, FoundBy, ThreadUtils}
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{CsvWriter, FileUtils, ThreadUtils}
 
 import scala.collection.Seq
-
-
 
 object AnnotationSheetAndSummary extends App with Configured {
 
@@ -28,7 +26,7 @@ object AnnotationSheetAndSummary extends App with Configured {
   lazy val deserializer = new JLDDeserializer()
   val groundAs = getArgStrings("apps.groundAs", None)
   val topN = getArgInt("apps.groundTopN", Some(5))
-  val exporter = GroundingAnnotationExporter("", reader, groundAs, topN)
+  val exporter = new GroundingAnnotationExporter("", reader, groundAs, topN)
 
   val inputDir = getArgString("apps.inputDirectory", None)
   val outputDir = getArgString("apps.outputDirectory", None)
@@ -75,7 +73,7 @@ object AnnotationSheetAndSummary extends App with Configured {
     // filter the eidos mentions in each to be only relevant ones
     .flatMap{ adOpt =>
       adOpt match {
-        case Some(ad) => reader.components.stopwordManager.relevantMentions(ad).filter(_.label == EidosSystem.CAUSAL_LABEL)
+        case Some(ad) => reader.components.stopwordManagerOpt.get.relevantMentions(ad).filter(_.label == EidosParameters.CAUSAL_LABEL)
         case None => Seq()
       }
     }
@@ -103,5 +101,4 @@ object AnnotationSheetAndSummary extends App with Configured {
       summaryRows.foreach(csvWriter2.println)
     }
   }
-
 }

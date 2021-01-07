@@ -15,9 +15,9 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.GetObjectRequest
 import org.apache.http.HttpHost
 import org.apache.http.HttpRequestInterceptor
-import org.clulab.wm.elasticsearch.utils.Closer.AutoCloser
-import org.clulab.wm.elasticsearch.utils.Sinker
-import org.clulab.wm.elasticsearch.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Sinker
+import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse

@@ -1,9 +1,20 @@
 package org.clulab.wm.eidos.groundings.grounders
 
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, IndividualGrounding, OntologyAliases, OntologyGrounder, OntologyGrounding, SingleOntologyNodeGrounding}
-import org.clulab.wm.eidos.groundings.OntologyAliases.{MultipleOntologyGrounding, OntologyGroundings}
+import org.clulab.wm.eidos.groundings.ConceptEmbedding
+import org.clulab.wm.eidos.groundings.ConceptPatterns
+import org.clulab.wm.eidos.groundings.EidosWordToVec
+import org.clulab.wm.eidos.groundings.IndividualGrounding
+import org.clulab.wm.eidos.groundings.OntologyAliases
+import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
+import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
+import org.clulab.wm.eidos.groundings.OntologyGrounder
+import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.SingleOntologyNodeGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.EidosTokenizer
+import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.ontologies.DomainOntology
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -66,17 +77,17 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, embeddings)
   }
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
-    val exactMatch = embeddings.filter(ce => ce.namer.name.split("/").last == text.toLowerCase)
-    if (exactMatch.nonEmpty) {
-      return exactMatch.map(em => SingleOntologyNodeGrounding(em.namer, 1.0f))
-    }
-    val matchedPatterns = nodesPatternMatched(text, patterns)
-    if (matchedPatterns.nonEmpty) {
-      matchedPatterns
-    }
-    // Otherwise, back-off to the w2v-based approach
+    val lowerText = text.toLowerCase
+    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name, '/', true) == lowerText)
+    if (exactMatches.nonEmpty)
+      exactMatches.map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f))
     else {
-      wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_))
+      val matchedPatterns = nodesPatternMatched(text, patterns)
+      if (matchedPatterns.nonEmpty)
+        matchedPatterns
+      else
+        // Otherwise, back-off to the w2v-based approach
+        wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_))
     }
   }
 
@@ -133,10 +144,10 @@ object EidosOntologyGrounder {
     new FlatOntologyGrounder(name, domainOntology, wordToVec, canonicalizer)
   }
 
-  def mkGrounder(ontologyName: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer): OntologyGrounder = {
+  def mkGrounder(ontologyName: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer): OntologyGrounder = {
     ontologyName match {
       //case WM_COMPOSITIONAL_NAMESPACE => new CompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer)
-      case WM_COMPOSITIONAL_NAMESPACE => new SRLCompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer)
+      case WM_COMPOSITIONAL_NAMESPACE => new SRLCompositionalGrounder(ontologyName, domainOntology, w2v, canonicalizer, tokenizer)
       case INTERVENTIONS_NAMESPACE => new InterventionGrounder(ontologyName, domainOntology, w2v, canonicalizer)
       case WM_FLAT_NAMESPACE => new InterventionSieveGrounder(ontologyName, domainOntology, w2v, canonicalizer)
       case _ => EidosOntologyGrounder(ontologyName, domainOntology, w2v, canonicalizer)

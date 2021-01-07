@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.graph._
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EnglishTest
 
 /**
  * This is an attempt to test the issue "DOMSource cannot be processed #160"

@@ -2,12 +2,10 @@ package org.clulab.wm.eidos.exporters
 
 import java.io.PrintWriter
 
-import org.clulab.wm.eidos.attachments.Decrease
-import org.clulab.wm.eidos.attachments.Increase
-import org.clulab.wm.eidos.attachments.TriggeredAttachment
+import org.clulab.wm.eidos.attachments.{Decrease, Increase, TriggeredAttachment}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.TsvWriter
+import org.clulab.wm.eidoscommon.utils.TsvWriter
 
 case class IncDecExporter(printWriter: PrintWriter) extends Exporter {
   val tsvWriter = new TsvWriter(printWriter)

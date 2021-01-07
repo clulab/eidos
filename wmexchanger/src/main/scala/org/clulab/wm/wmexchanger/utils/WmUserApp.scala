@@ -2,6 +2,8 @@ package org.clulab.wm.wmexchanger.utils
 
 import java.util.Properties
 
+import org.clulab.wm.eidoscommon.utils.{PropertiesBuilder, StringUtils}
+
 class WmUserApp(val args: Array[String], val resourcePropertiesName: String, val filePropertiesKey: String = WmUserApp.properties) {
 
   def getPropertiesBuilder: PropertiesBuilder = {

@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.apps
 
 import java.io.File
 
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.json4s.DefaultFormats
 import org.json4s.JArray
 import org.json4s.JNothing

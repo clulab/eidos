@@ -1,12 +1,9 @@
 package org.clulab.wm.eidos.groundings
 
-import org.clulab.odin.EventMention
 import org.clulab.wm.eidos.graph._
-import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.test.EnglishTest
 import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.wm.eidos.utils.Canonicalizer
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Resourcer
+import org.clulab.wm.eidoscommon.utils.Resourcer
 
 class TestOntologyGrounder extends EnglishTest {
 
@@ -70,7 +67,7 @@ class TestOntologyGrounder extends EnglishTest {
       }
 
       val ontologyYaml = Resourcer.getText("/org/clulab/wm/eidos/english/ontologies/un_ontology.yml")
-      val ontologyHandler = ieSystem.components.ontologyHandler
+      val ontologyHandler = ieSystem.components.ontologyHandlerOpt.get
       val text = odinMention.text
       val canonicalName = eidosMention.canonicalName
 

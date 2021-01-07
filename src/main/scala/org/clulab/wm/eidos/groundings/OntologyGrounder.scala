@@ -5,7 +5,8 @@ import java.time.ZonedDateTime
 import org.clulab.wm.eidos.groundings.OntologyAliases._
 import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidoscommon.utils.Namer
+import org.clulab.wm.ontologies.DomainOntology
 
 object OntologyAliases {
 //  type SingleOntologyGrounding = (Namer, Float)
@@ -18,7 +19,7 @@ trait IndividualGrounding {
   def name: String
   def score: Float
 }
-case class SingleOntologyNodeGrounding(namer: Namer, score: Float) extends IndividualGrounding{
+case class SingleOntologyNodeGrounding(namer: Namer, override val score: Float) extends IndividualGrounding{
   def name: String = namer.name
 }
 object SingleOntologyNodeGrounding {
