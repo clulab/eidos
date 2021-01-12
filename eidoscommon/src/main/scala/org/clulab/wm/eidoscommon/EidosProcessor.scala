@@ -116,10 +116,8 @@ class EidosPortugueseProcessor(val language: String, cutoff: Int) extends Portug
 class EidosCluProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
   with EidosProcessor with SentencesExtractor with LanguageSpecific {
   lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
-  override lazy val tokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new EnglishTagSet()
-  val cluproc = new CluProcessor()
-  Utils.initializeDyNet()
 
   def getTokenizer: EidosTokenizer = eidosTokenizer
 
