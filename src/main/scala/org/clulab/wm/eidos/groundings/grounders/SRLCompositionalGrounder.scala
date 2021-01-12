@@ -153,7 +153,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val themeProperty = propertyOpt.getOrElse(newOntologyGrounding())
         // make a pseudo theme
         // fixme: should we ground the pseudo theme to the process AND concept branches
-        val pseudoTheme = groundToBranches(Seq(CONCEPT, ENTITY), tokenInterval, s, topN, threshold)
+        val pseudoTheme = groundToBranches(pseudoThemeBranches, tokenInterval, s, topN, threshold)
         val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
         Seq(PredicateGrounding(predicateTuple))
       case preds =>
@@ -386,7 +386,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       GroundedSpan(trimmedChunk, propertyOpt.get, isProperty = true)
     } else {
       // Otherwise, ground as either a process or concept
-      GroundedSpan(trimmedChunk, groundToBranches(Seq(CONCEPT, ENTITY, PROCESS), trimmedChunk, s.sentence, topN,
+      GroundedSpan(trimmedChunk, groundToBranches(processOrConceptBranches, trimmedChunk, s.sentence, topN,
         threshold), isProperty = false)
     }
   }
@@ -408,7 +408,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
   }
 
-  private def groundProperty(span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = groundToBranches(Seq(PROPERTY), span, s, topN, threshold)
+  private def groundProperty(span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float])
+  : OntologyGrounding = groundToBranches(propertyBranch, span, s, topN, threshold)
 
   private def groundToBranches(branches: Seq[String], span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
     groundToBranches(branches, span, s.sentence, topN, threshold)
@@ -586,5 +587,10 @@ object SRLCompositionalGrounder{
   val CONCEPT = "concept"
   val PROPERTY = "property"
   val ENTITY = "entity"
+
+  // Groundable Branches
+  val pseudoThemeBranches = Seq(CONCEPT, ENTITY)
+  val processOrConceptBranches = Seq(CONCEPT, ENTITY, PROCESS)
+  val propertyBranch = Seq(PROPERTY)
 
 }
