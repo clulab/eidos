@@ -28,11 +28,15 @@ object EidosShell extends App {
   var ieSystem = new EidosSystem(eidosConfig)
   val webSerializer = new WebSerializer(ieSystem, eidosConfig)
 
-  println("\nWelcome to the Eidos Shell!")
-  printCommands()
+  def printCommands(): Unit = {
+    println("\nCOMMANDS:")
+    for ((cmd, msg) <- commands)
+      println(s"\t$cmd\t=> $msg")
+    println()
+  }
 
   def processMenu: Boolean = {
-    val continue = Option(reader.readLine).map { line =>
+    val continue = reader.readLineOpt().map { line =>
       if (line == ":exit") false
       else {
         line match {
@@ -47,16 +51,6 @@ object EidosShell extends App {
     continue
   }
 
-  while (processMenu) { }
-
-  // summarize available commands
-  def printCommands(): Unit = {
-    println("\nCOMMANDS:")
-    for ((cmd, msg) <- commands)
-      println(s"\t$cmd\t=> $msg")
-    println()
-  }
-
   def extractFrom(text: String): Unit = {
     val annotatedDocument = ieSystem.extractFromText(text)
     val doc = annotatedDocument.document
@@ -66,4 +60,8 @@ object EidosShell extends App {
     webSerializer.serialize(annotatedDocument, cagRelevantOnly = true, "eidosshell.html")
     displayMentions(sortedMentions, doc, true)
   }
+
+  println("\nWelcome to the Eidos Shell!")
+  printCommands()
+  while (processMenu) { }
 }

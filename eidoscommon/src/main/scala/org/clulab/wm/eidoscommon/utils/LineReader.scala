@@ -12,6 +12,7 @@ import java.io.File
 
 abstract class LineReader {
   def readLine(): String
+  def readLineOpt(): Option[String]
 }
 
 class CliReader(prompt: String, parentProperty: String, child: String) extends LineReader {
@@ -30,6 +31,8 @@ class CliReader(prompt: String, parentProperty: String, child: String) extends L
   }
 
   override def readLine(): String = reader.readLine
+
+  override def readLineOpt(): Option[String] = Option(readLine())
 }
 
 class IdeReader(protected val prompt: String) extends LineReader {
@@ -42,4 +45,6 @@ class IdeReader(protected val prompt: String) extends LineReader {
     Console.flush()
     reader.nextLine
   }
+
+  override def readLineOpt(): Option[String] = Option(readLine())
 }
