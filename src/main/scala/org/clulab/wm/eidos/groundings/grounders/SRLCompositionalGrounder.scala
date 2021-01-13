@@ -232,7 +232,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     if (found.isEmpty && backoff) {
       //val other = getArguments(predicate, OTHER_ROLE, s).toSet
       // Handle "just in case" infinite loop -- seemed to happen earlier, but the algorithm was diff then...
-      s.outgoingOfType(predicate, Seq("compound")).filterNot(_ == predicate)
+      val backoffThemes = s.outgoingOfType(predicate, Seq("compound")).filterNot(_ == predicate)
+      s.addPredicates(backoffThemes)
+      backoffThemes
     } else {
       // prevent infinite loops in edge cases
       found.filterNot(_ == predicate)
@@ -260,32 +262,53 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   // Ground the chunk that the token is in, but in isolation from the rest of the sentence
   // TODO: rename, indicate that we may be expanding
   private def groundChunk(token: Int, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): GroundedSpan = {
+    // the token span
+    val tokenSpan = Interval(token, token+1)
     // the whole syntactic chunk
     val chunkSpan = s.chunkIntervals.collect{ case c if c.contains(token) => c} match {
       case Seq() =>
-        logger.warn(s"Token $token is not in a chunk.  chunks: ${s.chunks.mkString(", ")}")
+//        logger.warn(s"Token $token is not in a chunk.  chunks: ${s.chunks.mkString(", ")}")
         Interval(token, token + 1)  // if empty, backoff
       case Seq(chunk) => chunk      // one found, yay! We'll use it
       case chunks => throw new RuntimeException(s"Chunks have overlapped, there is a problem.  \n\ttoken: $token\n\tchunks: ${chunks.mkString(", ")}")
     }
-//    val trimmedChunk = s.chunkAvoidingSRLs(chunkSpan, token)
-    val trimmedChunk = Interval(token, token+1)
+    val trimmedChunk = s.chunkAvoidingSRLs(chunkSpan, token)
 
     // First check to see if it's a property, if it is, ground as that
-    val propertyOpt = maybeProperty(trimmedChunk, s)
+    val propertyOpt = maybeProperty(tokenSpan, s)
     if (propertyOpt.isDefined) {
-      GroundedSpan(trimmedChunk, propertyOpt.get, isProperty = true)
+      //TODO: don't ground chunk, just token
+      GroundedSpan(tokenSpan, propertyOpt.get, isProperty = true)
     } else {
+      val tokenGrounding = groundToBranches(Seq(CONCEPT, PROCESS), tokenSpan, s.sentence, topN,
+        threshold)
 
+      if (tokenSpan==trimmedChunk) {
+        println("\nspan text:\t"+s.wordsSliceString(tokenSpan))
+        val tokenScore = if (tokenGrounding.headOption.isDefined) tokenGrounding.headOption.get.score else 0f
+        println("grounding:\t"+tokenGrounding.headName.getOrElse("NONE"))
+        println("score:\t"+tokenScore)
+        return GroundedSpan(tokenSpan, tokenGrounding, isProperty = false)
+      }
       // mihai: check if it's a N*, if so, try expanding, else just use the token
 
       // Otherwise, ground as either a process or concept
-      val chunkScore = groundToBranches(Seq(CONCEPT, PROCESS), trimmedChunk, s.sentence, topN, threshold)
-      val tokenScore = groundToBranches(Seq(CONCEPT, PROCESS), Interval(token, token + 1), s.sentence, topN, threshold)
-      // check which highest, make a GroundedSpan from it
-      val bestGrounding = ???
+      val chunkGrounding = groundToBranches(Seq(CONCEPT, PROCESS), trimmedChunk, s.sentence, topN, threshold)
+      val chunkScore = if (chunkGrounding.headOption.isDefined) chunkGrounding.headOption.get.score else 0f
+      val tokenScore = if (tokenGrounding.headOption.isDefined) tokenGrounding.headOption.get.score else 0f
 
-      GroundedSpan(trimmedChunk, bestGrounding, isProperty = false)
+      // check which is highest, make a GroundedSpan from it
+      println("\nchunk Text:\t"+s.wordsSliceString(trimmedChunk))
+      println("chunkGrounding:\t"+chunkGrounding.headName.getOrElse("NONE"))
+      println("chunkScore:\t"+chunkScore)
+      println("token Text:\t"+s.wordsSliceString(tokenSpan))
+      println("tokenGrounding:\t"+tokenGrounding.headName.getOrElse("NONE"))
+      println("tokenScore:\t"+tokenScore)
+
+      if (chunkScore >= tokenScore) {
+        return GroundedSpan(trimmedChunk, chunkGrounding, isProperty = false)
+      }
+      GroundedSpan(tokenSpan, tokenGrounding, isProperty = false)
     }
   }
 
@@ -357,12 +380,16 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
     pathLengths.min
   }
 
-  val allTokensInvolvedInPredicates: Seq[Int] = {
+  var allTokensInvolvedInPredicates: Seq[Int] = {
     srls.allEdges
       .flatMap(edge => Seq(edge._1, edge._2))
 //      .flatMap(tokenOrObjOfPreposition)
       .distinct
       .sorted
+  }
+
+  def addPredicates(preds: Seq[Int]): Unit = {
+    allTokensInvolvedInPredicates = (allTokensInvolvedInPredicates++preds).distinct.sorted
   }
 
   def findStart(chunkSpan: Interval, tok: Int): Int = {
@@ -399,9 +426,29 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
 //    println(s"Trimming: (tok=$tok, idx=${currTokenIdx})")
 //    println(allTokensInvolvedInPredicates.mkString(", "))
 
+//    val chunkText = sentence.words.slice(chunkSpan.start, chunkSpan.end)
+//    println("\nchunkText to trim:\t"+chunkText.mkString(" "))
+//    println("chunkSpan:\t"+chunkSpan)
+    val chunkStart = chunkSpan.start
+    val chunkEnd = chunkSpan.end
+
+    val skipTags = Set("CC", "DT")
+
+    val startTag = sentence.tags.get(chunkStart)
+    val endTag = sentence.tags.get(chunkEnd)
+//    println("startTag:\t"+startTag)
+//    println("endTag:\t"+endTag)
+
+    val newStart = if (skipTags.contains(startTag)) chunkStart+1 else chunkStart
+    val newEnd = if (skipTags.contains(endTag)) chunkEnd-1 else chunkEnd
+
+    val newChunkSpan = Interval(newStart, newEnd)
+//    println("newChunkSpan:\t"+newChunkSpan)
+
+
     // If the tok starts the chunk
-    val start = findStart(chunkSpan, tok)
-    val end = findEnd(chunkSpan, tok)
+    val start = findStart(newChunkSpan, tok)
+    val end = findEnd(newChunkSpan, tok)
     Interval(start, end)
   }
 
