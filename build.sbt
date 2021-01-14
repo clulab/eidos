@@ -7,7 +7,10 @@ name := "eidos"
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
 // If it isn't here, sbt test (and run) can seemingly only be performed once before it will fail with
 // java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
-fork := true
+// The reasoning above needs to be reconsidered, because forking results in loss of menu
+// functionality in things like EidosShell.  Output gets logged and, more importantly,
+// input is blocked with null always being returned.
+//fork := true
 
 // See https://www.scala-sbt.org/1.x/docs/Multi-Project.html for the reason this can't be in
 // a separate file: "The definitions in .sbt files are not visible in other .sbt files."
@@ -95,6 +98,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.11", "2.12.4"),
   scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
+  logLevel in run := Level.Warn
 ) ++ buildSettings ++ assemblySettings ++ publishSettings
 
 resolvers ++= Seq(
