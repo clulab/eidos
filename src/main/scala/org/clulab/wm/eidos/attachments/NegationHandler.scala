@@ -23,6 +23,7 @@ class NegationHandler(val language: String) {
     language match {
       case Language.ENGLISH => mentions.map(detectNegationEnglish)
       case Language.PORTUGUESE => mentions.map(detectNegationPortuguese)
+      case Language.CLU => mentions.map(detectNegationEnglish)
       case _ => throw new RuntimeException(s"Unsupported language: $language")
     }
   }

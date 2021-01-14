@@ -18,6 +18,7 @@ import org.clulab.wm.ontologies.DomainOntology
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.util.{Try,Success,Failure}
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
 case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGrounding, themeProcess: OntologyGrounding, themeProcessProperties: OntologyGrounding, predicates: Set[Int]) {
@@ -99,10 +100,19 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     groundingResult
   }
 
+  // FIXME: This could probably be implemented better by creating a real StopwordManager
+  // Everything after TIME is new to this grounder
+  val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MISC", "MONEY", "NUMBER", "ORDINAL",
+    "ORGANIZATION", "PERSON", "PLACE", "SET", "TIME", "NATIONALITY", "COUNTRY", "TITLE", "STATE_OR_PROVINCE")
+
   override def groundEidosMention(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
     // Do nothing to non-groundable mentions
     if (!EidosOntologyGrounder.groundableType(mention))
       Seq(newOntologyGrounding())
+    // Do nothing to named entities
+    if (mention.odinMention.entities.get.toSet.intersect(STOP_NER).nonEmpty) {
+      Seq(newOntologyGrounding())
+    }
     // or else ground them.
     else {
       val reParsed = proc.annotate(mention.odinMention.sentenceObj.getSentenceText)
@@ -143,7 +153,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val themeProperty = propertyOpt.getOrElse(newOntologyGrounding())
         // make a pseudo theme
         // fixme: should we ground the pseudo theme to the process AND concept branches
-        val pseudoTheme = groundToBranches(Seq(CONCEPT), tokenInterval, s, topN, threshold)
+        val pseudoTheme = groundToBranches(pseudoThemeBranches, tokenInterval, s, topN, threshold)
         val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
         Seq(PredicateGrounding(predicateTuple))
       case preds =>
@@ -163,9 +173,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
     }
 
+    // TODO: dig in and filter out duplicates in different parts of the predicate tuple
+    //  e.g. when the same grounding is produced for THEME and PROCESS,
+    //  skip to the next best PROCESS grounding
     Seq(newOntologyGrounding(srlGrounding))
-
-    // Am I done here? or do I need to filter and slice?
   }
 
   @tailrec
@@ -273,7 +284,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       GroundedSpan(trimmedChunk, propertyOpt.get, isProperty = true)
     } else {
       // Otherwise, ground as either a process or concept
-      GroundedSpan(trimmedChunk, groundToBranches(Seq(CONCEPT, PROCESS), trimmedChunk, s.sentence, topN, threshold), isProperty = false)
+      GroundedSpan(trimmedChunk, groundToBranches(processOrConceptBranches, trimmedChunk, s.sentence, topN,
+        threshold), isProperty = false)
     }
   }
 
@@ -294,7 +306,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
   }
 
-  private def groundProperty(span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = groundToBranches(Seq(PROPERTY), span, s, topN, threshold)
+  private def groundProperty(span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float])
+  : OntologyGrounding = groundToBranches(propertyBranch, span, s, topN, threshold)
 
   private def groundToBranches(branches: Seq[String], span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
     groundToBranches(branches, span, s.sentence, topN, threshold)
@@ -471,5 +484,11 @@ object SRLCompositionalGrounder{
   val PROCESS = "process"
   val CONCEPT = "concept"
   val PROPERTY = "property"
+  val ENTITY = "entity"
+
+  // Groundable Branches
+  val pseudoThemeBranches = Seq(CONCEPT, ENTITY)
+  val processOrConceptBranches = Seq(CONCEPT, ENTITY, PROCESS)
+  val propertyBranch = Seq(PROPERTY)
 
 }

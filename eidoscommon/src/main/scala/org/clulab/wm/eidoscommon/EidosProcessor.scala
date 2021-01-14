@@ -3,8 +3,12 @@ package org.clulab.wm.eidoscommon
 import java.text.Normalizer
 import java.util.regex.Pattern
 
+import org.clulab.dynet.Utils
+import org.clulab.processors.Document
+import org.clulab.processors.Processor
+import org.clulab.processors.Sentence
+import org.clulab.processors.clu.{CluProcessor, PortugueseCluProcessor, SpanishCluProcessor}
 import org.clulab.processors.clu.tokenizer.{RawToken, SentenceSplitter, Tokenizer}
-import org.clulab.processors.clu.{PortugueseCluProcessor, SpanishCluProcessor}
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.utils.ScienceUtils
@@ -101,6 +105,30 @@ class EidosPortugueseProcessor(val language: String, cutoff: Int) extends Portug
     if (document.sentences.nonEmpty) {
       cheapLemmatize(document)
       tagPartsOfSpeech(document)
+      recognizeNamedEntities(document)
+    }
+    document
+  }
+
+  def getTagSet: TagSet = tagSet
+}
+
+class EidosCluProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
+  with EidosProcessor with SentencesExtractor with LanguageSpecific {
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  override lazy val tokenizer: Tokenizer = eidosTokenizer
+  val tagSet = new EnglishTagSet()
+
+  def getTokenizer: EidosTokenizer = eidosTokenizer
+
+  // TODO: This should be checked with each update of processors.
+  def extractDocument(text: String): Document = {
+    // This mkDocument will now be subject to all of the EidosProcessor changes.
+    val document = mkDocument(text, keepText = false)
+
+    if (document.sentences.nonEmpty) {
+      tagPartsOfSpeech(document)
+      lemmatize(document)
       recognizeNamedEntities(document)
     }
     document
@@ -327,6 +355,7 @@ object EidosProcessor {
       new EidosEnglishProcessor(language, cutoff)
     case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
     case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
+    case Language.CLU => new EidosCluProcessor(language, cutoff)
   }
 
   // Turn off warnings from this class.
