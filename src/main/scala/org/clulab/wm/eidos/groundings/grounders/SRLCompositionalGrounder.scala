@@ -6,7 +6,7 @@ import org.clulab.struct.{DirectedGraph, Interval}
 import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAttachment}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, DomainOntology, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.{Canonicalizer, GroundingUtils}
+import org.clulab.wm.eidos.utils.{Canonicalizer, FileUtils, GroundingUtils}
 import org.slf4j.{Logger, LoggerFactory}
 import SRLCompositionalGrounder._
 import org.clulab.dynet.Utils
@@ -14,6 +14,7 @@ import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.wm.eidos.EidosTokenizer
 
+import java.io.{BufferedWriter, FileWriter, PrintWriter}
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
@@ -259,6 +260,12 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     s.tokenOrObjOfPreposition(dst).map((_, role))
   }
 
+  val chunkToken = new ArrayBuffer[String]()
+  val tokenChunk = new ArrayBuffer[String]()
+  val header = "Sentence\tChunk\tChunk Grounding\tChunk Score\tToken\tToken Grounding\tToken Score"
+  chunkToken.append(header)
+  tokenChunk.append(header)
+
   // Ground the chunk that the token is in, but in isolation from the rest of the sentence
   // TODO: rename, indicate that we may be expanding
   private def groundChunk(token: Int, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): GroundedSpan = {
@@ -272,7 +279,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       case Seq(chunk) => chunk      // one found, yay! We'll use it
       case chunks => throw new RuntimeException(s"Chunks have overlapped, there is a problem.  \n\ttoken: $token\n\tchunks: ${chunks.mkString(", ")}")
     }
-    val trimmedChunk = s.chunkAvoidingSRLs(chunkSpan, token)
+    //TODO: see if we actually want to trim the chunk
+//    val trimmedChunk = s.chunkAvoidingSRLs(chunkSpan, token)
 
     // First check to see if it's a property, if it is, ground as that
     val propertyOpt = maybeProperty(tokenSpan, s)
@@ -283,30 +291,37 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       val tokenGrounding = groundToBranches(Seq(CONCEPT, PROCESS), tokenSpan, s.sentence, topN,
         threshold)
 
-      if (tokenSpan==trimmedChunk) {
-        println("\nspan text:\t"+s.wordsSliceString(tokenSpan))
-        val tokenScore = if (tokenGrounding.headOption.isDefined) tokenGrounding.headOption.get.score else 0f
-        println("grounding:\t"+tokenGrounding.headName.getOrElse("NONE"))
-        println("score:\t"+tokenScore)
+      if (tokenSpan==chunkSpan) {
         return GroundedSpan(tokenSpan, tokenGrounding, isProperty = false)
       }
       // mihai: check if it's a N*, if so, try expanding, else just use the token
 
       // Otherwise, ground as either a process or concept
-      val chunkGrounding = groundToBranches(Seq(CONCEPT, PROCESS), trimmedChunk, s.sentence, topN, threshold)
+      val chunkGrounding = groundToBranches(Seq(CONCEPT, PROCESS), chunkSpan, s.sentence, topN, threshold)
       val chunkScore = if (chunkGrounding.headOption.isDefined) chunkGrounding.headOption.get.score else 0f
       val tokenScore = if (tokenGrounding.headOption.isDefined) tokenGrounding.headOption.get.score else 0f
 
-      // check which is highest, make a GroundedSpan from it
-      println("\nchunk Text:\t"+s.wordsSliceString(trimmedChunk))
-      println("chunkGrounding:\t"+chunkGrounding.headName.getOrElse("NONE"))
-      println("chunkScore:\t"+chunkScore)
-      println("token Text:\t"+s.wordsSliceString(tokenSpan))
-      println("tokenGrounding:\t"+tokenGrounding.headName.getOrElse("NONE"))
-      println("tokenScore:\t"+tokenScore)
+      val line = s.words.mkString(" ") + "\t" + s.wordsSliceString(chunkSpan) + "\t" + chunkGrounding.headName.getOrElse("NONE") + "\t" + chunkScore + "\t" + s.wordsSliceString(tokenSpan) + "\t" + tokenGrounding.headName
+        .getOrElse("NONE") + "\t" + tokenScore
 
-      if (chunkScore >= tokenScore) {
-        return GroundedSpan(trimmedChunk, chunkGrounding, isProperty = false)
+      // check which is highest, make a GroundedSpan from it
+      if (chunkScore > tokenScore) {
+        val pw1 = FileUtils.printWriterFromFile("chunk>token.tsv")
+        if (!chunkToken.contains(line)) {
+          chunkToken.append(line)
+        }
+        for (line <- chunkToken) {
+          pw1.println(line)
+        }
+        return GroundedSpan(chunkSpan, chunkGrounding, isProperty = false)
+      }
+
+      val pw2 = FileUtils.printWriterFromFile("token>=chunk.tsv")
+      if (!tokenChunk.contains(line)) {
+        tokenChunk.append(line)
+      }
+      for (line <- tokenChunk) {
+        pw2.println(line)
       }
       GroundedSpan(tokenSpan, tokenGrounding, isProperty = false)
     }
@@ -426,7 +441,7 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
 //    println(s"Trimming: (tok=$tok, idx=${currTokenIdx})")
 //    println(allTokensInvolvedInPredicates.mkString(", "))
 
-//    val chunkText = sentence.words.slice(chunkSpan.start, chunkSpan.end)
+    val chunkText = sentence.words.slice(chunkSpan.start, chunkSpan.end)
 //    println("\nchunkText to trim:\t"+chunkText.mkString(" "))
 //    println("chunkSpan:\t"+chunkSpan)
     val chunkStart = chunkSpan.start
