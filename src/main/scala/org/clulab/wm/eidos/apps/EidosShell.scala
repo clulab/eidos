@@ -4,12 +4,12 @@ import com.typesafe.config.Config
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.web.WebSerializer
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
-import org.clulab.wm.eidoscommon.utils.DefaultMenuItem
-import org.clulab.wm.eidoscommon.utils.ExitMenuItem
-import org.clulab.wm.eidoscommon.utils.HelpMenuItem
-import org.clulab.wm.eidoscommon.utils.MainMenuItem
-import org.clulab.wm.eidoscommon.utils.Menu
-import org.clulab.wm.eidoscommon.utils.{CliReader, IdeReader}
+import org.clulab.utils.DefaultMenuItem
+import org.clulab.utils.ExitMenuItem
+import org.clulab.utils.HelpMenuItem
+import org.clulab.utils.MainMenuItem
+import org.clulab.utils.Menu
+import org.clulab.utils.{CliReader, IdeReader}
 
 /**
   * Interactive shell for demonstrating Eidos

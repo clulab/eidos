@@ -107,7 +107,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-  val      procVer = "8.2.3"
+  val      procVer = "8.2.5-SNAPSHOT"
   val procModelVer = "7.5.4"
   val    luceneVer = "6.6.6"
   val   lihaoyiVer = "0.7.1"
