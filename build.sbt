@@ -108,7 +108,6 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   val      procVer = "8.2.3"
-  val procModelVer = "7.5.4"
   val    luceneVer = "6.6.6"
   val   lihaoyiVer = "0.7.1"
 
@@ -116,8 +115,6 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-main"          % procVer,
     "org.clulab"                 %% "processors-corenlp"       % procVer,
     "org.clulab"                 %% "processors-odin"          % procVer,
-    "org.clulab"                 %% "processors-modelsmain"    % procModelVer,
-    "org.clulab"                 %% "processors-modelscorenlp" % procModelVer,
     "org.clulab"                 %% "timenorm"                 % "1.0.5",
     "org.clulab"                 %% "geonorm"                  % "1.0.0",	
     // This one below is not needed for the docker file if the cache is used.
