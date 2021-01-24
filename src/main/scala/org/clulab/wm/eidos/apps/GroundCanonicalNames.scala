@@ -2,20 +2,17 @@ package org.clulab.wm.eidos.apps
 
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.OntologyGrounder
-import org.clulab.wm.eidos.groundings.OntologyHandler
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Sinker
-import org.clulab.wm.eidos.utils.Sourcer
-import org.clulab.wm.eidos.utils.TsvReader
-import org.clulab.wm.eidos.utils.XsvUtils
-import org.clulab.wm.eidos.utils.TsvWriter
+import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyHandler, PredicateGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Sinker
+import org.clulab.wm.eidoscommon.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.{TsvReader, TsvWriter, XsvUtils}
 
 object GroundCanonicalNames extends App {
 
   class Grounder {
     val name = "wm"
-    protected val ontologyHandler: OntologyHandler = new EidosSystem().components.ontologyHandler
+    protected val ontologyHandler: OntologyHandler = new EidosSystem().components.ontologyHandlerOpt.get
     protected val ontologyGrounder: OntologyGrounder = ontologyHandler.ontologyGrounders.find(_.name == name).get
     protected val nameToIsLeaf: Map[String, Boolean] = {
       val domainOntology = ontologyGrounder.domainOntology
@@ -31,7 +28,10 @@ object GroundCanonicalNames extends App {
     protected def topGroundingNameAndValue(strings: Array[String]): Option[(String, Float)] = {
       val allGroundings = ontologyGrounder.groundStrings(strings)
       val namerAndFloatOpt = allGroundings.head.headOption
-      val nameAndValueOpt = namerAndFloatOpt.map { case (namer, value) => (namer.name, value) }
+      val nameAndValueOpt = namerAndFloatOpt.map {
+        case g: SingleOntologyNodeGrounding => (g.name, g.score)
+        case pred: PredicateGrounding => ???
+      }
 
       nameAndValueOpt
     }
@@ -56,9 +56,9 @@ object GroundCanonicalNames extends App {
         val groundings = ontologyHandler.reground(text, Interval(start, stop + canonicalNameParts.last.length))
 
         if (groundings.nonEmpty && groundings.head._2.nonEmpty) {
-          val (namer, value) = groundings.head._2.headOption.get
+          val individualGrounding = groundings.head._2.headOption.get
 
-          Some((namer.name, value, false))
+          Some((individualGrounding.name, individualGrounding.score, false))
         }
         else None
       }

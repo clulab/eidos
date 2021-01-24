@@ -1,12 +1,10 @@
 package org.clulab.wm.eidos.groundings.grounders
 
-import org.clulab.wm.eidos.groundings.ConceptEmbedding
-import org.clulab.wm.eidos.groundings.ConceptPatterns
-import org.clulab.wm.eidos.groundings.DomainOntology
-import org.clulab.wm.eidos.groundings.EidosWordToVec
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.ontologies.DomainOntology
 
 class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
@@ -35,21 +33,24 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
     )
   }
 
-  def groundOntology(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
+  def groundEidosMention(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
     if (EidosOntologyGrounder.groundableType(mention)) {
       // First check to see if the text matches a regex from the main part of the ontology,
       // if so, that is a very precise grounding and we want to use it.
       val matchedPatternsMain = nodesPatternMatched(mention.odinMention.text, conceptPatternsSeq(InterventionSieveGrounder.REST))
       if (matchedPatternsMain.nonEmpty) {
-        Seq(newOntologyGrounding(matchedPatternsMain))
+        val groundings = matchedPatternsMain
+        Seq(newOntologyGrounding(groundings))
       }
       // Otherwise, back-off to the w2v-based approach for main branch and a sieve for interventions
       else {
-        val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
+        val attachmentWords = mention.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
+        val canonicalNameParts = EidosMention.canonicalNameParts(canonicalizer, mention, attachmentWords)
 
         // Main Portion of the ontology
         val mainConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.REST)
         val mainSimilarities = wordToVec.calculateSimilarities(canonicalNameParts, mainConceptEmbeddings)
+          .map(SingleOntologyNodeGrounding(_))
 
         // Intervention Branch
         // Only allow grounding to these nodes if the patterns match
@@ -62,14 +63,13 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
             matchedPatternsInterventions
           else {
             val interventionConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.INTERVENTION)
-
             wordToVec.calculateSimilarities(canonicalNameParts, interventionConceptEmbeddings)
+              .map(SingleOntologyNodeGrounding(_))
           }
         }
         else
           Seq.empty
-        val similarities = (mainSimilarities ++ interventionSimilarities).sortBy(-_._2).take(topN.get)
-
+        val similarities = (mainSimilarities ++ interventionSimilarities).sortBy(-_.score).take(topN.get)
         Seq(newOntologyGrounding(similarities))
       }
     }
@@ -122,6 +122,6 @@ object InterventionSieveGrounder {
     """(integrat)(\s|\w)+into(\s|\w)+(policy|policies|program)""".r,
     """(capacity)(\s|\w)+building""".r,
     """(public\s+sector\s+support)""".r,
-    """(invest)(\s|\w)+(in)""".r,
+    """(invest)(\s|\w)+(in)""".r
   )
 }

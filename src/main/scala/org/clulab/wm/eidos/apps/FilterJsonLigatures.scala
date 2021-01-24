@@ -4,10 +4,10 @@ import java.io.File
 import java.io.PrintWriter
 import java.util.regex.Pattern
 
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.Sinker
-import org.clulab.wm.eidos.utils.TsvWriter
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Sinker
+import org.clulab.wm.eidoscommon.utils.TsvWriter
 import org.json4s.DefaultFormats
 import org.json4s.JString
 import org.json4s.JValue

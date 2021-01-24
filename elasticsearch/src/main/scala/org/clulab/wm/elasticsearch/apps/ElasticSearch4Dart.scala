@@ -7,8 +7,8 @@ import java.time.ZonedDateTime
 import java.util
 
 import org.apache.http.HttpHost
-import org.clulab.wm.elasticsearch.utils.Closer.AutoCloser
-import org.clulab.wm.elasticsearch.utils.Sinker
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Sinker
 import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse

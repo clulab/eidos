@@ -2,9 +2,8 @@ package org.clulab.wm.wmexchanger.wmconsumer
 
 import java.util.Properties
 
-import org.clulab.wm.wmexchanger.utils.PropertiesBuilder
-import org.clulab.wm.wmexchanger.utils.WmUserApp
-import org.clulab.wm.wmexchanger.utils.SafeThread
+import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
+import org.clulab.wm.wmexchanger.utils.{SafeThread, WmUserApp}
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

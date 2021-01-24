@@ -5,7 +5,7 @@ import java.io.File
 import org.clulab.embeddings.{CompactWordEmbeddingMap => CompactWord2Vec}
 import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
 import org.clulab.odin.Mention
-import org.clulab.wm.eidos.utils.Namer
+import org.clulab.wm.eidoscommon.utils.Namer
 import org.slf4j.{Logger, LoggerFactory}
 
 trait EidosWordToVec {

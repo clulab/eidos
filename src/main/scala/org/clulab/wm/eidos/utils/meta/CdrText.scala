@@ -8,7 +8,7 @@ import java.util.TimeZone
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.json4s.DefaultFormats
 import org.json4s.JObject
 import org.json4s.JValue
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory
 class CdrText(cdr: JValue) extends EidosText {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-  protected val text: String = (cdr \ "extracted_text").extract[String]
+  protected val text: String = (cdr \ "extracted_text").extractOpt[String].getOrElse("")
   protected val metadata: Metadata = {
     // It would be nice if this threw an exception on bad data.
     // Check whether keys are there at all and throw exception if parsing returns None.

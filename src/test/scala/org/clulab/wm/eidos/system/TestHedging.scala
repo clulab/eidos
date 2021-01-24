@@ -2,8 +2,7 @@ package org.clulab.wm.eidos.system
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.attachments.Hedging
-import org.clulab.wm.eidos.test.TestUtils._
-
+import org.clulab.wm.eidos.test.ExtractionTest
 
 class TestHedging extends ExtractionTest {
 

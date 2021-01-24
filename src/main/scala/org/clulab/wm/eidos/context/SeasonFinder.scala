@@ -4,18 +4,20 @@ import java.time.temporal.ChronoField.MONTH_OF_YEAR
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
-import org.yaml.snakeyaml.Yaml
-import org.clulab.timenorm.scate._
+import org.clulab.timenorm.scate.Between
+import org.clulab.timenorm.scate.RepeatingField
+import org.clulab.timenorm.scate.ThisRI
+import org.clulab.timenorm.scate.Year
 import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.{Interval => TextInterval}
-import org.clulab.wm.eidos.attachments.{Location => LocationAttachment, Time => TimeAttachment}
+import org.clulab.wm.eidos.attachments.{Location, Time}
 import org.clulab.wm.eidos.extraction.Finder
-import org.clulab.wm.eidos.utils.FileUtils.getTextFromResource
+import org.clulab.wm.eidoscommon.utils.FileUtils.getTextFromResource
+import org.yaml.snakeyaml.Yaml
 
-import scala.math.max
 import scala.collection.JavaConverters._
-
+import scala.math.max
 
 case class SeasonMention(firstToken: Int, lastToken: Int, season: Map[String, Int], timeInterval: TimeStep)
 
@@ -46,14 +48,14 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
 
   private def timeFilter(mention: Mention): Boolean = {
     mention.label == "Time" && (mention.attachments.head match {
-      case attachment: TimeAttachment => attachment.interval.intervals.nonEmpty
+      case attachment: Time => attachment.interval.intervals.nonEmpty
       case _ => false
     })
   }
 
   private def geoFilter(mention: Mention): Boolean = {
     mention.label == "Location" && (mention.attachments.head match {
-      case attachment: LocationAttachment => attachment.geoPhraseID.geonameID.exists(seasonMap.contains)
+      case attachment: Location => attachment.geoPhraseID.geonameID.exists(seasonMap.contains)
       case _ => false
     })
   }
@@ -82,10 +84,10 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
 
     // Find and get the closest normalized geonameID.
     val geonameIDOpt: Option[String] = sortedMentions.find(geoFilter)
-        .map(_.attachments.head.asInstanceOf[LocationAttachment].geoPhraseID.geonameID.get)
+        .map(_.attachments.head.asInstanceOf[Location].geoPhraseID.geonameID.get)
     // Find and get the closest timeStep.
     val timeStepOpt: Option[TimeStep] = sortedMentions.find(timeFilter)
-        .map(_.attachments.head.asInstanceOf[TimeAttachment].interval.intervals.head)
+        .map(_.attachments.head.asInstanceOf[Time].interval.intervals.head)
 
     // If we find both Location and Time normalized create a SeasonMention if the season type is in the
     // seasons Map for that Location. SeasonMention is created with the first and last tokens
@@ -138,7 +140,7 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
     // normalize it and create a TimeAttachment.
     val mentions = for {
       (sentence, sentenceIndex) <- doc.sentences.zipWithIndex
-      lemmas = sentence.lemmas.get
+      lemmas = sentence.lemmas.get.map(_.toLowerCase)
       m <- lemmas.zipWithIndex.filter(s => triggers.contains(s._1))
       seasonMentionOpt = createMention(m, sentenceIndex, lemmas, initialState)
       if seasonMentionOpt.isDefined
@@ -166,9 +168,13 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
 
       // Normalize the season using the Year of the Time mention found in closestMention as reference.
       // Create a TimEx for this season.
-      val yearInterval = Year(seasonMention.timeInterval.startDate.getYear)
-      val startInterval = ThisRI(yearInterval, RepeatingField(MONTH_OF_YEAR, seasonStartMonth))
-      val endInterval = ThisRI(yearInterval, RepeatingField(MONTH_OF_YEAR, seasonEndMonth))
+      val startYearInterval = Year(seasonMention.timeInterval.startDate.getYear)
+      val endYearInterval = if (seasonEndMonth >= seasonStartMonth)
+        Year(seasonMention.timeInterval.startDate.getYear)
+      else
+        Year(seasonMention.timeInterval.startDate.getYear + 1)
+      val startInterval = ThisRI(startYearInterval, RepeatingField(MONTH_OF_YEAR, seasonStartMonth))
+      val endInterval = ThisRI(endYearInterval, RepeatingField(MONTH_OF_YEAR, seasonEndMonth))
       val seasonInterval = Between(startInterval, endInterval, startIncluded = true, endIncluded = true)
       val seasonStart = seasonInterval.start.plusMonths(modifierShift)
       val seasonEnd = seasonInterval.end.plusMonths(modifierShift)
@@ -185,7 +191,7 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
         doc,
         true,
         getClass.getSimpleName,
-        Set(TimeAttachment(attachment))
+        Set(Time(attachment))
       )
     }
     mentions

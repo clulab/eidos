@@ -3,6 +3,7 @@ package org.clulab.wm.wmexchanger.utils
 import java.util.Scanner
 
 import org.apache.kafka.common.errors.InterruptException
+import org.clulab.wm.eidoscommon.utils.ThreadUtils
 import org.slf4j.Logger
 
 abstract class SafeThread(logger: Logger) extends Thread {

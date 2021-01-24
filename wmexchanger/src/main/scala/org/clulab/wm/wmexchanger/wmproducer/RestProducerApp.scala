@@ -18,12 +18,8 @@ import org.apache.http.entity.mime.content.StringBody
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
-import org.clulab.wm.wmexchanger.utils.Closer.AutoCloser
-import org.clulab.wm.wmexchanger.utils.FileEditor
-import org.clulab.wm.wmexchanger.utils.FileUtils
-import org.clulab.wm.wmexchanger.utils.PropertiesBuilder
-import org.clulab.wm.wmexchanger.utils.Sourcer
-import org.clulab.wm.wmexchanger.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, PropertiesBuilder, Sourcer, StringUtils}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 import org.slf4j.Logger
@@ -146,7 +142,7 @@ object RestProducerApp extends App {
   newCloseableHttpClient(url, username, password).autoClose { closeableHttpClient =>
     val files = FileUtils.findFiles(inputDir, "jsonld")
 
-    files.foreach { file =>
+    files.par.foreach { file =>
       try {
         logger.info(s"Uploading ${file.getName}")
         val storageKey = upload(file, closeableHttpClient, httpHost)

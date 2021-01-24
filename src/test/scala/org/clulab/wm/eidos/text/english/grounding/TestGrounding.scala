@@ -4,9 +4,9 @@ import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
-import org.clulab.wm.eidos.groundings.OntologyGrounder
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.test.EnglishTest
 import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.collection.Seq
@@ -31,7 +31,7 @@ class TestGrounding extends EnglishTest {
   object CompositionalGroundingTextTester {
 
     def apply(name: String): CompositionalGroundingTextTester = {
-      val ontologyGrounderOpt: Option[OntologyGrounder] = ieSystem.components.ontologyHandler.ontologyGrounders.find { ontologyGrounder =>
+      val ontologyGrounderOpt: Option[OntologyGrounder] = ieSystem.components.ontologyHandlerOpt.get.ontologyGrounders.find { ontologyGrounder =>
         ontologyGrounder.name == name
       }
 
@@ -57,7 +57,7 @@ class TestGrounding extends EnglishTest {
     def split(text: String): Array[String] = text.split(' ')
 
     def groundings(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): OntologyGroundings = {
-      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundOntology(mention, topN = groundTopN, threshold = threshold)
+      val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundEidosMention(mention, topN = groundTopN, threshold = threshold)
       val groundings = ontologyGroundings.map { ontologyGrounding =>
         val newName = name + ontologyGrounding.branch.map { branch => "/" + branch }.getOrElse("")
 
@@ -69,7 +69,7 @@ class TestGrounding extends EnglishTest {
 
     protected def topGroundingValue(mention: EidosMention, componentName: String): Float = {
       val allGroundings = groundings(mention)
-      val topGrounding = allGroundings(name + "/" + componentName).headOption.get._2
+      val topGrounding = allGroundings(name + "/" + componentName).headOption.get.score
       topGrounding
     }
 
@@ -83,7 +83,7 @@ class TestGrounding extends EnglishTest {
     def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[String] = {
       val allGroundings = groundings(mention, topN, threshold)
       val names = allGroundings.values.flatMap { ontologyGrounding =>
-        ontologyGrounding.grounding.map { grounding => grounding._1.name }
+        ontologyGrounding.grounding.map { grounding => grounding.name }
       }.toSeq
 
       names
@@ -92,7 +92,7 @@ class TestGrounding extends EnglishTest {
     def allGroundingInfo(mention: EidosMention): Seq[(String,Float)] = {
       val allGroundings = groundings(mention)
       val names = allGroundings.values.flatMap { ontologyGrounding =>
-        ontologyGrounding.grounding.map { grounding => (grounding._1.name, grounding._2) }
+        ontologyGrounding.grounding.map { grounding => (grounding.name, grounding.score) }
       }.toSeq
 
       names
@@ -110,7 +110,7 @@ class TestGrounding extends EnglishTest {
         val eidosCauses = annotatedDocument.eidosMentions
 
         // This only grounds the surfact mentions, but that is sufficient for the test.
-        eidosCauses.foreach(ieSystem.components.ontologyHandler.ground)
+        eidosCauses.foreach(ieSystem.components.ontologyHandlerOpt.get.ground)
         eidosCauses
       }
 
@@ -121,7 +121,7 @@ class TestGrounding extends EnglishTest {
         val eidosEffects = annotatedDocument.eidosMentions
 
         // This only grounds the surfact mentions, but that is sufficient for the test.
-        eidosEffects.foreach(ieSystem.components.ontologyHandler.ground)
+        eidosEffects.foreach(ieSystem.components.ontologyHandlerOpt.get.ground)
         eidosEffects
       }
 

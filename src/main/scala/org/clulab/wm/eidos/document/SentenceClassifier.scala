@@ -3,13 +3,13 @@ package org.clulab.wm.eidos.document
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.processors.Sentence
-import org.clulab.wm.eidos.groundings.ConceptEmbedding
-import org.clulab.wm.eidos.groundings.OntologyHandler
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, OntologyHandler, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.Language
-import org.clulab.wm.eidos.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Sourcer
 import java.io.FileNotFoundException
+
+import org.clulab.wm.eidoscommon.Language
 
 class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[String, Float], ontologyHandler: OntologyHandler, flatOntologyGrounder: FlatOntologyGrounder) {
   val conceptEmbeddings: Seq[ConceptEmbedding] = flatOntologyGrounder.conceptEmbeddings
@@ -18,9 +18,10 @@ class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[Str
     val words = sentence.words
     val weights = words.map(idfWeights.getOrElse(_, 1.0f))
     val similarities = ontologyHandler.wordToVec.calculateSimilaritiesWeighted(words, weights, conceptEmbeddings)
-    val grounding = flatOntologyGrounder.newOntologyGrounding(similarities)
+    // FIXME: assumes flat grounding
+    val grounding = flatOntologyGrounder.newOntologyGrounding(similarities.map(SingleOntologyNodeGrounding(_)))
     // The correlation score of a sentence is set to 0 if it is below the threshold. Change it later if needed.
-    val classificationRaw = grounding.headOption.map(_._2).getOrElse(0.0f)
+    val classificationRaw = grounding.headOption.map(_.score).getOrElse(0.0f)
 
     if (classificationRaw>classificationThreshold) {classificationRaw} else 0.0f
   }

@@ -5,25 +5,22 @@ import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import com.typesafe.config.Config
 import org.clulab.processors.Document
 import org.clulab.serialization.DocumentSerializer
-import org.clulab.serialization.json.stringify
+import org.clulab.serialization.json.{DocOps, JSONSerializer, stringify}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.test.TestUtils.Test
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.serialization.json.{DocOps, JSONSerializer}
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.AdjectiveGrounder
-import org.clulab.wm.eidos.groundings.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, EidosAdjectiveGrounder}
+import org.clulab.wm.eidos.serialization.jsonld.{JLDCorpus, JLDDeserializer}
+import org.clulab.wm.eidos.test.EidosTest
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.json4s.jackson.JsonMethods.{parse, pretty, render}
 
-class TestDocSerialization extends Test {
+class TestDocSerialization extends EidosTest {
   val config: Config = this.defaultConfig // Do not use EidosSystem's defaultConfig!
   val reader: EidosSystem = new EidosSystem(config)
   val adjectiveGrounder: AdjectiveGrounder = EidosAdjectiveGrounder.fromEidosConfig(config)
-  val canonicalizer: Canonicalizer = reader.components.ontologyHandler.canonicalizer
+  val canonicalizer: Canonicalizer = reader.components.ontologyHandlerOpt.get.canonicalizer
 
   def testObjectSerialization(annotatedDocument: AnnotatedDocument): Unit = {
     val document = annotatedDocument.document

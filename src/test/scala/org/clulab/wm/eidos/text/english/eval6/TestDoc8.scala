@@ -1,7 +1,8 @@
 package org.clulab.wm.eidos.text.english.eval6
 
-import org.clulab.wm.eidos.test.TestUtils._
 import org.clulab.wm.eidos.graph._
+import org.clulab.wm.eidos.test.EnglishTest
+import org.clulab.wm.eidos.test.TestUtils._
 
 // Document: i8533en.pdf
 // Unit test designer: Adarsh

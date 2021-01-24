@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.text
 
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.ExtractionTest
 
 class TestDocumentFilter extends ExtractionTest {
 

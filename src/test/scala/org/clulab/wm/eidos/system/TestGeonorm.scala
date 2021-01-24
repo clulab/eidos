@@ -1,8 +1,7 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.wm.eidos.attachments.Location
-import org.clulab.wm.eidos.test.TestUtils._
-
+import org.clulab.wm.eidos.test.ExtractionTest
 
 class TestGeonorm extends ExtractionTest {
 

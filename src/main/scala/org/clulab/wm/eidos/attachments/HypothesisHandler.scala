@@ -3,8 +3,9 @@ package org.clulab.wm.eidos.attachments
 import org.clulab.odin._
 import org.clulab.struct.{DirectedGraph, Interval}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.MentionUtils
+import org.clulab.wm.eidos.mentions.MentionUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.EidosParameters
 
 /**
   * Taken from Reach (1.4.0), the information system developed for the DARPA Big Mechanism program
@@ -57,7 +58,7 @@ class HypothesisHandler(hintsFile: String) {
 
   def addAnyHedging(mention: Mention): Mention = {
     // For now let's only look for hedging on Relations...
-    if (mention matches EidosSystem.RELATION_LABEL) {
+    if (mention matches EidosParameters.RELATION_LABEL) {
 
       // Get the dependencies of the sentence
       val dependencies = mention.sentenceObj.dependencies.getOrElse(new DirectedGraph[String](Nil, Set[Int]()))

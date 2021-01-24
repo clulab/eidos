@@ -12,9 +12,9 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.EntityInfo
 import org.clulab.wm.eidos.exporters.Exporter
 import org.clulab.wm.eidos.mentions.EidosEventMention
-import org.clulab.wm.eidos.utils.Closer.AutoCloser
-import org.clulab.wm.eidos.utils.FileUtils
-import org.clulab.wm.eidos.utils.TsvWriter
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.TsvWriter
 
 import scala.collection.Seq
 
@@ -51,7 +51,7 @@ object AnnotationTSV extends App with Configured {
   // Correct is 16 = P
 
   def mkTableRows(annotatedDocument: AnnotatedDocument, filename: String, reader: EidosSystem): (Seq[Seq[AnyRef]], Counter[String]) = {
-    val mentionsToPrint = reader.components.stopwordManager.relevantMentions(annotatedDocument)
+    val mentionsToPrint = reader.components.stopwordManagerOpt.get.relevantMentions(annotatedDocument)
 
     val ruleCounter = new Counter[String]
 

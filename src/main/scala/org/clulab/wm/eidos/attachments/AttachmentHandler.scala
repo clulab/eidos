@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.attachments
 
 import org.clulab.odin.{Attachment, Mention, State}
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
-import org.clulab.wm.eidos.utils.MentionUtils
+import org.clulab.wm.eidos.mentions.MentionUtils
 
 import scala.collection.mutable.{Set => MutableSet}
 

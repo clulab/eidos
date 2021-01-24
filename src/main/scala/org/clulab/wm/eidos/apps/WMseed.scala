@@ -12,7 +12,7 @@ import com.typesafe.config.Config
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
-import org.clulab.wm.eidos.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.FileUtils
 
 /**
   * Created by ajaynagesh on 5/31/17.
@@ -29,7 +29,7 @@ object WMseed extends App with LazyLogging {
   val extractor = new EidosSystem(config[Config]("WMseed.EidosSystem"))
 
   // create the processor
-  val proc: Processor = extractor.components.proc
+  val proc: Processor = extractor.components.procOpt.get
 
   // List of files to be processed
   val fileList = getListOfFiles(documentPath)

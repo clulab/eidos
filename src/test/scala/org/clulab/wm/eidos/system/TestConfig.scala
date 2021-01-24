@@ -1,11 +1,11 @@
 package org.clulab.wm.eidos.text.english.cag
 
 import ai.lum.common.ConfigUtils._
-import org.clulab.wm.eidos.test.TestUtils._
-import org.clulab.utils.Configured
 import com.typesafe.config.{Config, ConfigFactory}
+import org.clulab.utils.Configured
+import org.clulab.wm.eidos.test.EidosTest
 
-class TestConfig extends Test with Configured {
+class TestConfig extends EidosTest with Configured {
   
   override def getConf: Config = config
   

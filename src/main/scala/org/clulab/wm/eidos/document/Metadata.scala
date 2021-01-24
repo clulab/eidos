@@ -1,11 +1,13 @@
 package org.clulab.wm.eidos.document
 
 import org.clulab.processors.Document
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.DCT
+import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class Metadata(val dctOpt: Option[DCT], val idOpt: Option[String],
   val titleOpt: Option[String], val locationOpt: Option[String]) {
@@ -14,6 +16,7 @@ class Metadata(val dctOpt: Option[DCT], val idOpt: Option[String],
     doc.id = idOpt
     dctOpt.foreach { dct =>
       DctDocumentAttachment.setDct(doc, dct)
+      doc.setDCT(dct.text)
     }
     titleOpt.foreach { title =>
       TitleDocumentAttachment.setTitle(doc, title)
@@ -25,12 +28,13 @@ class Metadata(val dctOpt: Option[DCT], val idOpt: Option[String],
 }
 
 object Metadata {
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  protected def newDct(eidosSystem: EidosSystem, dctStringOpt: Option[String]): Option[DCT] = {
-    val dctOpt = for (dctString <- dctStringOpt; timeNormFinder <- eidosSystem.components.timeNormFinderOpt) yield {
+  protected def newDct(timeNormFinderOpt: Option[TimeNormFinder], dctStringOpt: Option[String]): Option[DCT] = {
+    val dctOpt = for (dctString <- dctStringOpt; timeNormFinder <- timeNormFinderOpt) yield {
       val dctOpt = timeNormFinder.parseDctString(dctString)
       if (dctOpt.isEmpty)
-        EidosSystem.logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
+        logger.warn(s"""The document creation time, "$dctString", could not be parsed.  Proceeding without...""")
       dctOpt
     }
     dctOpt.flatten
@@ -40,8 +44,8 @@ object Metadata {
     new Metadata(None, None, None, None)
   }
 
-  def apply(eidosSystem: EidosSystem, dctStringOpt: Option[String], idOpt: Option[String]): Metadata = {
-    val dctOpt = newDct(eidosSystem, dctStringOpt)
+  def apply(timeNormFinderOpt: Option[TimeNormFinder], dctStringOpt: Option[String], idOpt: Option[String]): Metadata = {
+    val dctOpt = newDct(timeNormFinderOpt, dctStringOpt)
 
     new Metadata(dctOpt, idOpt, None, None)
   }

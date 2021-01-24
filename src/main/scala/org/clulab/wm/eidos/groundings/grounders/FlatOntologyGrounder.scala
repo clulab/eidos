@@ -1,33 +1,29 @@
 package org.clulab.wm.eidos.groundings.grounders
 
-import org.clulab.wm.eidos.groundings.DomainOntology
-import org.clulab.wm.eidos.groundings.EidosWordToVec
-import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.groundings.{EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.Canonicalizer
+import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.ontologies.DomainOntology
 
 class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends EidosOntologyGrounder(name, domainOntology, wordToVec, canonicalizer) {
   // TODO Move some stuff from above down here if it doesn't apply to other grounders.
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings)))
+    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings).map(SingleOntologyNodeGrounding(_))))
   }
 
-  def groundOntology(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
+  def groundEidosMention(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {
     // Sieve-based approach
     if (EidosOntologyGrounder.groundableType(mention)) {
-      // First check to see if the text matches a regex from the ontology, if so, that is a very precise
-      // grounding and we want to use it.
-      val matchedPatterns = nodesPatternMatched(mention.odinMention.text, conceptPatterns)
-      if (matchedPatterns.nonEmpty) {
-        Seq(newOntologyGrounding(matchedPatterns))
-      }
-      // Otherwise, back-off to the w2v-based approach
-      else {
-        val canonicalNameParts = canonicalizer.canonicalNameParts(mention)
-        groundStrings(canonicalNameParts)
-      }
+      // This assumes it to be highly unlikely that there will be an exact match or pattern match
+      // because otherwise the canonicalNameParts are never used and they shouldn't be calculated.
+      val attachmentWords = mention.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
+      val canonicalNameParts = EidosMention.canonicalNameParts(canonicalizer, mention, attachmentWords)
+      val aggregated = groundPatternsThenEmbeddings(mention.odinMention.text, canonicalNameParts, conceptPatterns, conceptEmbeddings)
+      val filtered = filterAndSlice(aggregated, topN, threshold)
+      Seq(newOntologyGrounding(filtered))
     }
     else
       Seq(newOntologyGrounding())

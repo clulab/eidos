@@ -4,8 +4,7 @@ import java.time.LocalDateTime
 
 import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.context.TimeStep
-import org.clulab.wm.eidos.test.TestUtils._
-
+import org.clulab.wm.eidos.test.ExtractionTest
 
 class TestSeason extends ExtractionTest {
 

@@ -1,15 +1,14 @@
 package org.clulab.wm.eidos.system
 
 import org.clulab.processors.clu.tokenizer.RawToken
-import org.clulab.wm.eidos.EidosEnglishProcessor
-import org.clulab.wm.eidos.EidosTokenizer
-import org.clulab.wm.eidos.test.TestUtils._
+import org.clulab.wm.eidos.test.EnglishTest
+import org.clulab.wm.eidoscommon.{EidosEnglishProcessor, EidosTokenizer}
 
 class TestEidosTokenizer extends EnglishTest {
 
   behavior of "normalization"
 
-  val eidosTokenizer: EidosTokenizer = ieSystem.components.proc.asInstanceOf[EidosEnglishProcessor].tokenizer
+  val eidosTokenizer: EidosTokenizer = ieSystem.components.procOpt.get.asInstanceOf[EidosEnglishProcessor].eidosTokenizer
 
   it should "not change plain text" in {
     val oldText = "This is a test."

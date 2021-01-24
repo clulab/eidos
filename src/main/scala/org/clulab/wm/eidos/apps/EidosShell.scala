@@ -4,60 +4,23 @@ import com.typesafe.config.Config
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.web.WebSerializer
 import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
-import org.clulab.wm.eidos.utils.{CliReader, IdeReader}
-
-import scala.collection.immutable.ListMap
+import org.clulab.wm.eidoscommon.utils.DefaultMenuItem
+import org.clulab.wm.eidoscommon.utils.ExitMenuItem
+import org.clulab.wm.eidoscommon.utils.HelpMenuItem
+import org.clulab.wm.eidoscommon.utils.MainMenuItem
+import org.clulab.wm.eidoscommon.utils.Menu
+import org.clulab.wm.eidoscommon.utils.{CliReader, IdeReader}
 
 /**
   * Interactive shell for demonstrating Eidos
   */
 
 object EidosShell extends App {
-  val reader = {
-    val prompt = "(Eidos)>>> "
-
-    if (args.length == 0) new CliReader(prompt, "user.home", ".eidosshellhistory")
-    else new IdeReader(prompt)
-  }
-  val commands = ListMap(
-    ":help" -> "show commands",
-    ":reload" -> "reload grammar",
-    ":exit" -> "exit system"
-  )
   val eidosConfig: Config = EidosSystem.defaultConfig
   var ieSystem = new EidosSystem(eidosConfig)
   val webSerializer = new WebSerializer(ieSystem, eidosConfig)
 
-  println("\nWelcome to the Eidos Shell!")
-  printCommands()
-
-  def processMenu: Boolean = {
-    val continue = Option(reader.readLine).map { line =>
-      if (line == ":exit") false
-      else {
-        line match {
-          case ":help" => printCommands()
-          case ":reload" => ieSystem = new EidosSystem(EidosSystem.defaultConfig, Some(ieSystem))
-          case text => extractFrom(text)
-        }
-        true
-      }
-    }.getOrElse(false)
-
-    continue
-  }
-
-  while (processMenu) { }
-
-  // summarize available commands
-  def printCommands(): Unit = {
-    println("\nCOMMANDS:")
-    for ((cmd, msg) <- commands)
-      println(s"\t$cmd\t=> $msg")
-    println()
-  }
-
-  def extractFrom(text: String): Unit = {
+  def extractFromText(text: String): Unit = {
     val annotatedDocument = ieSystem.extractFromText(text)
     val doc = annotatedDocument.document
     val mentions = annotatedDocument.odinMentions
@@ -66,4 +29,31 @@ object EidosShell extends App {
     webSerializer.serialize(annotatedDocument, cagRelevantOnly = true, "eidosshell.html")
     displayMentions(sortedMentions, doc, true)
   }
+
+  def extractFromMenu(menu: Menu, text: String): Boolean = {
+    extractFromText(text)
+    true
+  }
+
+  def reloadFromMenu(menu: Menu, key: String): Boolean = {
+    ieSystem = new EidosSystem(EidosSystem.defaultConfig, Some(ieSystem))
+    true
+  }
+
+  val lineReader = {
+    val prompt = "(Eidos)>>> "
+    // The CliReader does not work in IntelliJ on Windows, so this is a hack.
+    // Include a command line parameter and the lineReader will be switched.
+    if (args.length == 0) new CliReader(prompt, "user.home", ".eidosshellhistory")
+    else new IdeReader(prompt)
+  }
+  val mainMenuItems = Seq(
+    new HelpMenuItem(":help", "show commands"),
+    new MainMenuItem(":reload", "reload grammar", reloadFromMenu),
+    new ExitMenuItem(":exit", "exit system")
+  )
+  val defaultMenuItem = new DefaultMenuItem(extractFromMenu)
+  val menu = new Menu("Welcome to the Eidos Shell!", lineReader, mainMenuItems, defaultMenuItem)
+
+  menu.run()
 }

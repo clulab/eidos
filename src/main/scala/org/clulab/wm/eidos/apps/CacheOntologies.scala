@@ -9,11 +9,12 @@ import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.{CompactWordEmbeddingMap => CompactWord2Vec}
 import org.clulab.geonorm.GeoNamesIndex
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
-import org.clulab.wm.eidos.groundings.ontologies.FastDomainOntology.FastDomainOntologyBuilder
+import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
+import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.eidos.groundings._
-import org.clulab.wm.eidos.groundings.ontologies.FullTreeDomainOntology
-import org.clulab.wm.eidos.groundings.ontologies.HalfTreeDomainOntology
+import org.clulab.wm.ontologies.DomainOntology
+import org.clulab.wm.ontologies.FullTreeDomainOntology
+import org.clulab.wm.ontologies.HalfTreeDomainOntology
 
 object CacheOntologies extends App {
   val config = EidosSystem.defaultConfig
@@ -49,7 +50,7 @@ object CacheOntologies extends App {
   }
 
   def cacheOntologies(): Unit = {
-    val ontologyGrounders: Seq[OntologyGrounder] = reader.components.ontologyHandler.ontologyGrounders
+    val ontologyGrounders: Seq[OntologyGrounder] = reader.components.ontologyHandlerOpt.get.ontologyGrounders
 
     if (ontologyGrounders.isEmpty)
       throw new RuntimeException("No ontologies were specified, please check the config file.")
@@ -88,7 +89,7 @@ object CacheOntologies extends App {
     val filenameIn = config[String]("ontologies.wordToVecPath")
     val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, filenameIn)
     println(s"Saving vectors to $filenameOut...")
-    val word2Vec = reader.components.ontologyHandler.wordToVec match {
+    val word2Vec = reader.components.ontologyHandlerOpt.get.wordToVec match {
       case realWordToVec: RealWordToVec =>
         if (!config[Boolean]("ontologies.useCacheForW2V"))
           realWordToVec.w2v // It wasn't cached, so we must have an up-to-date version.
