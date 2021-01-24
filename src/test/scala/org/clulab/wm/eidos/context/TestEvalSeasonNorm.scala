@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.context
 
 import org.clulab.wm.eidos.apps.EvalSeasonNorm
-import org.clulab.wm.eidos.test.TestUtils.Test
+import org.clulab.wm.eidos.test.EidosTest
 
-class TestEvalSeasonNorm extends Test {
+class TestEvalSeasonNorm extends EidosTest {
 
   behavior of "temporal parser"
 
