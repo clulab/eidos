@@ -21,6 +21,10 @@ trait DomainOntology {
 
   def getValues(n: Integer): Array[String]
 
+  def getPosValues(n: Integer): Array[String] = getValues(n)
+
+  def getNegValues(n: Integer): Array[String] = Array.empty
+
   def getPatterns(n: Integer): Option[Array[Regex]]
 
   def isLeaf(n: Integer): Boolean
