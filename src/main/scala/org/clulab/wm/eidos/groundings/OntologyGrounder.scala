@@ -18,8 +18,9 @@ object OntologyAliases {
 trait IndividualGrounding {
   def name: String
   def score: Float
+  def negScoreOpt: Option[Float] = None
 }
-case class SingleOntologyNodeGrounding(namer: Namer, override val score: Float) extends IndividualGrounding{
+case class SingleOntologyNodeGrounding(namer: Namer, override val score: Float, override val negScoreOpt: Option[Float] = None) extends IndividualGrounding{
   def name: String = namer.name
 }
 object SingleOntologyNodeGrounding {

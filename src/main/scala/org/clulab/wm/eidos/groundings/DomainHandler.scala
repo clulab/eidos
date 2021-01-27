@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
 import java.time.ZonedDateTime
-
 import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
@@ -12,6 +11,7 @@ import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.{CompactDomainOntology, DomainOntology, FastDomainOntology}
 import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -53,7 +53,8 @@ object DomainHandler {
       else {
         logger.info(s"Processing yml ontology with parents from $ontologyPath...")
         val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
-        new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+//        new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+        new PosNegTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
       }
     }
     else {
