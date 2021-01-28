@@ -40,7 +40,7 @@ object SimpleEidos {
       val annotatedDocument = eidosSystem.extractFromText(text)
       val simpleSerializer = SimpleSerializer(annotatedDocument)
 
-      simpleSerializer.serialize("test.tsv")
+      simpleSerializer.serialize()
     }
 
     val text = "This is a test.  Water trucking in Ethiopia has decreased over August due to the cost of fuel."

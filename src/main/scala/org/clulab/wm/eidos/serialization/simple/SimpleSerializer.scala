@@ -21,10 +21,11 @@ class SimpleSerializer(annotatedDocument: AnnotatedDocument) {
   val allEidosMentions = annotatedDocument.allEidosMentions
 
   def serialize(): Unit = {
-    val printWriter = new PrintWriter(System.out)
+    val printWriter = new PrintWriter(System.out, true)
     val tsvWriter = new TsvWriter(printWriter)
-    // This tsvWriter on System.out should probably not be closed.
+
     serialize(tsvWriter)
+    printWriter.println()
   }
 
   def serialize(filename: String): Unit = {
