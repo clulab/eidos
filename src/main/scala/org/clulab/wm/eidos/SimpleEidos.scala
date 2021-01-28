@@ -2,14 +2,15 @@ package org.clulab.wm.eidos
 
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidos.components.ComponentsBuilder
+import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.SeasonFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.serialization.simple.SimpleSerializer
-import org.clulab.wm.eidos.utils.DisplayUtils
 
 object SimpleEidos {
-  lazy val components = {
+  lazy val components: EidosComponents = {
     val config = ConfigFactory.load("simpleEidos")
     val components = new ComponentsBuilder(config, EidosSystem.PREFIX).build()
 
@@ -18,7 +19,7 @@ object SimpleEidos {
     require(components.ontologyHandlerOpt.isEmpty || components.ontologyHandlerOpt.get.ontologyGrounders.isEmpty)
     components
   }
-  lazy val finders = components.findersOpt.get
+  lazy val finders: Seq[Finder] = components.findersOpt.get
 
   def apply(useGeoNorm: Boolean, useTimeNorm: Boolean): EidosSystem = {
     val simpleFinders = finders.filter { finder =>
@@ -45,16 +46,16 @@ object SimpleEidos {
 
     val text = "This is a test.  Water trucking in Ethiopia has decreased over August due to the cost of fuel."
 
-    val eidosSystemNone = SimpleEidos(false, false)
+    val eidosSystemNone = SimpleEidos(useGeoNorm = false, useTimeNorm = false)
     extract(eidosSystemNone, text)
 
-    val eidosSystemGeo = SimpleEidos(true, false)
+    val eidosSystemGeo = SimpleEidos(useGeoNorm = true, useTimeNorm = false)
     extract(eidosSystemGeo, text)
 
-    val eidosSystemTime = SimpleEidos(false, true)
+    val eidosSystemTime = SimpleEidos(useGeoNorm = false, useTimeNorm = true)
     extract(eidosSystemTime, text)
 
-    val eidosSystemBoth = SimpleEidos(true, true)
+    val eidosSystemBoth = SimpleEidos(useGeoNorm = true, useTimeNorm = true)
     extract(eidosSystemBoth, text)
   }
 }

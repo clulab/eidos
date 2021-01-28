@@ -1,12 +1,7 @@
 package org.clulab.wm.eidos.serialization.simple
 
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.mentions.EidosCrossSentenceEventMention
-import org.clulab.wm.eidos.mentions.EidosCrossSentenceMention
-import org.clulab.wm.eidos.mentions.EidosEventMention
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.mentions.EidosRelationMention
-import org.clulab.wm.eidos.mentions.EidosTextBoundMention
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.TsvWriter
 
@@ -18,7 +13,7 @@ import java.io.PrintWriter
 import java.nio.charset.StandardCharsets
 
 class SimpleSerializer(annotatedDocument: AnnotatedDocument) {
-  val allEidosMentions = annotatedDocument.allEidosMentions
+  val allEidosMentions: Seq[EidosMention] = annotatedDocument.allEidosMentions
 
   def serialize(): Unit = {
     val printWriter = new PrintWriter(System.out, true)
@@ -43,15 +38,9 @@ class SimpleSerializer(annotatedDocument: AnnotatedDocument) {
   def indexOf(eidosMention: EidosMention): Int = allEidosMentions.indexWhere(_.eq(eidosMention))
 
   def getArgumentOpt(eidosMention: EidosMention, argumentName: String): Option[EidosMention] = {
-    val argumentsOpt = eidosMention match {
-      case _: EidosTextBoundMention => None
-      case eidosMention: EidosEventMention => eidosMention.eidosArguments.get(argumentName)
-      case eidosMention: EidosRelationMention => eidosMention.eidosArguments.get(argumentName)
-      case eidosMention: EidosCrossSentenceEventMention => eidosMention.eidosArguments.get(argumentName)
-      case eidosMention: EidosCrossSentenceMention => eidosMention.eidosArguments.get(argumentName)
-    }
+    val argumentsOpt = eidosMention.eidosArguments.get(argumentName)
 
-    if (argumentsOpt.isDefined && argumentsOpt.get.size > 1)
+    if (argumentsOpt.isDefined && argumentsOpt.get.length > 1)
       throw new RuntimeException(s"I can't deal with more than one $argumentName at a time.")
     argumentsOpt.map(_.head)
   }
