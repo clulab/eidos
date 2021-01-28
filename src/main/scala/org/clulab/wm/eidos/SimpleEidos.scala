@@ -5,6 +5,7 @@ import org.clulab.wm.eidos.components.ComponentsBuilder
 import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.SeasonFinder
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.serialization.simple.SimpleSerializer
 import org.clulab.wm.eidos.utils.DisplayUtils
 
 object SimpleEidos {
@@ -37,10 +38,12 @@ object SimpleEidos {
 
     def extract(eidosSystem: EidosSystem, text: String): Unit = {
       val annotatedDocument = eidosSystem.extractFromText(text)
-      annotatedDocument.odinMentions.foreach(DisplayUtils.displayMention)
+      val simpleSerializer = SimpleSerializer(annotatedDocument)
+
+      simpleSerializer.serialize("test.tsv")
     }
 
-    val text = "Water trucking in Ethopida has decreased over August due to the cost of fuel."
+    val text = "This is a test.  Water trucking in Ethiopia has decreased over August due to the cost of fuel."
 
     val eidosSystemNone = SimpleEidos(false, false)
     extract(eidosSystemNone, text)
