@@ -10,7 +10,7 @@ import org.clulab.wm.eidos.utils.DisplayUtils
 object SimpleEidos {
   lazy val components = {
     val config = ConfigFactory.load("simpleEidos")
-    val components = new ComponentsBuilder(config, EidosSystem.PREFIX, None).build()
+    val components = new ComponentsBuilder(config, EidosSystem.PREFIX).build()
 
     require(components.useGeoNorm)
     require(components.useTimeNorm)
@@ -28,13 +28,13 @@ object SimpleEidos {
         case _ => true
       }
     }
-    val simpleComponents = components.copy(
-      findersOpt = Some(simpleFinders)
-    )
+    val simpleComponents = components.copy(findersOpt = Some(simpleFinders))
+
     new EidosSystem(simpleComponents)
   }
 
   def main(args: Array[String]): Unit = {
+    
     def extract(eidosSystem: EidosSystem, text: String): Unit = {
       val annotatedDocument = eidosSystem.extractFromText(text)
       annotatedDocument.odinMentions.foreach(DisplayUtils.displayMention)
