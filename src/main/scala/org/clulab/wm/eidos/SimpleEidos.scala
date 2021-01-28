@@ -19,7 +19,7 @@ object SimpleEidos {
   }
   lazy val finders = components.findersOpt.get
 
-  def newEidosSystem(useGeoNorm: Boolean, useTimeNorm: Boolean): EidosSystem = {
+  def apply(useGeoNorm: Boolean, useTimeNorm: Boolean): EidosSystem = {
     val simpleFinders = finders.filter { finder =>
       finder match {
         case _: GeoNormFinder => useGeoNorm
@@ -34,7 +34,7 @@ object SimpleEidos {
   }
 
   def main(args: Array[String]): Unit = {
-    
+
     def extract(eidosSystem: EidosSystem, text: String): Unit = {
       val annotatedDocument = eidosSystem.extractFromText(text)
       annotatedDocument.odinMentions.foreach(DisplayUtils.displayMention)
@@ -42,16 +42,16 @@ object SimpleEidos {
 
     val text = "Water trucking in Ethopida has decreased over August due to the cost of fuel."
 
-    val eidosSystemNone = newEidosSystem(false, false)
+    val eidosSystemNone = SimpleEidos(false, false)
     extract(eidosSystemNone, text)
 
-    val eidosSystemGeo = newEidosSystem(true, false)
+    val eidosSystemGeo = SimpleEidos(true, false)
     extract(eidosSystemGeo, text)
 
-    val eidosSystemTime = newEidosSystem(false, true)
+    val eidosSystemTime = SimpleEidos(false, true)
     extract(eidosSystemTime, text)
 
-    val eidosSystemBoth = newEidosSystem(true, true)
+    val eidosSystemBoth = SimpleEidos(true, true)
     extract(eidosSystemBoth, text)
   }
 }
