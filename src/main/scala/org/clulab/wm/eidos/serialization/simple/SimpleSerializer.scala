@@ -1,9 +1,11 @@
 package org.clulab.wm.eidos.serialization.simple
 
+import org.clulab.wm.eidos.attachments.{Decrease, Increase}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.TsvWriter
+import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.BufferedWriter
 import java.io.File
@@ -40,33 +42,90 @@ class SimpleSerializer(annotatedDocument: AnnotatedDocument) {
   def getArgumentOpt(eidosMention: EidosMention, argumentName: String): Option[EidosMention] = {
     val argumentsOpt = eidosMention.eidosArguments.get(argumentName)
 
-    if (argumentsOpt.isDefined && argumentsOpt.get.length > 1)
-      throw new RuntimeException(s"I can't deal with more than one $argumentName at a time.")
-    argumentsOpt.map(_.head)
+    if (argumentsOpt.isDefined && argumentsOpt.get.length > 1) {
+      SimpleSerializer.logger.warn(s"""I can't deal with more than one $argumentName at a time in "${eidosMention.odinMention.text}".""")
+      None
+    }
+    else
+      argumentsOpt.map(_.head)
   }
 
   def getEffectOpt(eidosMention: EidosMention): Option[EidosMention] = getArgumentOpt(eidosMention, "effect")
 
   def getCauseOpt(eidosMention: EidosMention): Option[EidosMention] = getArgumentOpt(eidosMention, "cause")
 
-  def serialize(tsvWriter: TsvWriter): Unit = {
-    tsvWriter.println("Index", "Type", "Cause", "Effect", "Sentence", "Start", "End", "Text")
-    allEidosMentions.zipWithIndex.foreach { case (eidosMention, idx) =>
-      val index = idx.toString
-      val typ = eidosMention.getClass.getSimpleName
-      val cause = getCauseOpt(eidosMention).map(indexOf(_).toString).getOrElse("")
-      val effect = getEffectOpt(eidosMention).map(indexOf(_).toString).getOrElse("")
-      val sentence = eidosMention.odinMention.sentence.toString
-      val start = eidosMention.odinMention.startOffset.toString
-      val end = eidosMention.odinMention.endOffset.toString
-      val text = eidosMention.odinMention.text
+  def isSplitSentence(eidosMention: EidosMention, causeMentionOpt: Option[EidosMention], effectMentionOpt: Option[EidosMention]): Boolean = {
+    causeMentionOpt.isDefined && effectMentionOpt.isDefined && {
+      val mentionSentence = eidosMention.odinMention.sentence
+      val causeSentence = causeMentionOpt.get.odinMention.sentence
+      val effectSentence = effectMentionOpt.get.odinMention.sentence
 
-      tsvWriter.println(index, typ, cause, effect, sentence, start, end, text)
+      mentionSentence != causeSentence || mentionSentence != effectSentence
     }
+  }
+
+  def getTextStartEndPolarity(eidosMentionOpt: Option[EidosMention]): (String, String, String, String) = {
+    val polarity = getPolarity(eidosMentionOpt)
+    eidosMentionOpt.map { eidosMention =>
+      val text = eidosMention.odinMention.text
+      val start = eidosMention.odinMention.start.toString
+      val end = eidosMention.odinMention.end.toString
+      (text, start, end, polarity)
+    }.getOrElse("", "", "", polarity)
+  }
+
+  // This is highly subjective, so let someone else interpret it.
+  def getPolarity(eidosMentionOpt: Option[EidosMention]): String = {
+    eidosMentionOpt.map { eidosMention =>
+      val attachments = eidosMention.odinMention.attachments
+      val incCount = attachments.count{ attachment => attachment.isInstanceOf[Increase] }
+      val decCount = attachments.count{ attachment => attachment.isInstanceOf[Decrease] }
+      s"$incCount/$decCount"
+    }.getOrElse("")
+  }
+
+  def serialize(tsvWriter: TsvWriter): Unit = {
+    tsvWriter.println("Index",
+      "Cause text", "Cause token start", "Cause token end", "Cause Inc/Dec",
+      "Effect text", "Effect token start", "Effect token end", "Effect Inc/Dec",
+      "Tokenized sentence")
+    allEidosMentions
+      .view
+      .map { eidosMention =>
+        val causeEidosMentionOpt = getCauseOpt(eidosMention)
+        val effectEidosMentionOpt = getEffectOpt(eidosMention)
+        (eidosMention, causeEidosMentionOpt, effectEidosMentionOpt)
+      }
+      .filter { case (_, causeEidosMentionOpt, effectEidosMentionOpt) =>
+        // Candidates for printing
+        causeEidosMentionOpt.isDefined || effectEidosMentionOpt.isDefined
+      }
+      .filter { case (eidosMention, causeEidosMentionOpt, effectEidosMentionOpt) =>
+        // Those that won't fit into the schema
+        if (isSplitSentence(eidosMention, causeEidosMentionOpt, effectEidosMentionOpt)) {
+          SimpleSerializer.logger.warn(s"""I can't deal with a split sentence in "${eidosMention.odinMention.text}".""")
+          false
+        }
+        else true
+      }
+      .zipWithIndex
+      .foreach { case ((eidosMention, causeEidosMentionOpt, effectEidosMentionOpt), idx) =>
+        val index = idx.toString
+        val (causeText, causeTokenStart, causeTokenEnd, causePolarity) = getTextStartEndPolarity(causeEidosMentionOpt)
+        val (effectText, effectTokenStart, effectTokenEnd, effectPolarity) = getTextStartEndPolarity(effectEidosMentionOpt)
+        val tokenizedSentence = eidosMention.odinMention.words.mkString(" ")
+
+        tsvWriter.println(index,
+          causeText, causeTokenStart, causeTokenEnd, causePolarity,
+          effectText, effectTokenStart, effectTokenEnd, effectPolarity,
+          tokenizedSentence
+        )
+      }
   }
 }
 
 object SimpleSerializer {
+  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def apply(annotatedDocument: AnnotatedDocument): SimpleSerializer = new SimpleSerializer(annotatedDocument)
 }
