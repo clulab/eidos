@@ -35,6 +35,12 @@ class ComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponen
     componentOpts: ComponentOpts = ComponentOpts(), implicit val parallel: Boolean = true) {
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  // Some components will be loaded in parallel and some need logging.
+  // It is important that the logger completes initialization in advance.
+  // Otherwise, one component will try to log while another has the logger
+  // under construction and this results in missed log entries and a warning.
+  val logger = ComponentsBuilder.logger
+
   val eidosConf: Config = config[Config](eidosSystemPrefix)
   val language: String = eidosConf[String]("language")
   val componentLoaders = new ArrayBuffer[ComponentLoader[_, _]]()
@@ -123,7 +129,7 @@ class ComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponen
       // Expander for expanding the bare events
       val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
       if (keepStatefulConcepts && expanderOpt.isEmpty)
-        ComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")
+        logger.warn("You're keeping stateful Concepts but didn't load an expander.")
       new ConceptExpander(expanderOpt, keepStatefulConcepts)
     }
   )
