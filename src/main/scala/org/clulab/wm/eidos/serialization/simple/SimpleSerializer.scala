@@ -113,7 +113,7 @@ class SimpleSerializer(annotatedDocument: AnnotatedDocument) {
         val index = idx.toString
         val (causeText, causeTokenStart, causeTokenEnd, causePolarity) = getTextStartEndPolarity(causeEidosMentionOpt)
         val (effectText, effectTokenStart, effectTokenEnd, effectPolarity) = getTextStartEndPolarity(effectEidosMentionOpt)
-        val tokenizedSentence = eidosMention.odinMention.words.mkString(" ")
+        val tokenizedSentence = eidosMention.odinMention.sentenceObj.words.mkString(" ")
 
         tsvWriter.println(index,
           causeText, causeTokenStart, causeTokenEnd, causePolarity,
