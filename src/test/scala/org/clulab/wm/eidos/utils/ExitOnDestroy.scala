@@ -2,10 +2,10 @@ package org.clulab.wm.eidos.utils
 
 import java.io.File
 
-class ExitWithSignal
+class ExitOnDestroy
 
-object ExitWithSignal {
-  val lockFile = new File("exitWithSignal.lock")
+object ExitOnDestroy {
+  val lockFile = new File("exitOnDestroy.lock")
 
   def main(args: Array[String]): Unit = {
     println(this.getClass.getName)

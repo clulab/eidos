@@ -2,9 +2,14 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.wm.eidos.test.EidosTest
 
+import java.io.File
+
 class TestLauncher extends EidosTest {
 
-  class DestroyingJavaLauncher(force: Boolean, classname: String, args: Array[String]) extends JavaLauncher(classname, args) {
+  val javaIt = ignore
+  val sbtIt = it
+
+  class DestroyingJavaLauncher(force: Boolean, classname: String, args: Array[String]) extends JavaLauncher(classname, args, Array.empty) {
 
     override def launch(args: Array[String]): Int = {
       val processBuilder = newProcessBuilder(args)
@@ -27,48 +32,62 @@ class TestLauncher extends EidosTest {
     def apply(force: Boolean, clazz: Class[_], args: Array[String] = Array.empty): DestroyingJavaLauncher = apply(force, clazz.getName, args)
   }
 
-  behavior of "Launcher"
+  behavior of "JavaLauncher"
 
-  ignore should "launch ExitNormally once" in {
+  javaIt should "launch ExitNormally once" in {
     val launcher = JavaLauncher(classOf[ExitNormally], Array("one", "two", "three"))
 
     launcher.launch()
     launcher.getCount should be (1)
   }
 
-  ignore should "launch ExitAbnormally twice" in {
-    val lockFile = ExitAbnormally.lockFile
+  def testJavaLaunchTwice(lockFile: File, clazz: Class[_]): Unit = {
     lockFile.createNewFile()
 
-    val launcher = JavaLauncher(classOf[ExitAbnormally], Array("one", "two", "three"))
+    val launcher = JavaLauncher(clazz, Array("one", "two", "three"))
     launcher.launch()
     launcher.getCount should be (2)
   }
 
-  ignore should "launch ExitWithSignal without force twice" in {
-    val lockFile = ExitWithSignal.lockFile
+  javaIt should "launch ExitAbnormally twice" in {
+    testJavaLaunchTwice(ExitAbnormally.lockFile, classOf[ExitAbnormally])
+  }
+
+  def testExitOnDestroy(force: Boolean): Unit = {
+    val lockFile = ExitOnDestroy.lockFile
     lockFile.createNewFile()
 
-    val launcher = DestroyingJavaLauncher(force = false, classOf[ExitWithSignal], Array("one", "two", "three"))
+    val launcher = DestroyingJavaLauncher(force = force, classOf[ExitOnDestroy], Array("one", "two", "three"))
     launcher.launch()
     launcher.getCount should be (2)
   }
 
-  ignore should "launch ExitWithSignal with force twice" in {
-    val lockFile = ExitWithSignal.lockFile
-    lockFile.createNewFile()
-
-    val launcher = DestroyingJavaLauncher(force = true, classOf[ExitWithSignal], Array("one", "two", "three"))
-    launcher.launch()
-    launcher.getCount should be (2)
+  javaIt should "launch ExitOnDestroy without force twice" in {
+    testExitOnDestroy(false)
   }
 
-  it should "launch ExitOnHeapExhaustion twice" in {
-    val lockFile = ExitOnHeapExhaustion.lockFile
-    lockFile.createNewFile()
+  javaIt should "launch ExitOnDestroy with force twice" in {
+    testExitOnDestroy(true)
+  }
 
-    val launcher = JavaLauncher(classOf[ExitOnHeapExhaustion], Array("one", "two", "three"))
+  javaIt should "launch ExitOnHeapExhaustion twice" in {
+    testJavaLaunchTwice(ExitOnHeapExhaustion.lockFile, classOf[ExitOnHeapExhaustion])
+  }
+
+  javaIt should "launch ExitOnCrash twice" in {
+    testJavaLaunchTwice(ExitOnCrash.lockFile, classOf[ExitOnCrash])
+  }
+
+  javaIt should "launch ExitOnSignal twice" in {
+    testJavaLaunchTwice(ExitOnSignal.lockFile, classOf[ExitOnSignal])
+  }
+
+  behavior of "SbtLauncher"
+
+  sbtIt should "launch ExitNormally once" in {
+    val launcher = SbtLauncher(classOf[ExitNormally], Array("one", "two", "three"))
+
     launcher.launch()
-    launcher.getCount should be (2)
+    launcher.getCount should be (1)
   }
 }
