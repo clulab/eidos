@@ -63,6 +63,11 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     sum
   }
 
+  // case class ConceptEmbedding(
+  //   val namer: Namer,
+  //   embedding: Array[Float],
+  //   negEmbeddingOpt: Option[Array[Float]] = None) extends Serializable
+
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
     val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
@@ -74,11 +79,20 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     else {
       val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
+        // todo (Zeyu): convert the score from being JUST a similarity to the positive to being
+        // some smart combination of the similarity to the conceptEmbedding.embedding and ce.negEmbeddingOpt
         (conceptEmbedding.namer, dotProduct(conceptEmbedding.embedding, nodeEmbedding))
       }
-
       similarities.sortBy(-_._2).take(topKNodeGroundings)
     }
+  }
+
+  // TODO: (Zeyu)
+  def scoreNode():Unit = {
+    // calc positive
+    // calc negative (if exists)
+    // if neg > (some) threshold, penalize positive
+    // return score
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Seq[String], nounVerbWeightRatio:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
