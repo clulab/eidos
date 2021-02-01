@@ -84,25 +84,33 @@ object JavaLauncher {
 
   def main(args: Array[String]): Unit = {
     if (args.length == 0) {
-      val syntax = s"""
-        |Syntax: ${this.getClass.getSimpleName.dropRight(1)}
-        |  mainClass
-        |  mainClass nonIntProgramArgument otherProgramArguments*
-        |  mainClass intProgramArgumentCount programArguments{int} javaArguments*
-        |""".stripMargin
+      val syntax =
+        s"""
+           |Syntax: ${this.getClass.getSimpleName.dropRight(1)}
+
+           |
+
+           |  mainClass nonIntProgramArgument otherProgramA
+
+           |  mainClass intProgramArgumentCount programArguments{int} javaA
+
+           |""".stripMargin
       println(syntax)
     }
-    else if (args.length == 1)
-      JavaLauncher(args.head, Array.empty[String], Array.empty[String]).launch(true)
-    else if (!Launcher.isInt(args(1))) {
-      val programArguments = args.drop(1)
-      JavaLauncher(args.head, programArguments, Array.empty[String]).launch(true)
-    }
     else {
-      val programArgumentCount = args(1).toInt
-      val programArguments = args.drop(2).take(programArgumentCount)
-      val javaArguments = args.drop(2 + programArgumentCount)
-      JavaLauncher(args.head, programArguments, javaArguments)
+      val launcher =  if (args.length == 1)
+        JavaLauncher(args.head, Array.empty[String], Array.empty[String])
+      else if (!Launcher.isInt(args(1))) {
+        val programArguments = args.drop(1)
+        JavaLauncher(args.head, programArguments, Array.empty[String])
+      }
+      else {
+        val programArgumentCount = args(1).toInt
+        val programArguments = args.drop(2).take(programArgumentCount)
+        val javaArguments = args.drop(2 + programArgumentCount)
+        JavaLauncher(args.head, programArguments, javaArguments)
+      }
+      launcher.launch(true)
     }
   }
 }
@@ -119,6 +127,7 @@ object SbtLauncher {
 
     arrayBuilder += (if (isWindows()) "sbt.bat" else "sbt")
     arrayBuilder ++= sbtArgs
+    arrayBuilder += "-J-Dfile.encoding=UTF-8"
     arrayBuilder ++= javaArgs.map { javaArg => s"-J$javaArg" }
     arrayBuilder += s""""runMain $classname ${programArgs.mkString(" ")}""""
     arrayBuilder.result
@@ -139,26 +148,31 @@ object SbtLauncher {
         |""".stripMargin
       println(syntax)
     }
-    else if (args.length == 1)
-      SbtLauncher(args.head, Array.empty[String], Array.empty[String], Array.empty[String]).launch(true)
-    else if (!Launcher.isInt(args(1))) {
-      val programArgs = args.drop(1)
-      SbtLauncher(args.head, programArgs, Array.empty[String], Array.empty[String]).launch(true)
-    }
     else {
-      val programArgCount = args(1).toInt
-      val programArgs = args.drop(1 + 1).take(programArgCount)
-
-      if (!Launcher.isInt(args(1 + 1 + programArgCount))) {
-        val javaArgs = args.drop(1 + 1 + programArgCount)
-        SbtLauncher(args.head, programArgs, javaArgs, Array.empty[String])
+      val launcher = if (args.length == 1)
+        SbtLauncher(args.head, Array.empty[String], Array.empty[String], Array.empty[String])
+      else if (!Launcher.isInt(args(1))) {
+        val programArgs = args.drop(1)
+        SbtLauncher(args.head, programArgs, Array.empty[String], Array.empty[String])
       }
       else {
-        val javaArgCount = args(1 + 1 + programArgCount).toInt
-        val javaArgs = args.drop(1 + 1 + programArgCount + 1).take(javaArgCount)
-        val sbtArgs = args.drop(1 + 1 + programArgCount + 1 + javaArgCount)
-        SbtLauncher(args.head, programArgs, javaArgs, sbtArgs)
+        val programArgCount = args(1).toInt
+        val programArgs = args.drop(1 + 1).take(programArgCount)
+
+        if (!args.isDefinedAt(1 + 1 + programArgCount))
+          SbtLauncher(args.head, programArgs, Array.empty[String], Array.empty[String])
+        else if (!Launcher.isInt(args(1 + 1 + programArgCount))) {
+          val javaArgs = args.drop(1 + 1 + programArgCount)
+          SbtLauncher(args.head, programArgs, javaArgs, Array.empty[String])
+        }
+        else {
+          val javaArgCount = args(1 + 1 + programArgCount).toInt
+          val javaArgs = args.drop(1 + 1 + programArgCount + 1).take(javaArgCount)
+          val sbtArgs = args.drop(1 + 1 + programArgCount + 1 + javaArgCount)
+          SbtLauncher(args.head, programArgs, javaArgs, sbtArgs)
+        }
       }
+      launcher.launch(true)
     }
   }
 }
