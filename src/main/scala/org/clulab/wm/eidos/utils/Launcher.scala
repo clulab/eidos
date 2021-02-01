@@ -22,6 +22,7 @@ class Launcher(val args: Array[String]) {
 
   def launch(args: Array[String]): Int = {
     val processBuilder = newProcessBuilder(args)
+    println("Running this: " + args.mkString(" "))
     val process = processBuilder.start()
     process.waitFor()
   }
@@ -84,17 +85,11 @@ object JavaLauncher {
 
   def main(args: Array[String]): Unit = {
     if (args.length == 0) {
-      val syntax =
-        s"""
-           |Syntax: ${this.getClass.getSimpleName.dropRight(1)}
-
-           |
-
-           |  mainClass nonIntProgramArgument otherProgramA
-
-           |  mainClass intProgramArgumentCount programArguments{int} javaA
-
-           |""".stripMargin
+      val syntax = s"""
+        |Syntax: ${this.getClass.getSimpleName.dropRight(1)}
+        |  mainClass nonIntProgramArgument otherProgramA
+        |  mainClass intProgramArgumentCount programArguments{int} javaA
+        |""".stripMargin
       println(syntax)
     }
     else {
@@ -124,12 +119,14 @@ object SbtLauncher {
   }
   protected def mkArgs(classname: String, programArgs: Array[String], javaArgs: Array[String], sbtArgs: Array[String]): Array[String] = {
     val arrayBuilder = ArrayBuilder.make[String]
+    val sbtString = if (isWindows()) "sbt.bat" else "sbt"
+    val programArgsString = if (programArgs.isEmpty) "" else programArgs.mkString(" ", " ", "")
 
-    arrayBuilder += (if (isWindows()) "sbt.bat" else "sbt")
+    arrayBuilder += sbtString
     arrayBuilder ++= sbtArgs
     arrayBuilder += "-J-Dfile.encoding=UTF-8"
     arrayBuilder ++= javaArgs.map { javaArg => s"-J$javaArg" }
-    arrayBuilder += s""""runMain $classname ${programArgs.mkString(" ")}""""
+    arrayBuilder += s""""runMain $classname$programArgsString""""
     arrayBuilder.result
   }
 
