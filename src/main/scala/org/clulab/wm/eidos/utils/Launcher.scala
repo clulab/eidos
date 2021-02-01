@@ -11,7 +11,7 @@ class Launcher(val args: Array[String]) {
 
   def getCount: Int = counter.get
 
-  def newProcessBuilder(args: Array[String]): ProcessBuilder = {
+  def newProcessBuilder(): ProcessBuilder = {
     val processBuilder = new ProcessBuilder(args.toList.asJava)
 
     processBuilder.redirectInput(ProcessBuilder.Redirect.INHERIT)
@@ -20,8 +20,8 @@ class Launcher(val args: Array[String]) {
     processBuilder
   }
 
-  def launch(args: Array[String]): Int = {
-    val processBuilder = newProcessBuilder(args)
+  def launch(): Int = {
+    val processBuilder = newProcessBuilder()
     println("Running this: " + args.mkString(" "))
     val process = processBuilder.start()
     process.waitFor()
@@ -35,7 +35,7 @@ class Launcher(val args: Array[String]) {
 
     while ({
       counter.inc()
-      resultHolder.set(launch(args)) != 0 && retry
+      resultHolder.set(launch()) != 0 && retry
     }) { }
     resultHolder.get
   }
@@ -110,13 +110,22 @@ object JavaLauncher {
   }
 }
 
-class SbtLauncher(classname: String, programArgs: Array[String] = Array.empty, javaArgs: Array[String], sbtArgs: Array[String]) extends Launcher(SbtLauncher.mkArgs(classname, programArgs, javaArgs, sbtArgs))
+class SbtLauncher(classname: String, programArgs: Array[String] = Array.empty, javaArgs: Array[String], sbtArgs: Array[String]) extends Launcher(SbtLauncher.mkArgs(classname, programArgs, javaArgs, sbtArgs)) {
+
+  override def newProcessBuilder(): ProcessBuilder = {
+    val processBuilder = super.newProcessBuilder()
+    val javaArgsString = ("-Dfile.encoding=UTF-8" +: javaArgs).mkString(" ")
+    processBuilder.environment.put("_JAVA_OPTIONS", javaArgsString)
+    processBuilder
+  }
+}
 
 object SbtLauncher {
 
   protected def isWindows(): Boolean = {
     System.getProperty("os.name").toLowerCase().contains("win")
   }
+
   protected def mkArgs(classname: String, programArgs: Array[String], javaArgs: Array[String], sbtArgs: Array[String]): Array[String] = {
     val arrayBuilder = ArrayBuilder.make[String]
     val sbtString = if (isWindows()) "sbt.bat" else "sbt"
@@ -124,8 +133,8 @@ object SbtLauncher {
 
     arrayBuilder += sbtString
     arrayBuilder ++= sbtArgs
-    arrayBuilder += "-J-Dfile.encoding=UTF-8"
-    arrayBuilder ++= javaArgs.map { javaArg => s"-J$javaArg" }
+//    arrayBuilder += "-Dfile.encoding=UTF-8"
+//    arrayBuilder ++= javaArgs.map { javaArg => s"-J$javaArg" }
     arrayBuilder += s""""runMain $classname$programArgsString""""
     arrayBuilder.result
   }
