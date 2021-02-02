@@ -13,7 +13,7 @@ import scala.collection.Seq
 
 class GraphTester(ieSystem: EidosSystem, text: String) {
   val annotatedDocument = ieSystem.extractFromText(clean(text), cagRelevantOnly = false)
-  val mentions: Seq[Mention] = annotatedDocument.allOdinMentions
+  val mentions: Seq[Mention] = annotatedDocument.allOdinMentions.toVector // They are easier to debug than streams.
   val testResults = new TestResults()
 
   def getSpecialChars(s: String): String = s.filter(c => c < 32 || 127 < c)
