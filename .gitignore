@@ -26,6 +26,10 @@ project/plugins/project/
 .project
 .settings/org.eclipse.core.resources.prefs
 
+# VS Code
+.metals
+.vscode
+
 # GitKraken
 \.classpath
 
