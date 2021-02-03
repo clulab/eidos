@@ -4,11 +4,11 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
-
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.json4s.DefaultFormats
 import org.json4s.JObject
 import org.json4s.JValue
@@ -116,9 +116,8 @@ class CdrText(cdr: JValue) extends EidosText {
   }
 }
 
-object CdrText {
+object CdrText extends Logging {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def apply(file: File): CdrText = apply(FileUtils.getTextFromFile(file))
 

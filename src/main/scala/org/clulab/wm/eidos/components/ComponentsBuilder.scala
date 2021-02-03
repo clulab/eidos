@@ -21,10 +21,9 @@ import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.wm.eidoscommon.EidosProcessor
 import org.clulab.wm.eidoscommon.Language
 import org.clulab.wm.eidoscommon.TagSet
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.clulab.wm.eidoscommon.utils.Timer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
@@ -196,6 +195,4 @@ class ComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponen
   }
 }
 
-object ComponentsBuilder {
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-}
+object ComponentsBuilder extends Logging

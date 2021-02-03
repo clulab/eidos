@@ -6,12 +6,9 @@ import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, ThreadUtils, Timer}
 import org.clulab.wm.eidos.utils.meta.CdrText
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidoscommon.utils.Logging
 
-object ExtractCdrMetaFromDirectory extends App {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object ExtractCdrMetaFromDirectory extends App with Logging {
   val inputDir = args(0)
   val outputDir = args(1)
   val timeFile = args(2)

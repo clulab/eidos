@@ -7,8 +7,7 @@ import org.clulab.odin.State
 import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.{EidosAttachment, TriggeredAttachment}
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidoscommon.utils.Logging
 
 import scala.collection.mutable.{Set => MutableSet}
 
@@ -201,9 +200,6 @@ class MostCompleteEventsKeeper {
     val attachments = m.attachments.map(_.toString).toVector.sorted
     (sent, label, interval, args, attachments)
   }
-
 }
 
-object MostCompleteEventsKeeper {
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-}
+object MostCompleteEventsKeeper extends Logging

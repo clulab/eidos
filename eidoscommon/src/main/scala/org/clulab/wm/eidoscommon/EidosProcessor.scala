@@ -2,17 +2,13 @@ package org.clulab.wm.eidoscommon
 
 import java.text.Normalizer
 import java.util.regex.Pattern
-
 import org.clulab.dynet.Utils
-import org.clulab.processors.Document
-import org.clulab.processors.Processor
-import org.clulab.processors.Sentence
 import org.clulab.processors.clu.{CluProcessor, PortugueseCluProcessor, SpanishCluProcessor}
 import org.clulab.processors.clu.tokenizer.{RawToken, SentenceSplitter, Tokenizer}
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.utils.ScienceUtils
-import org.slf4j.{Logger, LoggerFactory}
+import org.clulab.wm.eidoscommon.utils.Logging
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -347,8 +343,7 @@ trait Tokenizing {
   def getTokenizer: EidosTokenizer
 }
 
-object EidosProcessor {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object EidosProcessor extends Logging {
 
   def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
     case Language.ENGLISH =>
