@@ -140,6 +140,30 @@ libraryDependencies ++= {
   )
 }
 
+// This list should be updated anytime one of the library dependencies above changes.
+// If anything shows up as evicted, it is something new and should be investigated.
+// One should also check periodically that nothing is included here unnecessarily.
+dependencyOverrides ++= Seq(
+  // These are suspected of being incompatible
+  "org.apache.lucene"          % "lucene-queryparser"      % "6.6.6",
+  "org.apache.lucene"          % "lucene-analyzers-common" % "6.6.6",
+  "org.apache.lucene"          % "lucene-core"             % "6.6.6",
+  "com.typesafe.play"         %% "play-json"               % "2.7.4",
+  "commons-io"                 % "commons-io"              % "2.6",
+  "org.apache.lucene"          % "lucene-queries"          % "6.6.6",
+  "org.scala-lang.modules"    %% "scala-xml"               % "1.2.0",
+  "javax.xml.bind"             % "jaxb-api"                % "2.4.0-b180830.0359",
+  "xml-apis"                   % "xml-apis"                % "1.3.03",
+  // These don't provoke incompatibility warnings.
+  "com.fasterxml.jackson.core" % "jackson-databind"        % "2.9.8",
+  "com.fasterxml.jackson.core" % "jackson-annotations"     % "2.9.8",
+  "com.fasterxml.jackson.core" % "jackson-core"            % "2.9.8",
+  "joda-time"                  % "joda-time"               % "2.10.1",
+  "com.typesafe"               % "config"                  % "1.4.0",
+  "org.apache.commons"         % "commons-lang3"           % "3.5",
+  "org.slf4j"                  % "slf4j-api"               % "1.7.12"
+)
+
 lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .aggregate(eidoscommon, ontologies, elasticsearch, wmexchanger, webapp)
