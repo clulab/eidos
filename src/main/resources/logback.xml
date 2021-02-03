@@ -57,7 +57,7 @@
 
     <appender name="eidos:eidos" class="ch.qos.logback.core.FileAppender">
         <param name="Append" value="true" />
-        <file>${HOSTNAME}-eidos:log</file>
+        <file>${HOSTNAME}-eidos.log</file>
         <encoder>
             <pattern>${eidos:pattern}</pattern>
         </encoder>
