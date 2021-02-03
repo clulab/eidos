@@ -6,8 +6,7 @@ import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidoscommon.utils.Logging
 
 class Metadata(val dctOpt: Option[DCT], val idOpt: Option[String],
   val titleOpt: Option[String], val locationOpt: Option[String]) {
@@ -27,8 +26,7 @@ class Metadata(val dctOpt: Option[DCT], val idOpt: Option[String],
   }
 }
 
-object Metadata {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object Metadata extends Logging {
 
   protected def newDct(timeNormFinderOpt: Option[TimeNormFinder], dctStringOpt: Option[String]): Option[DCT] = {
     val dctOpt = for (dctString <- dctStringOpt; timeNormFinder <- timeNormFinderOpt) yield {

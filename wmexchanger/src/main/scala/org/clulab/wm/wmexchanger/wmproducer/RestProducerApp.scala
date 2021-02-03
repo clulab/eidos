@@ -2,7 +2,6 @@ package org.clulab.wm.wmexchanger.wmproducer
 
 import java.io.File
 import java.net.URL
-
 import com.typesafe.config.ConfigFactory
 import org.apache.http.HttpHeaders
 import org.apache.http.HttpHost
@@ -19,19 +18,17 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, PropertiesBuilder, Sourcer, StringUtils}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import scala.io.Source
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
 // and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
-object RestProducerApp extends App {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object RestProducerApp extends App with Logging {
   val version = "1.0.3"
 
   def getPort(url: URL): Int = {

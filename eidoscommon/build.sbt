@@ -14,10 +14,11 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-odin"          % procVer,
     // local logging
     "ch.qos.logback"              % "logback-classic"          % "1.0.10",
+    "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",
     // dependency logging
     "org.apache.logging.log4j"    % "log4j-core"               % "2.12.0",
     // config
     "com.typesafe"                % "config"                   % "1.4.0",
-    "org.scalatest"              %% "scalatest"                % "3.0.4"  // % "test"
+    "org.scalatest"              %% "scalatest"                % "3.0.4" % Test
   )
 }

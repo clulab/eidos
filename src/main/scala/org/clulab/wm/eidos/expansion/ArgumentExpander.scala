@@ -5,9 +5,8 @@ import com.typesafe.config.Config
 import org.clulab.odin._
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.extraction.EntityHelper
-import org.slf4j.{Logger, LoggerFactory}
-import org.clulab.wm.eidos.expansion.ArgumentExpander.logger
 import org.clulab.wm.eidoscommon.TagSet
+import org.clulab.wm.eidoscommon.utils.Logging
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -54,7 +53,7 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
           // mention to the right of the trigger
           math.abs(m.start - t.end)
         } else {
-          logger.debug(s"Unexpected overlap of trigger and argument: \n\t" +
+          ArgumentExpander.logger.debug(s"Unexpected overlap of trigger and argument: \n\t" +
             s"sent: [${m.sentenceObj.getSentenceText}]\n\tRULE: " +
             s"${t.foundBy}\n\ttrigger: ${t.text}\torig: [${m.text}]\n")
           m.start
@@ -124,7 +123,7 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
             //throw new RuntimeException("original mention overlaps trigger")
             // This shouldn't happen, but Odin seems to handle this situation gracefully (by not extracting anything),
             // I guess here we'll do the same (i.e., not throw an exception)
-            logger.debug(s"Unexpected overlap of trigger and argument: \n\t" +
+            ArgumentExpander.logger.debug(s"Unexpected overlap of trigger and argument: \n\t" +
               s"sent: [${orig.sentenceObj.getSentenceText}]\n\tRULE: " +
               s"${trigger.foundBy}\n\ttrigger: ${trigger.text}\torig: [${orig.text}]\n")
             orig
@@ -176,8 +175,7 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
   }
 }
 
-object ArgumentExpander {
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object ArgumentExpander extends Logging {
 
   def fromConfig(config: Config, tagSet: TagSet): ArgumentExpander = {
     val validArgs: List[String] = config[List[String]]("validArguments")

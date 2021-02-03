@@ -14,7 +14,7 @@ import org.clulab.wm.eidos.refiners.OdinRefiner
 import org.clulab.wm.eidos.refiners.DocumentRefiner
 import org.clulab.wm.eidos.refiners.ProcessorRefiner
 import org.clulab.wm.eidos.refiners.RefinerOptions
-import org.slf4j.{Logger, LoggerFactory}
+import org.clulab.wm.eidoscommon.utils.Logging
 
 /**
  * A system for text processing and information extraction
@@ -155,10 +155,9 @@ class EidosSystem(val components: EidosComponents) {
       mentions.foreach(m => debugPrint(s" * ${m.text} [${m.label}, ${m.tokenInterval}]"))
 }
 
-object EidosSystem {
+object EidosSystem extends Logging {
   val PREFIX = "EidosSystem"
   val config = "eidos" // CLU Lab version
 
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
   lazy val defaultConfig: Config = ConfigFactory.load(config)
 }

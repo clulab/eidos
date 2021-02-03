@@ -12,7 +12,9 @@ import org.scalatest.Matchers
 
 import scala.collection.Seq
 
-class EidosTest extends FlatSpec with Matchers {
+class Test extends FlatSpec with Matchers
+
+class EidosTest extends Test {
   val defaultConfig: Config = ConfigFactory.load(EidosTest.config)
 
   val passingTest = it
