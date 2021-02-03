@@ -98,6 +98,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.11", "2.12.4"),
   scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
+  logLevel in update := Level.Error,
   logLevel in compile := Level.Error,
   logLevel in run := Level.Warn
 ) ++ buildSettings ++ assemblySettings ++ publishSettings
@@ -115,7 +116,7 @@ libraryDependencies ++= {
     "ai.lum"                     %% "common"                   % "0.0.8",
     "com.github.WorldModelers"    % "Ontologies"               % "master-SNAPSHOT",
     // Web serialization needs this.  Match the plug-in version.
-    "com.typesafe.play"          %% "play-json"                % "2.6.7", //
+    "com.typesafe.play"          %% "play-json"                % "2.6.7",
     // This next one is used in MaaSUtils.
     "com.lihaoyi"                %% "upickle"                  % "0.7.1",
     "org.scalatest"              %% "scalatest"                % "3.0.4" % Test,
