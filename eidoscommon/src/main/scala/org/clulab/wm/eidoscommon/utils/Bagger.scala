@@ -2,6 +2,7 @@ package org.clulab.wm.eidoscommon.utils
 
 import java.util
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 trait Bagger[T] {
@@ -11,6 +12,7 @@ trait Bagger[T] {
   def putIfNew(value: T)(block: T => Unit): Bagger[T]
   def get: Seq[T]
   def get(value: T): Int
+  def getEntries: Seq[(T, Int)]
   def keySize: Int
   def valueSize: Int
 }
@@ -64,6 +66,8 @@ class EqualityBagger[T] extends Bagger[T] {
   def get: Seq[T] = map.keySet.toSeq
 
   def get(value: T): Int = map.getOrElse(value, 0)
+
+  def getEntries: Seq[(T, Int)] = map.toSeq
 
   def keySize: Int = map.size
 
@@ -119,6 +123,10 @@ class IdentityBagger[T] extends Bagger[T] {
   def get: Seq[T] = map.keySet().toArray.toSeq.map(_.asInstanceOf[T])
 
   def get(value: T): Int = map.getOrDefault(value, 0)
+
+  def getEntries: Seq[(T, Int)] = map.entrySet.asScala.toSeq.map { entry =>
+    (entry.getKey, entry.getValue)
+  }
 
   def keySize: Int = map.size
 

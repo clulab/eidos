@@ -29,6 +29,8 @@ class TestBagger extends Test {
     bagger.get(Bagged(0)) should be (2)
     bagger.get(Bagged(1)) should be (1)
     bagger.get(Bagged(2)) should be (0)
+
+    println(bagger.getEntries)
   }
 
   behavior of "Identity Bagger"
@@ -63,5 +65,7 @@ class TestBagger extends Test {
     bagger.get(bagged2) should be (0)
     bagger.get(bagged2) should be (0)
     bagger.get(Bagged(0)) should be (0)
+
+    println(bagger.getEntries)
   }
 }
