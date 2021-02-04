@@ -6,9 +6,11 @@ import scala.collection.mutable
 
 trait Bagger[T] {
   def noBlock(value: T): Unit = ()
+  def put(value: T): Bagger[T]
   def put(values: Seq[T]): Bagger[T]
   def putIfNew(value: T)(block: T => Unit): Bagger[T]
   def get: Seq[T]
+  def get(value: T): Int
   def keySize: Int
   def valueSize: Int
 }
@@ -31,6 +33,11 @@ object Bagger {
 class EqualityBagger[T] extends Bagger[T] {
   protected val map = new mutable.HashMap[T, Int]()
   var valueCount: Int = 0
+
+  def put(value: T): EqualityBagger[T] = {
+    putIfNew(value)(noBlock)
+    this
+  }
 
   def put(values: Seq[T]): EqualityBagger[T] = {
     values.foreach { value =>
@@ -56,6 +63,8 @@ class EqualityBagger[T] extends Bagger[T] {
 
   def get: Seq[T] = map.keySet.toSeq
 
+  def get(value: T): Int = map.getOrElse(value, 0)
+
   def keySize: Int = map.size
 
   def valueSize: Int = valueCount
@@ -78,6 +87,11 @@ object EqualityBagger {
 class IdentityBagger[T] extends Bagger[T] {
   protected val map = new util.IdentityHashMap[T, Int]()
   var valueCount: Int = 0
+
+  def put(value: T): IdentityBagger[T] = {
+    putIfNew(value)(noBlock)
+    this
+  }
 
   def put(values: Seq[T]): IdentityBagger[T] = {
     values.foreach { value =>
@@ -103,6 +117,8 @@ class IdentityBagger[T] extends Bagger[T] {
   }
 
   def get: Seq[T] = map.keySet().toArray.toSeq.map(_.asInstanceOf[T])
+
+  def get(value: T): Int = map.getOrDefault(value, 0)
 
   def keySize: Int = map.size
 
