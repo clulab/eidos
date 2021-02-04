@@ -5,7 +5,7 @@
 name := "eidos"
 
 // Certain library dependencies, particularly Stanford NLP, have been observed to have problems with
-// versions of Java other than the required one.  Proceed with caution if you disable this check.
+// versions of Java other than the required one.  Proceed with caution if you ignore this check.
 // See https://stackoverflow.com/questions/19208942/enforcing-java-version-for-scala-project-in-sbt
 initialize := {
   val _ = initialize.value // Run the previous initialization.
@@ -16,7 +16,7 @@ initialize := {
   if (approved)
     sLog.value.info(s"Java $current was detected and approved.")
   else
-    assert(approved, s"Unsupported Java version: expected $required and found $current instead.")
+    sLog.value.error(s"Unsupported Java version: Eidos requires $required but found $current instead.")
 }
 
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
