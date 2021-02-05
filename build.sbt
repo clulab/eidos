@@ -113,8 +113,12 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.11", "2.12.4"),
   scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
-  logLevel in update := Level.Error,
-  logLevel in compile := Level.Error,
+  evictionWarningOptions in update := EvictionWarningOptions.default
+      // Periodically turn these back on to see if anything has changed.
+      .withWarnTransitiveEvictions(false)
+      .withWarnDirectEvictions(false),
+  logLevel in update := Level.Warn,
+  logLevel in compile := Level.Warn,
   logLevel in run := Level.Warn
 ) ++ buildSettings ++ assemblySettings ++ publishSettings
 
