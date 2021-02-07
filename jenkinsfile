@@ -1,10 +1,14 @@
 pipeline {
   agent any
+  environment {
+    _JAVA_OPTIONS = "-Xmx12g"
+  }
   stages {
     stage('Test') {
       steps {
         ansiColor('xterm') {
           echo "Testing..."
+          echo "_JAVA_OPTIONS is ${_JAVA_OPTIONS}"
           sh "sbt ++2.12.4 test"
         }
       }
