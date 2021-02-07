@@ -2,6 +2,7 @@ pipeline {
   agent any
   environment {
     _JAVA_OPTIONS = "-Xmx12g"
+    JAVA_TOOL_OPTIONS = "-Dfile.encoding=UTF-8"
   }
   stages {
     stage('Test') {
@@ -9,6 +10,7 @@ pipeline {
         ansiColor('xterm') {
           echo "Testing..."
           echo "_JAVA_OPTIONS is ${_JAVA_OPTIONS}"
+          echo "JAVA_TOOL_OPTIONS is ${JAVA_TOOL_OPTIONS}"
           sh "sbt ++2.12.4 test"
         }
       }
