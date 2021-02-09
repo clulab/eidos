@@ -20,7 +20,7 @@ class Launcher(val args: Array[String]) {
     processBuilder
   }
 
-  def launch(): Int = {
+  protected def launchOnce(): Int = {
     val processBuilder = newProcessBuilder()
     println("Running this: " + args.mkString(" "))
     val process = processBuilder.start()
@@ -35,7 +35,7 @@ class Launcher(val args: Array[String]) {
 
     while ({
       counter.inc()
-      resultHolder.set(launch()) != 0 && retry
+      resultHolder.set(launchOnce()) != 0 && retry
     }) { }
     resultHolder.get
   }

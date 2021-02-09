@@ -11,7 +11,7 @@ class TestLauncher extends EidosTest {
 
   class DestroyingJavaLauncher(force: Boolean, classname: String, args: Array[String]) extends JavaLauncher(classname, args, Array.empty) {
 
-    override def launch(): Int = {
+    override def launchOnce(): Int = {
       val processBuilder = newProcessBuilder()
       val process = processBuilder.start()
 
