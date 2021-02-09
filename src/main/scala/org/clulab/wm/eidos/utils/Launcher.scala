@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.wm.eidoscommon.utils.Counter
 import org.clulab.wm.eidoscommon.utils.Holder
+import org.clulab.wm.eidoscommon.utils.Logging
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuilder
@@ -22,7 +23,8 @@ class Launcher(val args: Array[String]) {
 
   protected def launchOnce(): Int = {
     val processBuilder = newProcessBuilder()
-    println("Running this: " + args.mkString(" "))
+    val command = args.mkString(" ")
+    Launcher.logger.info(s"""The laucher is running "$command".""")
     val process = processBuilder.start()
     process.waitFor()
   }
@@ -41,7 +43,7 @@ class Launcher(val args: Array[String]) {
   }
 }
 
-object Launcher {
+object Launcher extends Logging {
 
   def apply(args: Array[String]): Launcher = new Launcher(args)
 
