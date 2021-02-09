@@ -4,8 +4,8 @@ import org.clulab.wm.eidos.attachments.{Decrease, Increase}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.TsvWriter
-import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.BufferedWriter
 import java.io.File
@@ -113,7 +113,7 @@ class SimpleSerializer(annotatedDocument: AnnotatedDocument) {
         val index = idx.toString
         val (causeText, causeTokenStart, causeTokenEnd, causePolarity) = getTextStartEndPolarity(causeEidosMentionOpt)
         val (effectText, effectTokenStart, effectTokenEnd, effectPolarity) = getTextStartEndPolarity(effectEidosMentionOpt)
-        val tokenizedSentence = eidosMention.odinMention.words.mkString(" ")
+        val tokenizedSentence = eidosMention.odinMention.sentenceObj.words.mkString(" ")
 
         tsvWriter.println(index,
           causeText, causeTokenStart, causeTokenEnd, causePolarity,
@@ -124,8 +124,7 @@ class SimpleSerializer(annotatedDocument: AnnotatedDocument) {
   }
 }
 
-object SimpleSerializer {
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object SimpleSerializer extends Logging {
 
   def apply(annotatedDocument: AnnotatedDocument): SimpleSerializer = new SimpleSerializer(annotatedDocument)
 }

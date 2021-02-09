@@ -1,7 +1,5 @@
 package org.clulab.wm.eidoscommon.utils
 
-import org.slf4j.{Logger, LoggerFactory}
-
 import scala.collection.mutable
 
 class Timer(val description: String) {
@@ -41,9 +39,7 @@ class Timer(val description: String) {
   }
 }
 
-object Timer {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object Timer extends Logging {
   val elapsedTimes: mutable.Map[String, Long] = mutable.Map.empty
 
   def addTime(key: String, milliseconds: Long): Unit = this synchronized {

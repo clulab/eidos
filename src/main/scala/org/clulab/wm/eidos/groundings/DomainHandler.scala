@@ -1,22 +1,19 @@
 package org.clulab.wm.eidos.groundings
 
 import java.time.ZonedDateTime
-
 import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.{CompactDomainOntology, DomainOntology, FastDomainOntology}
 import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
-object DomainHandler {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(getClass)
+object DomainHandler extends Logging {
 
   // The intention is to stop the proliferation of the generated Version class to this single method.
   protected def getVersionOpt(ontologyPath: String): (Option[String], Option[ZonedDateTime]) = {

@@ -410,6 +410,12 @@ can be used to assemble a fat jar file with the command `sbt assembly`.
 Each of these commands results in files being written to the directory `target`.
 `sbt runMain` can run files that are (temporarily) stored in that location.
 
+Use of Java 8 is recommended for Eidos: it is what Eidos is tested against, and results
+obtained for other versions of Java have been found to deviate.
+The recommendation is emphasized with an error message from `sbt` if a different
+version of Java is detected.  The versions of `sbt` and `Scala` are set automatically
+in the project files.
+
 The project can be readily imported into IntelliJ IDEA with the Scala plugin
 and compiled, run, and debugged from there.  In addition, the Eclipse plugin
 is configured for use.  The project can be converted for use with a Scala-fortified

@@ -1,12 +1,12 @@
 package org.clulab.wm.eidos.apps
 
-import org.clulab.wm.eidoscommon.utils.CliReader
-import org.clulab.wm.eidoscommon.utils.DefaultMenuItem
-import org.clulab.wm.eidoscommon.utils.ExitMenuItem
-import org.clulab.wm.eidoscommon.utils.HelpMenuItem
-import org.clulab.wm.eidoscommon.utils.IdeReader
-import org.clulab.wm.eidoscommon.utils.MainMenuItem
-import org.clulab.wm.eidoscommon.utils.Menu
+import org.clulab.utils.CliReader
+import org.clulab.utils.DefaultMenuItem
+import org.clulab.utils.ExitMenuItem
+import org.clulab.utils.HelpMenuItem
+import org.clulab.utils.IdeReader
+import org.clulab.utils.MainMenuItem
+import org.clulab.utils.Menu
 
 object EmptyEidosShell extends App {
   val lineReader = {
