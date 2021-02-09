@@ -6,8 +6,8 @@ import java.io.File
 
 class TestLauncher extends EidosTest {
 
-  val javaIt = ignore
-  val sbtIt = it
+  val javaIt = it
+  val sbtIt = ignore
 
   class DestroyingJavaLauncher(force: Boolean, classname: String, args: Array[String]) extends JavaLauncher(classname, args, Array.empty) {
 
