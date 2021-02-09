@@ -5,14 +5,12 @@ import java.time.Duration
 import java.util.Collections
 import java.util.ConcurrentModificationException
 import java.util.Properties
-
 import org.apache.kafka.clients.consumer.{KafkaConsumer => ApacheKafkaConsumer}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.json4s._
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class KafkaConsumer(properties: Properties, closeDuration: Int, topic: String, outputDir: String) {
   import KafkaConsumer._
@@ -55,6 +53,4 @@ class KafkaConsumer(properties: Properties, closeDuration: Int, topic: String, o
   }
 }
 
-object KafkaConsumer {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
-}
+object KafkaConsumer extends Logging

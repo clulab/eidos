@@ -2,7 +2,6 @@ package org.clulab.wm.wmexchanger.wmconsumer
 
 import java.io.File
 import java.net.URL
-
 import com.typesafe.config.ConfigFactory
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
@@ -15,17 +14,15 @@ import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, PropertiesBuilder, Sinker, Sourcer, StringUtils}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import scala.io.Source
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
-object RestConsumerApp extends App {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object RestConsumerApp extends App with Logging {
 
   def getPort(url: URL): Int = {
     val explicitPort = url.getPort

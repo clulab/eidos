@@ -12,6 +12,7 @@ class TestString extends Test {
       |today.      
       """
     
-     string.contains('|') should be (true) 
+    string.contains('|') should be (true)
+    string.stripMargin.contains('|') should be (false)
   }  
 }

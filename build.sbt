@@ -4,6 +4,21 @@
 
 name := "eidos"
 
+// Certain library dependencies, particularly Stanford NLP, have been observed to have problems with
+// versions of Java other than the required one.  Proceed with caution if you ignore this check.
+// See https://stackoverflow.com/questions/19208942/enforcing-java-version-for-scala-project-in-sbt
+initialize := {
+  val _ = initialize.value // Run the previous initialization.
+  val required = "1.8"
+  val current  = sys.props("java.specification.version")
+  val approved = current == required
+
+  if (approved)
+    sLog.value.info(s"Java $current was detected and approved.")
+  else
+    sLog.value.error(s"Unsupported Java version: Eidos requires $required but found $current instead.")
+}
+
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
 // If it isn't here, sbt test (and run) can seemingly only be performed once before it will fail with
 // java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
@@ -98,6 +113,12 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.11", "2.12.4"),
   scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
+  evictionWarningOptions in update := EvictionWarningOptions.default
+      // Periodically turn these back on to see if anything has changed.
+      .withWarnTransitiveEvictions(false)
+      .withWarnDirectEvictions(false),
+  logLevel in update := Level.Warn,
+  logLevel in compile := Level.Warn,
   logLevel in run := Level.Warn
 ) ++ buildSettings ++ assemblySettings ++ publishSettings
 
@@ -107,39 +128,21 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-  val      procVer = "8.2.5-SNAPSHOT"
-  val procModelVer = "7.5.4"
-  val    luceneVer = "6.6.6"
-  val   lihaoyiVer = "0.7.1"
-
   Seq(
-    "org.clulab"                 %% "processors-main"          % procVer,
-    "org.clulab"                 %% "processors-corenlp"       % procVer,
-    "org.clulab"                 %% "processors-odin"          % procVer,
-    "org.clulab"                 %% "processors-modelsmain"    % procModelVer,
-    "org.clulab"                 %% "processors-modelscorenlp" % procModelVer,
-    "org.clulab"                 %% "timenorm"                 % "1.0.5",
-    "org.clulab"                 %% "geonorm"                  % "1.0.0",	
-    // This one below is not needed for the docker file if the cache is used.
-    "org.clulab"                  % "geonames"                 % "1.0.0+20200518T005330Z.gadmworedas",
-    // This one below is not needed for the docker file if the cache is used.
-    "org.clulab"                  % "glove-840b-300d"          % "0.1.0",
-    "ai.lum"                     %% "common"                   % "0.0.8",
-    "org.scalatest"              %% "scalatest"                % "3.0.4" % "test",
-    "commons-io"                  % "commons-io"               % "2.5",
-    "com.typesafe"                % "config"                   % "1.3.1",
-    "net.sf.saxon"                % "saxon-dom"                % "8.7",
-    "org.slf4j"                   % "slf4j-api"                % "1.7.10",
-    "com.github.jsonld-java"      % "jsonld-java"              % "0.12.0",
-    "com.github.WorldModelers"    % "Ontologies"               % "master-SNAPSHOT",
-    "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",
-    "com.typesafe.play"          %% "play-json"                % "2.6.7", // match the plug-in
-    "org.apache.lucene"           % "lucene-core"              % luceneVer,
-    "org.apache.lucene"           % "lucene-analyzers-common"  % luceneVer,
-    "org.apache.lucene"           % "lucene-queryparser"       % luceneVer,
-    "org.apache.lucene"           % "lucene-grouping"          % luceneVer,
-    "com.lihaoyi"                %% "ujson"                    % lihaoyiVer,
-    "com.lihaoyi"                %% "upickle"                  % lihaoyiVer
+    "org.clulab"               %% "timenorm"        % "1.0.5",
+    "org.clulab"               %% "geonorm"         % "1.0.0",
+    // This is used for config utilities in particular.
+    "ai.lum"                   %% "common"          % "0.0.8",
+    "com.github.WorldModelers"  % "Ontologies"      % "master-SNAPSHOT",
+    // Web serialization needs this.  Match the plug-in version.
+    "com.typesafe.play"        %% "play-json"       % "2.6.7",
+    // This next one is used in MaaSUtils.
+    "com.lihaoyi"              %% "upickle"         % "0.7.1",
+    "org.scalatest"            %% "scalatest"       % "3.0.4"  % Test,
+    "com.github.jsonld-java"    % "jsonld-java"     % "0.12.0" % Test,
+    // These are not needed for the docker file if the cache is used.
+    "org.clulab"                % "geonames"        % "1.0.0+20200518T005330Z.gadmworedas",
+    "org.clulab"                % "glove-840b-300d" % "0.1.0",
   )
 }
 

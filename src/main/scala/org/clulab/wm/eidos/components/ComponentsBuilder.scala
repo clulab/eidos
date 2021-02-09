@@ -21,10 +21,9 @@ import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.wm.eidoscommon.EidosProcessor
 import org.clulab.wm.eidoscommon.Language
 import org.clulab.wm.eidoscommon.TagSet
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.clulab.wm.eidoscommon.utils.Timer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
@@ -34,6 +33,12 @@ import scala.concurrent.duration.Duration
 class ComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponentsOpt: Option[EidosComponents] = None,
     componentOpts: ComponentOpts = ComponentOpts(), implicit val parallel: Boolean = true) {
   import scala.concurrent.ExecutionContext.Implicits.global
+
+  // Some components will be loaded in parallel and some need logging.
+  // It is important that the logger completes initialization in advance.
+  // Otherwise, one component will try to log while another has the logger
+  // under construction and this results in missed log entries and a warning.
+  val logger = ComponentsBuilder.logger
 
   val eidosConf: Config = config[Config](eidosSystemPrefix)
   val language: String = eidosConf[String]("language")
@@ -123,7 +128,7 @@ class ComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponen
       // Expander for expanding the bare events
       val keepStatefulConcepts: Boolean = eidosConf[Boolean]("keepStatefulConcepts")
       if (keepStatefulConcepts && expanderOpt.isEmpty)
-        ComponentsBuilder.logger.warn("You're keeping stateful Concepts but didn't load an expander.")
+        logger.warn("You're keeping stateful Concepts but didn't load an expander.")
       new ConceptExpander(expanderOpt, keepStatefulConcepts)
     }
   )
@@ -190,6 +195,4 @@ class ComponentsBuilder(config: Config, eidosSystemPrefix: String, eidosComponen
   }
 }
 
-object ComponentsBuilder {
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-}
+object ComponentsBuilder extends Logging

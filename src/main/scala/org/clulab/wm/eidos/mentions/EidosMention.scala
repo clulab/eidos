@@ -7,8 +7,8 @@ import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounder
 import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.{IdentityBagger, IdentityMapper}
-import org.slf4j.{Logger, LoggerFactory}
 
 // In order to create this all at once with all OdinMentions that are == being rerouted
 // to those being eq(), the mapping needs to be provided and all values calculated upon
@@ -80,9 +80,8 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
     EidosMention.asEidosMentions(Seq(odinMention), odinMentionMapper, eidosMentionMapper).head
 }
 
-object EidosMention {
+object EidosMention extends Logging {
   val NO_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   // This maps any Odin Mention onto its canonical one.
   type OdinMentionMapper = IdentityMapper[Mention, Mention]

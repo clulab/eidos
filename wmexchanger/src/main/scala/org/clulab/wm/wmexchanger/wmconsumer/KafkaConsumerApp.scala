@@ -1,11 +1,10 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
-import java.util.Properties
+import org.clulab.wm.eidoscommon.utils.Logging
 
+import java.util.Properties
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.{SafeThread, WmUserApp}
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class KafkaConsumerApp(args: Array[String]) extends WmUserApp(args,  "/kafkaconsumer.properties") {
   val localKafkaProperties: Properties = {
@@ -38,8 +37,6 @@ class KafkaConsumerApp(args: Array[String]) extends WmUserApp(args,  "/kafkacons
     thread.waitSafely(waitDuration)
 }
 
-object KafkaConsumerApp extends App {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object KafkaConsumerApp extends App with Logging {
   new KafkaConsumerApp(args)
 }

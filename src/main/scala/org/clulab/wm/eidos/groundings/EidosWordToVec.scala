@@ -1,12 +1,11 @@
 package org.clulab.wm.eidos.groundings
 
 import java.io.File
-
 import org.clulab.embeddings.{CompactWordEmbeddingMap => CompactWord2Vec}
 import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
 import org.clulab.odin.Mention
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.Namer
-import org.slf4j.{Logger, LoggerFactory}
 
 trait EidosWordToVec {
   def stringSimilarity(string1: String, string2: String): Float
@@ -122,13 +121,10 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)
-
 }
 
-object EidosWordToVec {
+object EidosWordToVec extends Logging {
   type Similarities = Seq[(Namer, Float)]
-
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def makeCachedFilename(path: String, file: String): String =
       path + "/" + file.split('/').last + ".serialized"

@@ -6,8 +6,9 @@ import org.clulab.wm.eidoscommon.utils.Closer._
 import scala.collection.JavaConverters._
 
 class PropertiesBuilder(properties: Properties) {
-  def put(key: AnyRef, value: AnyRef): PropertiesBuilder = {
-    properties.put(key, value)
+
+  def put(key: String, value: String): PropertiesBuilder = {
+    properties.setProperty(key, value)
     this
   }
 
@@ -16,7 +17,15 @@ class PropertiesBuilder(properties: Properties) {
   def getProperty(prefix: String, key: String): Option[String] = Option(properties.getProperty(prefix + "." + key))
 
   def putAll(propertiesBuilder: PropertiesBuilder): PropertiesBuilder = {
-    properties.putAll(propertiesBuilder.get)
+    // The putting is performed iteratively in order to avoid this Java 11 error:
+    // [error] both method putAll in class Properties of type (x$1: java.util.Map[_, _])Unit
+    // [error] and  method putAll in class Hashtable of type (x$1: java.util.Map[_ <: Object, _ <: Object])Unit
+    // It also ensures that all keys and values are strings.
+    // properties.putAll(propertiesBuilder.get) // former code
+    propertiesBuilder.get.asScala.foreach {
+      case (key: String, value: String) => put(key, value)
+      case _ =>
+    }
     this
   }
 
