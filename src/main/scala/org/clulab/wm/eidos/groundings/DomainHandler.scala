@@ -1,8 +1,6 @@
 package org.clulab.wm.eidos.groundings
 
 import java.time.ZonedDateTime
-import com.github.clulab.eidos.Version
-import com.github.clulab.eidos.Versions
 import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidoscommon.Canonicalizer
@@ -17,21 +15,7 @@ object DomainHandler extends Logging {
 
   // The intention is to stop the proliferation of the generated Version class to this single method.
   protected def getVersionOpt(ontologyPath: String): (Option[String], Option[ZonedDateTime]) = {
-    // This should work for local ontologies.  Absolute
-    val goodVersionOpt = Versions.versions.get(MockVersions.codeDir + ontologyPath)
-    // See what might have come from WordModelers/Ontologies
-    val bestVersionOpt = goodVersionOpt.getOrElse {
-      // These are always stored in top level directory.
-      val awayVersionOpt = AwayVersions.versions.get(StringUtils.afterLast(ontologyPath, '/')).getOrElse(None)
-      val homeVersionOpt = awayVersionOpt.map { awayVersion => Version(awayVersion.commit, awayVersion.date) }
-
-      homeVersionOpt
-    }
-
-    if (bestVersionOpt.isDefined)
-      (Some(bestVersionOpt.get.commit), Some(bestVersionOpt.get.date))
-    else
-      (None, None)
+    (None, None)
   }
 
   def apply(ontologyPath: String, serializedPath: String, sentencesExtractor: SentencesExtractor,

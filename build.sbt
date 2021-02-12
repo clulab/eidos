@@ -93,24 +93,24 @@ lazy val publishSettings = {
 }
 
 // This is build.sbt after all.
-lazy val buildSettings = Seq(
-  buildInfoPackage := "org.clulab.wm.eidos",
+//lazy val buildSettings = Seq(
+//  buildInfoPackage := "org.clulab.wm.eidos",
   // This next line of code results in constantly changing source files which then require
   // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
   // buildInfoOptions += BuildInfoOption.BuildTime,
-  buildInfoKeys := Seq[BuildInfoKey](
-    name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
-    "gitCurrentBranch" -> { git.gitCurrentBranch.value },
-    "gitHeadCommit" -> { git.gitHeadCommit.value.getOrElse("") },
-    "gitHeadCommitDate" -> { git.gitHeadCommitDate.value.getOrElse("") },
-    "gitUncommittedChanges" -> { git.gitUncommittedChanges.value }
-  )
-)
+//  buildInfoKeys := Seq[BuildInfoKey](
+//    name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
+//    "gitCurrentBranch" -> { git.gitCurrentBranch.value },
+//    "gitHeadCommit" -> { git.gitHeadCommit.value.getOrElse("") },
+//    "gitHeadCommitDate" -> { git.gitHeadCommitDate.value.getOrElse("") },
+//    "gitUncommittedChanges" -> { git.gitUncommittedChanges.value }
+//  )
+//)
 
 // Ensure that all the subprojects have the same settings for things like this.
 lazy val commonSettings = Seq(
   organization := "org.clulab",
-  scalaVersion := "2.12.4",
+  scalaVersion := "2.12.13",
   crossScalaVersions := Seq("2.11.11", "2.12.4"),
   scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
   evictionWarningOptions in update := EvictionWarningOptions.default
@@ -120,7 +120,7 @@ lazy val commonSettings = Seq(
   logLevel in update := Level.Warn,
   logLevel in compile := Level.Warn,
   logLevel in run := Level.Warn
-) ++ buildSettings ++ assemblySettings ++ publishSettings
+) ++ assemblySettings ++ publishSettings
 
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Versioner
@@ -148,7 +148,7 @@ libraryDependencies ++= {
 
 lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
-  .aggregate(eidoscommon, ontologies, elasticsearch, wmexchanger, webapp)
+  // .aggregate(eidoscommon, ontologies, elasticsearch, wmexchanger, webapp)
   .dependsOn(eidoscommon, ontologies)
   .settings(commonSettings: _*)
   .settings(
