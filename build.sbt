@@ -16,7 +16,7 @@ initialize := {
   if (approved)
     sLog.value.info(s"Java $current was detected and approved.")
   else
-    sLog.value.error(s"Unsupported Java version: Eidos requires $required but found $current instead.")
+    sLog.value.warn(s"Unsupported Java version: Eidos requires $required but found $current instead.")
 }
 
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
