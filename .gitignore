@@ -29,6 +29,8 @@ project/plugins/project/
 # VS Code
 .metals
 .vscode
+.bloop
+metals.sbt
 
 # GitKraken
 \.classpath

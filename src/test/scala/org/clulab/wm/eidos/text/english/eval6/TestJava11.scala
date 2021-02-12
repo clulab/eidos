@@ -12,8 +12,14 @@ import org.clulab.wm.eidos.test.TestUtils._
 
 class TestJava11 extends EnglishTest {
 
+  def trace[T](name: String)(f: => T): T = {
+    val result = f
+    println(s"$name = $result")
+    result
+  }
+
   { // Document 2, Paragraph 2
-    val version = System.getProperty("java.version")
+    val version = trace("version"){ System.getProperty("java.version") }
     val text = """
                  |The Food and Agriculture Organization of the United Nations (FAO), the United Nations
                  |Children's Fund (UNICEF) and the World Food Programme (WFP) stressed that while the
@@ -41,14 +47,13 @@ class TestJava11 extends EnglishTest {
         getEntity(eidosMention.odinMention.document)
       }
       val annotatedEntity = annotatedEntities.head
-      val testerEntity = getEntity(tester.testResults.get(leanSeason).mention.head.document)
+      val testerDocumentOpt = Option(tester.testResults.get(leanSeason)).flatMap(_.mention.headOption.map(_.document))
+      val testerEntityOpt = testerDocumentOpt.map(getEntity)
 
-      println(version)
-      entity should be ("SET") // Java 1.8
+      entity should be ("SET")
       annotatedEntity should be ("SET")
-      testerEntity should be ("SET")
-//      entity should be ("O") // Java 11
-//      annotatedEntity should be ("O")
+      testerEntityOpt.isDefined should be (true)
+      testerEntityOpt.get should be ("SET")
       testerResult should be(successful)
     }
   }
