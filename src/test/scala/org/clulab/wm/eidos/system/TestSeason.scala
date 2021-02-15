@@ -42,8 +42,8 @@ class TestSeason extends ExtractionTest {
       the meher rains have experienced a 80 per cent increase.
     """
     val meher = TimeStep(
-      LocalDateTime.of(2011, 6, 1, 0, 0),
-      LocalDateTime.of(2011, 10, 1, 0, 0)
+      LocalDateTime.of(2011, 9, 1, 0, 0),
+      LocalDateTime.of(2012, 3, 1, 0, 0)
     )
     seasons(text2).map(_.text) should contain ("meher")
     seasons(text2).flatMap(_.interval.intervals) should contain (meher)

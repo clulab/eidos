@@ -10,7 +10,7 @@ class TestEvalSeasonNorm extends EidosTest {
   // This test is generally ignored because it takes a very long time to run.
   // Change "ignore" to "it" on a local machine and run locally to spot check.
   ignore should "not degrade in performance" in {
-    val expectedFscore = 0.67
+    val expectedFscore = 0.46
     val actualFscore = EvalSeasonNorm.test()
     actualFscore should be >= expectedFscore
   }
