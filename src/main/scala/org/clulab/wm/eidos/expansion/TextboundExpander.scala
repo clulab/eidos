@@ -6,8 +6,7 @@ import org.clulab.odin.{Mention, State, TextBoundMention}
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.extraction.EntityConstraints
-import org.slf4j.{Logger, LoggerFactory}
-import org.clulab.wm.eidos.expansion.TextBoundExpander.logger
+import org.clulab.wm.eidoscommon.utils.Logging
 
 import scala.annotation.tailrec
 
@@ -176,8 +175,7 @@ class TextBoundExpander(dependencies: Dependencies, maxHops: Int) extends Expand
   }
 }
 
-object TextBoundExpander {
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object TextBoundExpander extends Logging {
 
   def fromConfig(config: Config): TextBoundExpander = {
     // Dependencies

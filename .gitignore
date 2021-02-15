@@ -8,11 +8,11 @@
 .lib/
 #.sbtopts
 dist/*
-target/
 lib_managed/
-src_managed/
 project/boot/
 project/plugins/project/
+src_managed/
+target/
 
 # Scala-IDE specific
 .scala_dependencies
@@ -26,24 +26,30 @@ project/plugins/project/
 .project
 .settings/org.eclipse.core.resources.prefs
 
+# VS Code
+.bloop
+.metals
+.vscode
+metals.sbt
+
 # GitKraken
 \.classpath
 
 #resources/
-props/
-svmDebugFeatures/
-nullMODELS_*
-train*.dat
-xgboostOut/
-null_*
-timenorm_model.hdf5
-vectors.txt
-embeddings_november_2016.txt
-geonamesDict_noUnicode.txt
-glove.840B.300d.txt
 cache/*.serialized
 cache/english/*.serialized
 cache/geonames/
+embeddings_november_2016.txt
+geonamesDict_noUnicode.txt
+glove.840B.300d.txt
+props/
+null_*
+nullMODELS_*
+svmDebugFeatures/
+timenorm_model.hdf5
+train*.dat
+vectors.txt
+xgboostOut/
 
 # Python binary files
 *.pyc

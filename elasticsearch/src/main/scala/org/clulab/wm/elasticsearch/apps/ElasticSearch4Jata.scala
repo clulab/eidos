@@ -5,7 +5,6 @@ import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util
-
 import com.amazonaws.auth.AWS4Signer
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
@@ -16,6 +15,7 @@ import com.amazonaws.services.s3.model.GetObjectRequest
 import org.apache.http.HttpHost
 import org.apache.http.HttpRequestInterceptor
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.Sinker
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.elasticsearch.action.search.ClearScrollRequest
@@ -34,12 +34,8 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.elasticsearch.script.mustache.SearchTemplateRequest
 import org.json4s._
 import org.json4s.jackson.JsonMethods
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
-object ElasticSearch4Jata extends App {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object ElasticSearch4Jata extends App with Logging {
   val indexName = "wm-dev"
   val resultsPerQuery = 50
   val timeout = resultsPerQuery * 2 // seconds

@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.actions
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
@@ -21,8 +20,7 @@ import org.clulab.wm.eidos.mentions.MentionUtils
 import org.clulab.wm.eidos.utils.FoundBy
 import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.TagSet
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidoscommon.utils.Logging
 
 import scala.util.Try
 
@@ -215,7 +213,7 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
   }
 
   def debug(ms: Seq[Mention], state: State): Seq[Mention] = {
-    logger.debug("DEBUG ACTION")
+    EidosActions.logger.debug("DEBUG ACTION")
     ms
   }
 
@@ -224,9 +222,7 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
   def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
 }
 
-object EidosActions extends Actions {
-  lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object EidosActions extends Actions with Logging {
   val BAD_NUMBER_PATTERN: Pattern = Pattern.compile("[~%,<>]")
 
   val DAILY_PATTERN: Pattern = Pattern.compile("daily")

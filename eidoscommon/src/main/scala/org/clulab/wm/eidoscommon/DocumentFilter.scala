@@ -4,8 +4,7 @@ import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.corenlp.CoreNLPDocument
 import org.clulab.processors.shallownlp.ShallowNLPProcessor
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.clulab.wm.eidoscommon.utils.Logging
 
 trait DocumentFilter {
   def whileFiltered(document: Document)(transform: Document => Document): Document
@@ -72,8 +71,7 @@ class FilterByLength(processor: Processor, cutoff: Int = 200) extends DocumentFi
   }
 }
 
-object FilterByLength {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object FilterByLength extends Logging {
 
   def apply(processor: Processor, cutoff: Int = 200): FilterByLength = new FilterByLength(processor, cutoff)
 }
