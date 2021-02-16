@@ -1955,6 +1955,11 @@
           - cropping
           - agricultural production
           - cultivate
+          neg_examples:
+          - fruits & veg milk
+          - serious damage to maize and other cereals
+          - rice
+          - maize
           name: crop_production
           polarity: 1
         - OntologyNode:
@@ -2318,6 +2323,9 @@
           - water pipes
           - water access
           - water supply
+          neg_examples:
+          - water availability
+          - Water pollution associated flooding is environmental
           name: water_access
           polarity: 1
       - OntologyNode:

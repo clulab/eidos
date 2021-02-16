@@ -15,28 +15,30 @@ class TestPosNegGrounding extends EnglishTest {
   behavior of "posNegGrounder"
 
   it should "do something special" in {
-    val text = "Four score and seven years ago our fathers brought forth on this continent a new nation"
+    val text = "cheese"
     val words = text.split(' ')
     val ontologyGrounding = posNegGrounder.groundStrings(words).head
     val individualGrounding = ontologyGrounding.take(1).head
     val name = individualGrounding.name
     val score = individualGrounding.score
     val negScoreOpt = individualGrounding.negScoreOpt
-
-    name should be ("a special name")
-    score should be ("a special score")
-    negScoreOpt should be ("a special negScoreOpt")
+    println("*******************")
+    println(name)
+    name should be ("wm/concept/causal_factor/health_and_life/nutrition/food_intake")
+    //score should be ( 0.5379829)
+    //negScoreOpt should be ("a special negScoreOpt")
   }
 
   behavior of "word2vec"
 
   it should "do something special" in {
-    val text = "I have a dream that one day this nation will rise up and live out the true meaning of its creed"
+    val text = "cheese"
     val words = text.split(' ')
     val similarities = word2Vec.calculateSimilarities(words, conceptEmbeddings)
     val (namer, value) = similarities.head
-
-    namer.name should be ("a special name")
-    value should be ("a special value")
+    println("---------------------")
+    println(namer.name)
+    namer.name should be ("wm/concept/causal_factor/health_and_life/nutrition/food_intake")
+    //value should be ("a special value")
   }
 }
