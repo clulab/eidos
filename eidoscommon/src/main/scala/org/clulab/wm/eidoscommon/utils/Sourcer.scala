@@ -3,11 +3,9 @@ package org.clulab.wm.eidoscommon.utils
 import java.io.{File, FileNotFoundException}
 import java.nio.charset.StandardCharsets
 
-import org.slf4j.{Logger, LoggerFactory}
 import scala.io.{BufferedSource, Source}
 
-object Sourcer {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object Sourcer extends Logging {
   val utf8: String = StandardCharsets.UTF_8.toString
 
   def sourceFromResource(path: String): BufferedSource = {

@@ -5,8 +5,6 @@ import org.clulab.processors.Sentence
 import org.clulab.struct.{DirectedGraph, Interval}
 import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAttachment}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
-import org.slf4j.{Logger, LoggerFactory}
-import SRLCompositionalGrounder._
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.clu.tokenizer.Tokenizer
@@ -14,11 +12,12 @@ import org.clulab.wm.eidos.groundings.GroundingUtils
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.ontologies.DomainOntology
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
-import scala.util.{Try,Success,Failure}
+import scala.util.{Failure, Success, Try}
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
 case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGrounding, themeProcess: OntologyGrounding, themeProcessProperties: OntologyGrounding, predicates: Set[Int]) {
@@ -153,7 +152,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val themeProperty = propertyOpt.getOrElse(newOntologyGrounding())
         // make a pseudo theme
         // fixme: should we ground the pseudo theme to the process AND concept branches
-        val pseudoTheme = groundToBranches(pseudoThemeBranches, tokenInterval, s, topN, threshold)
+        val pseudoTheme = groundToBranches(SRLCompositionalGrounder.pseudoThemeBranches, tokenInterval, s, topN, threshold)
         val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
         Seq(PredicateGrounding(predicateTuple))
       case preds =>
@@ -238,7 +237,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   private def getThemes(predicate: Int, s: SentenceHelper, backoff: Boolean): Array[Int] = {
-    val found = getArguments(predicate, THEME_ROLE, s)
+    val found = getArguments(predicate, SRLCompositionalGrounder.THEME_ROLE, s)
     if (found.isEmpty && backoff) {
       //val other = getArguments(predicate, OTHER_ROLE, s).toSet
       // Handle "just in case" infinite loop -- seemed to happen earlier, but the algorithm was diff then...
@@ -284,7 +283,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       GroundedSpan(trimmedChunk, propertyOpt.get, isProperty = true)
     } else {
       // Otherwise, ground as either a process or concept
-      GroundedSpan(trimmedChunk, groundToBranches(processOrConceptBranches, trimmedChunk, s.sentence, topN,
+      GroundedSpan(trimmedChunk, groundToBranches(SRLCompositionalGrounder.processOrConceptBranches, trimmedChunk, s.sentence, topN,
         threshold), isProperty = false)
     }
   }
@@ -307,7 +306,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   private def groundProperty(span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float])
-  : OntologyGrounding = groundToBranches(propertyBranch, span, s, topN, threshold)
+  : OntologyGrounding = groundToBranches(SRLCompositionalGrounder.propertyBranch, span, s, topN, threshold)
 
   private def groundToBranches(branches: Seq[String], span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
     groundToBranches(branches, span, s.sentence, topN, threshold)
@@ -468,11 +467,7 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   }
 }
 
-
-object SRLCompositionalGrounder{
-
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object SRLCompositionalGrounder extends Logging {
   // Semantic Roles
   val AGENT_ROLE = "A0"
   val THEME_ROLE = "A1"

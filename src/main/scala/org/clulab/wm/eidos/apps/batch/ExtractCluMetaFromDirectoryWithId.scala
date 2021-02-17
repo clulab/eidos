@@ -6,16 +6,13 @@ import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Sourcer, StringUtils, ThreadUtils, Timer}
 import org.clulab.wm.eidos.utils.meta.CluText
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 
-object ExtractCluMetaFromDirectoryWithId extends App {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object ExtractCluMetaFromDirectoryWithId extends App with Logging {
   val inputDir = args(0)
   val metaDir = args(1)
   val outputDir = args(2)

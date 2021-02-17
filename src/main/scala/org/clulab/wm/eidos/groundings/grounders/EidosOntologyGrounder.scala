@@ -13,10 +13,9 @@ import org.clulab.wm.eidos.groundings.SingleOntologyNodeGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.ontologies.DomainOntology
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import scala.util.matching.Regex
 
@@ -121,7 +120,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
 }
 
-object EidosOntologyGrounder {
+object EidosOntologyGrounder extends Logging {
   val GROUNDABLE = "Entity"
 
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
@@ -143,8 +142,6 @@ object EidosOntologyGrounder {
   val PRIMARY_NAMESPACE: String = WM_COMPOSITIONAL_NAMESPACE // Assign the primary namespace here, publically.
 
   val indicatorNamespaces: Set[String] = Set(WDI_NAMESPACE, FAO_NAMESPACE, MITRE12_NAMESPACE, WHO_NAMESPACE, ICASA_NAMESPACE) ++ MAAS_NAMES
-
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def groundableType(mention: EidosMention): Boolean = mention.odinMention.matches(GROUNDABLE)
 

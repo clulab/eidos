@@ -8,6 +8,7 @@ import java.util
 
 import org.apache.http.HttpHost
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.Sinker
 import org.elasticsearch.action.search.ClearScrollRequest
 import org.elasticsearch.action.search.SearchRequest
@@ -25,12 +26,8 @@ import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.json4s._
 import org.json4s.jackson.JsonMethods
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
-object ElasticSearch4Dart extends App {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object ElasticSearch4Dart extends App with Logging {
   val indexName = "cdr_search"
   val resultsPerQuery = 50
   val timeout = resultsPerQuery * 2 // seconds

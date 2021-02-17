@@ -14,12 +14,12 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.TagSet
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.{EidosProcessor, EidosTokenizer, SentencesExtractor}
 import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.DomainOntology
 import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
-import org.slf4j.{Logger, LoggerFactory}
 
 class OntologyHandler(
   val ontologyGrounders: Seq[OntologyGrounder],
@@ -196,8 +196,7 @@ class OntologyHandler(
   }
 }
 
-object OntologyHandler {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object OntologyHandler extends Logging {
 
   def fromConfig(config: Config = EidosSystem.defaultConfig, tokenizer: EidosTokenizer): OntologyHandler = {
     val sentenceExtractor  = EidosProcessor("english", cutoff = 150)

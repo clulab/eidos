@@ -2,12 +2,10 @@ package org.clulab.wm.wmexchanger.wmproducer
 
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.{FileUtils, PropertiesBuilder, Sinker, StringUtils}
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
-object CurlProducerApp extends App {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass)
+object CurlProducerApp extends App with Logging {
   val version = "0.2.3"
 
   val inputDir = args(0)
