@@ -220,8 +220,8 @@ object OntologyHandler extends Logging {
         config[Boolean]("useGrounding"),
         config[String]("wordToVecPath"),
         config[Int]("topKNodeGroundings"), //TODO: I don't think the W2V should be the one slicing these if our grounding API takes it as a param
-        config[Double]("groundNegScoreThreshold"),
-        config[Double]("groundPenalizeValue"),
+        config[Double]("groundNegScoreThreshold").toFloat,
+        config[Double]("groundPenalizeValue").toFloat,
         cacheDir,
         useCacheForW2V
       )
