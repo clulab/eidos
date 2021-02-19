@@ -85,25 +85,14 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
     }
   }
 
-  def negMatch(v2: Option[Array[Float]], v3: Array[Float]): Float = {
-    v2 match {
-      case None => 0.0f
-      case Some(v) => dotProduct(v, v3)
-    }
-  }
-  def scoreNode(v1: Array[Float], v2: Option[Array[Float]], v3: Array[Float]): Float = {
-    var pos_score = dotProduct(v1, v3)
-    val neg_socre = negMatch(v2, v3)
-    val penalized_pos_score = pos_score-groundPenalizeValue
-    if (neg_socre > groundNegScoreThreshold){
-      if (penalized_pos_score <= -1.0f){
-        pos_score = -1.0f
-      }
-      else {
-        pos_score = penalized_pos_score
-      }
-    }
-    pos_score
+  def scoreNode(posEmbedding: Array[Float], negEmbeddingOpt: Option[Array[Float]], nodeEmbedding: Array[Float]): Float = {
+    val posScore = dotProduct(posEmbedding, nodeEmbedding)
+    val negScore = negEmbeddingOpt.map(dotProduct(_, nodeEmbedding)).getOrElse(0f)
+
+    if (negScore > groundNegScoreThreshold)
+      math.max(-1f, posScore - groundPenalizeValue)
+    else
+      posScore
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Seq[String], nounVerbWeightRatio:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
@@ -112,7 +101,6 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
     val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
     val termWeights = posTags.map(tag=>if (tag.startsWith("NN")) nounVerbWeightRatio else 1.0f)
-
 
     if (outOfVocabulary)
       Seq.empty
@@ -124,7 +112,6 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
     }
-
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], termWeights: Seq[Float], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
@@ -143,7 +130,6 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
     }
-
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)

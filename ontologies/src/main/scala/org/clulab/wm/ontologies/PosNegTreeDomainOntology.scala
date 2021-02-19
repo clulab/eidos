@@ -190,13 +190,16 @@ object PosNegTreeDomainOntology {
   val POLARITY = "polarity"
   val PATTERN = "pattern"
 
+  def isPogNegName(name: String): Boolean = name.contains("posneg")
+
+  def isPosNegPath(name: String): Boolean = name.contains("posneg")
+
   def load(path: String): PosNegTreeDomainOntology = {
     logger.info(s"Loading serialized Ontology from $path")
     val domainOntology = FileUtils.load[PosNegTreeDomainOntology](path, this)
     logger.info("Serialized Ontology successfully loaded.")
     domainOntology
   }
-
 
   // This is mostly here to capture sentenceExtractor so that it doesn't have to be passed around.
   class PosNegTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer,
@@ -350,7 +353,6 @@ object PosNegTreeDomainOntology {
       if (flatChildNodes.nonEmpty)
         parent.childrenOpt = Some(flatChildNodes)
     }
-
   }
 
   def main(args: Array[String]): Unit = {

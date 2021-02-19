@@ -1960,7 +1960,67 @@
           - serious damage to maize and other cereals
           - rice
           - maize
-          name: crop_production
+          name: neg_crop_production
+          polarity: 1
+        - OntologyNode:
+          examples:
+          - crop yield
+          - harvest
+          - harvests
+          - harvesting
+          - cultivate
+          - crop production conditions
+          - domestic crop production
+          - crop cultivation
+          - bamboo production
+          - banana production
+          - barley production
+          - bean production
+          - beans production
+          - cassava production
+          - cereal production
+          - cereals production
+          - cocoa production
+          - coconut production
+          - coffee production
+          - corn production
+          - crop productivity
+          - crop performance
+          - cultivar production
+          - flux production
+          - flour production
+          - grain production
+          - groundnut production
+          - groundnuts production
+          - legume production
+          - maize production
+          - mango production
+          - meher production
+          - millet production
+          - oats production
+          - oilseed production
+          - onion production
+          - pepper production
+          - potato production
+          - rice production
+          - rubber production
+          - seed production
+          - sesame production
+          - sorghum production
+          - soybean production
+          - staple production
+          - sugar production
+          - tea production
+          - tobacco production
+          - tomato production
+          - tuber production
+          - vegetable production
+          - wheat production
+          - white maize production
+          - cropping
+          - agricultural production
+          - cultivate
+          name: pos_crop_production
           polarity: 1
         - OntologyNode:
           examples:
