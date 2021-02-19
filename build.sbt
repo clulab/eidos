@@ -4,21 +4,6 @@
 
 name := "eidos"
 
-// Certain library dependencies, particularly Stanford NLP, have been observed to have problems with
-// versions of Java other than the required one.  Proceed with caution if you ignore this check.
-// See https://stackoverflow.com/questions/19208942/enforcing-java-version-for-scala-project-in-sbt
-initialize := {
-  val _ = initialize.value // Run the previous initialization.
-  val required = "1.8"
-  val current  = sys.props("java.specification.version")
-  val approved = current == required
-
-  if (approved)
-    sLog.value.info(s"Java $current was detected and approved.")
-  else
-    sLog.value.error(s"Unsupported Java version: Eidos requires $required but found $current instead.")
-}
-
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
 // If it isn't here, sbt test (and run) can seemingly only be performed once before it will fail with
 // java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
