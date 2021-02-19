@@ -13,7 +13,7 @@ import scala.collection.Seq
 
 class GraphTester(ieSystem: EidosSystem, text: String) {
   val annotatedDocument = ieSystem.extractFromText(clean(text), cagRelevantOnly = false)
-  val mentions: Seq[Mention] = annotatedDocument.allOdinMentions.toVector // They are easier to debug than streams.
+  val odinMentions: Seq[Mention] = annotatedDocument.allOdinMentions.toVector // They are easier to debug than streams.
   val testResults = new TestResults()
 
   def getSpecialChars(s: String): String = s.filter(c => c < 32 || 127 < c)
@@ -69,7 +69,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
         printWriter.println("\t" + value)
       }
       printWriter.println("Mentions:")
-      mentions.zipWithIndex.foreach { case (mention, index) =>
+      odinMentions.zipWithIndex.foreach { case (mention, index) =>
         printWriter.println(s"\t#$index: ${mentionId(mention)}")
       }
       printWriter.println("Found:")
@@ -79,7 +79,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
         if (mentionOpt.isDefined) {
           val mention = mentionOpt.get
-          val index = mentions.indexOf(mention)
+          val index = odinMentions.indexOf(mention)
 
           printWriter.println(s"\t$graphSpec = #$index: ${mentionId(mention)}")
         }
@@ -94,13 +94,13 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
   }
 
   def test(nodeSpec: NodeSpec): Seq[String] = {
-    val testResult = nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+    val testResult = nodeSpec.test(odinMentions, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(nodeSpec, testResult.complaints)
   }
 
   def test(edgeSpec: EdgeSpec): Seq[String] = {
-    val testResult = edgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+    val testResult = edgeSpec.test(odinMentions, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(edgeSpec, testResult.complaints)
   }
