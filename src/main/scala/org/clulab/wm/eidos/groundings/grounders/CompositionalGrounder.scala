@@ -136,7 +136,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 object CompositionalGrounder {
   val PROCESS = "process"
   val PROPERTY = "property"
-  val CONCEPT =  "concept"
+  val CONCEPT = "concept"
   val ENTITY = "entity"
 
   val branches: Seq[String] = Seq(PROCESS, PROPERTY, CONCEPT, ENTITY)

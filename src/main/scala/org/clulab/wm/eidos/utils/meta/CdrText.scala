@@ -123,6 +123,11 @@ object CdrText extends Logging {
 
   def apply(json: String): CdrText = {
     val jValue = JsonMethods.parse(json)
+
+    apply(jValue)
+  }
+
+  def apply(jValue: JValue): CdrText = {
     // If there is a _source, it came from an elastic search and the cdr is inside it.
     val cdrValue = (jValue \ "_source").extractOpt[JObject].getOrElse(jValue)
 
