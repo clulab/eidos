@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.graph
 
 import java.io.{PrintWriter, StringWriter}
-
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.graph.TestResult.TestResults
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidoscommon.Language
@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 import scala.collection.Seq
 
 class GraphTester(ieSystem: EidosSystem, text: String) {
-  val annotatedDocument = ieSystem.extractFromText(clean(text), cagRelevantOnly = false)
+  val annotatedDocument: AnnotatedDocument = ieSystem.extractFromText(clean(text), cagRelevantOnly = false)
   val odinMentions: Seq[Mention] = annotatedDocument.allOdinMentions.toVector // They are easier to debug than streams.
   val testResults = new TestResults()
 
@@ -29,7 +29,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
     if (ieSystem.components.languageOpt.get == Language.ENGLISH) {
       val specialChars = getSpecialChars(cleanText)
-      if (!specialChars.isEmpty)
+      if (specialChars.nonEmpty)
         throw new IllegalArgumentException("Text contained a special chars: " + specialChars)
     }
     cleanText
@@ -63,7 +63,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       val stringWriter = new StringWriter()
       val printWriter = new PrintWriter(stringWriter)
 
-      printWriter.println
+      printWriter.println()
       printWriter.println("Errors:")
       result.foreach { value =>
         printWriter.println("\t" + value)
@@ -86,7 +86,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
         else
           printWriter.println(s"\t$graphSpec = None")
       }
-      printWriter.flush
+      printWriter.flush()
 
       val string = stringWriter.toString
       Seq(string)

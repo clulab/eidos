@@ -2,7 +2,8 @@ package org.clulab.wm.eidos.text.english.cag
 
 import org.clulab.wm.eidos.graph._
 import org.clulab.wm.eidos.test.EnglishTest
-import org.clulab.wm.eidos.test.TestUtils.{Somebody, successful}
+import org.clulab.wm.eidos.test.TestUtils.Somebody
+import org.clulab.wm.eidos.test.TestUtils.successful
 
 class TestExtraText extends EnglishTest {
   { // Paragraph 1

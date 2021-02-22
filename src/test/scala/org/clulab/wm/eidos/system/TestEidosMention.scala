@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.text.english.cag
+package org.clulab.wm.eidos.system
 
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.attachments.EidosAttachment

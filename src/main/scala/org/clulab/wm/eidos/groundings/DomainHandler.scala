@@ -9,8 +9,10 @@ import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.ontologies.CompactDomainOntology
+import org.clulab.wm.ontologies.DomainOntology
+import org.clulab.wm.ontologies.FastDomainOntology
 import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
-import org.clulab.wm.ontologies.{CompactDomainOntology, DomainOntology, FastDomainOntology}
 import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 
 object DomainHandler extends Logging {

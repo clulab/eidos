@@ -156,13 +156,14 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
 
     val paths = for {
       (argName, argPathsMap) <- orig.paths
-        newMap = try {
-          val origPath = argPathsMap(orig.arguments(argName).head)
-          Map(expandedArgs(argName).head -> origPath)
-        } catch {
-          case _: java.util.NoSuchElementException => Map.empty[Mention, SynPath]
-        }
-      } yield (argName, newMap)
+      newMap = try {
+        val origPath = argPathsMap(orig.arguments(argName).head)
+        Map(expandedArgs(argName).head -> origPath)
+      }
+      catch {
+        case _: java.util.NoSuchElementException => Map.empty[Mention, SynPath]
+      }
+    } yield (argName, newMap)
 
     // Make the copy based on the type of the Mention
     val copyFoundBy = if (foundByAffix.nonEmpty) s"${orig.foundBy}_$foundByAffix" else orig.foundBy

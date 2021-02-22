@@ -30,10 +30,10 @@ lazy val assemblySettings = Seq(
     case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
     case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat
     // These all have different contents and cannot be automatically deduplicated.
-    case PathList("META-INF", "services", "org.apache.lucene.codecs.PostingsFormat") => MergeStrategy.filterDistinctLines
-    case PathList("META-INF", "services", "com.fasterxml.jackson.databind.Module")   => MergeStrategy.filterDistinctLines
-    case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")  => MergeStrategy.first // or last or both?
     case PathList("reference.conf") => MergeStrategy.concat // Scala configuration files--important!
+    case PathList("META-INF", "services", "org.apache.lucene.codecs.PostingsFormat")    => MergeStrategy.filterDistinctLines
+    case PathList("META-INF", "services", "com.fasterxml.jackson.databind.Module")      => MergeStrategy.filterDistinctLines
+    case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")     => MergeStrategy.first // or last or both?
     // Otherwise just keep one copy if the contents are the same and complain if not.
     case _ => MergeStrategy.deduplicate
   }
@@ -114,20 +114,20 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   Seq(
-    "org.clulab"               %% "timenorm"        % "1.0.5",
-    "org.clulab"               %% "geonorm"         % "1.0.0",
+    "org.clulab"               %% "timenorm"         % "1.0.5",
+    "org.clulab"               %% "geonorm"          % "1.0.0",
     // This is used for config utilities in particular.
-    "ai.lum"                   %% "common"          % "0.0.8",
-    "com.github.WorldModelers"  % "Ontologies"      % "master-SNAPSHOT",
+    "ai.lum"                   %% "common"           % "0.0.8",
+    "com.github.WorldModelers"  % "Ontologies"       % "master-SNAPSHOT",
     // Web serialization needs this.  Match the plug-in version.
-    "com.typesafe.play"        %% "play-json"       % "2.6.7",
+    "com.typesafe.play"        %% "play-json"        % "2.6.7",
     // This next one is used in MaaSUtils.
-    "com.lihaoyi"              %% "upickle"         % "0.7.1",
-    "org.scalatest"            %% "scalatest"       % "3.0.4"  % Test,
-    "com.github.jsonld-java"    % "jsonld-java"     % "0.12.0" % Test,
+    "com.lihaoyi"              %% "upickle"          % "0.7.1",
+    "org.scalatest"            %% "scalatest"        % "3.0.4"  % Test,
+    "com.github.jsonld-java"    % "jsonld-java"      % "0.12.0" % Test,
     // These are not needed for the docker file if the cache is used.
-    "org.clulab"                % "geonames"        % "1.0.0+20200518T005330Z.gadmworedas",
-    "org.clulab"                % "glove-840b-300d" % "0.1.0",
+    "org.clulab"                % "geonames"         % "1.0.0+20200518T005330Z.gadmworedas",
+    "org.clulab"                % "glove-840b-300d"  % "0.1.0",
   )
 }
 

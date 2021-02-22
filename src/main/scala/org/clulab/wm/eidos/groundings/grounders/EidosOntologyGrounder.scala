@@ -29,7 +29,10 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     domainOntology.indices.map { n =>
-      ConceptEmbedding(domainOntology.getNamer(n), wordToVec.makeCompositeVector(domainOntology.getValues(n)))
+      ConceptEmbedding(
+        domainOntology.getNamer(n),
+        wordToVec.makeCompositeVector(domainOntology.getValues(n))
+      )
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
@@ -109,7 +112,6 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
     taken
   }
-
 }
 
 object EidosOntologyGrounder extends Logging {
@@ -127,8 +129,8 @@ object EidosOntologyGrounder extends Logging {
   protected val              WHO_NAMESPACE = "who"
   protected val    INTERVENTIONS_NAMESPACE = "interventions"
   protected val            ICASA_NAMESPACE = "icasa"
-  protected val   MAAS_NAMES = Set("MaaS-model", "MaaS-parameter", "MaaS-variable")
-  protected val   WM_FLAT_NAMESPACE = "wm_flat"
+  protected val          WM_FLAT_NAMESPACE = "wm_flat"
+  protected val             MAAS_NAMES     = Set("MaaS-model", "MaaS-parameter", "MaaS-variable")
 
   //val PRIMARY_NAMESPACE: String = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
   val PRIMARY_NAMESPACE: String = WM_COMPOSITIONAL_NAMESPACE // Assign the primary namespace here, publically.

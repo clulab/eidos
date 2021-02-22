@@ -7,9 +7,17 @@ import org.clulab.processors.Document
 import org.clulab.struct.Interval
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.EidosAliases.Quantifier
-import org.clulab.wm.eidos.context.{DCT, GeoPhraseID, TimEx, TimeStep}
-import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounder, AdjectiveGrounding}
-import org.clulab.wm.eidos.serialization.jsonld.{JLDAttachment, JLDContextAttachment, JLDScoredAttachment, JLDSerializer, JLDTriggeredAttachment}
+import org.clulab.wm.eidos.context.DCT
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeStep
+import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounder
+import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounding
+import org.clulab.wm.eidos.serialization.jsonld.JLDAttachment
+import org.clulab.wm.eidos.serialization.jsonld.JLDContextAttachment
+import org.clulab.wm.eidos.serialization.jsonld.JLDScoredAttachment
+import org.clulab.wm.eidos.serialization.jsonld.JLDSerializer
+import org.clulab.wm.eidos.serialization.jsonld.JLDTriggeredAttachment
 import org.clulab.wm.eidoscommon.utils.QuicklyEqualable
 import org.json4s.JsonDSL._
 import org.json4s._
