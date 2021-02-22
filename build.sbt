@@ -78,19 +78,23 @@ lazy val publishSettings = {
 }
 
 // This is build.sbt after all.
-lazy val buildSettings = Seq(
-  buildInfoPackage := "org.clulab.wm.eidos",
-  // This next line of code results in constantly changing source files which then require
-  // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
-  // buildInfoOptions += BuildInfoOption.BuildTime,
-  buildInfoKeys := Seq[BuildInfoKey](
-    name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
-    "gitCurrentBranch" -> { git.gitCurrentBranch.value },
-    "gitHeadCommit" -> { git.gitHeadCommit.value.getOrElse("") },
-    "gitHeadCommitDate" -> { git.gitHeadCommitDate.value.getOrElse("") },
-    "gitUncommittedChanges" -> { git.gitUncommittedChanges.value }
+lazy val buildSettings = {
+  git.remoteRepo := "git@github.com:clulab/eidos.git"
+
+  Seq(
+    buildInfoPackage := "org.clulab.wm.eidos",
+    // This next line of code results in constantly changing source files which then require
+    // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
+    // buildInfoOptions += BuildInfoOption.BuildTime,
+    buildInfoKeys := Seq[BuildInfoKey](
+      name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
+      "gitCurrentBranch" -> { git.gitCurrentBranch.value },
+      "gitHeadCommit" -> { git.gitHeadCommit.value.getOrElse("") },
+      "gitHeadCommitDate" -> { git.gitHeadCommitDate.value.getOrElse("") },
+      "gitUncommittedChanges" -> { git.gitUncommittedChanges.value }
+    )
   )
-)
+}
 
 // Ensure that all the subprojects have the same settings for things like this.
 lazy val commonSettings = Seq(
@@ -98,14 +102,8 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.11", "2.12.4"),
   scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
-  evictionWarningOptions in update := EvictionWarningOptions.default
-      // Periodically turn these back on to see if anything has changed.
-      .withWarnTransitiveEvictions(false)
-      .withWarnDirectEvictions(false),
-  logLevel in update := Level.Warn,
-  logLevel in compile := Level.Warn,
-  logLevel in run := Level.Warn
-) ++ buildSettings ++ assemblySettings ++ publishSettings
+  logLevel in update := Level.Warn
+) ++ assemblySettings ++ publishSettings
 
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Versioner
@@ -131,11 +129,18 @@ libraryDependencies ++= {
   )
 }
 
+val coreSettings = commonSettings ++ buildSettings ++ Seq(
+  evictionWarningOptions in update := EvictionWarningOptions.default
+      // Periodically turn these back on to see if anything has changed.
+      .withWarnTransitiveEvictions(false)
+      .withWarnDirectEvictions(false)
+)
+
 lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .aggregate(eidoscommon, ontologies, elasticsearch, wmexchanger, webapp)
   .dependsOn(eidoscommon, ontologies)
-  .settings(commonSettings: _*)
+  .settings(coreSettings: _*)
   .settings(
     // The goal is to include compile and test only.
     assembly / aggregate := false,
@@ -144,7 +149,7 @@ lazy val core = (project in file("."))
   )
 
 // This prevents "error: recursive lazy value core needs type".
-lazy val coreRef = LocalProject("core")
+//lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
   .settings(commonSettings: _*)
@@ -165,11 +170,3 @@ lazy val webapp = project
 lazy val wmexchanger = project
   .settings(commonSettings: _*)
   .dependsOn(eidoscommon)
-
-git.remoteRepo := {
-  // scaladoc hosting
-  enablePlugins(SiteScaladocPlugin)
-  enablePlugins(GhpagesPlugin)
-
-  "git@github.com:clulab/eidos.git"
-}
