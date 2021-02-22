@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.graph
 
 import java.io.{PrintWriter, StringWriter}
-
 import org.clulab.odin.Mention
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.graph.TestResult.TestResults
 import org.clulab.wm.eidos.test.TestUtils
 import org.clulab.wm.eidoscommon.Language
@@ -12,8 +12,8 @@ import scala.collection.JavaConverters._
 import scala.collection.Seq
 
 class GraphTester(ieSystem: EidosSystem, text: String) {
-  val annotatedDocument = ieSystem.extractFromText(clean(text), cagRelevantOnly = false)
-  val mentions: Seq[Mention] = annotatedDocument.allOdinMentions.toVector // They are easier to debug than streams.
+  val annotatedDocument: AnnotatedDocument = ieSystem.extractFromText(clean(text), cagRelevantOnly = false)
+  val odinMentions: Seq[Mention] = annotatedDocument.allOdinMentions.toVector // They are easier to debug than streams.
   val testResults = new TestResults()
 
   def getSpecialChars(s: String): String = s.filter(c => c < 32 || 127 < c)
@@ -29,7 +29,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
     if (ieSystem.components.languageOpt.get == Language.ENGLISH) {
       val specialChars = getSpecialChars(cleanText)
-      if (!specialChars.isEmpty)
+      if (specialChars.nonEmpty)
         throw new IllegalArgumentException("Text contained a special chars: " + specialChars)
     }
     cleanText
@@ -63,13 +63,13 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
       val stringWriter = new StringWriter()
       val printWriter = new PrintWriter(stringWriter)
 
-      printWriter.println
+      printWriter.println()
       printWriter.println("Errors:")
       result.foreach { value =>
         printWriter.println("\t" + value)
       }
       printWriter.println("Mentions:")
-      mentions.zipWithIndex.foreach { case (mention, index) =>
+      odinMentions.zipWithIndex.foreach { case (mention, index) =>
         printWriter.println(s"\t#$index: ${mentionId(mention)}")
       }
       printWriter.println("Found:")
@@ -79,14 +79,14 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
 
         if (mentionOpt.isDefined) {
           val mention = mentionOpt.get
-          val index = mentions.indexOf(mention)
+          val index = odinMentions.indexOf(mention)
 
           printWriter.println(s"\t$graphSpec = #$index: ${mentionId(mention)}")
         }
         else
           printWriter.println(s"\t$graphSpec = None")
       }
-      printWriter.flush
+      printWriter.flush()
 
       val string = stringWriter.toString
       Seq(string)
@@ -94,13 +94,13 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
   }
 
   def test(nodeSpec: NodeSpec): Seq[String] = {
-    val testResult = nodeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+    val testResult = nodeSpec.test(odinMentions, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(nodeSpec, testResult.complaints)
   }
 
   def test(edgeSpec: EdgeSpec): Seq[String] = {
-    val testResult = edgeSpec.test(mentions, useTimeNorm, useGeoNorm, testResults)
+    val testResult = edgeSpec.test(odinMentions, useTimeNorm, useGeoNorm, testResults)
 
     annotateTest(edgeSpec, testResult.complaints)
   }

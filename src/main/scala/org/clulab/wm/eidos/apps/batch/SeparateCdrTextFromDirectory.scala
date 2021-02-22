@@ -3,21 +3,21 @@ package org.clulab.wm.eidos.apps.batch
 import java.io.File
 
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, StringUtils}
+import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidos.utils.meta.CdrText
 import org.clulab.wm.eidos.utils.meta.CluText
 import org.json4s.DefaultFormats
 import org.json4s.JValue
-import org.json4s.jackson.JsonMethods
 
 object SeparateCdrTextFromDirectory extends App {
 
   class Filter(outputDir: String) {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    def filter(inputFile: File, jValue: JValue): Unit = {
+    def filter(inputFile: File, cdrText: CdrText): Unit = {
       println(s"Extracting from ${inputFile.getName}")
-      val jString: JValue = jValue \ "extracted_text"
-      val text: String = jString.extract[String]
+      val text: String = cdrText.getText
       val outputFile = FileEditor(inputFile).setDir(outputDir).setExt("txt").get
 
       FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
@@ -32,8 +32,6 @@ object SeparateCdrTextFromDirectory extends App {
   val filter = new Filter(outputDir)
 
   inputFiles.foreach { inputFile =>
-    val json = CluText.getJValue(inputFile)
-
-    filter.filter(inputFile, json)
+    filter.filter(inputFile, CdrText(inputFile))
   }
 }

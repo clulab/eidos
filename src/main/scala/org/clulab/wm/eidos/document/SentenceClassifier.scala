@@ -5,11 +5,11 @@ import com.typesafe.config.Config
 import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, OntologyHandler, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
+import org.clulab.wm.eidoscommon.Language
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
-import java.io.FileNotFoundException
 
-import org.clulab.wm.eidoscommon.Language
+import java.io.FileNotFoundException
 
 class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[String, Float], ontologyHandler: OntologyHandler, flatOntologyGrounder: FlatOntologyGrounder) {
   val conceptEmbeddings: Seq[ConceptEmbedding] = flatOntologyGrounder.conceptEmbeddings
@@ -28,6 +28,7 @@ class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[Str
 }
 
 object SentenceClassifier {
+
   def newFileNotFoundException(path: String): FileNotFoundException = {
     val innerMessage =
       if (path.startsWith("~")) ".  Make sure to not use the tilde (~) character in paths in lieu of the home directory."

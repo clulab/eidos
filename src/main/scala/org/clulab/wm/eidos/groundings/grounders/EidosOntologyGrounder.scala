@@ -117,7 +117,6 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
     taken
   }
-
 }
 
 object EidosOntologyGrounder extends Logging {
@@ -135,8 +134,8 @@ object EidosOntologyGrounder extends Logging {
   protected val              WHO_NAMESPACE = "who"
   protected val    INTERVENTIONS_NAMESPACE = "interventions"
   protected val            ICASA_NAMESPACE = "icasa"
-  protected val   MAAS_NAMES = Set("MaaS-model", "MaaS-parameter", "MaaS-variable")
-  protected val   WM_FLAT_NAMESPACE = "wm_flat"
+  protected val          WM_FLAT_NAMESPACE = "wm_flat"
+  protected val             MAAS_NAMES     = Set("MaaS-model", "MaaS-parameter", "MaaS-variable")
 
   //val PRIMARY_NAMESPACE: String = WM_FLATTENED_NAMESPACE // Assign the primary namespace here, publically.
   val PRIMARY_NAMESPACE: String = WM_COMPOSITIONAL_NAMESPACE // Assign the primary namespace here, publically.

@@ -35,7 +35,7 @@ class TestCagP2 extends EnglishTest {
   { // S2
     // Todo: Many causal links are not true (since hunger is a dobj of cause) because of a bad parse.
     val tester = new GraphTester(p2s2)
-  
+
     val conflict = NodeSpec("Conflict")
     val insecurity = NodeSpec("insecurity")
     val marketDisruption = NodeSpec("market disruption", Dec("disruption")) //newNodeSpec("market disruption")
@@ -110,7 +110,7 @@ class TestCagP2 extends EnglishTest {
 
   { // S5
     val tester = new GraphTester(p2s5)
-  
+
     val impactsLivestock = NodeSpec("impacts on livestock and crops")
     val impactsCrops = NodeSpec("crops") //fixme: any way to get diff span here with impact but not with livestock?
     // TODO: the entity below is 'livelihoods being decimated' because "being..." is an acl dependency, which modifies nouns
@@ -124,5 +124,5 @@ class TestCagP2 extends EnglishTest {
     futureWorkTest should "have correct edges 2" taggedAs(Mihai) in {
       tester.test(EdgeSpec(impactsCrops, Causal, livelihoods)) should be (successful)
     }
-  }  
+  }
 }

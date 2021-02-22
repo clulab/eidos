@@ -1,6 +1,8 @@
 package org.clulab.wm.eidos.attachments
 
-import org.clulab.odin.{Attachment, Mention, State}
+import org.clulab.odin.Attachment
+import org.clulab.odin.Mention
+import org.clulab.odin.State
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
 import org.clulab.wm.eidos.mentions.MentionUtils
 

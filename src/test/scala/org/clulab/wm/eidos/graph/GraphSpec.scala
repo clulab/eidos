@@ -300,20 +300,26 @@ object Unmarked {
 
 class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], nodeFilter: NodeSpec.NodeFilter = NodeSpec.trueFilter) extends GraphSpec {
 
-  protected def matchAttachments(useTimeNorm: Boolean, useGeoNorm: Boolean)(mention: Mention): Boolean =
-      TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TriggeredAttachmentSpec => a}) && {
-        val timeSpecs = attachmentSpecs.collect { case a: TimEx => a }
-        val geoSpecs = attachmentSpecs.collect { case a: GeoLoc => a }
-        val contextSpecs =  attachmentSpecs.collect { case a: ContextAttachmentSpec => a }
-        // See if this works, then take out time and geo during the apply
+  protected def matchAttachments(useTimeNorm: Boolean, useGeoNorm: Boolean)(mention: Mention): Boolean = {
+    val defaultsMatch = true
+    val triggeredsMatch = defaultsMatch && TriggeredAttachmentSpec.matchAttachments(mention, attachmentSpecs.collect{ case a: TriggeredAttachmentSpec => a})
+    val contextsMatch = triggeredsMatch && {
+      val timeSpecs = attachmentSpecs.collect { case a: TimEx => a }
+      val geoSpecs = attachmentSpecs.collect { case a: GeoLoc => a }
+      val contextSpecs =  attachmentSpecs.collect { case a: ContextAttachmentSpec => a }
+      // See if this works, then take out time and geo during the apply
 
-        ((useTimeNorm, useGeoNorm) match {
-          case (true, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs)
-          case (true, false) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs)
-          case (false, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- timeSpecs)
-          case _ => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs -- timeSpecs)
-        })
-      }
+      ((useTimeNorm, useGeoNorm) match {
+        case (true, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs)
+        case (true, false) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs)
+        case (false, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- timeSpecs)
+        case _ => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs -- timeSpecs)
+      })
+    }
+    val allMatch = triggeredsMatch
+
+    allMatch
+  }
 
   protected def matchText(mention: TextBoundMention): Boolean = {
     val text = mention.text

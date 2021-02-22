@@ -7,7 +7,6 @@ import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAt
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
-import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.wm.eidos.groundings.GroundingUtils
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
@@ -17,7 +16,6 @@ import org.clulab.wm.ontologies.DomainOntology
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
-import scala.util.{Failure, Success, Try}
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
 case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGrounding, themeProcess: OntologyGrounding, themeProcessProperties: OntologyGrounding, predicates: Set[Int]) {
@@ -58,11 +56,11 @@ case class PredicateTuple(theme: OntologyGrounding, themeProperties: OntologyGro
 class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer)
   extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
-  lazy val proc = {
+  lazy val proc: CluProcessor = {
     Utils.initializeDyNet()
     new CluProcessor() {
       // Reuse the EidosTokenizer from the EidosProcess, but replace its wrapped tokenizer with the localTokenizer.
-      override lazy val tokenizer = SRLCompositionalGrounder.this.tokenizer.copyWithNewTokenizer(localTokenizer)
+      override lazy val tokenizer: EidosTokenizer = SRLCompositionalGrounder.this.tokenizer.copyWithNewTokenizer(localTokenizer)
     }
   }
 
@@ -99,21 +97,15 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     groundingResult
   }
 
-  // FIXME: This could probably be implemented better by creating a real StopwordManager
-  // Everything after TIME is new to this grounder
-  val STOP_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MISC", "MONEY", "NUMBER", "ORDINAL",
-    "ORGANIZATION", "PERSON", "PLACE", "SET", "TIME", "NATIONALITY", "COUNTRY", "TITLE", "STATE_OR_PROVINCE")
-
   override def groundEidosMention(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
-    // Do nothing to non-groundable mentions
     if (!EidosOntologyGrounder.groundableType(mention))
+      // Do nothing to non-groundable mentions
       Seq(newOntologyGrounding())
-    // Do nothing to named entities
-    if (mention.odinMention.entities.get.toSet.intersect(STOP_NER).nonEmpty) {
+    else if (StopNER.hasNamedEntity(mention))
+      // Do nothing to named entities
       Seq(newOntologyGrounding())
-    }
-    // or else ground them.
     else {
+      // or else ground them.
       val reParsed = proc.annotate(mention.odinMention.sentenceObj.getSentenceText)
       // The same tokenizer should get the same number of sentences.
       val oldSentenceLength = 1
@@ -169,7 +161,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         // Sort them highest first and take the top N if applicable
         val sortedSliced = groundings.sortBy(-_.score)
         sortedSliced.take(topN.getOrElse(sortedSliced.length))
-
     }
 
     // TODO: dig in and filter out duplicates in different parts of the predicate tuple
@@ -333,7 +324,7 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   val validPredicates: Seq[Int] = {
     val original = srls.roots.toSeq
       // keep only predicates that are within the mention
-      .filter(tokenInterval contains _)
+      .filter(tokenInterval.contains)
       // remove the predicates which correspond to our increase/decrease/quantifiers
       .filterNot(exclude contains words(_))
     // add back in ones that SRL "missed"
@@ -467,6 +458,34 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   }
 }
 
+object StopNER {
+  // FIXME: This could probably be implemented better by creating a real StopwordManager
+  val STOP_NER: Set[String] = Set(
+    "DATE",
+    "DURATION",
+    "LOCATION",
+    "MISC",
+    "MONEY",
+    "NUMBER",
+    "ORDINAL",
+    "ORGANIZATION",
+    "PERSON",
+    "PLACE",
+    "SET",
+    "TIME",
+    // Everything after TIME is new to this grounder
+    "NATIONALITY",
+    "COUNTRY",
+    "TITLE",
+    "STATE_OR_PROVINCE"
+  )
+
+  def hasNamedEntity(eidosMention: EidosMention): Boolean = {
+    // If entities is empty, be sure to return false.
+    eidosMention.odinMention.entities.exists(_.exists(STOP_NER.contains))
+  }
+}
+
 object SRLCompositionalGrounder extends Logging {
   // Semantic Roles
   val AGENT_ROLE = "A0"
@@ -485,5 +504,4 @@ object SRLCompositionalGrounder extends Logging {
   val pseudoThemeBranches = Seq(CONCEPT, ENTITY)
   val processOrConceptBranches = Seq(CONCEPT, ENTITY, PROCESS)
   val propertyBranch = Seq(PROPERTY)
-
 }
