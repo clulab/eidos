@@ -148,9 +148,6 @@ lazy val core = (project in file("."))
     releaseProcess / aggregate := false
   )
 
-// This prevents "error: recursive lazy value core needs type".
-//lazy val coreRef = LocalProject("core")
-
 lazy val eidoscommon = project
   .settings(commonSettings: _*)
 
@@ -161,6 +158,9 @@ lazy val elasticsearch = project
 lazy val ontologies = project
   .settings(commonSettings: _*)
   .dependsOn(eidoscommon)
+
+// This prevents "error: recursive lazy value core needs type".
+lazy val coreRef = LocalProject("core")
 
 lazy val webapp = project
   .settings(commonSettings: _*)
