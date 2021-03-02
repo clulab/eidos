@@ -1,7 +1,10 @@
 package org.clulab.wm.eidos.expansion
 
 import org.clulab.odin._
-import org.clulab.wm.eidos.attachments.{AttachmentHandler, DCTime, Property, Time}
+import org.clulab.wm.eidos.attachments.AttachmentHandler
+import org.clulab.wm.eidos.attachments.DCTime
+import org.clulab.wm.eidos.attachments.Property
+import org.clulab.wm.eidos.attachments.Time
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.mentions.MentionUtils
 import org.clulab.wm.eidos.utils.FoundBy

@@ -6,8 +6,23 @@ import org.clulab.serialization.json.stringify
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidos.context.{DCT, GeoPhraseID, TimEx, TimeStep}
+import org.clulab.wm.eidos.attachments.DCTime
+import org.clulab.wm.eidos.attachments.Decrease
+import org.clulab.wm.eidos.attachments.EidosAttachment
+import org.clulab.wm.eidos.attachments.Hedging
+import org.clulab.wm.eidos.attachments.Increase
+import org.clulab.wm.eidos.attachments.Location
+import org.clulab.wm.eidos.attachments.NegChange
+import org.clulab.wm.eidos.attachments.Negation
+import org.clulab.wm.eidos.attachments.PosChange
+import org.clulab.wm.eidos.attachments.Property
+import org.clulab.wm.eidos.attachments.Quantification
+import org.clulab.wm.eidos.attachments.Score
+import org.clulab.wm.eidos.attachments.Time
+import org.clulab.wm.eidos.context.DCT
+import org.clulab.wm.eidos.context.GeoPhraseID
+import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.context.TimeStep
 import org.clulab.wm.eidos.test.EidosTest
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods

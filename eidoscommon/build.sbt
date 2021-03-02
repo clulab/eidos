@@ -6,7 +6,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-  val procVer = "8.2.5"
+  val procVer = "8.2.6"
 
   Seq(
     "org.clulab"                 %% "processors-main"          % procVer,

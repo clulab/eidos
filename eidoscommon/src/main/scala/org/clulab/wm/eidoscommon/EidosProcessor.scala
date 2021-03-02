@@ -2,11 +2,16 @@ package org.clulab.wm.eidoscommon
 
 import java.text.Normalizer
 import java.util.regex.Pattern
-import org.clulab.dynet.Utils
-import org.clulab.processors.clu.{CluProcessor, PortugueseCluProcessor, SpanishCluProcessor}
-import org.clulab.processors.clu.tokenizer.{RawToken, SentenceSplitter, Tokenizer}
+
+import org.clulab.processors.Document
+import org.clulab.processors.Processor
+import org.clulab.processors.Sentence
+import org.clulab.processors.clu.PortugueseCluProcessor
+import org.clulab.processors.clu.SpanishCluProcessor
+import org.clulab.processors.clu.tokenizer.RawToken
+import org.clulab.processors.clu.tokenizer.SentenceSplitter
+import org.clulab.processors.clu.tokenizer.Tokenizer
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
-import org.clulab.processors.{Document, Processor, Sentence}
 import org.clulab.utils.ScienceUtils
 import org.clulab.wm.eidoscommon.utils.Logging
 

@@ -452,7 +452,9 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         new JLDOntologyGroundings(serializer, key, ontologyGroundings).toJObject
       }
     }
-    val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++ jldDctAttachments).map(_.toJObject)
+    val jldAllAttachments = (jldAttachments ++ jldTimeAttachments ++ jldLocationAttachments ++
+        jldDctAttachments)
+        .map(_.toJObject)
 
     TidyJObject(List(
       serializer.mkType(this),

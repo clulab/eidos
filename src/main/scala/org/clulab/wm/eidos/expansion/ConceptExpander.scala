@@ -13,13 +13,6 @@ class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boole
   // If enabled and applicable, expand Concepts which don't participate in primary events
   def expand(mentions: Seq[Mention], avoidState: State = new State()): Seq[Mention] = {
 
-    def isExpandableMod(a: Attachment): Boolean =
-      a.isInstanceOf[Increase] ||
-        a.isInstanceOf[Decrease] ||
-        a.isInstanceOf[Quantification] ||
-        a.isInstanceOf[PosChange] ||
-        a.isInstanceOf[NegChange]
-
     def expandIfNotExpanded(ms: Seq[Mention], expandedState: State): Seq[Mention] = {
       // Get only the Concepts that don't overlap with a previously expanded Concept...
       // todo: note this filter is based on token interval overlap, perhaps a smarter way is needed (e.g., checking the argument token intervals?)
@@ -36,15 +29,25 @@ class ConceptExpander(expanderOpt: Option[Expander], keepStatefulConcepts: Boole
     if (!keepStatefulConcepts || expanderOpt.isEmpty)
       mentions
     else {
-      // Split the mentions into Cpncepts and Relations by the label
+      // Split the mentions into Concepts and Relations by the label
       val (concepts, relations) = mentions.partition(_ matches EidosParameters.CONCEPT_LABEL)
       // Check to see if any of the Concepts have state attachments
-      val (expandable, notExpandable) = concepts.partition(_.attachments.exists(isExpandableMod))
+      val (expandable, notExpandable) = concepts.partition(_.attachments.exists(ConceptExpander.isExpandableMod))
       // Get the already expanded mentions for this document
-      val prevExpandableState = State(relations.filter(rel => EidosParameters.CAG_EDGES.contains(rel.label)))
+      val prevExpandableState = State(relations.filter(relation => EidosParameters.CAG_EDGES.contains(relation.label)))
       // Expand the Concepts if they weren't already part of an expanded Relation
       val expandedConcepts = expandIfNotExpanded(expandable, prevExpandableState)
       expandedConcepts ++ notExpandable ++ relations
     }
   }
+}
+
+object ConceptExpander {
+
+  def isExpandableMod(a: Attachment): Boolean =
+    a.isInstanceOf[Increase] ||
+        a.isInstanceOf[Decrease] ||
+        a.isInstanceOf[Quantification] ||
+        a.isInstanceOf[PosChange] ||
+        a.isInstanceOf[NegChange]
 }
