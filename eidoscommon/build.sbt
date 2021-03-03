@@ -12,6 +12,9 @@ libraryDependencies ++= {
     "org.clulab"                 %% "processors-main"          % procVer,
     "org.clulab"                 %% "processors-corenlp"       % procVer,
     "org.clulab"                 %% "processors-odin"          % procVer,
+    // Pulling in processors necessitates adding this one.
+    // This matches the version of lucene that stanford-corenlp 4.2.0 uses.
+    "org.apache.lucene"           % "lucene-backward-codecs"   % "7.5.0",
     // local logging
     "ch.qos.logback"              % "logback-classic"          % "1.0.10",
     "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",
