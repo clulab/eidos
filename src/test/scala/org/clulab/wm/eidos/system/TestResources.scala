@@ -40,7 +40,8 @@ class TestResources extends EidosTest {
   val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
   val unwantedSuffixes = Seq(
     "300d.txt", "vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
-    "word2idx_file.txt", "SentenceClassifierEvaluation.tsv", "SentenceClassifier.tsv"
+    "word2idx_file.txt", "SentenceClassifierEvaluation.tsv", "SentenceClassifier.tsv",
+    "Ethiopia_Food_Security_Outlook_1-Feb-17.txt"
   )
 
   def fileMatches(file: File): Boolean = {
