@@ -51,7 +51,8 @@ class TestResources extends EidosTest {
     "/portuguese/grammars/triggers.yml",
     "word2idx_file.txt",
     "SentenceClassifierEvaluation.tsv",
-    "SentenceClassifier.tsv"
+    "SentenceClassifier.tsv",
+    "Ethiopia_Food_Security_Outlook_1-Feb-17.txt"
   )
 
   def fileMatches(file: File): Boolean = {
