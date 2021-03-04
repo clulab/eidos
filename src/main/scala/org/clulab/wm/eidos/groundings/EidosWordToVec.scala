@@ -87,7 +87,6 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
     val termWeights = posTags.map(tag=>if (tag.startsWith("NN")) nounVerbWeightRatio else 1.0f)
 
-
     if (outOfVocabulary)
       Seq.empty
     else {
@@ -98,7 +97,6 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
     }
-
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], termWeights: Seq[Float], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
@@ -117,7 +115,6 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
     }
-
   }
 
   def makeCompositeVector(t: Iterable[String]): Array[Float] = w2v.makeCompositeVector(t)

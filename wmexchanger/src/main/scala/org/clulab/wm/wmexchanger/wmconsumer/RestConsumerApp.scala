@@ -2,6 +2,7 @@ package org.clulab.wm.wmexchanger.wmconsumer
 
 import java.io.File
 import java.net.URL
+
 import com.typesafe.config.ConfigFactory
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope

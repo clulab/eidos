@@ -37,10 +37,21 @@ class TestResources extends EidosTest {
   // https://groups.google.com/forum/#!topic/scala-user/WrmYHHzcJPw  
   type Operation = (File) => Unit
 
-  val wantedSuffixes = Seq(".conf", ".yml", ".tsv", ".kb", ".txt")
+  val wantedSuffixes = Seq(
+    ".conf",
+    ".yml",
+    ".tsv",
+    ".kb",
+    ".txt"
+  )
   val unwantedSuffixes = Seq(
-    "300d.txt", "vectors.txt", "_2016.txt", "/portuguese/grammars/triggers.yml",
-    "word2idx_file.txt", "SentenceClassifierEvaluation.tsv", "SentenceClassifier.tsv",
+    "300d.txt",
+    "vectors.txt",
+    "_2016.txt",
+    "/portuguese/grammars/triggers.yml",
+    "word2idx_file.txt",
+    "SentenceClassifierEvaluation.tsv",
+    "SentenceClassifier.tsv",
     "Ethiopia_Food_Security_Outlook_1-Feb-17.txt"
   )
 

@@ -1,10 +1,11 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
-import org.clulab.wm.eidoscommon.utils.Logging
-
 import java.util.Properties
+
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
-import org.clulab.wm.wmexchanger.utils.{SafeThread, WmUserApp}
+import org.clulab.wm.wmexchanger.utils.SafeThread
+import org.clulab.wm.wmexchanger.utils.WmUserApp
 
 class KafkaConsumerApp(args: Array[String]) extends WmUserApp(args,  "/kafkaconsumer.properties") {
   val localKafkaProperties: Properties = {

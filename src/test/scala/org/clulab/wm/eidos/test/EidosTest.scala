@@ -27,6 +27,10 @@ class EidosTest extends Test {
   val tempBrokenEntitiesTest = ignore
   val affectEventTest = ignore
   val waitingForProcessors = ignore  // type of futureWorkTest -- added for tests which are now failing because they where designed using a SNAPSHOT version of processors
+
+  // This is usually disabled.
+  // val longTimeNormTest = it
+  val longTimeNormTest = ignore
 }
 
 object EidosTest {
