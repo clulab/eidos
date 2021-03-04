@@ -10,6 +10,8 @@ import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.Logging
 
 import java.io.File
+import java.nio.file.{Files, Path, Paths, StandardCopyOption}
+import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.JavaConverters._
 
 /**
@@ -85,11 +87,14 @@ object Fewsnet extends App with Logging {
   }
 
   def convertAll(): Unit = {
+    val atomicCount = new AtomicInteger(0)
+
     FileUtils
       .walkTree(file).par
       .filter(_.getName.endsWith(".pdf"))
       .foreach { file =>
-        println(file.getCanonicalPath)
+        val count = atomicCount.addAndGet(1)
+        println(s"$count: ${file.getCanonicalPath}")
         pdfToInfo(file)
         pdfToText(file)
       }
@@ -98,16 +103,49 @@ object Fewsnet extends App with Logging {
   def readAll(): Unit = {
     val eidos = new EidosSystem()
     val options = EidosOptions()
+    val atomicCount = new AtomicInteger(0)
 
     FileUtils
       .walkTree(file).par
       .filter(_.getName.endsWith(".pdf"))
       .foreach { file =>
-        println(file.getCanonicalPath)
+        val count = atomicCount.addAndGet(1)
+        println(s"$count: ${file.getCanonicalPath}")
         read(file, eidos, options)
       }
   }
 
+  def verifyAll(): Unit = {
+    val atomicCount = new AtomicInteger(0)
+
+    def complain(count: Int, file: File): Unit = {
+//      if (!file.exists)
+        println(s"$count: ${file.getPath}")
+    }
+
+    FileUtils
+      .walkTree(file).par
+      .filter(_.getName.endsWith(".pdf"))
+      .foreach { file =>
+        val textFile = FileEditor(file).setExt(".txt").get
+        val infoFile = FileEditor(file).setExt(".info").get
+        val jsonldFile = FileEditor(file).setExt(".jsonld").get
+
+        if (!textFile.exists || !infoFile.exists || !jsonldFile.exists) {
+          synchronized {
+            val count = atomicCount.addAndGet(1)
+            //val copyFile = FileEditor(file).setDir("../fewsnet.bad").get
+            //Files.copy(Paths.get(file.getPath), Paths.get(copyFile.getPath), StandardCopyOption.REPLACE_EXISTING)
+            complain(count, file)
+            //complain(count, textFile)
+            //complain(count, infoFile)
+            //complain(count, jsonldFile)
+          }
+        }
+      }
+  }
+
   //convertAll()
-  readAll()
+  //readAll()
+  //verifyAll()
 }
