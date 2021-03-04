@@ -2,10 +2,15 @@ package org.clulab.wm.eidos.apps.batch
 
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.meta.PdfInfoText
-import org.clulab.wm.eidos.{EidosOptions, EidosSystem}
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Logging}
+import org.clulab.wm.eidos.EidosOptions
+import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Logging
 
 import java.io.File
+import scala.collection.JavaConverters._
 
 /**
   * This recursively searches the dir for all pdf files and runs pdf_to_txt_file.py
@@ -95,7 +100,7 @@ object Fewsnet extends App with Logging {
     val options = EidosOptions()
 
     FileUtils
-      .walkTree(file) // .par
+      .walkTree(file).par
       .filter(_.getName.endsWith(".pdf"))
       .foreach { file =>
         println(file.getCanonicalPath)
