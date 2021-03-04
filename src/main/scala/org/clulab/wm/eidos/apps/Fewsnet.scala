@@ -21,6 +21,7 @@ object Fewsnet extends App {
     if (!outputFile.exists) {
       val arguments = List(
         "pdfinfo",
+        "-isodates",
         inputFile.getCanonicalPath,
       ).map(_.replace('/', File.separatorChar))
       val processBuilder = new ProcessBuilder(arguments.asJava)
@@ -38,7 +39,7 @@ object Fewsnet extends App {
     val outputFile = new FileEditor(inputFile).setExt(".txt").get
     if (!outputFile.exists) {
       val arguments = List(
-        "python",
+        "python3",
         "./src/main/python/pdf_to_txt_file.py",
         inputFile.getCanonicalPath,
         outputFile.getCanonicalPath
@@ -55,7 +56,7 @@ object Fewsnet extends App {
   }
 
   FileUtils
-      .walkTree(file)
+      .walkTree(file).par
       .filter(_.getName.endsWith(".pdf"))
       .foreach { file =>
         println(file.getCanonicalPath)
