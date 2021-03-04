@@ -1,23 +1,16 @@
-package org.clulab.wm.eidos.apps
+package org.clulab.wm.eidos.apps.batch
 
-import org.clulab.wm.eidos.EidosOptions
-import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.meta.PdfInfoText
-import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.eidoscommon.utils.Sourcer
+import org.clulab.wm.eidos.{EidosOptions, EidosSystem}
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Logging}
 
-import scala.collection.JavaConverters._
 import java.io.File
-import scala.io.Source
 
 /**
   * This recursively searches the dir for all pdf files and runs pdf_to_txt_file.py
   * (in the src/main/python directory) as well as pdfinfo, which should be in
-  * the operating system's path.
+  * the operating system's path.  It then reads the files with eidos and outputs jsonld.
   */
 object Fewsnet extends App with Logging {
   val file = new File(args(0))
@@ -62,7 +55,7 @@ object Fewsnet extends App with Logging {
     }
   }
 
-  def read(file: File, reader: EidosSystem, options: EidosOptions): Unit = {
+  def read(file: File, eidos: EidosSystem, options: EidosOptions): Unit = {
     val textFile = FileEditor(file).setExt(".txt").get
     val infoFile = FileEditor(file).setExt(".info").get
     val jsonldFile = FileEditor(file).setExt(".jsonld").get
@@ -73,7 +66,7 @@ object Fewsnet extends App with Logging {
       val metadata = pdfInfo.getMetadata
 
       try {
-        val annotatedDocument = reader.extractFromText(text, options, metadata)
+        val annotatedDocument = eidos.extractFromText(text, options, metadata)
 
         FileUtils.printWriterFromFile(jsonldFile).autoClose { printWriter =>
           new JLDCorpus(annotatedDocument).serialize(printWriter)
@@ -88,13 +81,13 @@ object Fewsnet extends App with Logging {
 
   def convertAll(): Unit = {
     FileUtils
-        .walkTree(file)
-        .filter(_.getName.endsWith(".pdf"))
-        .foreach { file =>
-          println(file.getCanonicalPath)
-          pdfToInfo(file)
-          pdfToText(file)
-        }
+      .walkTree(file).par
+      .filter(_.getName.endsWith(".pdf"))
+      .foreach { file =>
+        println(file.getCanonicalPath)
+        pdfToInfo(file)
+        pdfToText(file)
+      }
   }
 
   def readAll(): Unit = {
@@ -102,11 +95,12 @@ object Fewsnet extends App with Logging {
     val options = EidosOptions()
 
     FileUtils
-        .walkTree(file)
-        .filter(_.getName.endsWith(".pdf"))
-        .foreach { file =>
-          read(file, eidos, options)
-        }
+      .walkTree(file) // .par
+      .filter(_.getName.endsWith(".pdf"))
+      .foreach { file =>
+        println(file.getCanonicalPath)
+        read(file, eidos, options)
+      }
   }
 
   //convertAll()
