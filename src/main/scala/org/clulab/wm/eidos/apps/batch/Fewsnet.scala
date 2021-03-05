@@ -118,8 +118,8 @@ object Fewsnet extends App with Logging {
   def verifyAll(): Unit = {
     val atomicCount = new AtomicInteger(0)
 
-    def complain(count: Int, file: File): Unit = {
-//      if (!file.exists)
+    def complain(exists: Boolean, count: Int, file: File): Unit = {
+      if (file.exists == exists)
         println(s"$count: ${file.getPath}")
     }
 
@@ -136,10 +136,10 @@ object Fewsnet extends App with Logging {
             val count = atomicCount.addAndGet(1)
             //val copyFile = FileEditor(file).setDir("../fewsnet.bad").get
             //Files.copy(Paths.get(file.getPath), Paths.get(copyFile.getPath), StandardCopyOption.REPLACE_EXISTING)
-            complain(count, file)
-            //complain(count, textFile)
-            //complain(count, infoFile)
-            //complain(count, jsonldFile)
+            complain(true,  count, file)
+            complain(false, count, textFile)
+            complain(false, count, infoFile)
+            complain(false, count, jsonldFile)
           }
         }
       }

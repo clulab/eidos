@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.TimeZone
 import scala.io.Source
+import scala.util.Try
 
 class PdfInfoText(text: String, infoOpt: Option[String]) extends EidosText {
 
@@ -26,7 +27,8 @@ class PdfInfoText(text: String, infoOpt: Option[String]) extends EidosText {
     val dateOpt = map.get("ModDate").orElse(map.get("CreationDate"))
     val dctOpt: Option[DCT] = dateOpt.map { date =>
         val calendar = try {
-          val parsed = PdfInfoText.dateFormat.parse(date)
+          val parsed = Try(PdfInfoText.dateFormat.parse(date))
+              .getOrElse(PdfInfoText.dateFormat.parse(StringUtils.beforeFirst(date, 'T', true)))
           val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
 
           calendar.setTime(parsed)

@@ -37,14 +37,20 @@ def convert_to_txt(infile, pages=None):
     manager = PDFResourceManager()
     converter = TextConverter(manager, output, laparams=LAParams())
     interpreter = PDFPageInterpreter(manager, converter)
+    idle_converter = TextConverter(manager, output, laparams=LAParams(boxes_flow=None))
+    idle_interpreter = PDFPageInterpreter(manager, idle_converter)
 
     if not isWindows():
         signal.signal(signal.SIGALRM, signal_handler)
         signal.alarm(1800)
 
     for page in PDFPage.get_pages(infile, pagenums):
-        interpreter.process_page(page)
+        try:
+            interpreter.process_page(page)
+        except RecursionError:
+            idle_interpreter.process_page(page)
     converter.close()
+    idle_converter.close()
     text = output.getvalue()
     output.close
 
