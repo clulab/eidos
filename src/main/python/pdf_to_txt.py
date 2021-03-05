@@ -37,22 +37,23 @@ def convert_to_txt(infile, pages=None):
     manager = PDFResourceManager()
     converter = TextConverter(manager, output, laparams=LAParams())
     interpreter = PDFPageInterpreter(manager, converter)
-    idle_converter = TextConverter(manager, output, laparams=LAParams(boxes_flow=None))
-    idle_interpreter = PDFPageInterpreter(manager, idle_converter)
+    simple_converter = TextConverter(manager, output, laparams=LAParams(boxes_flow=None))
+    simple_interpreter = PDFPageInterpreter(manager, simple_converter)
 
     if not isWindows():
         signal.signal(signal.SIGALRM, signal_handler)
         signal.alarm(1800)
 
-    for page in PDFPage.get_pages(infile, pagenums):
+    for pageno, page in enumerate(PDFPage.get_pages(infile, pagenums), 1):
         try:
             interpreter.process_page(page)
         except RecursionError:
-            idle_interpreter.process_page(page)
+            print("(RecursionError in page %s: disabling box_flow)" % pageno, end=" - ")
+            simple_interpreter.process_page(page)
     converter.close()
-    idle_converter.close()
+    simple_converter.close()
     text = output.getvalue()
-    output.close
+    output.close()
 
     if not isWindows():
         signal.alarm(0)
@@ -79,4 +80,4 @@ if __name__ == "__main__":
                 print("Success.")
             except Exception as e:
                 print("Fail: %s" % e)
-                
+
