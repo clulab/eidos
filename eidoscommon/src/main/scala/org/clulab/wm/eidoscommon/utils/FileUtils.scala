@@ -25,7 +25,16 @@ object FileUtils {
 
   def printWriterFromFile(path: String): PrintWriter = Sinker.printWriterFromFile(path, append = false)
 
-  //
+  // See https://rosettacode.org/wiki/Walk_a_directory/Recursively#Scala.
+  def walkTree(file: File): Iterable[File] = {
+    val children = new Iterable[File] {
+      def iterator = if (file.isDirectory) file.listFiles.iterator else Iterator.empty
+    }
+    Seq(file) ++: children.flatMap(walkTree(_))
+  }
+
+  def walkTree(filename: String): Iterable[File] = walkTree(new File(filename))
+
   def findFiles(collectionDir: String, extension: String): Seq[File] = {
     val dir = new File(collectionDir)
     val filter = new FilenameFilter {
