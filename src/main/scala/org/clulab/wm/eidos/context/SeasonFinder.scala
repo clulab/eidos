@@ -9,7 +9,7 @@ import org.clulab.timenorm.scate.RepeatingField
 import org.clulab.timenorm.scate.ThisRI
 import org.clulab.timenorm.scate.Year
 import org.clulab.odin.{Mention, State, TextBoundMention}
-import org.clulab.processors.Document
+import org.clulab.processors.{Document, Sentence}
 import org.clulab.struct.{Interval => TextInterval}
 import org.clulab.wm.eidos.attachments.{Location, Time}
 import org.clulab.wm.eidos.extraction.Finder
@@ -29,20 +29,22 @@ object SeasonFinder {
   //      the planting season in Afar starts in June and ends in September:
   //          * "444179" -> "planting" -> ("start" -> 6, "end" -> 9)
   def fromConfig(config: Config): SeasonFinder = {
+    val yaml = new Yaml()
     val seasonDBPath: String = config[String]("seasonsDBPath")
     val seasonDBTxt = getTextFromResource(seasonDBPath)
-    val yaml = new Yaml()
     val yamlDB = yaml.loadAll(seasonDBTxt).iterator()
-    val seasonJavaTriggers = yamlDB.next().asInstanceOf[java.util.Map[String, java.util.ArrayList[String]]]
-    val seasonTriggers = seasonJavaTriggers.get("triggers").asScala.toSet
+    val seasonModifiersJavaMap = yamlDB.next().asInstanceOf[java.util.Map[String, Int]]
+    val seasonModifiersMap = seasonModifiersJavaMap.asScala.toMap
+    val seasonTriggersJavaList = yamlDB.next().asInstanceOf[java.util.Map[String, java.util.ArrayList[String]]]
+    val seasonTriggersSet = seasonTriggersJavaList.get("triggers").asScala.toSet
     val seasonJavaMap = yamlDB.next().asInstanceOf[java.util.Map[String, java.util.Map[String, java.util.Map[String, Int]]]]
     val seasonMap = seasonJavaMap.asScala.mapValues(_.asScala.mapValues(_.asScala.toMap).toMap).toMap
-    new SeasonFinder(seasonMap, seasonTriggers)
+    new SeasonFinder(seasonMap, seasonTriggersSet, seasonModifiersMap)
   }
 }
 
 
-class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], triggers: Set[String]) extends Finder{
+class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], triggers: Set[String], modifierMap: Map[String, Int]) extends Finder{
 
   private def timeFilter(mention: Mention): Boolean = {
     mention.label == "Time" && (mention.attachments.head match {
@@ -118,22 +120,47 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
     }
   }
 
+  private def findModifier(sentence: Sentence, tokenIdx: Int): Option[Int] = {
+    val incomingHeads = sentence.dependencies.get.incomingEdges(tokenIdx).map(_._1)
+    // Look for patterns like "late <- amod <- season" or "late <- amod <- start -> season"
+    val modifiers = for (
+      (head, dependant, edge) <- sentence.dependencies.get.allEdges
+      if edge.matches("a(dv)?mod")
+      if head == tokenIdx || incomingHeads.contains(head)
+      if modifierMap.contains(sentence.lemmas.get(dependant))
+    ) yield {
+      dependant
+    }
+    modifiers.headOption
+  }
+
   def find(doc: Document, initialState: State): Seq[Mention] = {
     val Some(text) = doc.text // Document must have a text.
     // For every season trigger found in text, try to create a SeasonMention and if it is defined
     // normalize it and create a TimeAttachment.
     val mentions = for {
       (sentence, sentenceIndex) <- doc.sentences.zipWithIndex
-      lemmas = sentence.lemmas.get
+      lemmas = sentence.lemmas.get.map(_.toLowerCase)
       m <- lemmas.zipWithIndex.filter(s => triggers.contains(s._1))
       seasonMentionOpt = createMention(m, sentenceIndex, lemmas, initialState)
       if seasonMentionOpt.isDefined
       seasonMention = seasonMentionOpt.get
      } yield {
-      val seasonStartOffset = sentence.startOffsets(seasonMention.firstToken)
-      val seasonEndOffset = sentence.endOffsets(seasonMention.lastToken)
       val seasonStartMonth = seasonMention.season("start")
       val seasonEndMonth = seasonMention.season("end")
+
+      // Look for a modifier in the expression context, get the offset span and
+      // the number of months (shiftValue) to add/subtract to/from the time interval
+      val modifierTokenIdx = findModifier(sentence, seasonMention.lastToken)
+      val (modifierShift, seasonStartOffset, seasonEndOffset) = modifierTokenIdx match {
+        case Some(tokenIdx) =>
+          val firstExtendedIdx = if (tokenIdx < seasonMention.firstToken) tokenIdx else seasonMention.firstToken
+          val lastExtendedIdx = if (tokenIdx > seasonMention.lastToken) tokenIdx else seasonMention.lastToken
+          val shiftValue = modifierMap(sentence.lemmas.get(tokenIdx))
+          (shiftValue, sentence.startOffsets(firstExtendedIdx), sentence.endOffsets(lastExtendedIdx))
+        case None =>
+          (0, sentence.startOffsets(seasonMention.firstToken), sentence.endOffsets(seasonMention.lastToken))
+      }
 
       // TextInterval for the TimEx
       val seasonTextInterval = TextInterval(seasonStartOffset, seasonEndOffset)
@@ -141,11 +168,17 @@ class SeasonFinder(seasonMap: Map[String, Map[String, Map[String, Int]]], trigge
 
       // Normalize the season using the Year of the Time mention found in closestMention as reference.
       // Create a TimEx for this season.
-      val yearInterval = Year(seasonMention.timeInterval.startDate.getYear)
-      val startInterval = ThisRI(yearInterval, RepeatingField(MONTH_OF_YEAR, seasonStartMonth))
-      val endInterval = ThisRI(yearInterval, RepeatingField(MONTH_OF_YEAR, seasonEndMonth))
+      val startYearInterval = Year(seasonMention.timeInterval.startDate.getYear)
+      val endYearInterval = if (seasonEndMonth >= seasonStartMonth)
+        Year(seasonMention.timeInterval.startDate.getYear)
+      else
+        Year(seasonMention.timeInterval.startDate.getYear + 1)
+      val startInterval = ThisRI(startYearInterval, RepeatingField(MONTH_OF_YEAR, seasonStartMonth))
+      val endInterval = ThisRI(endYearInterval, RepeatingField(MONTH_OF_YEAR, seasonEndMonth))
       val seasonInterval = Between(startInterval, endInterval, startIncluded = true, endIncluded = true)
-      val timeSteps: Seq[TimeStep] = Seq(TimeStep (seasonInterval.start, seasonInterval.end))
+      val seasonStart = seasonInterval.start.plusMonths(modifierShift)
+      val seasonEnd = seasonInterval.end.plusMonths(modifierShift)
+      val timeSteps: Seq[TimeStep] = Seq(TimeStep (seasonStart, seasonEnd))
       val attachment = TimEx(seasonTextInterval, timeSteps, seasonText)
 
       // TextInterval for the TextBoundMention

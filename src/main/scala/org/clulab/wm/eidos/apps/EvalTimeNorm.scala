@@ -15,9 +15,10 @@ import collection.JavaConverters._
 
 object EvalTimeNorm {
 
-  protected def run(): Double = {
+  def runEval(eidosSystem: EidosSystem, finder: String,
+                        useNeuralParser: Boolean, testFile: String): Double = {
     val timeNormEvalDir = "/org/clulab/wm/eidos/english/context/timenormeval/"
-    val goldStream = getClass.getResourceAsStream(s"$timeNormEvalDir/gold_timenorm.csv")
+    val goldStream = getClass.getResourceAsStream(s"$timeNormEvalDir/$testFile")
     val goldLines = Source.fromInputStream(goldStream).getLines
     goldLines.next() // Skip headers
     // Build a Map with the gold time expressions.
@@ -26,9 +27,15 @@ object EvalTimeNorm {
     val goldTimex = (for ((goldLine, goldIdx) <- goldLines.toSeq.zipWithIndex) yield {
       goldLine.split(",").map(_.trim) match {
         case Array(docId, dct, startSpan, endSpan, timexStrg, startIntervalStr, endIntervalStr) =>
-          val startInterval = LocalDateTime.parse(startIntervalStr)
-          val endInterval = LocalDateTime.parse(endIntervalStr)
-          val timeInterval = SimpleInterval(startInterval, endInterval)
+          val startIntervals = startIntervalStr.split(";").map(LocalDateTime.parse)
+          val endIntervals = endIntervalStr.split(";").map(LocalDateTime.parse)
+          val timeSimpleIntervals = for ((startInterval, endInterval) <- startIntervals.zip(endIntervals)) yield {
+            SimpleInterval(startInterval, endInterval)
+          }
+          val timeInterval = timeSimpleIntervals.length match {
+            case 1 => timeSimpleIntervals.head
+            case _ => SimpleIntervals(timeSimpleIntervals)
+          }
           // timexStrg is added to the Timex id so it can be printed
           val timex = Timex(s"${docId}e$goldIdx '$timexStrg'", (startSpan.toInt, endSpan.toInt), timeInterval)
           (docId, dct, timex)
@@ -36,17 +43,9 @@ object EvalTimeNorm {
           val timeInterval = UnknownInterval()
           val timex = Timex(s"${docId}e$goldIdx '$timexStrg'", (startSpan.toInt, endSpan.toInt), timeInterval)
           (docId, dct, timex)
-        case _ => throw new RuntimeException(s"Unexpected number of columns for row $goldIdx in gold_timenorm.csv")
+        case _ => throw new RuntimeException(s"Unexpected number of columns for row $goldIdx in $testFile")
       }
     }).groupBy(t => (t._1, t._2)).mapValues(_.map(_._3))
-
-    // Configure eidos to apply only TimeNormFinder
-    val config = EidosSystem.defaultConfig
-    val newConfig = config
-      .withValue("EidosSystem.finders", ConfigValueFactory.fromAnyRef(List("timenorm").asJava))
-      .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false))
-    val useNeuralParser: Boolean = newConfig.getBoolean("timenorm.useNeuralParser")
-    val eidosSystem = new EidosSystem(newConfig)
 
 
     // For each docId in goldTimex keys get the, parse the document and extract the time expressions found
@@ -66,7 +65,7 @@ object EvalTimeNorm {
 
       // Build a Timex for each Time attachment
       val mentions = eidosSystem.extractMentionsFrom(doc)
-      val predictTimex = mentions.flatMap(_.attachments).zipWithIndex.collect {
+      val predictTimex = mentions.filter(_.foundBy == finder).flatMap(_.attachments).zipWithIndex.collect {
         case (time: Time, tidx: Int) =>
           val span = time.interval.span
           val timexStrg = docText.slice(span.start, span.end)
@@ -97,6 +96,19 @@ object EvalTimeNorm {
     printf("Recall: %.3f\n", recall)
     printf("F1: %.3f\n", fscore)
     fscore
+  }
+
+  protected def run(): Double = {
+    // Configure eidos to apply only TimeNormFinder
+    val config = EidosSystem.defaultConfig
+    val newConfig = config
+      .withValue("EidosSystem.finders", ConfigValueFactory.fromAnyRef(List("timenorm").asJava))
+      .withValue("ontologies.useGrounding", ConfigValueFactory.fromAnyRef(false))
+    val useNeuralParser: Boolean = newConfig.getBoolean("timenorm.useNeuralParser")
+    val finder = if (useNeuralParser) "TimeNormFinderNeural" else "TimeNormFinderSUTime"
+    val eidosSystem = new EidosSystem(newConfig)
+
+    runEval(eidosSystem, finder, useNeuralParser, "gold_timenorm.csv")
   }
 
   def test(): Double = run()
