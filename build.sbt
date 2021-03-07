@@ -107,6 +107,14 @@ lazy val commonSettings = Seq(
   logLevel in run := Level.Warn
 ) ++ buildSettings ++ assemblySettings ++ publishSettings
 
+val scaladocHostingSettings = {
+  enablePlugins(SiteScaladocPlugin)
+  enablePlugins(GhpagesPlugin)
+  git.remoteRepo := "git@github.com:clulab/eidos.git"
+
+  Seq()
+}
+
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Versioner
   "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // needed by processors-main, geonames, glove-840b-300d
@@ -165,11 +173,3 @@ lazy val webapp = project
 lazy val wmexchanger = project
   .settings(commonSettings: _*)
   .dependsOn(eidoscommon)
-
-git.remoteRepo := {
-  // scaladoc hosting
-  enablePlugins(SiteScaladocPlugin)
-  enablePlugins(GhpagesPlugin)
-
-  "git@github.com:clulab/eidos.git"
-}
