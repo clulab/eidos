@@ -10,7 +10,6 @@ import org.clulab.wm.eidoscommon.utils.PassThruNamer
 import upickle.default._
 import upickle.default.{ReadWriter, macroRW}
 
-
 object MaaSUtils {
   def mapOntology(reader: EidosSystem, ontologyName: String, ontologyString: String, topN: Int = 10): String = {
     val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandlerOpt.get.ontologyGrounders.collect{ case g: EidosOntologyGrounder => g }
@@ -44,11 +43,12 @@ object MaaSUtils {
   }
 
   def mapNodeToPrimaryConcepts(reader: EidosSystem, data: String, topN: Int = 10): String = {
+    val sanitizer = Word2Vec.defaultWordSanitizer
     val json = ujson.read(data)
     val node = json("name").str
     val examples = json("examples").arr.map(_.toString)
     // create a bag of words, and sanitize them
-    val sanitizedExampleBag = examples.flatMap(_.split("\\s+")).map(w => Word2Vec.sanitizeWord(w))
+    val sanitizedExampleBag = examples.flatMap(_.split("\\s+")).map(w => sanitizer.sanitizeWord(w))
     val w2v = reader.components.ontologyHandlerOpt.get.wordToVec
     // average the word embeddings
     val embedding = w2v.makeCompositeVector(sanitizedExampleBag)
