@@ -4,8 +4,8 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-
 import ai.lum.common.ConfigUtils._
+import org.clulab.embeddings.WordEmbeddingMapPool
 import org.clulab.embeddings.{CompactWordEmbeddingMap => CompactWord2Vec}
 import org.clulab.geonorm.GeoNamesIndex
 import org.clulab.wm.eidos.EidosSystem
@@ -87,7 +87,7 @@ object CacheOntologies extends App {
 
   def cacheWord2Vec(): Unit = {
     val filenameIn = config[String]("ontologies.wordToVecPath")
-    val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, filenameIn)
+    val filenameOut = EidosWordToVec.makeCachedFilename(cacheDir, filenameIn) + WordEmbeddingMapPool.binExtension
     println(s"Saving vectors to $filenameOut...")
     val word2Vec = reader.components.ontologyHandlerOpt.get.wordToVec match {
       case realWordToVec: RealWordToVec =>
