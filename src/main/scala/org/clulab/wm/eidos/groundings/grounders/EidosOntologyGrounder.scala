@@ -29,9 +29,11 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
     domainOntology.indices.map { n =>
+      val negValues = domainOntology.getNegValues(n)
       ConceptEmbedding(
         domainOntology.getNamer(n),
-        wordToVec.makeCompositeVector(domainOntology.getValues(n))
+        wordToVec.makeCompositeVector(domainOntology.getValues(n)),
+        if (negValues.nonEmpty) Some(wordToVec.makeCompositeVector(negValues)) else None
       )
     }
 
@@ -87,9 +89,12 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
       val matchedPatterns = nodesPatternMatched(text, patterns)
       if (matchedPatterns.nonEmpty)
         matchedPatterns
-      else
+      else {
         // Otherwise, back-off to the w2v-based approach
+        // TODO: The line below only uses the positive embeddings, not the negative ones.
+        // Should something be done there or here to take them into account.
         wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_))
+      }
     }
   }
 

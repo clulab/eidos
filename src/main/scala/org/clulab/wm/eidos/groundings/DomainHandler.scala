@@ -14,6 +14,8 @@ import org.clulab.wm.ontologies.DomainOntology
 import org.clulab.wm.ontologies.FastDomainOntology
 import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
+import org.clulab.wm.ontologies.PosNegTreeDomainOntology
+import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
 
 object DomainHandler extends Logging {
 
@@ -52,7 +54,10 @@ object DomainHandler extends Logging {
       else {
         logger.info(s"Processing yml ontology with parents from $ontologyPath...")
         val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
-        new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+        if (PosNegTreeDomainOntology.isPosNegPath(ontologyPath))
+          new PosNegTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+        else
+          new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
       }
     }
     else {

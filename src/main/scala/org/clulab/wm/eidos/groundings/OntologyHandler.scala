@@ -19,6 +19,7 @@ import org.clulab.wm.eidoscommon.{EidosProcessor, EidosTokenizer, SentencesExtra
 import org.clulab.wm.ontologies.FullTreeDomainOntology.FullTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.HalfTreeDomainOntology.HalfTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.DomainOntology
+import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
 
 class OntologyHandler(
   val ontologyGrounders: Seq[OntologyGrounder],
@@ -219,6 +220,8 @@ object OntologyHandler extends Logging {
         config[Boolean]("useGrounding"),
         config[String]("wordToVecPath"),
         config[Int]("topKNodeGroundings"), //TODO: I don't think the W2V should be the one slicing these if our grounding API takes it as a param
+        config[Double]("groundNegScoreThreshold").toFloat,
+        config[Double]("groundPenalizeValue").toFloat,
         cacheDir,
         useCacheForW2V
       )
@@ -246,8 +249,10 @@ object OntologyHandler extends Logging {
   }
 
   def mkDomainOntologyFromYaml(name: String, ontologyYaml: String, sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean = true, includeParents: Boolean): DomainOntology = {
-    if (includeParents)
-      new FullTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
+    if (includeParents) {
+//      new FullTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
+      new PosNegTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
+    }
     else
       new HalfTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filter).buildFromYaml(ontologyYaml)
   }

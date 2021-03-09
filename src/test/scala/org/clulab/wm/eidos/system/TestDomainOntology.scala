@@ -9,6 +9,8 @@ import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.Timer
 import org.clulab.wm.ontologies.CompactDomainOntology.CompactDomainOntologyBuilder
 import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
+import org.clulab.wm.ontologies.PosNegTreeDomainOntology
+import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
 class TestDomainOntology extends EidosTest {
@@ -98,23 +100,28 @@ class TestDomainOntology extends EidosTest {
       }
       hasDuplicates(name, newOntology) should be (false)
 
-      val newerOntology = Timer.time(s"Convert $name to compact") {
+      val newerOntologyOpt = Timer.time(s"Convert $name to compact") {
         if (includeParents)
-          new FastDomainOntologyBuilder(newOntology.asInstanceOf[FullTreeDomainOntology]).build
+          if (PosNegTreeDomainOntology.isPogNegName(name))
+            None
+          else
+            Some(new FastDomainOntologyBuilder(newOntology.asInstanceOf[FullTreeDomainOntology]).build)
         else
-          new CompactDomainOntologyBuilder(newOntology.asInstanceOf[HalfTreeDomainOntology]).build
+          Some(new CompactDomainOntologyBuilder(newOntology.asInstanceOf[HalfTreeDomainOntology]).build)
       }
-      hasDuplicates(name, newerOntology) should be (false)
-      matches(newOntology, newerOntology)
+      newerOntologyOpt.foreach { newerOntology =>
+        hasDuplicates(name, newerOntology) should be(false)
+        matches(newOntology, newerOntology)
 
-      if (useCacheForOntologies) {
-        val newestOntology = Timer.time(s"Load $name from cache") {
-          DomainHandler("", cachePath(abbrev), proc, canonicalizer, filter, useCacheForOntologies = true, includeParents)
+        if (useCacheForOntologies) {
+          val newestOntology = Timer.time(s"Load $name from cache") {
+            DomainHandler("", cachePath(abbrev), proc, canonicalizer, filter, useCacheForOntologies = true, includeParents)
+          }
+
+          show3(newOntology, newerOntology, newestOntology)
+          hasDuplicates(name, newestOntology) should be(false)
+          matches(newOntology, newestOntology)
         }
-
-        show3(newOntology, newerOntology, newestOntology)
-        hasDuplicates(name, newestOntology) should be (false)
-        matches(newOntology, newestOntology)
       }
     }
   }

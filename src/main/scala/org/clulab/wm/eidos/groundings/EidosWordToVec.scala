@@ -33,7 +33,7 @@ class FakeWordToVec extends EidosWordToVec {
   def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
 }
 
-class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends EidosWordToVec {
+class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNegScoreThreshold: Float, groundPenalizeValue: Float) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 
@@ -62,6 +62,11 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     sum
   }
 
+  // case class ConceptEmbedding(
+  //   val namer: Namer,
+  //   embedding: Array[Float],
+  //   negEmbeddingOpt: Option[Array[Float]] = None) extends Serializable
+
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
     val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
     // It could be that the composite vectore below has all zeros even though some values are defined.
@@ -73,11 +78,21 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int) extends E
     else {
       val nodeEmbedding = w2v.makeCompositeVector(sanitizedNameParts)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
-        (conceptEmbedding.namer, dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+        // some smart combination of the similarity to the conceptEmbedding.embedding and ce.negEmbeddingOpt
+        (conceptEmbedding.namer, scoreNode(conceptEmbedding.embedding, conceptEmbedding.negEmbeddingOpt, nodeEmbedding))
       }
-
       similarities.sortBy(-_._2).take(topKNodeGroundings)
     }
+  }
+
+  def scoreNode(posEmbedding: Array[Float], negEmbeddingOpt: Option[Array[Float]], nodeEmbedding: Array[Float]): Float = {
+    val posScore = dotProduct(posEmbedding, nodeEmbedding)
+    val negScore = negEmbeddingOpt.map(dotProduct(_, nodeEmbedding)).getOrElse(0f)
+
+    if (negScore > groundNegScoreThreshold)
+      math.max(-1f, posScore - groundPenalizeValue)
+    else
+      posScore
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Seq[String], nounVerbWeightRatio:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
@@ -126,7 +141,7 @@ object EidosWordToVec extends Logging {
   def makeCachedFilename(path: String, file: String): String =
       path + "/" + file.split('/').last + ".serialized"
 
-  def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int, cachedPath: String, cached: Boolean = false): EidosWordToVec = {
+  def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int, groundNegScoreThreshold: Float, groundPenalizeValue: Float, cachedPath: String, cached: Boolean = false): EidosWordToVec = {
     if (enabled) {
       logger.info(s"Loading w2v from $wordToVecPath...")
 
@@ -134,7 +149,7 @@ object EidosWordToVec extends Logging {
         if (cached) CompactWord2Vec(makeCachedFilename(cachedPath, wordToVecPath), resource = false, cached)
         else CompactWord2Vec(wordToVecPath, resource = true, cached)
 
-      new RealWordToVec(w2v, topKNodeGroundings)
+      new RealWordToVec(w2v, topKNodeGroundings, groundNegScoreThreshold, groundPenalizeValue)
     }
     else
       new FakeWordToVec()
