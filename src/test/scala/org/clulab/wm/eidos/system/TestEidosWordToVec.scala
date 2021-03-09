@@ -10,7 +10,7 @@ class TestEidosWordToVec extends Test {
 
   it should "work for Array" in {
     val length = 3
-    val implArray = new CompactWordEmbeddingMap.ImplArrayType(length)
+    val implArray = new Array[Float](length)
     val array = implArray.asInstanceOf[Array[Float]]
 
     println(array(length -1))
@@ -18,9 +18,9 @@ class TestEidosWordToVec extends Test {
 
   it should "work for Seq" in {
     val length = 3
-    val implArray = new CompactWordEmbeddingMap.ImplArrayType(length)
-    val implSeq: CompactWordEmbeddingMap.ImplSeqType = implArray
-    val seq = implSeq.asInstanceOf[Seq[Float]]
+    val implArray = new Array[Float](length)
+    val implSeq: IndexedSeq[Float] = implArray
+    val seq = implSeq.asInstanceOf[Array[Float]]
 
     println(seq(length -1))
   }
@@ -29,7 +29,7 @@ class TestEidosWordToVec extends Test {
 
   it should "work for Array" in {
     val length = 3
-    val implArray = new ExplicitWordEmbeddingMap.ImplArrayType(length)
+    val implArray = new Array[Float](length)
     val array = implArray.asInstanceOf[Array[Float]]
 
     println(array(length -1))
@@ -37,8 +37,8 @@ class TestEidosWordToVec extends Test {
 
   it should "work for Seq" in {
     val length = 3
-    val implArray = new ExplicitWordEmbeddingMap.ImplArrayType(length)
-    val implSeq: ExplicitWordEmbeddingMap.ImplSeqType = implArray
+    val implArray = new Array[Float](length)
+    val implSeq: IndexedSeq[Float] = implArray
     val seq = implSeq.asInstanceOf[Seq[Float]]
 
     println(seq(length -1))
