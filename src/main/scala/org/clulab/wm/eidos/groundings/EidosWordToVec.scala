@@ -38,7 +38,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
   protected def split(string: String): Array[String] = string.split(" +")
 
   def stringSimilarity(string1: String, string2: String): Float =
-      w2v.avgSimilarity(split(string1), split(string2))
+      constrainRange(w2v.avgSimilarity(split(string1), split(string2)))
 
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float = {
     // avgSimilarity does sanitizeWord itself, so it is unnecessary here.
@@ -46,7 +46,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
     val sanitisedM2 =  split(mention2.text)
     val similarity = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
     
-    similarity
+    constrainRange(similarity)
   }
 
   def dotProduct(v1: Array[Float], v2: Array[Float]): Float = {
