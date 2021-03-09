@@ -146,9 +146,9 @@ lazy val core = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
     // The goal is to include compile and test only.
-    assembly / aggregate := false,
-    publish / aggregate := false,
-    releaseProcess / aggregate := false
+    aggregate in assembly := false,
+    aggregate in publish := false,
+    aggregate in releaseProcess := false
   )
 
 // This prevents "error: recursive lazy value core needs type".

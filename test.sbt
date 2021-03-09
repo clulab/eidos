@@ -1,10 +1,10 @@
 import Tests._
 
-Test / fork := true // Also forces sequential operation
+fork in Test := true // Also forces sequential operation
 
-Test / parallelExecution := false // Keeps groups in their order
+parallelExecution in Test := false // Keeps groups in their order
 
-//Test / testForkedParallel := true // Allow parallel within group?
+//testForkedParallel in Test := true // Allow parallel within group?
 
 {
   def groupByLanguage(tests: Seq[TestDefinition]) = {
