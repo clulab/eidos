@@ -1,8 +1,8 @@
 import Tests._
 
-fork in Test := true // Also forces sequential operation
+Test / fork := true // Also forces sequential operation
 
-parallelExecution in Test := false // Keeps groups in their order
+Test / parallelExecution := false // Keeps groups in their order
 
 //testForkedParallel in Test := true // Allow parallel within group?
 
@@ -24,5 +24,5 @@ parallelExecution in Test := false // Keeps groups in their order
     Seq(otherGroup, englishGroup, portugueseGroup)
   }
 
-  testGrouping in Test := groupByLanguage((definedTests in Test).value)
+  Test / testGrouping := groupByLanguage((Test / definedTests).value)
 }

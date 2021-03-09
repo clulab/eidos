@@ -15,9 +15,9 @@ name := "eidos"
 // See https://www.scala-sbt.org/1.x/docs/Multi-Project.html for the reason this can't be in
 // a separate file: "The definitions in .sbt files are not visible in other .sbt files."
 lazy val assemblySettings = Seq(
-  test in assembly := {},
+  assembly / test := {},
 
-  assemblyMergeStrategy in assembly := {
+  assembly / assemblyMergeStrategy := {
     // See https://github.com/sbt/sbt-assembly.
     // This is nearly the same as case _ => MergeStrategy.defaultMergeStrategy with the most important difference
     // being that any problem noticed by deduplicate will halt the process.  The is presently/temporarily
@@ -98,13 +98,13 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.11", "2.12.4"),
   scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
-  evictionWarningOptions in update := EvictionWarningOptions.default
+  update / evictionWarningOptions := EvictionWarningOptions.default
       // Periodically turn these back on to see if anything has changed.
       .withWarnTransitiveEvictions(false)
       .withWarnDirectEvictions(false),
-  logLevel in update := Level.Warn,
-  logLevel in compile := Level.Warn,
-  logLevel in run := Level.Warn
+  update / logLevel := Level.Warn,
+  compile / logLevel := Level.Warn,
+  run / logLevel := Level.Warn
 ) ++ buildSettings ++ assemblySettings ++ publishSettings
 
 val scaladocHostingSettings = {
@@ -146,9 +146,9 @@ lazy val core = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
     // The goal is to include compile and test only.
-    aggregate in assembly := false,
-    aggregate in publish := false,
-    aggregate in releaseProcess := false
+    assembly / aggregate := false,
+    publish / aggregate := false,
+    releaseProcess / aggregate := false
   )
 
 // This prevents "error: recursive lazy value core needs type".

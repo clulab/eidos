@@ -1,7 +1,7 @@
 // Certain library dependencies, particularly Stanford NLP, have been observed to have problems with
 // versions of Java other than the required one.  Proceed with caution if you ignore this check.
 // See https://stackoverflow.com/questions/19208942/enforcing-java-version-for-scala-project-in-sbt
-initialize in ThisBuild := {
+ThisBuild / initialize := {
   val _ = initialize.value // Run the previous initialization.
   val required = "1.8"
   val current  = sys.props("java.specification.version")

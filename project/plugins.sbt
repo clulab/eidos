@@ -1,4 +1,4 @@
-evictionWarningOptions in update := EvictionWarningOptions.default
+update / evictionWarningOptions := EvictionWarningOptions.default
     .withWarnTransitiveEvictions(false)
     .withWarnDirectEvictions(false)
 
