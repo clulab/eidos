@@ -142,7 +142,7 @@ libraryDependencies ++= {
 lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .aggregate(eidoscommon, ontologies, elasticsearch, wmexchanger, webapp)
-  .dependsOn(eidoscommon, ontologies)
+  .dependsOn(eidoscommon % "compile->compile;test->test", ontologies)
   .settings(commonSettings: _*)
   .settings(
     // The goal is to include compile and test only.
