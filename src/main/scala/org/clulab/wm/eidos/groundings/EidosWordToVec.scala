@@ -59,7 +59,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
       sum += v1(i) * v2(i)
       i += 1
     }
-    sum
+    constrainRange(sum)
   }
 
   // case class ConceptEmbedding(
@@ -85,14 +85,16 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
     }
   }
 
+  def constrainRange(value: Float): Float = math.max(-1f, math.min(1f, value))
+
   def scoreNode(posEmbedding: Array[Float], negEmbeddingOpt: Option[Array[Float]], nodeEmbedding: Array[Float]): Float = {
     val posScore = dotProduct(posEmbedding, nodeEmbedding)
     val negScore = negEmbeddingOpt.map(dotProduct(_, nodeEmbedding)).getOrElse(0f)
+    val score =
+      if (negScore > groundNegScoreThreshold) math.max(-1f, posScore - groundPenalizeValue)
+      else posScore
 
-    if (negScore > groundNegScoreThreshold)
-      math.max(-1f, posScore - groundPenalizeValue)
-    else
-      posScore
+    score
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Seq[String], nounVerbWeightRatio:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
