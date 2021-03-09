@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.wm.eidos.test.Test
 import org.clulab.wm.eidoscommon.utils.Logging
+import org.clulab.wm.eidoscommon.utils.Test
 
 class TestLogback extends Test with Logging {
 

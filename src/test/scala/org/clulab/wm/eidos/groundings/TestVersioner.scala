@@ -3,8 +3,9 @@ package org.clulab.wm.eidos.groundings
 // Switch these back and forth to test code generation
 //import org.clulab.wm.eidos.groundings.{MockVersions => TestVersions, MockVersion => TestVersion }
 import java.time.ZonedDateTime
+
+import org.clulab.wm.eidoscommon.utils.Test
 import com.github.clulab.eidos.{Version => TestVersion, Versions => TestVersions}
-import org.clulab.wm.eidos.test.Test
 
 class TestVersioner extends Test {
   val now = ZonedDateTime.now

@@ -7,12 +7,9 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.graph
 import org.clulab.wm.eidos.rule
 import org.clulab.wm.eidos.test.TestUtils.newEidosSystem
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import org.clulab.wm.eidoscommon.utils.Test
 
 import scala.collection.Seq
-
-class Test extends FlatSpec with Matchers
 
 class EidosTest extends Test {
   val defaultConfig: Config = ConfigFactory.load(EidosTest.config)
