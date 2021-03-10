@@ -12,85 +12,15 @@ name := "eidos"
 // input is blocked with null always being returned.
 //fork := true
 
-// See https://www.scala-sbt.org/1.x/docs/Multi-Project.html for the reason this can't be in
-// a separate file: "The definitions in .sbt files are not visible in other .sbt files."
-lazy val assemblySettings = Seq(
-  assembly / test := {},
-
-  assembly / assemblyMergeStrategy := {
-    // See https://github.com/sbt/sbt-assembly.
-    // This is nearly the same as case _ => MergeStrategy.defaultMergeStrategy with the most important difference
-    // being that any problem noticed by deduplicate will halt the process.  The is presently/temporarily
-    // preferred over a version that will silently handle new conflicts without alerting us to the potential problem.
-    case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
-    case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
-    case PathList("module-info.class")        => MergeStrategy.discard // This might not be right, but it stops the complaints.
-    case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyone's licenses and notices.
-    case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
-    case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
-    case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat
-    // These all have different contents and cannot be automatically deduplicated.
-    case PathList("reference.conf") => MergeStrategy.concat // Scala configuration files--important!
-    case PathList("META-INF", "services", "org.apache.lucene.codecs.PostingsFormat")    => MergeStrategy.filterDistinctLines
-    case PathList("META-INF", "services", "com.fasterxml.jackson.databind.Module")      => MergeStrategy.filterDistinctLines
-    case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")     => MergeStrategy.first // or last or both?
-    // Otherwise just keep one copy if the contents are the same and complain if not.
-    case _ => MergeStrategy.deduplicate
-  }
-)
-
-lazy val publishSettings = {
-  import sbt.Keys.{developers, homepage, licenses, scmInfo}
-  import sbt.url
-  
-  Seq(
-    // publish to a maven repo
-    publishMavenStyle := true,
-    // the standard maven repository
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value)
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    },
-    // Let’s remove any repositories for optional dependencies in our artifact.
-    pomIncludeRepository := { (repo: MavenRepository) =>
-      repo.root.startsWith("http://artifactory.cs.arizona.edu")
-    },
-    scmInfo := Some(
-      ScmInfo(
-        url("https://github.com/clulab/eidos"),
-        "scm:git:https://github.com/clulab/eidos.git"
-      )
-    ),
-    licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    homepage := Some(url("https://github.com/clulab/eidos")),
-    developers := List(
-      Developer(
-        id    = "mihai.surdeanu",
-        name  = "Mihai Surdeanu",
-        email = "mihai@surdeanu.info",
-        url   = url("http://surdeanu.info/mihai/")
-      )
-    )
-  )
-}
-
 // Ensure that all the subprojects have the same settings for things like this.
 lazy val commonSettings = Seq(
   organization := "org.clulab",
   scalaVersion := "2.12.4",
   crossScalaVersions := Seq("2.11.11", "2.12.4"),
   scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
-  update / evictionWarningOptions := EvictionWarningOptions.default
-      // Periodically turn these back on to see if anything has changed.
-      .withWarnTransitiveEvictions(false)
-      .withWarnDirectEvictions(false),
-  update / logLevel := Level.Warn,
   compile / logLevel := Level.Warn,
   run / logLevel := Level.Warn
-) ++ assemblySettings ++ publishSettings
+)
 
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Versioner
@@ -120,7 +50,7 @@ lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .aggregate(eidoscommon, ontologies, elasticsearch, wmexchanger, webapp)
   .dependsOn(eidoscommon % "compile->compile;test->test", ontologies)
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .settings(
     // The goal is to include compile and test only.
     assembly / aggregate := false,
@@ -132,21 +62,21 @@ lazy val core = (project in file("."))
 lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
 
 lazy val elasticsearch = project
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .dependsOn(eidoscommon)
 
 lazy val ontologies = project
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .dependsOn(eidoscommon)
 
 lazy val webapp = project
-  .settings(commonSettings: _*)
   .enablePlugins(PlayScala)
+  .settings(commonSettings)
   .dependsOn(coreRef)
 
 lazy val wmexchanger = project
-  .settings(commonSettings: _*)
+  .settings(commonSettings)
   .dependsOn(eidoscommon)
