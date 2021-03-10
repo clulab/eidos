@@ -77,21 +77,6 @@ lazy val publishSettings = {
   )
 }
 
-// This is build.sbt after all.
-lazy val buildInfoSettings = Seq(
-  buildInfoPackage := "org.clulab.wm.eidos",
-  // This next line of code results in constantly changing source files which then require
-  // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
-  // buildInfoOptions += BuildInfoOption.BuildTime,
-  buildInfoKeys := Seq[BuildInfoKey](
-    name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
-    "gitCurrentBranch" -> { git.gitCurrentBranch.value },
-    "gitHeadCommit" -> { git.gitHeadCommit.value.getOrElse("") },
-    "gitHeadCommitDate" -> { git.gitHeadCommitDate.value.getOrElse("") },
-    "gitUncommittedChanges" -> { git.gitUncommittedChanges.value }
-  )
-)
-
 // Ensure that all the subprojects have the same settings for things like this.
 lazy val commonSettings = Seq(
   organization := "org.clulab",
@@ -105,15 +90,7 @@ lazy val commonSettings = Seq(
   update / logLevel := Level.Warn,
   compile / logLevel := Level.Warn,
   run / logLevel := Level.Warn
-) ++ buildInfoSettings ++ assemblySettings ++ publishSettings
-
-val scaladocHostingSettings = {
-  enablePlugins(SiteScaladocPlugin)
-  enablePlugins(GhpagesPlugin)
-  git.remoteRepo := "git@github.com:clulab/eidos.git"
-
-  Seq()
-}
+) ++ assemblySettings ++ publishSettings
 
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Versioner
