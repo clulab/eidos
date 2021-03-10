@@ -1,3 +1,5 @@
+Compile / logLevel := Level.Warn
+Compile / scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 Compile / sourceGenerators += Def.task {
   import java.io.File
   import Versioner._
@@ -16,7 +18,3 @@ Compile / sourceGenerators += Def.task {
 
   versioner.version(namespace, files)
 }.taskValue
-
-Compile / logLevel := Level.Warn
-
-Compile / scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")

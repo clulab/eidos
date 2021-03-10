@@ -3,6 +3,11 @@
 // compile, initialize, publish, release, run, test, update, etc.
 
 name := "eidos"
+description := BuildUtils.singleLine("""
+  |Eidos is an open-domain machine reading system designed by the Computational Language Understanding (CLU) Lab
+  |at the University of Arizona for the World Modelers DARPA program.  It uses a cascade of Odin grammars to
+  |extract events from free text.
+""")
 
 // This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
 // If it isn't here, sbt test (and run) can seemingly only be performed once before it will fail with
@@ -45,7 +50,7 @@ libraryDependencies ++= {
 lazy val core = (project in file("."))
   .enablePlugins(BuildInfoPlugin)
   .dependsOn(eidoscommon % "compile->compile;test->test", ontologies)
-  .aggregate(eidoscommon, ontologies, elasticsearch, wmexchanger, webapp)
+  .aggregate(eidoscommon, ontologies, webapp)
   .settings(
     aggregate := false,
     compile / aggregate := true,

@@ -1,6 +1,16 @@
-import sbt.Keys.{developers, homepage, licenses, scmInfo}
-import sbt.url
-
+ThisBuild / developers := List(
+  Developer(
+    id    = "mihai.surdeanu",
+    name  = "Mihai Surdeanu",
+    email = "mihai@surdeanu.info",
+    url   = url("http://surdeanu.info/mihai/")
+  )
+)
+ThisBuild / homepage := Some(url("https://github.com/clulab/eidos"))
+ThisBuild / licenses := List(
+  "Apache License, Version 2.0" ->
+  url("http://www.apache.org/licenses/LICENSE-2.0.html")
+)
 // Publish to a maven repo.
 ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := {
@@ -18,15 +28,5 @@ ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/clulab/eidos"),
     "scm:git:https://github.com/clulab/eidos.git"
-  )
-)
-ThisBuild / licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html"))
-ThisBuild / homepage := Some(url("https://github.com/clulab/eidos"))
-ThisBuild / developers := List(
-  Developer(
-    id    = "mihai.surdeanu",
-    name  = "Mihai Surdeanu",
-    email = "mihai@surdeanu.info",
-    url   = url("http://surdeanu.info/mihai/")
   )
 )
