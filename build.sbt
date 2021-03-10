@@ -78,7 +78,7 @@ lazy val publishSettings = {
 }
 
 // This is build.sbt after all.
-lazy val buildSettings = Seq(
+lazy val buildInfoSettings = Seq(
   buildInfoPackage := "org.clulab.wm.eidos",
   // This next line of code results in constantly changing source files which then require
   // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
@@ -105,7 +105,7 @@ lazy val commonSettings = Seq(
   update / logLevel := Level.Warn,
   compile / logLevel := Level.Warn,
   run / logLevel := Level.Warn
-) ++ buildSettings ++ assemblySettings ++ publishSettings
+) ++ buildInfoSettings ++ assemblySettings ++ publishSettings
 
 val scaladocHostingSettings = {
   enablePlugins(SiteScaladocPlugin)
