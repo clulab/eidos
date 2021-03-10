@@ -11,7 +11,7 @@ import org.clulab.wm.eidoscommon.utils.Test
 
 import scala.collection.Seq
 
-class EidosTest extends Test {
+class EidosTest extends Test() {
   val defaultConfig: Config = ConfigFactory.load(EidosTest.config)
 
   val passingTest = it
