@@ -16,3 +16,5 @@ Compile / sourceGenerators += Def.task {
 
   versioner.version(namespace, files)
 }.taskValue
+
+ThisBuild / compile / logLevel := Level.Warn

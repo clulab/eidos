@@ -1,6 +1,4 @@
-
 assembly / test := {}
-
 assembly / assemblyMergeStrategy := {
   // See https://github.com/sbt/sbt-assembly.
   // This is nearly the same as case _ => MergeStrategy.defaultMergeStrategy with the most important difference

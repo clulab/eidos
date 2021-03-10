@@ -1,6 +1,4 @@
-
 buildInfoPackage := "org.clulab.wm.eidos"
-
 // This next line of code results in constantly changing source files which then require
 // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
 // buildInfoOptions += BuildInfoOption.BuildTime,
