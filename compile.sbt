@@ -17,4 +17,6 @@ Compile / sourceGenerators += Def.task {
   versioner.version(namespace, files)
 }.taskValue
 
-ThisBuild / compile / logLevel := Level.Warn
+Compile / logLevel := Level.Warn
+
+Compile / scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")

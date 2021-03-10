@@ -1,6 +1,6 @@
 // See also the other files in the project directory with sbt extensions.
-// These are special additions for eidos that are named according to the
-// task they are associated with: compile, release, test, etc.
+// They are generally named according to the task they are associated with:
+// compile, initialize, publish, release, run, test, update, etc.
 
 name := "eidos"
 
@@ -15,8 +15,6 @@ name := "eidos"
 ThisBuild / organization := "org.clulab"
 ThisBuild / scalaVersion := "2.12.4"
 ThisBuild / crossScalaVersions := Seq("2.11.11", "2.12.4")
-ThisBuild / scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
-ThisBuild / run / logLevel := Level.Warn
 
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Versioner
@@ -31,8 +29,8 @@ libraryDependencies ++= {
     "ai.lum"                   %% "common"           % "0.0.8",
     // This ontology is fetched from github rather than included directly.
     "com.github.WorldModelers"  % "Ontologies"       % "master-SNAPSHOT",
-    // Web serialization needs this.
-    "com.typesafe.play"        %% "play-json"        % Versions.sbtPlugin,
+    // Web serialization needs this.  Match the plug-in version.
+    "com.typesafe.play"        %% "play-json"        % "2.6.7",
     // This next one is used in MaaSUtils.
     "com.lihaoyi"              %% "upickle"          % "0.7.1",
     // These are used for testing only.
