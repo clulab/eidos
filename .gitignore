@@ -13,6 +13,7 @@ project/boot/
 project/plugins/project/
 src_managed/
 target/
+/.bsp/
 
 # Scala-IDE specific
 .scala_dependencies
