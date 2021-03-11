@@ -2,15 +2,17 @@ name := "eidos-eidoscommon"
 description := "Code to be shared by other Eidos subprojects and clients"
 
 resolvers ++= Seq(
-  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release").withAllowInsecureProtocol(true) // needed by processors-main
+  // This is needed by processors-main.
+  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
+      .withAllowInsecureProtocol(true)
 )
 
 libraryDependencies ++= {
   val procVer = "8.2.6"
 
   Seq(
-    "org.clulab"                 %% "processors-main"          % procVer,
     "org.clulab"                 %% "processors-corenlp"       % procVer,
+    "org.clulab"                 %% "processors-main"          % procVer,
     "org.clulab"                 %% "processors-odin"          % procVer,
     // local logging
     "ch.qos.logback"              % "logback-classic"          % "1.0.10",

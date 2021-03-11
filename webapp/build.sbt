@@ -1,9 +1,10 @@
-name := """eidos-webapp"""
+name := "eidos-webapp"
+description := "A web application providing a user interface to Eidos"
 
-//resolvers += "jitpack" at "https://jitpack.io"
+// This shouldn't be necessary.
+resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= Seq(
   guice,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
-  "com.github.clulab"       % "timenorm"           % "timenorm-0.9.6.14" exclude("org.slf4j", "slf4j-log4j12")
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
 )

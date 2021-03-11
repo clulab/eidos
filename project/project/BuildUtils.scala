@@ -1,6 +1,7 @@
 package org.clulab.sbt
 
 import sbt.IO
+import sbt.MavenRepository
 
 import java.io.File
 import java.util.Properties
@@ -20,4 +21,11 @@ object BuildUtils {
     // println(s"$fileName:$propertyName = $property")
     property
   }
+
+  def keepRepos(prefix: String) = (repo: MavenRepository) => {
+    repo.root.startsWith(prefix)
+  }
+
+  // Avoid in particular those starting with "file:"
+  val keepHttpRepos = keepRepos("http")
 }
