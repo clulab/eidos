@@ -2,7 +2,7 @@ name := "eidos-eidoscommon"
 description := "Code to be shared by other Eidos subprojects and clients"
 
 resolvers ++= Seq(
-  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // needed by processors-main
+  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release").withAllowInsecureProtocol(true) // needed by processors-main
 )
 
 libraryDependencies ++= {

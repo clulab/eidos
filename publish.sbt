@@ -15,11 +15,13 @@ ThisBuild / organization := "org.clulab"
 ThisBuild / organizationHomepage := Some(url("http://clulab.cs.arizona.edu/"))
 ThisBuild / organizationName := "CLU Lab"
 // Let’s remove any repositories for optional dependencies in our artifact.
-ThisBuild / pomIncludeRepository := { (repo: MavenRepository) =>
-  repo.root.startsWith("http://artifactory.cs.arizona.edu")
-}
+// This might not be used anymore. TODO
+//ThisBuild / pomIncludeRepository := { (repo: MavenRepository) =>
+//  repo.root.startsWith("http://artifactory.cs.arizona.edu")
+//}
 // Publish to a maven repo.
-ThisBuild / publishMavenStyle := true
+// This may not be used anymore. TODO
+//ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := {
   val nexus = "https://oss.sonatype.org/" // the standard maven repository
   if (isSnapshot.value)

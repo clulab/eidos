@@ -24,7 +24,7 @@ ThisBuild / crossScalaVersions := Seq("2.11.11", "2.12.4")
 
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Versioner
-  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // needed by processors-main, geonames, glove-840b-300d
+  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release").withAllowInsecureProtocol(true) // needed by processors-main, geonames, glove-840b-300d
 )
 
 libraryDependencies ++= {
@@ -65,9 +65,10 @@ lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
   .settings (
-    ThisBuild / update / evictionWarningOptions := EvictionWarningOptions.default
-        .withWarnTransitiveEvictions(false)
-        .withWarnDirectEvictions(false)
+    // This may not be used anymore. TODO
+//    update / evictionWarningOptions := EvictionWarningOptions.default
+//        .withWarnTransitiveEvictions(false)
+//        .withWarnDirectEvictions(false)
   )
 
 lazy val elasticsearch = project
