@@ -64,12 +64,6 @@ lazy val core = (project in file("."))
 lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
-  .settings (
-    // This may not be used anymore. TODO
-//    update / evictionWarningOptions := EvictionWarningOptions.default
-//        .withWarnTransitiveEvictions(false)
-//        .withWarnDirectEvictions(false)
-  )
 
 lazy val elasticsearch = project
   .dependsOn(eidoscommon)

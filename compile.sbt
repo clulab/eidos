@@ -1,7 +1,7 @@
 import org.clulab.sbt.Versioner
 
-Compile / logLevel := Level.Warn
-Compile / scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
+ThisBuild / Compile / logLevel := Level.Warn
+ThisBuild / Compile / scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 Compile / sourceGenerators += Def.task {
   import java.io.File
   import Versioner._
