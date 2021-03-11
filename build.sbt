@@ -32,7 +32,7 @@ val publishSettings = Seq(
 )
 
 libraryDependencies ++= {
-  val sbtPluginVersion = BuildUtils.getProperty("./project/build.properties", "sbt-plugin.version")
+  val playVersion = BuildUtils.getProperty("./project/build.properties", "sbt-plugin.version")
 
   Seq(
     // These two are not needed for the docker file if the cache is used.
@@ -46,7 +46,7 @@ libraryDependencies ++= {
     // This ontology is fetched from github rather than included directly.
     "com.github.WorldModelers"  % "Ontologies"       % "master-SNAPSHOT",
     // Web serialization needs this.
-    "com.typesafe.play"        %% "play-json"        % sbtPluginVersion,
+    "com.typesafe.play"        %% "play-json"        % playVersion,
     // This next one is used in MaaSUtils.
     "com.lihaoyi"              %% "upickle"          % "0.7.1",
     // These are used for testing only.

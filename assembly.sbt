@@ -1,3 +1,4 @@
+assembly / aggregate := false
 assembly / assemblyMergeStrategy := {
   // See https://github.com/sbt/sbt-assembly.
   // This is nearly the same as case _ => MergeStrategy.defaultMergeStrategy with the most important difference
@@ -18,4 +19,5 @@ assembly / assemblyMergeStrategy := {
   // Otherwise just keep one copy if the contents are the same and complain if not.
   case _ => MergeStrategy.deduplicate
 }
+// This prevents testing in core, then non-aggregation prevents it in other subprojects.
 assembly / test := {}
