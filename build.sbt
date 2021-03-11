@@ -58,8 +58,11 @@ libraryDependencies ++= {
 lazy val core = (project in file("."))
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(eidoscommon % "compile->compile;test->test", ontologies)
-    .aggregate(eidoscommon, ontologies, webapp)
+    .aggregate(eidoscommon, ontologies)
     .settings(publishSettings)
+    .settings(
+      assembly / aggregate := false
+    )
 
 // This prevents "error: recursive lazy value core needs type".
 lazy val coreRef = LocalProject("core")
