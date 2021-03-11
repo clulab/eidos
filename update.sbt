@@ -1,5 +1,6 @@
-update / evictionWarningOptions := EvictionWarningOptions.default
-    // Periodically turn these back on to see if anything has changed.
-    .withWarnTransitiveEvictions(false)
-    .withWarnDirectEvictions(false)
-update / logLevel := Level.Warn
+val warn = false
+
+ThisBuild / update / evictionWarningOptions := EvictionWarningOptions.default
+    .withWarnTransitiveEvictions(warn)
+    .withWarnDirectEvictions(warn)
+ThisBuild / update / logLevel := Level.Warn

@@ -1,3 +1,5 @@
+import org.clulab.sbt.Versioner
+
 Compile / logLevel := Level.Warn
 Compile / scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 Compile / sourceGenerators += Def.task {

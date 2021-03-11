@@ -1,7 +1,8 @@
+import org.clulab.sbt.BuildUtils
+
 // See also the other files in the project directory with sbt extensions.
 // They are generally named according to the task they are associated with:
 // compile, initialize, publish, release, run, test, update, etc.
-
 name := "eidos"
 description := BuildUtils.singleLine("""
   |Eidos is an open-domain machine reading system designed by the Computational Language Understanding (CLU) Lab
@@ -27,6 +28,8 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
+  val sbtPluginVersion = BuildUtils.getProperty("./project/build.properties", "sbt-plugin.version")
+
   Seq(
     "org.clulab"               %% "timenorm"         % "1.0.5",
     "org.clulab"               %% "geonorm"          % "1.0.0",
@@ -34,8 +37,8 @@ libraryDependencies ++= {
     "ai.lum"                   %% "common"           % "0.0.8",
     // This ontology is fetched from github rather than included directly.
     "com.github.WorldModelers"  % "Ontologies"       % "master-SNAPSHOT",
-    // Web serialization needs this.  Match the plug-in version.
-    "com.typesafe.play"        %% "play-json"        % "2.6.7",
+    // Web serialization needs this.
+    "com.typesafe.play"        %% "play-json"        % sbtPluginVersion,
     // This next one is used in MaaSUtils.
     "com.lihaoyi"              %% "upickle"          % "0.7.1",
     // These are used for testing only.
@@ -61,6 +64,11 @@ lazy val core = (project in file("."))
 lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
+  .settings (
+    ThisBuild / update / evictionWarningOptions := EvictionWarningOptions.default
+        .withWarnTransitiveEvictions(false)
+        .withWarnDirectEvictions(false)
+  )
 
 lazy val elasticsearch = project
   .dependsOn(eidoscommon)

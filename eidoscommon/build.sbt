@@ -1,6 +1,4 @@
-
 name := "eidos-eidoscommon"
-
 description := "Code to be shared by other Eidos subprojects and clients"
 
 resolvers ++= Seq(
