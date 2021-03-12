@@ -8,19 +8,20 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
+  // Versions were last checked 2021 Mar 12.
   val procVer = "8.2.6"
 
   Seq(
-    "org.clulab"                 %% "processors-corenlp"       % procVer,
-    "org.clulab"                 %% "processors-main"          % procVer,
-    "org.clulab"                 %% "processors-odin"          % procVer,
+    "org.clulab"                 %% "processors-corenlp"       % procVer,       // Up to 8.2.6
+    "org.clulab"                 %% "processors-main"          % procVer,       // Up to 8.2.6
+    "org.clulab"                 %% "processors-odin"          % procVer,       // Up to 8.2.6
     // local logging
-    "ch.qos.logback"              % "logback-classic"          % "1.0.10",
-    "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",
+    "ch.qos.logback"              % "logback-classic"          % "1.0.10",      // Up to 1.2.
+    "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",       // Up to 3.9.2
     // dependency logging
-    "org.apache.logging.log4j"    % "log4j-core"               % "2.12.0",
+    "org.apache.logging.log4j"    % "log4j-core"               % "2.12.0",      // Up to 2.14.0
     // config
-    "com.typesafe"                % "config"                   % "1.4.0",
-    "org.scalatest"              %% "scalatest"                % "3.0.4" % Test
+    "com.typesafe"                % "config"                   % "1.4.0",       // Up to 1.4.1
+    "org.scalatest"              %% "scalatest"                % "3.0.4" % Test // Up to 3.2.5
   )
 }
