@@ -11,7 +11,7 @@ addSbtPlugin("com.typesafe.sbt"         % "sbt-ghpages"          % "0.6.3")     
 addSbtPlugin("com.typesafe.sbt"         % "sbt-git"              % "1.0.0")     // up to 1.0.0
 addSbtPlugin("com.typesafe.play"        % "sbt-plugin"           % playVersion) // See build.properties.
 // See https://index.scala-lang.org/sbt/sbt-pgp/sbt-pgp for details, especially version up to 2.1.2.
-addSbtPlugin("com.jsuereth"             % "sbt-pgp"           pd   % "1.1.2-1")   // up to 1.1.2-1 *
+addSbtPlugin("com.jsuereth"             % "sbt-pgp"              % "1.1.2-1")   // up to 1.1.2-1 *
 addSbtPlugin("com.github.gseitz"        % "sbt-release"          % "1.0.13")    // up to 1.0.13
 addSbtPlugin("com.typesafe.sbt"         % "sbt-site"             % "1.4.1")     // up to 1.4.1 +
 addSbtPlugin("org.xerial.sbt"           % "sbt-sonatype"         % "2.3")       // up to 3.9.6 *
