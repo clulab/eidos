@@ -28,4 +28,8 @@ object BuildUtils {
 
   // Avoid in particular those starting with "file:"
   val keepHttpRepos = keepRepos("http")
+
+  def isWindows(): Boolean = {
+    System.getProperty("os.name").toLowerCase().contains("win")
+  }
 }
