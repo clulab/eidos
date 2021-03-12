@@ -57,7 +57,7 @@ object RestConsumerApp extends App with Logging {
     httpHost
   }
 
-  def newHttpGet(url: URL, docId: String, date: String, annotations: Boolean): HttpGet = {
+  def newHttpGet(url: URL, docId: String, dateOpt: Option[String], annotations: Boolean): HttpGet = {
     val uriBuilder = new URIBuilder(url.toURI)
     val pathSegments = {
       val pathSegments = uriBuilder.getPathSegments
@@ -65,11 +65,12 @@ object RestConsumerApp extends App with Logging {
       pathSegments.add(docId)
       pathSegments
     }
-    val uri = uriBuilder
-        .setPathSegments(pathSegments)
-        .addParameter("date", date)
-        .addParameter("annotations", annotations.toString)
-        .toString
+
+    uriBuilder.setPathSegments(pathSegments)
+    dateOpt.foreach { date => uriBuilder.addParameter("date", date) }
+    uriBuilder.addParameter("annotations", annotations.toString)
+
+    val uri = uriBuilder.toString
     val httpGet = new HttpGet(uri)
 
     httpGet
@@ -85,8 +86,8 @@ object RestConsumerApp extends App with Logging {
     closeableHttpClient
   }
 
-  def download(docId: String, date: String, annotations: Boolean, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
-    val httpGet = newHttpGet(url, docId, date, annotations)
+  def download(docId: String, dateOpt: Option[String], annotations: Boolean, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
+    val httpGet = newHttpGet(url, docId, dateOpt, annotations)
     val cdr = closeableHttpClient.execute(httpHost, httpGet).autoClose { response =>
       val statusCode = response.getStatusLine.getStatusCode
 
@@ -109,8 +110,8 @@ object RestConsumerApp extends App with Logging {
     val docId = StringUtils.beforeLast(file.getName, '.')
     val json = FileUtils.getTextFromFile(file)
     val jValue = JsonMethods.parse(json)
-    val date = (jValue \ "release-date").extract[String]
-    val cdr = download(docId, date, annotations, closeableHttpClient, httpHost)
+    val dateOpt = (jValue \ "release-date").extractOpt[String]
+    val cdr = download(docId, dateOpt, annotations, closeableHttpClient, httpHost)
 
     cdr
   }
