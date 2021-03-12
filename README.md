@@ -3,7 +3,7 @@
 # Eidos
 
 Eidos is an open-domain machine reading system designed by the [Computational
-Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at [University
+Language Understanding (CLU) Lab](http://clulab.cs.arizona.edu) at the [University
 of Arizona](http://www.arizona.edu) for the World Modelers DARPA program.  It
 uses a cascade of [Odin](https://github.com/clulab/processors) grammars to
 extract events from free text.
