@@ -126,7 +126,7 @@ libraryDependencies ++= {
     "org.clulab"               %% "geonorm"          % "1.0.0",
     // This is used for config utilities in particular.
     "ai.lum"                   %% "common"           % "0.0.8",
-    "com.github.WorldModelers"  % "Ontologies"       % "master-SNAPSHOT",
+    "com.github.WorldModelers"  % "Ontologies"       % "b181a2c5fb0f6f7228bce91bab0754eb4b112887",
     // Web serialization needs this.  Match the plug-in version.
     "com.typesafe.play"        %% "play-json"        % "2.6.7",
     // This next one is used in MaaSUtils.
