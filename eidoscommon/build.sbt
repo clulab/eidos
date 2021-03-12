@@ -4,7 +4,7 @@ description := "Code to be shared by other Eidos subprojects and clients"
 resolvers ++= Seq(
   // This is needed by processors-main.
   ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
-      .withAllowInsecureProtocol(true)
+      // .withAllowInsecureProtocol(true)
 )
 
 libraryDependencies ++= {

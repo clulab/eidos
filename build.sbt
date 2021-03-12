@@ -22,7 +22,7 @@ resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Ontologies
   // This is needed by processors-main, geonames, glove-840b-300d
   ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
-      .withAllowInsecureProtocol(true)
+      // .withAllowInsecureProtocol(true)
 )
 
 // This doesn't work as ThisBuild, Zero, publish, or anything else.
