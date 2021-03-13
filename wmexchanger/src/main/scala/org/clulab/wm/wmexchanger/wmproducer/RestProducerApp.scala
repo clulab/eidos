@@ -30,7 +30,7 @@ import scala.io.Source
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
 // and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
 object RestProducerApp extends App with Logging {
-  val version = "1.0.3"
+  val version = "1.1.0"
 
   def getPort(url: URL): Int = {
     val explicitPort = url.getPort
