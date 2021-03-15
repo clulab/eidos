@@ -239,6 +239,7 @@ object FullTreeDomainOntology {
       val name = yamlNodes(FullTreeDomainOntology.NAME).asInstanceOf[String]
       /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
       val examples = yamlNodesToStrings(yamlNodes, FullTreeDomainOntology.EXAMPLES)
+          .map { examples => examples.filter(_ != null) }
       val descriptions: Option[Array[String]] = yamlNodesToStrings(yamlNodes, FullTreeDomainOntology.DESCRIPTION)
       // The incoming polarity can now be Int or Double.  We will store either one as a Float.
       val polarity = {
