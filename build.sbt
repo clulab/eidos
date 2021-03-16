@@ -10,12 +10,13 @@ description := BuildUtils.singleLine("""
   |extract events from free text.
 """)
 
-val scala11 = "2.11.11" // up to 2.11.12
-val scala12 = "2.12.4"  // up to 2.12.13
+val scala11 = "2.11.12" // up to 2.11.12
+val scala12 = "2.12.13" // up to 2.12.13
 val scala13 = "2.13.5"  // up to 2.13.5
 
 ThisBuild / organization := "org.clulab"
 ThisBuild / scalaVersion := scala12
+// Processors is not available for scala13, so it is skipped here.
 ThisBuild / crossScalaVersions := Seq(scala11, scala12)
 
 resolvers ++= Seq(
@@ -62,6 +63,7 @@ lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
 
+// Skip scala11 on this internal project.
 lazy val elasticsearch = project
     .dependsOn(eidoscommon)
 
@@ -72,5 +74,6 @@ lazy val webapp = project
     .enablePlugins(PlayScala)
     .dependsOn(coreRef)
 
+// Skip scala11 on this internal project.
 lazy val wmexchanger = project
     .dependsOn(eidoscommon)
