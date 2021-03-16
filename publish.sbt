@@ -1,3 +1,5 @@
+import org.clulab.sbt.BuildUtils
+
 ThisBuild / developers := List(
   Developer(
     id    = "mihai.surdeanu",
@@ -14,6 +16,9 @@ ThisBuild / licenses := List(
 ThisBuild / organization := "org.clulab"
 ThisBuild / organizationHomepage := Some(url("http://clulab.org/"))
 ThisBuild / organizationName := "Computational Language Understanding (CLU) Lab"
+// The sonatype plugin seems to overwrite these two values.
+ThisBuild / pomIncludeRepository := BuildUtils.keepHttpRepos
+ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := {
   val nexus = "https://oss.sonatype.org/" // the standard maven repository
   if (isSnapshot.value)
