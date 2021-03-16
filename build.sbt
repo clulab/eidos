@@ -25,12 +25,6 @@ resolvers ++= Seq(
       // .withAllowInsecureProtocol(true)
 )
 
-// This doesn't work as ThisBuild, Zero, publish, or anything else.
-val publishSettings = Seq(
-  publishMavenStyle := true,
-  pomIncludeRepository := BuildUtils.keepHttpRepos
-)
-
 libraryDependencies ++= {
   val playVersion = BuildUtils.getProperty("./project/build.properties", "sbt-plugin.version")
 
@@ -59,7 +53,6 @@ lazy val core = (project in file("."))
     .enablePlugins(BuildInfoPlugin)
     .dependsOn(eidoscommon % "compile->compile;test->test", ontologies)
     .aggregate(eidoscommon, ontologies)
-    .settings(publishSettings)
     .settings(
       assembly / aggregate := false
     )
@@ -68,19 +61,16 @@ lazy val core = (project in file("."))
 lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
-    .settings(publishSettings)
 
 lazy val elasticsearch = project
     .dependsOn(eidoscommon)
 
 lazy val ontologies = project
     .dependsOn(eidoscommon)
-    .settings(publishSettings)
 
 lazy val webapp = project
     .enablePlugins(PlayScala)
     .dependsOn(coreRef)
-    .settings(publishSettings)
 
 lazy val wmexchanger = project
     .dependsOn(eidoscommon)
