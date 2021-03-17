@@ -15,7 +15,7 @@ trait EidosWordToVec {
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Seq[String], weight:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], termWeights: Seq[Float], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities
 
-  def makeCompositeVector(t:Iterable[String]): Array[Float]
+  def makeCompositeVector(t: Iterable[String]): Array[Float]
 }
 
 class FakeWordToVec extends EidosWordToVec {
@@ -34,15 +34,17 @@ class FakeWordToVec extends EidosWordToVec {
   def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
 }
 
-class RealWordToVec(val w2v: WordEmbeddingMap, topKNodeGroundings: Int) extends EidosWordToVec {
+class RealWordToVec(val w2v: WordEmbeddingMap, topKNodeGroundings: Int,
+    groundNegScoreThreshold: Float, groundPenalizeValue: Float) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 
   def stringSimilarity(string1: String, string2: String): Float = {
     val sanitizedString1 = split(string1).map(EidosWordToVec.sanitizer.sanitizeWord)
     val sanitizedString2 = split(string2).map(EidosWordToVec.sanitizer.sanitizeWord)
+    val similarity = w2v.avgSimilarity(sanitizedString1, sanitizedString2)
 
-    w2v.avgSimilarity(sanitizedString1, sanitizedString2)
+    constrainRange(similarity)
   }
 
   def calculateSimilarity(mention1: Mention, mention2: Mention): Float =
@@ -74,8 +76,8 @@ class RealWordToVec(val w2v: WordEmbeddingMap, topKNodeGroundings: Int) extends 
   def constrainRange(value: Float): Float = math.max(-1f, math.min(1f, value))
 
   def scoreNode(posEmbedding: Array[Float], negEmbeddingOpt: Option[Array[Float]], nodeEmbedding: Array[Float]): Float = {
-    val posScore = dotProduct(posEmbedding, nodeEmbedding)
-    val negScore = negEmbeddingOpt.map(dotProduct(_, nodeEmbedding)).getOrElse(0f)
+    val posScore = EidosWordToVec.dotProduct(posEmbedding, nodeEmbedding)
+    val negScore = negEmbeddingOpt.map(EidosWordToVec.dotProduct(_, nodeEmbedding)).getOrElse(0f)
     val score =
       if (negScore > groundNegScoreThreshold) math.max(-1f, posScore - groundPenalizeValue)
       else posScore
@@ -126,7 +128,7 @@ class RealWordToVec(val w2v: WordEmbeddingMap, topKNodeGroundings: Int) extends 
 object EidosWordToVec extends Logging {
   type Similarities = Seq[(Namer, Float)]
 
-  val sanitizer: DefaultWordSanitizer = WordEmbeddingMap.defaultWordSanitizer
+  val sanitizer: DefaultWordSanitizer = new DefaultWordSanitizer() // WordEmbeddingMap.defaultWordSanitizer
 
   def dotProduct(v1: IndexedSeq[Float], v2: IndexedSeq[Float]): Float = WordEmbeddingMap.dotProduct(v1, v2)
 
