@@ -2335,6 +2335,9 @@
         name: trend
         polarity: 1
       - food_security:
+        - InnerOntologyNode:
+          polarity: 1
+          opposite: wm/concept/causal_factor/food_insecurity
         - OntologyNode:
           examples:
           - food availability
@@ -2375,6 +2378,9 @@
           opposite: wm/concept/causal_factor/food_insecurity/food_instability
           polarity: 1
       - food_insecurity:
+        - InnerOntologyNode:
+          polarity: -1
+          opposite: wm/concept/causal_factor/food_security
         - OntologyNode:
           examples:
           - food insecurity
