@@ -1,5 +1,7 @@
 import org.clulab.sbt.BuildUtils
 
+val publication = "eidos"
+
 ThisBuild / developers := List(
   Developer(
     id    = "mihai.surdeanu",
@@ -8,7 +10,7 @@ ThisBuild / developers := List(
     url   = url("https://www.cs.arizona.edu/person/mihai-surdeanu")
   )
 )
-ThisBuild / homepage := Some(url("https://github.com/clulab/eidos"))
+ThisBuild / homepage := Some(url(s"https://github.com/clulab/$publication"))
 ThisBuild / licenses := List(
   "Apache License, Version 2.0" ->
   url("http://www.apache.org/licenses/LICENSE-2.0.html")
@@ -28,7 +30,7 @@ ThisBuild / publishTo := {
 }
 ThisBuild / scmInfo := Some(
   ScmInfo(
-    url("https://github.com/clulab/eidos"),
-    "scm:git@github.com:clulab/eidos.git"
+    url(s"https://github.com/clulab/$publication"),
+    s"scm:git@github.com:clulab/$publication.git"
   )
 )

@@ -14,10 +14,9 @@ val scala11 = "2.11.12" // up to 2.11.12
 val scala12 = "2.12.13" // up to 2.12.13
 val scala13 = "2.13.5"  // up to 2.13.5
 
-ThisBuild / organization := "org.clulab"
-ThisBuild / scalaVersion := scala12
 // Processors is not available for scala13, so it is skipped here.
-ThisBuild / crossScalaVersions := Seq(scala11, scala12)
+ThisBuild / crossScalaVersions := Seq(scala12, scala11)
+ThisBuild / scalaVersion := crossScalaVersions.value.head
 
 resolvers ++= Seq(
   "jitpack" at "https://jitpack.io", // needed by Ontologies

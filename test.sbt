@@ -17,7 +17,7 @@ def groupByLanguage(tests: Seq[TestDefinition]) = {
   Seq(otherGroup, englishGroup, portugueseGroup)
 }
 
-Test / fork := true // also forces sequential operation
-Test / parallelExecution := false // keeps groups in their order
-//Test / testForkedParallel:= true // Allow parallel within group?
-Test / testGrouping := groupByLanguage((Test / definedTests).value)
+ThisBuild / Test / fork := true // also forces sequential operation
+ThisBuild / Test / parallelExecution := false // keeps groups in their order
+//ThisBuild / Test / testForkedParallel:= true // Allow parallel within group?
+ThisBuild / Test / testGrouping := groupByLanguage((Test / definedTests).value)
