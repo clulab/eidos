@@ -28,7 +28,7 @@ object ExtractCdrMetaFromDirectory extends App with Logging {
     FileUtils.appendingPrintWriterFromFile(timeFile).autoClose { timePrintWriter =>
       timePrintWriter.println("File\tSize\tTime")
 
-      files.foreach { file =>
+      parFiles.foreach { file =>
         try {
           // 1. Open corresponding output file
           logger.info(s"Extracting from ${file.getName}")
