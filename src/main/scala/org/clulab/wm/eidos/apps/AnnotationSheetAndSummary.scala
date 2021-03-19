@@ -2,17 +2,17 @@ package org.clulab.wm.eidos.apps
 
 import java.io.File
 import java.util.Calendar
-
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.struct.Counter
 import org.clulab.utils.Configured
+import org.clulab.utils.ThreadUtils
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.GroundingAnnotationExporter
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{CsvWriter, FileUtils, ThreadUtils}
+import org.clulab.wm.eidoscommon.utils.{CsvWriter, FileUtils}
 
 import scala.collection.Seq
 

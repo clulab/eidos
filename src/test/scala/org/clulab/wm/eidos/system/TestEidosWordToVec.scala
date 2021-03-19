@@ -1,8 +1,6 @@
 package org.clulab.wm.eidos.system
 
-import org.clulab.embeddings.CompactWordEmbeddingMap
-import org.clulab.embeddings.ExplicitWordEmbeddingMap
-import org.clulab.wm.eidos.test.Test
+import org.clulab.wm.eidoscommon.utils.Test
 
 class TestEidosWordToVec extends Test {
 

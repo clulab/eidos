@@ -36,12 +36,25 @@ abstract class SafeThread(logger: Logger) extends Thread {
 
 object SafeThread {
 
+  def stop(thread: Thread, duration: Long): Unit = {
+    try {
+      thread.interrupt
+      thread.join(duration)
+      if (thread.isAlive)
+        thread.stop
+    }
+    catch {
+      case _: InterruptedException =>
+      case _: ThreadDeath =>
+    }
+  }
+
   def waitSafely(thread: Thread, logger: Logger, duration: Long): Unit = {
     try {
       println("Press ENTER to exit...")
       new Scanner(System.in).nextLine()
       logger.info("User interruption")
-      ThreadUtils.stop(thread, duration)
+      stop(thread, duration)
       logger.info("Exiting...")
     }
     catch {
