@@ -15,7 +15,8 @@ val scala12 = "2.12.13" // up to 2.12.13
 val scala13 = "2.13.5"  // up to 2.13.5
 
 // Processors is not available for scala13, so it is skipped here.
-ThisBuild / crossScalaVersions := Seq(scala12, scala11)
+// Eidos is hanging on scala11 tests.
+ThisBuild / crossScalaVersions := Seq(scala12)
 ThisBuild / scalaVersion := crossScalaVersions.value.head
 
 resolvers ++= Seq(
@@ -30,28 +31,31 @@ libraryDependencies ++= {
 
   Seq(
     // These two are not needed for the docker file if the cache is used.
-    "org.clulab"                % "geonames"         % "1.0.0+20200518T005330Z.gadmworedas",
-    "org.clulab"                % "glove-840b-300d"  % "0.1.0",
+    "org.clulab"                % "geonames"                % "1.0.0+20200518T005330Z.gadmworedas",
+    // Only one of the glove library is needed.
+    "org.clulab"               %% "glove-840b-300d-10f-bin" % "1.0.0", // abridged, binary, quick loading if compatible
+ // "org.clulab"               %% "glove-840b-300d-10f"     % "1.0.0", // abridged, text, slower loading
+ // "org.clulab"                % "glove-840b-300d"         % "0.1.0", // unabridged, text, slowest loading
     // The rest from org.clulab are always needed.
-    "org.clulab"               %% "timenorm"         % "1.0.5" exclude("org.slf4j", "slf4j-log4j12"),
-    "org.clulab"               %% "geonorm"          % "1.0.0",
+    "org.clulab"               %% "timenorm"                % "1.0.5" exclude("org.slf4j", "slf4j-log4j12"),
+    "org.clulab"               %% "geonorm"                 % "1.0.0",
     // This is used for config utilities in particular.
-    "ai.lum"                   %% "common"           % "0.0.8",
+    "ai.lum"                   %% "common"                  % "0.0.8",
     // This ontology is fetched from github rather than included directly.
-    "com.github.WorldModelers"  % "Ontologies"       % "master-SNAPSHOT",
+    "com.github.WorldModelers"  % "Ontologies"              % "master-SNAPSHOT",
     // Web serialization needs this.
-    "com.typesafe.play"        %% "play-json"        % playVersion,
+    "com.typesafe.play"        %% "play-json"               % playVersion,
     // This next one is used in MaaSUtils.
-    "com.lihaoyi"              %% "upickle"          % "0.7.1",
+    "com.lihaoyi"              %% "upickle"                 % "0.7.1",
     // These are used for testing only.
-    "org.scalatest"            %% "scalatest"        % "3.0.4"  % Test,
-    "com.github.jsonld-java"    % "jsonld-java"      % "0.12.0" % Test
+    "org.scalatest"            %% "scalatest"               % "3.2.2"  % Test,
+    "com.github.jsonld-java"    % "jsonld-java"             % "0.12.0" % Test
   )
 }
 
 lazy val core = (project in file("."))
     .enablePlugins(BuildInfoPlugin)
-    .dependsOn(eidoscommon % "compile->compile;test->test", ontologies)
+    .dependsOn(eidoscommon % "compile -> compile; test -> test", ontologies)
     .aggregate(eidoscommon, ontologies)
     .settings(
       assembly / aggregate := false
