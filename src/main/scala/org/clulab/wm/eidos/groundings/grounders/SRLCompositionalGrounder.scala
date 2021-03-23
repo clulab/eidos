@@ -162,11 +162,29 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val sortedSliced = groundings.sortBy(-_.score)
         sortedSliced.take(topN.getOrElse(sortedSliced.length))
     }
-
+    val returnedSRLGroundings = new ArrayBuffer[PredicateGrounding]
+    for (predGrounding <- srlGrounding) {
+      val tupleTheme = predGrounding.predicateTuple.theme
+      val tupleThemeProp = predGrounding.predicateTuple.themeProperties
+      val tupleProc = predGrounding.predicateTuple.themeProcess
+      val tupleProcProp = predGrounding.predicateTuple.themeProcessProperties
+      // move process property to theme property if process is empty AND no existing theme property
+      // THIS IS A HACK
+      if (tupleThemeProp.grounding.isEmpty && tupleProc.grounding.isEmpty && tupleProcProp.grounding.nonEmpty) {
+        val newTupleThemeProp = tupleProcProp
+        val newTupleProcProp = tupleProc
+        val newPredGrounding = PredicateGrounding(PredicateTuple(tupleTheme, newTupleThemeProp, tupleProc,
+          newTupleProcProp, Set[Int]()))
+        returnedSRLGroundings.append(newPredGrounding)
+      }
+      else {
+        returnedSRLGroundings.append(predGrounding)
+      }
+    }
     // TODO: dig in and filter out duplicates in different parts of the predicate tuple
     //  e.g. when the same grounding is produced for THEME and PROCESS,
     //  skip to the next best PROCESS grounding
-    Seq(newOntologyGrounding(srlGrounding))
+    Seq(newOntologyGrounding(returnedSRLGroundings))
   }
 
   @tailrec
