@@ -11,16 +11,16 @@ class TestEidosWordToVec extends Test {
     val implArray = new Array[Float](length)
     val array = implArray.asInstanceOf[Array[Float]]
 
-    println(array(length -1))
+    println(array(length - 1))
   }
 
   it should "work for Seq" in {
     val length = 3
     val implArray = new Array[Float](length)
     val implSeq: IndexedSeq[Float] = implArray
-    val seq = implSeq.asInstanceOf[Array[Float]]
+    val seq = implSeq.asInstanceOf[Seq[Float]]
 
-    println(seq(length -1))
+    println(seq(length - 1))
   }
 
   behavior of "ExplicitWordEmbeddingMap types"
@@ -30,7 +30,7 @@ class TestEidosWordToVec extends Test {
     val implArray = new Array[Float](length)
     val array = implArray.asInstanceOf[Array[Float]]
 
-    println(array(length -1))
+    println(array(length - 1))
   }
 
   it should "work for Seq" in {
@@ -39,6 +39,6 @@ class TestEidosWordToVec extends Test {
     val implSeq: IndexedSeq[Float] = implArray
     val seq = implSeq.asInstanceOf[Seq[Float]]
 
-    println(seq(length -1))
+    println(seq(length - 1))
   }
 }
