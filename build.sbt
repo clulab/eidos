@@ -16,14 +16,15 @@ val scala13 = "2.13.5"  // up to 2.13.5
 
 // Processors is not available for scala13, so it is skipped here.
 // Eidos is hanging on scala11 tests.
-ThisBuild / crossScalaVersions := Seq(scala12)
+ThisBuild / crossScalaVersions := Seq(scala12, scala11)
 ThisBuild / scalaVersion := crossScalaVersions.value.head
 
 resolvers ++= Seq(
-  "jitpack" at "https://jitpack.io", // needed by Ontologies
-  // This is needed by processors-main, geonames, glove-840b-300d
+  // Ontologies needs this.
+  "jitpack" at "https://jitpack.io",
+  // This is needed by processors-main, geonames, and glove-840b-300d.
   ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
-      // .withAllowInsecureProtocol(true)
+      // .withAllowInsecureProtocol(true) // newer sbt
 )
 
 libraryDependencies ++= {
@@ -48,7 +49,6 @@ libraryDependencies ++= {
     // This next one is used in MaaSUtils.
     "com.lihaoyi"              %% "upickle"                 % "0.7.1",
     // These are used for testing only.
-    "org.scalatest"            %% "scalatest"               % "3.2.2"  % Test,
     "com.github.jsonld-java"    % "jsonld-java"             % "0.12.0" % Test
   )
 }
