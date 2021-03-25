@@ -37,9 +37,9 @@ class TestEidosTokenizer extends EnglishTest {
     val inputsAndExpecteds = Seq(
       ("e\ufb00ort", "effort"),
       ("a\ufb01eld", "afield"),
-      ("e\ufb03cient", "efficient"), // (ffi)
+      ("e\ufb03cient", "efficient"),  // (ffi)
       ("e\ufb00icient", "efficient"), // (ff)i
-      ("ef\ufb01cient", "efficient"), // f(fi)
+      ("ef\ufb01cient", "efficient")  // f(fi)
     )
 
     inputsAndExpecteds.foreach { case (input, expected) =>

@@ -1,10 +1,11 @@
 package org.clulab.wm.eidos.apps
 
 import org.clulab.odin.{Attachment, EventMention, Mention}
+import org.clulab.utils.ThreadUtils
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, Quantification}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{FileUtils, ThreadUtils}
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidos.utils.FoundBy
 
 import scala.collection.Seq

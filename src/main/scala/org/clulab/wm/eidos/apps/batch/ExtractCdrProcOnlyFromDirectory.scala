@@ -3,6 +3,7 @@ package org.clulab.wm.eidos.apps.batch
 import org.clulab.processors.Document
 import org.clulab.serialization.json.DocOps
 import org.clulab.serialization.json.stringify
+import org.clulab.utils.ThreadUtils
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.grounders.EidosAdjectiveGrounder
 import org.clulab.wm.eidos.utils.meta.CdrText
@@ -10,7 +11,6 @@ import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.eidoscommon.utils.ThreadUtils
 import org.clulab.wm.eidoscommon.utils.Timer
 
 object ExtractCdrProcOnlyFromDirectory extends App with Logging {

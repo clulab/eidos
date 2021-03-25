@@ -1,24 +1,27 @@
-
 name := "eidos-eidoscommon"
+description := "Code to be shared by other Eidos subprojects and clients"
 
 resolvers ++= Seq(
-  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // needed by processors-main
+  // This is needed by processors-main.
+  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
+      // .withAllowInsecureProtocol(true) // newer sbt
 )
 
 libraryDependencies ++= {
-  val procVer = "8.2.6"
+  // Versions were last checked 2021 Mar 12.
+  val procVer = "8.3.0"
 
   Seq(
-    "org.clulab"                 %% "processors-main"          % procVer,
-    "org.clulab"                 %% "processors-corenlp"       % procVer,
-    "org.clulab"                 %% "processors-odin"          % procVer,
+    "org.clulab"                 %% "processors-corenlp"       % procVer,       // up to 8.3.0
+    "org.clulab"                 %% "processors-main"          % procVer,       // up to 8.3.0
+    "org.clulab"                 %% "processors-odin"          % procVer,       // up to 8.3.0
     // local logging
-    "ch.qos.logback"              % "logback-classic"          % "1.0.10",
-    "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",
+    "ch.qos.logback"              % "logback-classic"          % "1.0.10",      // up to 1.2.
+    "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",       // up to 3.9.2
     // dependency logging
-    "org.apache.logging.log4j"    % "log4j-core"               % "2.12.0",
+    "org.apache.logging.log4j"    % "log4j-core"               % "2.12.0",      // up to 2.14.0
     // config
-    "com.typesafe"                % "config"                   % "1.4.0",
-    "org.scalatest"              %% "scalatest"                % "3.0.4" % Test
+    "com.typesafe"                % "config"                   % "1.4.0",       // up to 1.4.1
+    "org.scalatest"              %% "scalatest"                % "3.2.5" % Test // up to 3.2.5
   )
 }

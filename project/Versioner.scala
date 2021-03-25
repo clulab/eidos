@@ -1,3 +1,5 @@
+package org.clulab.sbt
+
 import java.io.File
 import java.time.Instant
 import java.time.ZoneOffset

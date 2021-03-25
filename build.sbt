@@ -1,175 +1,82 @@
+import org.clulab.sbt.BuildUtils
+
 // See also the other files in the project directory with sbt extensions.
-// These are special additions for eidos that are named according to the
-// task they are associated with: compile, release, test, etc.
-
+// They are generally named according to the task they are associated with:
+// compile, initialize, publish, release, run, test, update, etc.
 name := "eidos"
+description := BuildUtils.singleLine("""
+  |Eidos is an open-domain machine reading system designed by the Computational Language Understanding (CLU) Lab
+  |at the University of Arizona for the World Modelers DARPA program.  It uses a cascade of Odin grammars to
+  |extract events from free text.
+""")
 
-// This is useful because timenorm loads a dll and only one dll is allowed per (Java) process.
-// If it isn't here, sbt test (and run) can seemingly only be performed once before it will fail with
-// java.lang.UnsatisfiedLinkError: no jnihdf5 in java.library.path
-// The reasoning above needs to be reconsidered, because forking results in loss of menu
-// functionality in things like EidosShell.  Output gets logged and, more importantly,
-// input is blocked with null always being returned.
-//fork := true
+val scala11 = "2.11.12" // up to 2.11.12
+val scala12 = "2.12.13" // up to 2.12.13
+val scala13 = "2.13.5"  // up to 2.13.5
 
-// See https://www.scala-sbt.org/1.x/docs/Multi-Project.html for the reason this can't be in
-// a separate file: "The definitions in .sbt files are not visible in other .sbt files."
-lazy val assemblySettings = Seq(
-  test in assembly := {},
-
-  assemblyMergeStrategy in assembly := {
-    // See https://github.com/sbt/sbt-assembly.
-    // This is nearly the same as case _ => MergeStrategy.defaultMergeStrategy with the most important difference
-    // being that any problem noticed by deduplicate will halt the process.  The is presently/temporarily
-    // preferred over a version that will silently handle new conflicts without alerting us to the potential problem.
-    case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
-    case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
-    case PathList("module-info.class")        => MergeStrategy.discard // This might not be right, but it stops the complaints.
-    case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyone's licenses and notices.
-    case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
-    case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
-    case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat
-    // These all have different contents and cannot be automatically deduplicated.
-    case PathList("reference.conf") => MergeStrategy.concat // Scala configuration files--important!
-    case PathList("META-INF", "services", "org.apache.lucene.codecs.PostingsFormat")    => MergeStrategy.filterDistinctLines
-    case PathList("META-INF", "services", "com.fasterxml.jackson.databind.Module")      => MergeStrategy.filterDistinctLines
-    case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")     => MergeStrategy.first // or last or both?
-    // Otherwise just keep one copy if the contents are the same and complain if not.
-    case _ => MergeStrategy.deduplicate
-  }
-)
-
-lazy val publishSettings = {
-  import sbt.Keys.{developers, homepage, licenses, scmInfo}
-  import sbt.url
-  
-  Seq(
-    // publish to a maven repo
-    publishMavenStyle := true,
-    // the standard maven repository
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value)
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    },
-    // Let’s remove any repositories for optional dependencies in our artifact.
-    pomIncludeRepository := { (repo: MavenRepository) =>
-      repo.root.startsWith("http://artifactory.cs.arizona.edu")
-    },
-    scmInfo := Some(
-      ScmInfo(
-        url("https://github.com/clulab/eidos"),
-        "scm:git:https://github.com/clulab/eidos.git"
-      )
-    ),
-    licenses := List("Apache License, Version 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    homepage := Some(url("https://github.com/clulab/eidos")),
-    developers := List(
-      Developer(
-        id    = "mihai.surdeanu",
-        name  = "Mihai Surdeanu",
-        email = "mihai@surdeanu.info",
-        url   = url("http://surdeanu.info/mihai/")
-      )
-    )
-  )
-}
-
-// This is build.sbt after all.
-lazy val buildSettings = Seq(
-  buildInfoPackage := "org.clulab.wm.eidos",
-  // This next line of code results in constantly changing source files which then require
-  // constant repackaging.  Absent an active use case, BuildTime is therefore skipped.
-  // buildInfoOptions += BuildInfoOption.BuildTime,
-  buildInfoKeys := Seq[BuildInfoKey](
-    name, version, scalaVersion, sbtVersion, libraryDependencies, scalacOptions,
-    "gitCurrentBranch" -> { git.gitCurrentBranch.value },
-    "gitHeadCommit" -> { git.gitHeadCommit.value.getOrElse("") },
-    "gitHeadCommitDate" -> { git.gitHeadCommitDate.value.getOrElse("") },
-    "gitUncommittedChanges" -> { git.gitUncommittedChanges.value }
-  )
-)
-
-// Ensure that all the subprojects have the same settings for things like this.
-lazy val commonSettings = Seq(
-  organization := "org.clulab",
-  scalaVersion := "2.12.4",
-  crossScalaVersions := Seq("2.11.11", "2.12.4"),
-  scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation"),
-  evictionWarningOptions in update := EvictionWarningOptions.default
-      // Periodically turn these back on to see if anything has changed.
-      .withWarnTransitiveEvictions(false)
-      .withWarnDirectEvictions(false),
-  logLevel in update := Level.Warn,
-  logLevel in compile := Level.Warn,
-  logLevel in run := Level.Warn
-) ++ buildSettings ++ assemblySettings ++ publishSettings
-
-val scaladocHostingSettings = {
-  enablePlugins(SiteScaladocPlugin)
-  enablePlugins(GhpagesPlugin)
-  git.remoteRepo := "git@github.com:clulab/eidos.git"
-
-  Seq()
-}
+// Processors is not available for scala13, so it is skipped here.
+// Ontologies is only available for scala12.
+ThisBuild / crossScalaVersions := Seq(scala12) // , scala13, scala11)
+ThisBuild / scalaVersion := crossScalaVersions.value.head
 
 resolvers ++= Seq(
-  "jitpack" at "https://jitpack.io", // needed by Versioner
-  "Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" // needed by processors-main, geonames, glove-840b-300d
+  // Ontologies needs this.
+  "jitpack" at "https://jitpack.io",
+  // This is needed by processors-main, geonames, and glove-840b-300d.
+  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
+      // .withAllowInsecureProtocol(true) // newer sbt
 )
 
 libraryDependencies ++= {
+  val playVersion = BuildUtils.getProperty("./project/build.properties", "sbt-plugin.version")
+
   Seq(
-    "org.clulab"               %% "timenorm"         % "1.0.5",
-    "org.clulab"               %% "geonorm"          % "1.0.0",
+    // These two are not needed for the docker file if the cache is used.
+    "org.clulab"                % "geonames"                % "1.0.0+20200518T005330Z.gadmworedas",
+    // Only one of the glove library is needed.
+    "org.clulab"               %% "glove-840b-300d-10f-bin" % "1.0.0", // abridged, binary, quick loading if compatible
+ // "org.clulab"               %% "glove-840b-300d-10f"     % "1.0.0", // abridged, text, slower loading
+ // "org.clulab"                % "glove-840b-300d"         % "0.1.0", // unabridged, text, slowest loading
+    // The rest from org.clulab are always needed.
+    "org.clulab"               %% "timenorm"                % "1.0.5" exclude("org.slf4j", "slf4j-log4j12"),
+    "org.clulab"               %% "geonorm"                 % "1.0.0",
     // This is used for config utilities in particular.
-    "ai.lum"                   %% "common"           % "0.0.8",
-    "com.github.WorldModelers"  % "Ontologies"       % "master-SNAPSHOT",
-    // Web serialization needs this.  Match the plug-in version.
-    "com.typesafe.play"        %% "play-json"        % "2.6.7",
+    "ai.lum"                   %% "common"                  % "0.0.8",
+    // This ontology is fetched from github rather than included directly.
+    "com.github.WorldModelers"  % "Ontologies"              % "master-SNAPSHOT",
+    // Web serialization needs this.
+    "com.typesafe.play"        %% "play-json"               % playVersion,
     // This next one is used in MaaSUtils.
-    "com.lihaoyi"              %% "upickle"          % "0.7.1",
-    "org.scalatest"            %% "scalatest"        % "3.0.4"  % Test,
-    "com.github.jsonld-java"    % "jsonld-java"      % "0.12.0" % Test,
-    // These are not needed for the docker file if the cache is used.
-    "org.clulab"                % "geonames"         % "1.0.0+20200518T005330Z.gadmworedas",
-    "org.clulab"                % "glove-840b-300d"  % "0.1.0",
+    "com.lihaoyi"              %% "upickle"                 % "0.7.1",
+    // These are used for testing only.
+    "com.github.jsonld-java"    % "jsonld-java"             % "0.12.0" % Test
   )
 }
 
 lazy val core = (project in file("."))
-  .enablePlugins(BuildInfoPlugin)
-  .aggregate(eidoscommon, ontologies, elasticsearch, wmexchanger, webapp)
-  .dependsOn(eidoscommon, ontologies)
-  .settings(commonSettings: _*)
-  .settings(
-    // The goal is to include compile and test only.
-    assembly / aggregate := false,
-    publish / aggregate := false,
-    releaseProcess / aggregate := false
-  )
+    .enablePlugins(BuildInfoPlugin)
+    .dependsOn(eidoscommon % "compile -> compile; test -> test", ontologies)
+    .aggregate(eidoscommon, ontologies)
+    .settings(
+      assembly / aggregate := false
+    )
 
 // This prevents "error: recursive lazy value core needs type".
 lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
-  .settings(commonSettings: _*)
 
+// Skip scala11 on this internal project.
 lazy val elasticsearch = project
-  .settings(commonSettings: _*)
-  .dependsOn(eidoscommon)
+    .dependsOn(eidoscommon)
 
 lazy val ontologies = project
-  .settings(commonSettings: _*)
-  .dependsOn(eidoscommon)
+    .dependsOn(eidoscommon)
 
 lazy val webapp = project
-  .settings(commonSettings: _*)
-  .enablePlugins(PlayScala)
-  .dependsOn(coreRef)
+    .enablePlugins(PlayScala)
+    .dependsOn(coreRef)
 
+// Skip scala11 on this internal project.
 lazy val wmexchanger = project
-  .settings(commonSettings: _*)
-  .dependsOn(eidoscommon)
+    .dependsOn(eidoscommon)
