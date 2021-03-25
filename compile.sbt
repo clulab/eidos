@@ -1,6 +1,8 @@
 import org.clulab.sbt.Versioner
 
-ThisBuild / Compile / logLevel := Level.Warn
+// This setting adversely affects logLevel during tests, so needs counterweight.
+// ThisBuild / Compile / logLevel := Level.Error
+// ThisBuild / Runtime / logLevel := Level.Info
 ThisBuild / Compile / scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 Compile / sourceGenerators += Def.task {
   import java.io.File
