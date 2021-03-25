@@ -261,7 +261,7 @@ object EidosActions extends Actions with Logging {
   val MAX_PATTERN: Pattern = Pattern.compile("""(at\s+most)|(less\s+than)|almost|under""")
 
   // triggers that are more likely to be adjectives, but can be misparsed as VBN.  We have
-  val adjTriggers: Set[String] = Set("aggravated", "arrested", "degraded", "destabilized", "diminished", "limited", "lessened", "restricted", "suppressed")
+  val adjTriggers: Set[String] = Set("diminished", "limited")
 
 
   def fromConfig(config: Config, tagSet: TagSet): EidosActions = {
