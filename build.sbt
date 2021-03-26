@@ -15,7 +15,6 @@ val scala12 = "2.12.13" // up to 2.12.13
 val scala13 = "2.13.5"  // up to 2.13.5
 
 // Processors is not available for scala13, so it is skipped here.
-// Ontologies is only available for scala12.
 ThisBuild / crossScalaVersions := Seq(scala12, scala11) // , scala13)
 ThisBuild / scalaVersion := crossScalaVersions.value.head
 
