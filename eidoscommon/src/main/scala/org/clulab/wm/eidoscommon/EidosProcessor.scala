@@ -2,7 +2,6 @@ package org.clulab.wm.eidoscommon
 
 import java.text.Normalizer
 import java.util.regex.Pattern
-
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
@@ -11,6 +10,7 @@ import org.clulab.processors.clu.SpanishCluProcessor
 import org.clulab.processors.clu.tokenizer.RawToken
 import org.clulab.processors.clu.tokenizer.SentenceSplitter
 import org.clulab.processors.clu.tokenizer.Tokenizer
+import org.clulab.processors.clucore.CluCoreProcessor
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.utils.ScienceUtils
 import org.clulab.wm.eidoscommon.utils.Logging
@@ -42,7 +42,7 @@ trait LanguageSpecific {
   def getTagSet: TagSet
 }
 
-class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
+class EidosEnglishProcessor(val language: String, cutoff: Int) extends CluCoreProcessor
     with EidosProcessor {
   lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
   override lazy val tokenizer: Tokenizer = eidosTokenizer
@@ -114,29 +114,6 @@ class EidosPortugueseProcessor(val language: String, cutoff: Int) extends Portug
   def getTagSet: TagSet = tagSet
 }
 
-class EidosCluProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
-  with EidosProcessor with SentencesExtractor with LanguageSpecific {
-  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
-  override lazy val tokenizer: Tokenizer = eidosTokenizer
-  val tagSet = new EnglishTagSet()
-
-  def getTokenizer: EidosTokenizer = eidosTokenizer
-
-  // TODO: This should be checked with each update of processors.
-  def extractDocument(text: String): Document = {
-    // This mkDocument will now be subject to all of the EidosProcessor changes.
-    val document = mkDocument(text, keepText = false)
-
-    if (document.sentences.nonEmpty) {
-      tagPartsOfSpeech(document)
-      lemmatize(document)
-      recognizeNamedEntities(document)
-    }
-    document
-  }
-
-  def getTagSet: TagSet = tagSet
-}
 
 class ParagraphSplitter {
   // The idea here is to make sure that a paragraph ends with a complete sentence.
@@ -355,7 +332,6 @@ object EidosProcessor extends Logging {
       new EidosEnglishProcessor(language, cutoff)
     case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
     case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
-    case Language.CLU => new EidosCluProcessor(language, cutoff)
   }
 
   // Turn off warnings from this class.
