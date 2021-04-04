@@ -1,5 +1,7 @@
 package org.clulab.wm.eidoscommon
 
+import org.clulab.dynet.Utils
+
 import java.text.Normalizer
 import java.util.regex.Pattern
 import org.clulab.processors.Document
@@ -14,6 +16,7 @@ import org.clulab.processors.clucore.CluCoreProcessor
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.utils.ScienceUtils
 import org.clulab.wm.eidoscommon.utils.Logging
+import org.clulab.dynet.Utils.initializeDyNet
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -44,6 +47,7 @@ trait LanguageSpecific {
 
 class EidosEnglishProcessor(val language: String, cutoff: Int) extends CluCoreProcessor
     with EidosProcessor {
+  Utils.initializeDyNet()
   lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
   override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new EnglishTagSet()
