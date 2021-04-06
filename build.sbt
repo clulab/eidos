@@ -15,8 +15,7 @@ val scala12 = "2.12.13" // up to 2.12.13
 val scala13 = "2.13.5"  // up to 2.13.5
 
 // Processors is not available for scala13, so it is skipped here.
-// Ontologies is only available for scala12.
-ThisBuild / crossScalaVersions := Seq(scala12) // , scala13, scala11)
+ThisBuild / crossScalaVersions := Seq(scala12, scala11) // , scala13)
 ThisBuild / scalaVersion := crossScalaVersions.value.head
 
 resolvers ++= Seq(
@@ -43,7 +42,8 @@ libraryDependencies ++= {
     // This is used for config utilities in particular.
     "ai.lum"                   %% "common"                  % "0.0.8",
     // This ontology is fetched from github rather than included directly.
-    "com.github.WorldModelers"  % "Ontologies"              % "master-SNAPSHOT",
+    "com.github.WorldModelers"  % "Ontologies"              % "master-SNAPSHOT", // remote
+ // "WorldModelers"             % "ontologies_2.12"         % "0.3.0-SNAPSHOT",  // local
     // Web serialization needs this.
     "com.typesafe.play"        %% "play-json"               % playVersion,
     // This next one is used in MaaSUtils.
