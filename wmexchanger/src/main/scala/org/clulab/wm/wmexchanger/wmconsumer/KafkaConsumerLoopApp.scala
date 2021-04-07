@@ -34,6 +34,7 @@ class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafka
       while (!isInterrupted) {
         consumer.poll(pollDuration)
       }
+      consumer.close()
     }
   }
 }
