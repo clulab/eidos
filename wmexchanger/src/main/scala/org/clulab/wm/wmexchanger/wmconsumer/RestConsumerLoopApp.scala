@@ -10,7 +10,6 @@ import org.apache.http.impl.client.{BasicCredentialsProvider, CloseableHttpClien
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.eidoscommon.utils.Sinker
@@ -18,6 +17,7 @@ import org.clulab.wm.eidoscommon.utils.Sourcer
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LockUtils
+import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 
@@ -196,10 +196,12 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
     thread.waitSafely(waitDuration)
 }
 
-object RestConsumerLoopApp extends App with Logging {
+object RestConsumerLoopApp extends App with LoopApp {
   val inputDir: String = args(0)
   val outputDir: String = args(1)
   val doneDir: String = args(2)
 
-  new RestConsumerLoopApp(inputDir, outputDir, doneDir)
+  loop {
+    () => new RestConsumerLoopApp(inputDir, outputDir, doneDir).thread
+  }
 }

@@ -6,6 +6,7 @@ import org.apache.kafka.common.errors.InterruptException
 import org.slf4j.Logger
 
 abstract class SafeThread(logger: Logger) extends Thread {
+  var userInterruption: Boolean = false
 
   def runSafely(): Unit
 
@@ -23,8 +24,9 @@ abstract class SafeThread(logger: Logger) extends Thread {
         logger.error("Consumer interruption", exception)
     }
     finally {
-      // This seems to be the only way to "cancel" the scanner.nextLine.
-      System.exit(0)
+      if (!userInterruption)
+        // This seems to be the only way to "cancel" the scanner.nextLine.
+        System.exit(0)
     }
   }
 
@@ -35,12 +37,13 @@ abstract class SafeThread(logger: Logger) extends Thread {
 
 object SafeThread {
 
-  def stop(thread: Thread, duration: Long): Unit = {
+  def stop(safeThread: SafeThread, duration: Long): Unit = {
     try {
-      thread.interrupt
-      thread.join(duration)
-      if (thread.isAlive)
-        thread.stop
+      safeThread.userInterruption = true
+      safeThread.interrupt
+      safeThread.join(duration)
+      if (safeThread.isAlive)
+        safeThread.stop
     }
     catch {
       case _: InterruptedException =>
@@ -48,12 +51,12 @@ object SafeThread {
     }
   }
 
-  def waitSafely(thread: Thread, logger: Logger, duration: Long): Unit = {
+  def waitSafely(safeThread: SafeThread, logger: Logger, duration: Long): Unit = {
     try {
       println("Press ENTER to exit...")
       new Scanner(System.in).nextLine()
       logger.info("User interruption")
-      stop(thread, duration)
+      stop(safeThread, duration)
       logger.info("Exiting...")
     }
     catch {

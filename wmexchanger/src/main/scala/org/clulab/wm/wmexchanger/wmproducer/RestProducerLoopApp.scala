@@ -16,13 +16,13 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.eidoscommon.utils.Sourcer
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.wmexchanger.utils.Extensions
+import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
 import org.json4s.DefaultFormats
@@ -163,6 +163,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
   val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger) {
 
     override def runSafely(): Unit = {
+//      throw new Exception("Keith was here")
       // Keep this off by default and only open when needed.
       var closeableHttpClientOpt: Option[CloseableHttpClient] = None
       // autoClose isn't executed if the thread is shot down, so this hook is used instead.
@@ -197,9 +198,11 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
     thread.waitSafely(waitDuration)
 }
 
-object RestProducerLoopApp extends App with Logging {
+object RestProducerLoopApp extends App with LoopApp {
   val inputDir = args(0)
   val doneDir = args(1)
 
-  new RestProducerLoopApp(inputDir, doneDir)
+  loop {
+    () => new RestProducerLoopApp(inputDir, doneDir).thread
+  }
 }

@@ -1,8 +1,7 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
-import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
+import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.utils.WmUserApp
 
@@ -40,4 +39,10 @@ class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafka
 
   if (interactive)
     thread.waitSafely(waitDuration)
+}
+
+object KafkaConsumerLoopApp extends App with LoopApp {
+  loop {
+    () => new KafkaConsumerApp(args).thread
+  }
 }
