@@ -18,7 +18,6 @@ object OpenFile extends App with Logging {
   val channel: FileChannel = fileOutputStream.getChannel
   val fileLock = channel.lock()
 
-  channel.
   fileOutputStream.write(100)
 
   println("Press ENTER to exit...")

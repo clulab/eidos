@@ -1,23 +1,30 @@
-package org.clulab.wm.wmexchanger.wmconsumer
+package org.clulab.wm.wmexchanger.wmproducer
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import org.apache.http.HttpHeaders
 import org.apache.http.HttpHost
-import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
+import org.apache.http.auth.AuthScope
+import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.CredentialsProvider
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.client.utils.URIBuilder
-import org.apache.http.impl.client.{BasicCredentialsProvider, CloseableHttpClient, HttpClientBuilder}
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.entity.ContentType
+import org.apache.http.entity.mime.MultipartEntityBuilder
+import org.apache.http.entity.mime.content.FileBody
+import org.apache.http.entity.mime.content.StringBody
+import org.apache.http.impl.client.BasicCredentialsProvider
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.HttpClientBuilder
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
-import org.clulab.wm.wmexchanger.utils.SafeThread
-import org.clulab.wm.eidoscommon.utils.Sinker
 import org.clulab.wm.eidoscommon.utils.Sourcer
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
+import org.clulab.wm.wmexchanger.utils.SafeThread
+import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 
@@ -28,7 +35,9 @@ import scala.io.Source
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
-class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) {
+// and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
+class RestProducerLoopApp(inputDir: String, doneDir: String) {
+  val version = "1.1.0"
 
   def getPort(url: URL): Int = {
     val explicitPort = url.getPort
@@ -62,23 +71,20 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
     httpHost
   }
 
-  def newHttpGet(url: URL, docId: String, dateOpt: Option[String], annotations: Boolean): HttpGet = {
-    val uriBuilder = new URIBuilder(url.toURI)
-    val pathSegments = {
-      val pathSegments = uriBuilder.getPathSegments
+  def newHttpPost(url: URL, metadata: String, file: File): HttpPost = {
+    val stringBody = new StringBody(metadata, ContentType.TEXT_PLAIN)
+    val fileBody = new FileBody(file)
+    val httpEntity = MultipartEntityBuilder
+        .create
+        .addPart("metadata", stringBody)
+        .addPart("file", fileBody)
+        .build
+    val httpPost = new HttpPost(url.toURI)
 
-      pathSegments.add(docId)
-      pathSegments
-    }
-
-    uriBuilder.setPathSegments(pathSegments)
-    dateOpt.foreach { date => uriBuilder.addParameter("date", date) }
-    uriBuilder.addParameter("annotations", annotations.toString)
-
-    val uri = uriBuilder.toString
-    val httpGet = new HttpGet(uri)
-
-    httpGet
+    httpPost.setEntity(httpEntity)
+    httpPost.setHeader(HttpHeaders.EXPECT, "100-continue")
+    httpPost.expectContinue()
+    httpPost
   }
 
   def newCloseableHttpClient(url: URL, userName: String, password: String): CloseableHttpClient = {
@@ -91,43 +97,46 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
     closeableHttpClient
   }
 
-  def download(docId: String, dateOpt: Option[String], annotations: Boolean, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
-    val httpGet = newHttpGet(url, docId, dateOpt, annotations)
-    val cdr = closeableHttpClient.execute(httpHost, httpGet).autoClose { response =>
+  def upload(docId: String, metadata: String, file: File, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
+    val httpPost = newHttpPost(url, metadata, file)
+    val storageKey = closeableHttpClient.execute(httpHost, httpPost).autoClose { response =>
       val statusCode = response.getStatusLine.getStatusCode
 
-      if (statusCode != 200)
+      if (statusCode != 201)
         throw new Exception(s"Status code '$statusCode' for docId '$docId''")
 
       val content = response.getEntity.getContent
-      val cdr = Source.fromInputStream(content, Sourcer.utf8).autoClose { source =>
-        source.mkString
+      val storageKey = Source.fromInputStream(content, Sourcer.utf8).autoClose { source =>
+        val json = source.mkString
+        val jValue = JsonMethods.parse(json)
+        val storageKey = (jValue \ "storage_key").extract[String]
+
+        storageKey
       }
 
-      cdr
+      storageKey
     }
-    cdr
+    storageKey
   }
 
-  def download(file: File, annotations: Boolean, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
+  def upload(file: File, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val docId = StringUtils.beforeLast(file.getName, '.')
-    val json = FileUtils.getTextFromFile(file)
-    val jValue = JsonMethods.parse(json)
-    val dateOpt = (jValue \ "release-date").extractOpt[String]
-    val cdr = download(docId, dateOpt, annotations, closeableHttpClient, httpHost)
+    val metadata = s"""{ "identity": "eidos", "version": "$version", "document_id": "$docId" }"""
+    val storageKey = upload(docId, metadata, file, closeableHttpClient, httpHost)
 
-    cdr
+    storageKey
   }
 
-  val config: Config = ConfigFactory.load("restconsumer")
-  val service: String = config.getString("RestConsumerApp.service")
-  val annotations: Boolean = config.getBoolean("RestConsumerApp.annotations")
-  val login: String = config.getString("RestConsumerApp.login")
-  val interactive: Boolean = config.getBoolean("RestConsumerApp.interactive")
-  val waitDuration: Int = config.getInt("RestConsumerApp.duration.wait")
-  val pauseDuration: Int = config.getInt("RestConsumerApp.duration.pause")
+  val config: Config = ConfigFactory.load("restproducer")
+  val service: String = config.getString("RestProducerApp.service")
+  val login: String = config.getString("RestProducerApp.login")
+  val interactive: Boolean = config.getBoolean("RestProducerApp.interactive")
+  val waitDuration: Int = config.getInt("RestProducerApp.duration.wait")
+  val pauseDuration: Int = config.getInt("RestProducerApp.duration.pause")
   val properties: Properties = PropertiesBuilder.fromFile(login).get
   val username: String = properties.getProperty("username")
   val password: String = properties.getProperty("password")
@@ -137,23 +146,17 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
 
   def processFile(closeableHttpClient: CloseableHttpClient, file: File): Unit = {
     try {
-      RestConsumerLoopApp.logger.info(s"Downloading ${file.getName}")
-      val cdr = download(file, annotations, closeableHttpClient, httpHost)
-      val outputFile = FileEditor(file).setDir(outputDir).get
+      RestProducerLoopApp.logger.info(s"Uploading ${file.getName}")
+      val storageKey = upload(file, closeableHttpClient, httpHost)
 
-      Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
-        printWriter.print(cdr)
-      }
-
-      val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
-      lockFile.createNewFile()
+      RestProducerLoopApp.logger.info(s"Reporting storage key $storageKey for ${file.getName}")
 
       val doneFile = FileEditor(file).setDir(doneDir).get
       file.renameTo(doneFile)
     }
     catch {
       case exception: Exception =>
-        RestConsumerLoopApp.logger.error(s"Exception for file $file", exception)
+        RestProducerLoopApp.logger.error(s"Exception for file $file", exception)
     }
   }
 
@@ -168,9 +171,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
       }
 
       while (!isInterrupted) {
-        LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.json)
-
-        val files = FileUtils.findFiles(inputDir, Extensions.json).par
+        val files = FileUtils.findFiles(inputDir, Extensions.jsonld)
 
         if (files.nonEmpty) {
           val closeableHttpClient = closeableHttpClientOpt.getOrElse {
@@ -179,7 +180,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
             closeableHttpClient
           }
 
-          files.foreach { file =>
+          files.par.foreach { file =>
             processFile(closeableHttpClient, file)
           }
         }
@@ -196,10 +197,9 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
     thread.waitSafely(waitDuration)
 }
 
-object RestConsumerLoopApp extends App with Logging {
-  val inputDir: String = args(0)
-  val outputDir: String = args(1)
-  val doneDir: String = args(2)
+object RestProducerLoopApp extends App with Logging {
+  val inputDir = args(0)
+  val doneDir = args(1)
 
-  new RestConsumerLoopApp(inputDir, outputDir, doneDir)
+  new RestProducerLoopApp(inputDir, doneDir)
 }
