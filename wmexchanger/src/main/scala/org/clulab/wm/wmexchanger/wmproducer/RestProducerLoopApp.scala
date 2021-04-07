@@ -160,42 +160,48 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
     }
   }
 
-  val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger) {
+  val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
+    // Keep this closed by default and only open when needed.
+    var closeableHttpClientOpt: Option[CloseableHttpClient] = None
+
+    def open(): CloseableHttpClient = {
+      closeableHttpClientOpt.getOrElse {
+        val closeableHttpClient = newCloseableHttpClient(url, username, password)
+        closeableHttpClientOpt = Some(closeableHttpClient)
+        closeableHttpClient
+      }
+    }
+
+    def close(): Unit = {
+      closeableHttpClientOpt.foreach { closeableHttpClient =>
+        closeableHttpClient.close()
+        closeableHttpClientOpt = None
+      }
+    }
+
+    // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
+    sys.ShutdownHookThread {
+      close()
+    }
 
     override def runSafely(): Unit = {
-//      throw new Exception("Keith was here")
-      // Keep this off by default and only open when needed.
-      var closeableHttpClientOpt: Option[CloseableHttpClient] = None
-      // autoClose isn't executed if the thread is shot down, so this hook is used instead.
-      sys.ShutdownHookThread {
-        closeableHttpClientOpt.foreach(_.close())
-      }
-
       while (!isInterrupted) {
         val files = FileUtils.findFiles(inputDir, Extensions.jsonld)
 
         if (files.nonEmpty) {
-          val closeableHttpClient = closeableHttpClientOpt.getOrElse {
-            val closeableHttpClient = newCloseableHttpClient(url, username, password)
-            closeableHttpClientOpt = Some(closeableHttpClient)
-            closeableHttpClient
-          }
+          val closeableHttpClient = open()
 
           files.par.foreach { file =>
             processFile(closeableHttpClient, file)
           }
         }
-        else {
-          closeableHttpClientOpt.foreach(_.close())
-          closeableHttpClientOpt = None
-        }
+        else
+          close()
         Thread.sleep(pauseDuration)
       }
+      close()
     }
   }
-
-  if (interactive)
-    thread.waitSafely(waitDuration)
 }
 
 object RestProducerLoopApp extends App with LoopApp {

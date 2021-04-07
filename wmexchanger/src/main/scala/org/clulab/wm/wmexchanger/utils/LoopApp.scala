@@ -4,6 +4,7 @@ import org.clulab.wm.eidoscommon.utils.Logging
 
 trait LoopApp extends Logging {
 
+  // Returns whether to continue looping or not.
   def safeLoop(f: () => SafeThread): Boolean = {
     try {
       val thread = f()
@@ -19,6 +20,6 @@ trait LoopApp extends Logging {
 
   def loop(f: () => SafeThread): Unit = {
     // Keep looping until true is returned, indicating normal loop termination.
-    while (safeLoop(f)) true
+    while (safeLoop(f)) Thread.sleep(5000)
   }
 }

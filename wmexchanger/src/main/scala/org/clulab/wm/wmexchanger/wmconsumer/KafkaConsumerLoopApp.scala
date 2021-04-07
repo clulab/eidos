@@ -23,7 +23,7 @@ class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafka
   val waitDuration: Long = appProperties.getProperty("wait.duration").toLong
   val closeDuration: Int = appProperties.getProperty("close.duration").toInt
 
-  val thread: SafeThread = new SafeThread(KafkaConsumerApp.logger) {
+  val thread: SafeThread = new SafeThread(KafkaConsumerApp.logger, interactive, waitDuration) {
 
     override def runSafely(): Unit = {
       // This is kept open the entire time, so time between pings is extra important.
@@ -36,9 +36,6 @@ class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafka
       }
     }
   }
-
-  if (interactive)
-    thread.waitSafely(waitDuration)
 }
 
 object KafkaConsumerLoopApp extends App with LoopApp {
