@@ -1,7 +1,6 @@
 package org.clulab.sbt
 
-import sbt.IO
-import sbt.MavenRepository
+import sbt.{IO, MavenRepository}
 
 import java.io.File
 import java.util.Properties
@@ -32,4 +31,10 @@ object BuildUtils {
   def isWindows(): Boolean = {
     System.getProperty("os.name").toLowerCase().contains("win")
   }
+
+  // See also https://repo1.maven.org/maven2/com/typesafe/play/play-json_2.12.
+  // Up to 2.8.7 theoretically, but 2.8.1 practically because of unresolved dependencies in webapp.
+  // Again, only theoretically, because 2.7.4 is the last one to support Scala 2.11.
+  val sbtPluginVersion = "2.7.4"
+  val useArtifactory = true
 }

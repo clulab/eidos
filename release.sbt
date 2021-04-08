@@ -10,20 +10,20 @@ releaseProcess :=
       setReleaseVersion,
       commitReleaseVersion,
       tagRelease
-    ) +
-    {
-      if (BuildUtils.useArtifactory)
-        releaseStepCommandAndRemaining("+publish")
-      else
-        releaseStepCommandAndRemaining("+publishSigned")
-    } ++
-    Seq(
+    ) ++
+    Seq[ReleaseStep](releaseStepCommandAndRemaining(
+      if (BuildUtils.useArtifactory) "+publish"
+      else "+publishSigned"
+    )) ++
+    Seq[ReleaseStep](
       setNextVersion,
       commitNextVersion
     ) ++
-    {
-      if (BuildUtils.useArtifactory) Seq.empty
-      else Seq(releaseStepCommandAndRemaining("sonatypeReleaseAll"))
-    } +
-    pushChanges
+    (
+      if (BuildUtils.useArtifactory) Seq.empty[ReleaseStep]
+      else Seq[ReleaseStep](releaseStepCommandAndRemaining("sonatypeReleaseAll"))
+    ) ++
+    Seq[ReleaseStep](
+      pushChanges
+    )
 

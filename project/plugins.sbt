@@ -1,6 +1,6 @@
 import org.clulab.sbt.BuildUtils
 
-val playVersion = BuildUtils.getProperty("./project/build.properties", "sbt-plugin.version")
+val playVersion = BuildUtils.sbtPluginVersion
 
 // Given groupID % artifactID % revision % configuration, alphabetize by artifactID, groupID please.
 // Latest version numbers were updated on 2021 Mar 11.
