@@ -32,4 +32,7 @@ object BuildUtils {
   def isWindows(): Boolean = {
     System.getProperty("os.name").toLowerCase().contains("win")
   }
+  
+  val useArtifactory = true
 }
+
