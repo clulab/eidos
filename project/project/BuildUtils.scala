@@ -1,6 +1,7 @@
 package org.clulab.sbt
 
-import sbt.{IO, MavenRepository}
+import sbt.IO
+import sbt.MavenRepository
 
 import java.io.File
 import java.util.Properties
