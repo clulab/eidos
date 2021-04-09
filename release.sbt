@@ -1,6 +1,8 @@
 import ReleaseTransformations._
 import org.clulab.sbt.BuildUtils
 
+ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
+
 releaseProcess :=
     Seq[ReleaseStep](
       checkSnapshotDependencies,
