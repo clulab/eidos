@@ -22,6 +22,7 @@ import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.eidoscommon.utils.Sourcer
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.wmexchanger.utils.Extensions
+import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
@@ -186,7 +187,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
     override def runSafely(): Unit = {
       while (!isInterrupted) {
-        val files = FileUtils.findFiles(inputDir, Extensions.jsonld)
+        val files = LockUtils.findFiles(inputDir, Extensions.jsonld, Extensions.lock)
 
         if (files.nonEmpty) {
           val closeableHttpClient = open()

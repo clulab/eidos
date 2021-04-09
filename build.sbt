@@ -79,4 +79,4 @@ lazy val webapp = project
 
 // Skip scala11 on this internal project.
 lazy val wmexchanger = project
-    .dependsOn(eidoscommon)
+    .dependsOn(coreRef)

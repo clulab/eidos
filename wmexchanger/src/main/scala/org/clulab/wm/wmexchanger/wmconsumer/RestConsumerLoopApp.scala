@@ -186,7 +186,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
       while (!isInterrupted) {
         LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.json)
 
-        val files = FileUtils.findFiles(inputDir, Extensions.json).par
+        val files = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock).par
 
         if (files.nonEmpty) {
           val closeableHttpClient = open()
