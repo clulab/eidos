@@ -27,7 +27,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= {
-  val playVersion = BuildUtils.getProperty("./project/build.properties", "sbt-plugin.version")
+  val playVersion = BuildUtils.sbtPluginVersion
 
   Seq(
     // These two are not needed for the docker file if the cache is used.
