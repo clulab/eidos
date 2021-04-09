@@ -1,7 +1,7 @@
 import ReleaseTransformations._
 import org.clulab.sbt.BuildUtils
 
-ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / ".credentials")
+ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / ".clulab-credentials")
 
 releaseProcess :=
     Seq[ReleaseStep](
