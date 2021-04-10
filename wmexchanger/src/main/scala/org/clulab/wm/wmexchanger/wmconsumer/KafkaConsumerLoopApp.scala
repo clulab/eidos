@@ -1,11 +1,45 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
+import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
+import org.clulab.wm.wmexchanger.utils.Extensions
+import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.utils.WmUserApp
 
+import java.io.File
 import java.util.Properties
+
+class MockKafkaConsumer(inputDir: String, outputDir: String) {
+
+  // This cheats by copying the answer from the inputDir and moving them
+  // to the outputDir where something else is waiting for them.
+  def this(outputDir: String) = this(
+    FileEditor(new File(outputDir)).incName("/in").get.getAbsolutePath,
+    outputDir
+  )
+
+  def poll(duration: Int): Unit = {
+    Thread.sleep(duration)
+    LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.json)
+
+    val files = FileUtils.findFiles(inputDir, Extensions.json)
+
+    if (files.nonEmpty) {
+      val inputFile = files.head
+      val outputFile = FileEditor(inputFile).setDir(outputDir).get
+      if (outputFile.exists)
+        outputFile.delete()
+      inputFile.renameTo(outputFile)
+      val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
+      lockFile.createNewFile()
+    }
+  }
+
+  def close(): Unit = ()
+}
 
 class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafkaconsumer.properties") {
   val localKafkaProperties: Properties = {
@@ -27,7 +61,8 @@ class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafka
 
     override def runSafely(): Unit = {
       // This is kept open the entire time, so time between pings is extra important.
-      val consumer = new KafkaConsumer(localKafkaProperties, closeDuration, topic, outputDir, lock = true)
+//      val consumer = new KafkaConsumer(localKafkaProperties, closeDuration, topic, outputDir, lock = true)
+      val consumer = new MockKafkaConsumer(outputDir)
       // autoClose isn't executed if the thread is shot down, so this hook is used instead.
       sys.ShutdownHookThread { consumer.close() }
 
