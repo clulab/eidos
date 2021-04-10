@@ -17,7 +17,7 @@ class MockKafkaConsumer(inputDir: String, outputDir: String) {
   // This cheats by copying the answer from the inputDir and moving them
   // to the outputDir where something else is waiting for them.
   def this(outputDir: String) = this(
-    FileEditor(new File(outputDir)).incName("/in").get.getAbsolutePath,
+    FileEditor(new File(outputDir)).incName("/mock").get.getAbsolutePath,
     outputDir
   )
 

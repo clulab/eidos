@@ -121,6 +121,10 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
     cdr
   }
 
+  def mockDownload(file: File, outputDir: String): String = {
+
+  }
+
   val config: Config = ConfigFactory.load("restconsumer")
   val service: String = config.getString("RestConsumerApp.service")
   val annotations: Boolean = config.getBoolean("RestConsumerApp.annotations")
@@ -138,7 +142,8 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
   def processFile(closeableHttpClient: CloseableHttpClient, file: File): Unit = {
     try {
       RestConsumerLoopApp.logger.info(s"Downloading ${file.getName}")
-      val cdr = download(file, annotations, closeableHttpClient, httpHost)
+      // val cdr = download(file, annotations, closeableHttpClient, httpHost)
+      val cdr = mockDownload(file, outputDir)
       val outputFile = FileEditor(file).setDir(outputDir).get
 
       Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
