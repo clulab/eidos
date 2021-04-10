@@ -153,6 +153,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
       RestProducerLoopApp.logger.info(s"Reporting storage key $storageKey for ${file.getName}")
 
       val doneFile = FileEditor(file).setDir(doneDir).get
+      if (doneFile.exists) doneFile.delete
       file.renameTo(doneFile)
     }
     catch {

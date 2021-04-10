@@ -20,17 +20,15 @@ import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
 
 import java.io.File
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-import scala.collection.mutable
 import scala.collection.mutable.{HashSet => MutableHashSet}
 
 class Reader {
-  val eidosSystem = new EidosSystem()
+//  val eidosSystem = new EidosSystem()
 
   def getEmptyAnnotatedDocument(idOpt: Option[String]): AnnotatedDocument = {
     val document = new Document(Array.empty)
@@ -83,6 +81,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
 
       EidosLoopApp.synchronized {
         val doneFile = FileEditor(file).setDir(doneDir).get
+        if (doneFile.exists) doneFile.delete
         file.renameTo(doneFile)
         filesBeingProcessed -= file.getAbsolutePath
       }
@@ -95,11 +94,10 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
 
   val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
     val filesBeingProcessed: MutableHashSet[String] = new MutableHashSet[String]
-    val executorService: ExecutorService = new ThreadPoolExecutor(0, Int.MaxValue,
-      Long.MaxValue, TimeUnit.NANOSECONDS, new SynchronousQueue[Runnable])
+    val threadPoolExecutor = Executors.newFixedThreadPool(2) // threads)
 
     override def shutdown(): Unit = {
-      executorService.shutdown()
+      threadPoolExecutor.shutdown()
     }
 
     override def runSafely(): Unit = {
@@ -116,8 +114,10 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
         }
 
         files.foreach { file =>
-          executorService.execute(
-            () => processFile(file, filesBeingProcessed)
+          threadPoolExecutor.execute(
+            new Runnable() {
+              def run: Unit = processFile(file, filesBeingProcessed)
+            }
           )
         }
         Thread.sleep(pauseDuration)

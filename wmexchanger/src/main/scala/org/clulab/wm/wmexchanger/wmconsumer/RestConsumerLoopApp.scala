@@ -149,6 +149,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
       lockFile.createNewFile()
 
       val doneFile = FileEditor(file).setDir(doneDir).get
+      if (doneFile.exists) doneFile.delete
       file.renameTo(doneFile)
     }
     catch {
