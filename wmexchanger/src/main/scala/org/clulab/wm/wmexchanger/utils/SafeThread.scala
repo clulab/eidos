@@ -10,6 +10,8 @@ abstract class SafeThread(logger: Logger, interactive: Boolean = false, duration
 
   def runSafely(): Unit
 
+  def shutdown(): Unit = ()
+
   override def run(): Unit = {
     val monitorThreadOpt: Option[MonitorThread] =
       if (interactive) Some(new MonitorThread(this, logger, duration))
@@ -28,6 +30,7 @@ abstract class SafeThread(logger: Logger, interactive: Boolean = false, duration
         logger.error("Consumer interruption", exception)
     }
     finally {
+      shutdown()
       if (!userInterruption) {
         if (monitorThreadOpt.isDefined) {
           val monitorThread = monitorThreadOpt.get

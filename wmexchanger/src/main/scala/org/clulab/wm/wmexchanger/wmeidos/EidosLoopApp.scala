@@ -26,6 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+import scala.collection.mutable
 import scala.collection.mutable.{HashSet => MutableHashSet}
 
 class Reader {
@@ -55,9 +56,8 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
 
   val options: EidosOptions = EidosOptions()
   val reader = new Reader()
-  val threadPool = Array.empty[Thread] // Some particular kind of thread?  mutable seq that can remove from?
 
-  def processFile(file: File): Unit = {
+  def processFile(file: File, filesBeingProcessed: MutableHashSet[String]): Unit = {
     try {
       val annotatedDocument =
         try {
@@ -65,7 +65,6 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
           val text = eidosText.getText
           val metadata = eidosText.getMetadata
 
-          // Wrap this in something that will produce an empty document if there is a problem.
           reader.extractFromText(text, options, metadata)
         }
         catch {
@@ -82,8 +81,11 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
       val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
       lockFile.createNewFile()
 
-      val doneFile = FileEditor(file).setDir(doneDir).get
-      file.renameTo(doneFile)
+      EidosLoopApp.synchronized {
+        val doneFile = FileEditor(file).setDir(doneDir).get
+        file.renameTo(doneFile)
+        filesBeingProcessed -= file.getAbsolutePath
+      }
     }
     catch {
       case exception: Exception =>
@@ -92,22 +94,31 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
   }
 
   val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
-    val filesBeingProcessed: MutableHashSet[String] = MutableHashSet.empty
+    val filesBeingProcessed: MutableHashSet[String] = new MutableHashSet[String]
     val executorService: ExecutorService = new ThreadPoolExecutor(0, Int.MaxValue,
       Long.MaxValue, TimeUnit.NANOSECONDS, new SynchronousQueue[Runnable])
+
+    override def shutdown(): Unit = {
+      executorService.shutdown()
+    }
 
     override def runSafely(): Unit = {
       while (!isInterrupted) {
         LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.jsonld)
 
-        val files = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock)
+        val files = EidosLoopApp.synchronized {
+          val allFiles = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock)
+          val newFiles = allFiles.filter { file => !filesBeingProcessed.contains(file.getAbsolutePath) }
+          val newAbsolutePaths = newFiles.map(_.getAbsolutePath)
 
-        if (files.nonEmpty) {
-          files.foreach { file =>
-            if (filesBeingProcessed.contains(file.getAbsolutePath))
+          filesBeingProcessed ++= newAbsolutePaths
+          newFiles
+        }
 
-            processFile(file)
-          }
+        files.foreach { file =>
+          executorService.execute(
+            () => processFile(file, filesBeingProcessed)
+          )
         }
         Thread.sleep(pauseDuration)
       }
@@ -124,5 +135,4 @@ object EidosLoopApp extends App with LoopApp {
   loop {
     () => new EidosLoopApp(inputDir, outputDir, doneDir, threads).thread
   }
-
 }
