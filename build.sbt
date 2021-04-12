@@ -28,6 +28,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   val playVersion = BuildUtils.sbtPluginVersion
+  val  lihaoyiVer = "0.7.1"
 
   Seq(
     // These two are not needed for the docker file if the cache is used.
@@ -47,7 +48,7 @@ libraryDependencies ++= {
     // Web serialization needs this.
     "com.typesafe.play"        %% "play-json"               % playVersion,
     // This next one is used in MaaSUtils.
-    "com.lihaoyi"              %% "upickle"                 % "0.7.1",
+    "com.lihaoyi"              %% "upickle"                 % lihaoyiVer,
     // These are used for testing only.
     "com.github.jsonld-java"    % "jsonld-java"             % "0.12.0" % Test
   )
