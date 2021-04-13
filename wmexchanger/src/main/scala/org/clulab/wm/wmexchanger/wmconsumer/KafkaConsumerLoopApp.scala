@@ -44,9 +44,12 @@ class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafka
   }
 }
 
-object KafkaConsumerLoopApp extends App with LoopApp {
-  args.foreach(println)
-  loop {
-    () => new KafkaConsumerLoopApp(args).thread
+object KafkaConsumerLoopApp extends LoopApp {
+
+  def main(args: Array[String]): Unit = {
+    args.foreach(println)
+    loop {
+      () => new KafkaConsumerLoopApp(args).thread
+    }
   }
 }

@@ -102,13 +102,16 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
   }
 }
 
-object EidosLoopApp extends App with LoopApp {
-  val inputDir: String = args(0)
-  val outputDir: String = args(1)
-  val doneDir: String = args(2)
-  val threads: Int = args(3).toInt
+object EidosLoopApp extends LoopApp {
 
-  loop {
-    () => new EidosLoopApp(inputDir, outputDir, doneDir, threads).thread
+  def main(args: Array[String]): Unit = {
+    val inputDir: String = args(0)
+    val outputDir: String = args(1)
+    val doneDir: String = args(2)
+    val threads: Int = args(3).toInt
+
+    loop {
+      () => new EidosLoopApp(inputDir, outputDir, doneDir, threads).thread
+    }
   }
 }

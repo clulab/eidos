@@ -77,11 +77,14 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
   }
 }
 
-object RestProducerLoopApp extends App with LoopApp {
-  val inputDir = args(0)
-  val doneDir = args(1)
+object RestProducerLoopApp extends LoopApp {
 
-  loop {
-    () => new RestProducerLoopApp(inputDir, doneDir).thread
+  def main(args: Array[String]): Unit = {
+    val inputDir = args(0)
+    val doneDir = args(1)
+
+    loop {
+      () => new RestProducerLoopApp(inputDir, doneDir).thread
+    }
   }
 }

@@ -86,12 +86,15 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
   }
 }
 
-object RestConsumerLoopApp extends App with LoopApp {
-  val inputDir: String = args(0)
-  val outputDir: String = args(1)
-  val doneDir: String = args(2)
+object RestConsumerLoopApp extends LoopApp {
 
-  loop {
-    () => new RestConsumerLoopApp(inputDir, outputDir, doneDir).thread
+  def main(args: Array[String]): Unit = {
+    val inputDir: String = args(0)
+    val outputDir: String = args(1)
+    val doneDir: String = args(2)
+
+    loop {
+      () => new RestConsumerLoopApp(inputDir, outputDir, doneDir).thread
+    }
   }
 }
