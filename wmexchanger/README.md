@@ -123,10 +123,22 @@ files present at any given time.
 | file.ext | C
 | empty | 1 |
 
+Although shared directories can be placed almost anywhere, these are the
+conventional locations which can be used in Run/Debug Configurations in
+IntelliJ or from the command line.  The base directory, named `$aseDir`
+in the table, could be `../corpora/loop`.
+
+| LoopApp | InputDir | OutputDir | DoneDir |
+| --- | --- | --- | --- |
+| 1. KafkaConsumerLoopApp | - | $baseDir/input/kafka | - |
+| 2. RestConsumerLoopApp | $baseDir/input/kafka | $baseDir/input | $baseDir/input/kafka/done |
+| 3. EidosLoopApp | $baseDir/input | $baseDir/output | $baseDir/input/done |
+| 4. RestProducerLoopApp | $baseDir/output | - | $baseDir/output/done |
+
 To facilitate testing, the consumer and producer functionalities have been
 described in traits with implementations then extracted from the apps.  Mock
 versions of the implementations are provided.  For the most part they simply
 take files that had resulted from a previous run and move them around.  The
 mock version of Eidos is slightly different in that it doesn't copy its output
-from someone but instead performs the calculations for an empty document.
+from somewhere but instead performs the calculations for an empty document.
 That functionality has required elsewhere and is exercized here.
