@@ -6,6 +6,7 @@ import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.eidoscommon.utils.Sinker
+import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
@@ -16,7 +17,7 @@ import java.util.Properties
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
 class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) {
-  val useReal = true
+  val useReal = DevtimeConfig.useReal
 
   val config: Config = ConfigFactory.load("restconsumer")
   val service: String = config.getString("RestConsumerApp.service")

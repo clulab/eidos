@@ -11,7 +11,6 @@ import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.CredentialsProvider
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ContentType
-import org.apache.http.entity.mime.FormBodyPartBuilder
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content.FileBody
 import org.apache.http.entity.mime.content.StringBody

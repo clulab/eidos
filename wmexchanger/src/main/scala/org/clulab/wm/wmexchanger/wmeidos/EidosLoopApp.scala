@@ -9,6 +9,7 @@ import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
@@ -20,7 +21,7 @@ import java.util.concurrent.Executors
 import scala.collection.mutable.{HashSet => MutableHashSet}
 
 class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads: Int) {
-  val useReal = true
+  val useReal = DevtimeConfig.useReal
 
   val config: Config = ConfigFactory.load("eidos")
   val interactive: Boolean = config.getBoolean("Eidos.interactive")

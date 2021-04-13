@@ -2,43 +2,20 @@ package org.clulab.wm.wmexchanger.wmproducer
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.apache.http.HttpHeaders
-import org.apache.http.HttpHost
-import org.apache.http.auth.AuthScope
-import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.client.CredentialsProvider
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.ContentType
-import org.apache.http.entity.mime.MultipartEntityBuilder
-import org.apache.http.entity.mime.content.FileBody
-import org.apache.http.entity.mime.content.StringBody
-import org.apache.http.impl.client.BasicCredentialsProvider
-import org.apache.http.impl.client.CloseableHttpClient
-import org.apache.http.impl.client.HttpClientBuilder
-import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
-import org.clulab.wm.eidoscommon.utils.Sourcer
-import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
-import org.json4s.DefaultFormats
-import org.json4s.jackson.JsonMethods
 
 import java.io.File
-import java.net.URL
 import java.util.Properties
-import scala.io.Source
 
-// See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
-// and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
-// and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
 class RestProducerLoopApp(inputDir: String, doneDir: String) {
-  val useReal = true
+  val useReal: Boolean = DevtimeConfig.useReal
 
   val version = "1.1.0"
 

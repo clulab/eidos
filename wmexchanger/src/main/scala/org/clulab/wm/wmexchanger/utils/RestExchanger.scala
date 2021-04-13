@@ -10,6 +10,9 @@ import org.apache.http.impl.client.HttpClientBuilder
 
 import java.net.URL
 
+// See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
+// and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
+// and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
 class RestExchanger(service: String, username: String, password: String) {
   protected val url = new URL(service)
   protected val httpHost: HttpHost = newHttpHost(url)

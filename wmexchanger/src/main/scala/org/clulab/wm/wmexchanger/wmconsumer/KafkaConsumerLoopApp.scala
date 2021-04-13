@@ -1,6 +1,7 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
+import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.utils.WmUserApp
@@ -8,7 +9,7 @@ import org.clulab.wm.wmexchanger.utils.WmUserApp
 import java.util.Properties
 
 class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafkaconsumer.properties") {
-  val useReal = true
+  val useReal = DevtimeConfig.useReal
 
   val localKafkaProperties: Properties = {
     // This allows the login to be contained in a file external to the project.
