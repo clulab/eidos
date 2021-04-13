@@ -1,9 +1,14 @@
-# wmuser
+# wmexchanger
 
 This subproject of Eidos houses code that can be used to retrieve documents
 from DART servers hosted by Two Six Labs.  It is similar to the elasticsearch
 subproject that retrieves documents from that kind of server.  Retrieval
-proceeds in two stages described in the following sections.
+proceeds in two stages described in the next two sections.  The results need
+to be transmitted back to the provider of the documents.  This is performed by
+the RestProducerApp described in a third section.  Finally, this process has
+been adapted to a hands-free environment in which these programs loop forever,
+checking for new document and processing them as they appear.  Details about
+the looping applications are provided in a fourth section.
 
 Login credentials are required to access the servers.  They are not stored in
 the source code.  Please ask for them if you need to run these programs.
@@ -74,3 +79,54 @@ For the nitty gritty, see the code and the resource `restconsumer.conf`.
 
 After these two stages have completed, Eidos can be run on the resulting files,
 the ones in outputDir, or `../corpora/drought/rest` in this example.
+
+## Loop Apps
+
+Each of the stages above has an endless loop variation that does not just run
+until there is nothing more to do, but that does all that work and then waits
+around forever in case more arrives.  There is a new fourth stage inserted between
+the consumers and producer, and that is a version of the Eidos driver that does
+the same, unlike any other existing driver.  The lineup is therefore
+
+1. KafkaConsumerLoopApp
+1. RestConsumerLoopApp
+1. EidosLoopApp
+1. RestProducerLoopApp
+
+Each of these programs runs separately.  They communicate with each other by
+sharing directories.  Because one program reading a file to be exchanged can't
+know whether another program has finished writing it, a file locking mechanism
+is used.  The writer of a file that gets read by another program writes the
+file and then closes it.  Then it creates a matching lock file, indicating
+that its OK for another program to read the file.  The other program will
+eventually do that and then move the file to a "done" directory.  When the
+writer program notices that there are lock files around without their "lockee",
+it removes the lock file.  This should leave the shared directory empty, just
+like it started.  Here is a tabular representation:
+
+| Writer | Reader |
+| --- | --- |
+| 1. Remove dangling lock files | A. Check for lock files with a matching lockee |
+| 2. Write a file for exchange, the lockee | B. Process the lockee |
+| 3. Write the matching lock file | C. Move the lockee to the "done" directory |
+| 4. Loop to 1 | D. Loop to A.
+
+The shared directory might then have the states below.  Depending on how writer
+and reader are synchronized, there could be numerous of the various kinds of
+files present at any given time.
+
+| Shared Directory | Action |
+| --- | --- |
+| empty | - |
+| file.ext | 2 |
+| file.ext<br>file.lock | 3, A, B|
+| file.ext | C
+| empty | 1 |
+
+To facilitate testing, the consumer and producer functionalities have been
+described in traits with implementations then extracted from the apps.  Mock
+versions of the implementations are provided.  For the most part they simply
+take files that had resulted from a previous run and move them around.  The
+mock version of Eidos is slightly different in that it doesn't copy its output
+from someone but instead performs the calculations for an empty document.
+That functionality has required elsewhere and is exercized here.
