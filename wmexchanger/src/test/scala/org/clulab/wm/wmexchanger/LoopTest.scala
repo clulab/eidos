@@ -13,6 +13,7 @@ import java.io.File
 import java.nio.file.Files
 
 class LoopTest extends Test {
+  val threads = 3
 
   class Dirs(baseDir: String, relInputDirOpt: Option[String], relOutputDirOpt: Option[String], relDoneDirOpt: Option[String], relMockDirOpt: Option[String]) {
     val  inputDirOpt: Option[String] = makeAbs(relInputDirOpt)
@@ -51,19 +52,19 @@ class LoopTest extends Test {
     }
 
     def testInputEmpty(): Boolean = {
-      inputDirOpt.map { inputDir =>
+      inputDirOpt.forall { inputDir =>
         val files = FileUtils.findFiles(inputDir, "")
 
         files.isEmpty
-      }.getOrElse(true)
+      }
     }
 
     def testOutputDone(inputIds: Seq[String]): Boolean = {
-      outputDirOpt.map { outputDir =>
+      outputDirOpt.forall { outputDir =>
         val outputIds = getFileIds(outputDir)
 
         inputIds.toSet == outputIds.toSet
-      }.getOrElse(true)
+      }
     }
   }
 
@@ -77,14 +78,14 @@ class LoopTest extends Test {
   val kafkaResourceDir = "./wmexchanger/src/test/resources/kafkaProducer"
   val  restResourceDir = "./wmexchanger/arc/test/resources/restProducer"
 
-  val fileIds = getFileIds(kafkaResourceDir)
+  val fileIds: Seq[String] = getFileIds(kafkaResourceDir)
 
   assert(fileIds.toSet == getFileIds(restResourceDir).toSet)
 
   def getFileIds(dir: String): Seq[String] = {
     val fileIds = FileUtils
         .findFiles(dir, "")
-        .map { file => StringUtils.beforeLast(file.getName, '.', true) }
+        .map { file => StringUtils.beforeLast(file.getName, '.', all = true) }
 
     fileIds
   }
@@ -99,14 +100,43 @@ class LoopTest extends Test {
   }
 
   def startLoopApps(): Seq[Thread] = {
-    // How can I get the args in there?
+    val kafkaConsumerThread: Thread = new Thread {
+      val args: Array[String] = Array(
+        "app.topic=dart.cdr.streaming.updates",
+        s"app.outputDir=${kafkaConsumerDirs.outputDirOpt.get}"
+      )
 
-    val kafkaConsumerLoopApp = KafkaConsumerLoopApp(Array()) // how to set args?
-//    val restConsumerLoopApp = RestConsumerLoopApp(Array())
-//    val eidosLoopApp = EidosLoopApp(Array())
-//    val restProducerLoopApp = RestProducerLoopApp(Array())
+      override def run(): Unit = KafkaConsumerLoopApp.main(args)
+    }
+    val restConsumerThread: Thread = new Thread {
+      val args: Array[String] = Array(
+        s"${restConsumerDirs.inputDirOpt.get}",
+        s"${restConsumerDirs.outputDirOpt.get}",
+        s"${restConsumerDirs.doneDirOpt.get}"
+      )
 
-    Seq.empty[Thread]
+      override def run(): Unit = RestConsumerLoopApp.main(args)
+    }
+    val eidosThread: Thread = new Thread {
+      val args: Array[String] = Array(
+        s"${eidosDirs.inputDirOpt.get}",
+        s"${eidosDirs.outputDirOpt.get}",
+        s"${eidosDirs.doneDirOpt.get}",
+        threads.toString
+      )
+
+      override def run(): Unit = EidosLoopApp.main(args)
+    }
+    val restProducerThread: Thread = new Thread {
+      val args: Array[String] = Array(
+        s"${restProducerDirs.inputDirOpt.get}",
+        s"${restProducerDirs.doneDirOpt.get}"
+      )
+
+      override def run(): Unit = RestProducerLoopApp.main(args)
+    }
+
+    Seq(kafkaConsumerThread, restConsumerThread, eidosThread, restProducerThread)
   }
 
   def waitForCompletion(): Unit = {
@@ -117,12 +147,14 @@ class LoopTest extends Test {
 
   def stopLoopApps(threads: Seq[Thread]): Unit = {
 
-    def anyAlive() = {
-      threads.find { thread =>
+    def anyAlive(): Boolean = {
+      threads.foreach { thread =>
         if (thread.isAlive)
           thread.interrupt()
+      }
+      threads.exists { thread =>
         thread.isAlive
-      }.nonEmpty
+      }
     }
 
     while (anyAlive())
