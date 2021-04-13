@@ -14,7 +14,8 @@ import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.json4s._
 
-class KafkaConsumer(properties: Properties, closeDuration: Int, topic: String, outputDir: String, lock: Boolean = false) {
+class KafkaConsumer(properties: Properties, closeDuration: Int, topic: String, outputDir: String, lock: Boolean = false)
+    extends KafkaConsumerish {
   import KafkaConsumer._
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 

@@ -2,11 +2,7 @@ package org.clulab.wm.wmexchanger.wmeidos
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.clulab.processors.Document
 import org.clulab.wm.eidos.EidosOptions
-import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.meta.CdrText
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
@@ -21,39 +17,18 @@ import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
 
 import java.io.File
 import java.util.concurrent.Executors
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.SynchronousQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
 import scala.collection.mutable.{HashSet => MutableHashSet}
 
-class Reader {
-//  val eidosSystem = new EidosSystem()
-
-  def getEmptyAnnotatedDocument(idOpt: Option[String]): AnnotatedDocument = {
-    val document = new Document(Array.empty)
-    document.id = idOpt
-
-    val annotatedDocument = AnnotatedDocument(document, Seq.empty)
-
-    annotatedDocument
-  }
-
-  def extractFromText(text: String, options: EidosOptions, metadata: Metadata): AnnotatedDocument = {
-    // eidosSystem.extractFromText(text, options, metadata)
-    Thread.sleep(5000)
-    getEmptyAnnotatedDocument(metadata.idOpt)
-  }
-}
-
 class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads: Int) {
+  val useReal = true
+
   val config: Config = ConfigFactory.load("eidos")
   val interactive: Boolean = config.getBoolean("Eidos.interactive")
   val waitDuration: Int = config.getInt("Eidos.duration.wait")
   val pauseDuration: Int = config.getInt("Eidos.duration.pause")
 
   val options: EidosOptions = EidosOptions()
-  val reader = new Reader()
+  val reader = if (useReal) new RealEidosSystem() else new MockEidosSystem()
 
   def processFile(file: File, filesBeingProcessed: MutableHashSet[String]): Unit = {
     try {
