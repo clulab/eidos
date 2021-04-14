@@ -6,15 +6,17 @@ import org.clulab.wm.eidoscommon.utils.FileUtils
 import java.io.File
 
 class MockRestConsumer(outputDir: String) extends RestConsumerish {
-  val inputDir: String = FileEditor(new File(outputDir)).incName("/mock").get.getAbsolutePath
+  val mockDir: String = FileEditor(new File(outputDir)).incName("/mock").get.getAbsolutePath
 
   def open(): Unit = ()
 
   def close(): Unit = ()
 
   def download(file: File): String = {
-    val cdr = FileUtils.getTextFromFile(file)
+    val mockFile = FileEditor(file).setDir(mockDir).get.getAbsolutePath
+    val cdr = FileUtils.getTextFromFile(mockFile)
 
+    new File(mockFile).delete()
     cdr
   }
 }

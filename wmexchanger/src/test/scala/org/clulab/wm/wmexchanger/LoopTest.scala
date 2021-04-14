@@ -25,13 +25,15 @@ class LoopTest extends Test {
 
     def makeAbs(dirOpt: Option[String]): Option[String] = dirOpt.map { dir => baseDir + dir }
 
-    def makeExist(dirOpt: Option[String]): Unit = dirOpt.foreach(dir => new File(dir).mkdirs())
+    def makeExist(dirOpt: Option[String]): Unit = dirOpt.foreach { dir => new File(dir).mkdirs() }
 
     def makeExist(): Unit = allDirOpts.foreach(makeExist)
 
     def makeEmpty(dirOpt: Option[String]): Unit = {
       dirOpt.foreach { dir =>
-        val files = FileUtils.findFiles(dir, "")
+        val files = FileUtils
+            .findFiles(dir, "")
+            .filter(_.isFile)
 
         files.foreach { file =>
           file.delete()
@@ -52,18 +54,29 @@ class LoopTest extends Test {
     }
 
     def testInputEmpty(): Boolean = {
-      inputDirOpt.forall { inputDir =>
-        val files = FileUtils.findFiles(inputDir, "")
+      val inputIsEmpty = inputDirOpt.forall { inputDir =>
+        val files = FileUtils
+            .findFiles(inputDir, "")
+            .filter(_.isFile)
 
         files.isEmpty
       }
+      val mockIsEmpty = mockDirOpt.forall { mockDir =>
+        val files = FileUtils
+            .findFiles(mockDir, "")
+            .filter(_.isFile)
+
+        files.isEmpty
+      }
+
+      inputIsEmpty && mockIsEmpty
     }
 
-    def testOutputDone(inputIds: Seq[String]): Boolean = {
+    def testOutputDone(inputIds: Set[String]): Boolean = {
       outputDirOpt.forall { outputDir =>
         val outputIds = getFileIds(outputDir)
 
-        inputIds.toSet == outputIds.toSet
+        inputIds == outputIds
       }
     }
   }
@@ -76,18 +89,18 @@ class LoopTest extends Test {
   val allDirs = Seq(kafkaConsumerDirs, restConsumerDirs, eidosDirs, restProducerDirs)
 
   val kafkaResourceDir = "./wmexchanger/src/test/resources/kafkaProducer"
-  val  restResourceDir = "./wmexchanger/arc/test/resources/restProducer"
+  val  restResourceDir = "./wmexchanger/src/test/resources/restProducer"
 
-  val fileIds: Seq[String] = getFileIds(kafkaResourceDir)
+  val fileIds: Set[String] = getFileIds(kafkaResourceDir)
 
-  assert(fileIds.toSet == getFileIds(restResourceDir).toSet)
+  assert(fileIds == getFileIds(restResourceDir))
 
-  def getFileIds(dir: String): Seq[String] = {
+  def getFileIds(dir: String): Set[String] = {
     val fileIds = FileUtils
         .findFiles(dir, "")
         .map { file => StringUtils.beforeLast(file.getName, '.', all = true) }
 
-    fileIds
+    fileIds.toSet
   }
 
   def prepareDirs(): Unit = {
@@ -136,13 +149,18 @@ class LoopTest extends Test {
       override def run(): Unit = RestProducerLoopApp.main(args)
     }
 
-    Seq(kafkaConsumerThread, restConsumerThread, eidosThread, restProducerThread)
+    val loops = Seq(kafkaConsumerThread, restConsumerThread, eidosThread, restProducerThread)
+    loops.foreach(_.start())
+    loops
   }
 
   def waitForCompletion(): Unit = {
-    allDirs.forall { dirs: Dirs =>
+    def allEmpty() = allDirs.forall { dirs: Dirs =>
       dirs.testInputEmpty()
     }
+
+    while (!allEmpty())
+      Thread.sleep(1000)
   }
 
   def stopLoopApps(threads: Seq[Thread]): Unit = {
