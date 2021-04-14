@@ -15,8 +15,7 @@ import java.io.File
 import java.util.Properties
 
 class RestProducerLoopApp(inputDir: String, doneDir: String) {
-  val useReal: Boolean = DevtimeConfig.useReal
-
+  var useReal: Boolean = RestProducerLoopApp.useReal
   val version = "1.1.0"
 
   val config: Config = ConfigFactory.load("restproducer")
@@ -78,6 +77,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 }
 
 object RestProducerLoopApp extends LoopApp {
+  var useReal: Boolean = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
     val inputDir = args(0)

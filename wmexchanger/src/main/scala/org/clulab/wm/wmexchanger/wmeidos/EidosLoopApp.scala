@@ -21,7 +21,7 @@ import java.util.concurrent.Executors
 import scala.collection.mutable.{HashSet => MutableHashSet}
 
 class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads: Int) {
-  val useReal = DevtimeConfig.useReal
+  var useReal = EidosLoopApp.useReal
 
   val config: Config = ConfigFactory.load("eidos")
   val interactive: Boolean = config.getBoolean("Eidos.interactive")
@@ -29,7 +29,9 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
   val pauseDuration: Int = config.getInt("Eidos.duration.pause")
 
   val options: EidosOptions = EidosOptions()
-  val reader = if (useReal) new RealEidosSystem() else new MockEidosSystem()
+  val reader =
+      if (useReal) new RealEidosSystem()
+      else new MockEidosSystem()
 
   def processFile(file: File, filesBeingProcessed: MutableHashSet[String]): Unit = {
     try {
@@ -103,6 +105,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
 }
 
 object EidosLoopApp extends LoopApp {
+  var useReal = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
     val inputDir: String = args(0)

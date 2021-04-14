@@ -17,7 +17,7 @@ import java.util.Properties
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
 class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) {
-  val useReal = DevtimeConfig.useReal
+  var useReal = RestConsumerLoopApp.useReal
 
   val config: Config = ConfigFactory.load("restconsumer")
   val service: String = config.getString("RestConsumerApp.service")
@@ -87,6 +87,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
 }
 
 object RestConsumerLoopApp extends LoopApp {
+  var useReal = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
     val inputDir: String = args(0)

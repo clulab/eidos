@@ -9,7 +9,7 @@ import org.clulab.wm.wmexchanger.utils.WmUserApp
 import java.util.Properties
 
 class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafkaconsumer.properties") {
-  val useReal = DevtimeConfig.useReal
+  var useReal = KafkaConsumerLoopApp.useReal
 
   val localKafkaProperties: Properties = {
     // This allows the login to be contained in a file external to the project.
@@ -45,6 +45,7 @@ class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafka
 }
 
 object KafkaConsumerLoopApp extends LoopApp {
+  var useReal = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
     args.foreach(println)

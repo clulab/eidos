@@ -13,6 +13,7 @@ import java.io.File
 import java.nio.file.Files
 
 class LoopTest extends Test {
+  val useRealEidos = true
   val threads = 3
 
   class Dirs(baseDir: String, relInputDirOpt: Option[String], relOutputDirOpt: Option[String], relDoneDirOpt: Option[String], relMockDirOpt: Option[String]) {
@@ -72,11 +73,11 @@ class LoopTest extends Test {
       inputIsEmpty && mockIsEmpty
     }
 
-    def testOutputDone(inputIds: Set[String]): Boolean = {
-      outputDirOpt.forall { outputDir =>
-        val outputIds = getFileIds(outputDir)
+    def getDoneIds: Option[Set[String]] = {
+      doneDirOpt.map { doneDir =>
+        val outputIds = getFileIds(doneDir)
 
-        inputIds == outputIds
+        outputIds
       }
     }
   }
@@ -98,6 +99,7 @@ class LoopTest extends Test {
   def getFileIds(dir: String): Set[String] = {
     val fileIds = FileUtils
         .findFiles(dir, "")
+        .filter(_.isFile)
         .map { file => StringUtils.beforeLast(file.getName, '.', all = true) }
 
     fileIds.toSet
@@ -119,7 +121,10 @@ class LoopTest extends Test {
         s"app.outputDir=${kafkaConsumerDirs.outputDirOpt.get}"
       )
 
-      override def run(): Unit = KafkaConsumerLoopApp.main(args)
+      override def run(): Unit = this.synchronized {
+        KafkaConsumerLoopApp.useReal = false
+        KafkaConsumerLoopApp.main(args)
+      }
     }
     val restConsumerThread: Thread = new Thread {
       val args: Array[String] = Array(
@@ -128,7 +133,10 @@ class LoopTest extends Test {
         s"${restConsumerDirs.doneDirOpt.get}"
       )
 
-      override def run(): Unit = RestConsumerLoopApp.main(args)
+      override def run(): Unit = {
+        RestConsumerLoopApp.useReal = false
+        RestConsumerLoopApp.main(args)
+      }
     }
     val eidosThread: Thread = new Thread {
       val args: Array[String] = Array(
@@ -138,7 +146,10 @@ class LoopTest extends Test {
         threads.toString
       )
 
-      override def run(): Unit = EidosLoopApp.main(args)
+      override def run(): Unit = {
+        EidosLoopApp.useReal = useRealEidos
+        EidosLoopApp.main(args)
+      }
     }
     val restProducerThread: Thread = new Thread {
       val args: Array[String] = Array(
@@ -146,7 +157,10 @@ class LoopTest extends Test {
         s"${restProducerDirs.doneDirOpt.get}"
       )
 
-      override def run(): Unit = RestProducerLoopApp.main(args)
+      override def run(): Unit = {
+        RestProducerLoopApp.useReal = false
+        RestProducerLoopApp.main(args)
+      }
     }
 
     val loops = Seq(kafkaConsumerThread, restConsumerThread, eidosThread, restProducerThread)
@@ -180,8 +194,12 @@ class LoopTest extends Test {
   }
 
   def testDirs(): Unit = {
-    allDirs.forall { dirs: Dirs =>
-      dirs.testOutputDone(fileIds)
+    allDirs.foreach { dirs: Dirs =>
+      val outputIdsOpt = dirs.getDoneIds
+
+      outputIdsOpt.foreach { outputIds =>
+        outputIds should be (fileIds)
+      }
     }
   }
 
