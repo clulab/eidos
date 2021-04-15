@@ -89,8 +89,8 @@ object JavaLauncher {
     if (args.length == 0) {
       val syntax = s"""
         |Syntax: ${this.getClass.getSimpleName.dropRight(1)}
-        |  mainClass nonIntProgramArgument otherProgramA
-        |  mainClass intProgramArgumentCount programArguments{int} javaA
+        |  mainClass nonIntProgramArg otherProgramArgs*
+        |  mainClass intProgramArgCount programArguments{int} javaArgs*
         |""".stripMargin
       println(syntax)
     }
