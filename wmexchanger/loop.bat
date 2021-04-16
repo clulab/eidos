@@ -1,4 +1,4 @@
-set baseDir=../corpus/loop
+set baseDir=../corpora/loop
 set threads=4
 set memory=-Xmx16g
 

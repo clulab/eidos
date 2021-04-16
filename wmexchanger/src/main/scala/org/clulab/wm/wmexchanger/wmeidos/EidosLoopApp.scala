@@ -72,7 +72,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
 
   val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
     val filesBeingProcessed: MutableHashSet[String] = new MutableHashSet[String]
-    val threadPoolExecutor = Executors.newFixedThreadPool(2) // threads)
+    val threadPoolExecutor = Executors.newFixedThreadPool(threads)
 
     override def shutdown(): Unit = {
       threadPoolExecutor.shutdown()
