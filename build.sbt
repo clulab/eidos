@@ -172,4 +172,4 @@ lazy val webapp = project
 
 lazy val wmexchanger = project
   .settings(commonSettings: _*)
-  .dependsOn(eidoscommon)
+  .dependsOn(eidoscommon, coreRef)
