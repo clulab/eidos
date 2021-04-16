@@ -23,6 +23,7 @@ libraryDependencies ++= {
     // rest
     "org.apache.httpcomponents"   % "httpclient"       % "4.5.12",      // up to 4.5.13
     "org.apache.httpcomponents"   % "httpcore"         % "4.4.13",      // up to 4.4.14
-    "org.apache.httpcomponents"   % "httpmime"         % "4.5.12"       // up to 4.5.13
+    "org.apache.httpcomponents"   % "httpmime"         % "4.5.12",      // up to 4.5.13
+    "org.scalatest"              %% "scalatest"        % "3.0.4" % Test
   )
 }

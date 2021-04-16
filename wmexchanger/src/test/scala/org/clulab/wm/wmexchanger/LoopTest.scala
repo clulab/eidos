@@ -3,7 +3,7 @@ package org.clulab.wm.wmexchanger
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.StringUtils
-import org.clulab.wm.eidoscommon.utils.Test
+import org.clulab.wm.wmexchanger.utils.Test
 import org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumerLoopApp
 import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
 import org.clulab.wm.wmexchanger.wmeidos.EidosLoopApp
