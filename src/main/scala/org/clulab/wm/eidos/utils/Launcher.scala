@@ -9,6 +9,7 @@ import scala.collection.mutable.ArrayBuilder
 
 class Launcher(val args: Array[String]) {
   protected val counter: Counter = Counter()
+  protected val waitTime = 30000
 
   def getCount: Int = counter.get
 
@@ -36,6 +37,8 @@ class Launcher(val args: Array[String]) {
     val resultHolder = new Holder[Int](0)
 
     while ({
+      if (counter.get > 0)
+        Thread.sleep(waitTime)
       counter.inc()
       resultHolder.set(launchOnce()) != 0 && retry
     }) { }
