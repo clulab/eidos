@@ -14,7 +14,6 @@ import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
-import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
 
 import java.io.File
 import java.util.concurrent.Executors
@@ -69,7 +68,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
     }
   }
 
-  val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
+  val thread: SafeThread = new SafeThread(EidosLoopApp.logger, interactive, waitDuration) {
     val filesBeingProcessed: MutableHashSet[String] = new MutableHashSet[String]
     val threadPoolExecutor = Executors.newFixedThreadPool(threads)
 

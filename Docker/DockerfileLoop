@@ -32,7 +32,9 @@ RUN git checkout kwalcock/stream
 RUN sbt wmexchanger/compile
 
 # Copy the script to a central location for startup.
+RUN chmod 751 ./wmexchanger/*.sh
 RUN cp ./wmexchanger/loop_sbt_all.sh .
 
 # Run Web Service
 ENTRYPOINT ["./loop_sbt_all.sh"]
+

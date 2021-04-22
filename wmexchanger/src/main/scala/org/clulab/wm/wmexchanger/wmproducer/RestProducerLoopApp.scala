@@ -10,7 +10,6 @@ import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
-import org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp
 
 import java.io.File
 import java.util.Properties
@@ -29,7 +28,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
   val username: String = properties.getProperty("username")
   val password: String = properties.getProperty("password")
 
-  val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
+  val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
 
     def processFile(restProducer: RestProducerish, file: File): Unit = {
       try {
