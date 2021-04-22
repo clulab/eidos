@@ -129,7 +129,6 @@
     </appender>
 
 
-
     <logger name="org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumerLoopApp" level="all" additivity="false">
         <appender-ref ref="eidos:stderr"/>
         <appender-ref ref="eidos:stdout"/>
@@ -152,7 +151,7 @@
     </logger>
 
     <!-- This handles anything from outside of eidos that isn't configured otherwise. -->
-    <root level="all">
+    <root level="debug">
         <appender-ref ref="eidos:stderr"/>
         <appender-ref ref="eidos:stdout"/>
         <appender-ref ref="eidos:eidos"/>
