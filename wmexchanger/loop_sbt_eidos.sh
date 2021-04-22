@@ -11,7 +11,7 @@ echo threads is ${threads}
 echo memory is ${memory}
 
 export _JAVA_OPTIONS=${memory}
-while ! sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.wmeidos.EidosLoopApp ${baseDir}/input ${baseDir}/output ${baseDir}/input/done ${threads}"
+while ! sbt ";set ThisBuild/offline := true ;wmexchanger/runMain org.clulab.wm.wmexchanger.wmeidos.EidosLoopApp ${baseDir}/input ${baseDir}/output ${baseDir}/input/done ${threads}"
 do
   echo "It failed, so I am trying again in ${sleep} seconds."
   sleep ${sleep}
