@@ -144,8 +144,8 @@ object RestConsumerApp extends App with Logging {
           printWriter.print(cdr)
         }
 
-        val newFile = FileEditor(file).setDir(doneDir).get
-        file.renameTo(newFile)
+        val doneFile = FileEditor(file).setDir(doneDir).get
+        FileUtils.rename(file, doneFile)
       }
       catch {
         case exception: Exception =>

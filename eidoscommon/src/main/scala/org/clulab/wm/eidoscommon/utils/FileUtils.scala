@@ -220,4 +220,22 @@ object FileUtils {
   protected def getExt(filename: String): String = {
     "." + StringUtils.afterLast(filename, '.')
   }
+
+  def ensureDirsExist(dirs: String*):  Boolean = {
+    val results = dirs.map { dir =>
+      val file = new File(dir)
+
+      if (!file.exists)
+        file.mkdirs()
+      else true
+    }
+
+    !results.contains(false)
+  }
+
+  def rename(oldFile: File, newFile: File): Unit = {
+    if (newFile.exists())
+      newFile.delete()
+    oldFile.renameTo(newFile)
+  }
 }

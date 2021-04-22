@@ -1,5 +1,6 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.LoopApp
@@ -21,6 +22,7 @@ class KafkaConsumerLoopApp(args: Array[String]) extends WmUserApp(args,  "/kafka
 
   val topic: String = appProperties.getProperty("topic")
   val outputDir: String = appProperties.getProperty("outputDir")
+  FileUtils.ensureDirsExist(outputDir)
 
   val pollDuration: Int = appProperties.getProperty("poll.duration").toInt
   val waitDuration: Long = appProperties.getProperty("wait.duration").toLong

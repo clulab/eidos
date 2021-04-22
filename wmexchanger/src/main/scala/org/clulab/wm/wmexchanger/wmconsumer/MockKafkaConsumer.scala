@@ -25,9 +25,7 @@ class MockKafkaConsumer(inputDir: String, outputDir: String) extends KafkaConsum
     if (files.nonEmpty) {
       val inputFile = files.head
       val outputFile = FileEditor(inputFile).setDir(outputDir).get
-      if (outputFile.exists)
-        outputFile.delete()
-      inputFile.renameTo(outputFile)
+      FileUtils.rename(inputFile, outputFile)
       val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
       lockFile.createNewFile()
     }

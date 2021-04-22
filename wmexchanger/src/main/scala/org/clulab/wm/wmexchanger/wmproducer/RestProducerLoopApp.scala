@@ -3,6 +3,7 @@ package org.clulab.wm.wmexchanger.wmproducer
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
@@ -38,8 +39,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
         RestProducerLoopApp.logger.info(s"Reporting storage key $storageKey for ${file.getName}")
 
         val doneFile = FileEditor(file).setDir(doneDir).get
-        if (doneFile.exists) doneFile.delete
-        file.renameTo(doneFile)
+        FileUtils.rename(file, doneFile)
       }
       catch {
         case exception: Exception =>
@@ -82,6 +82,8 @@ object RestProducerLoopApp extends LoopApp {
   def main(args: Array[String]): Unit = {
     val inputDir = args(0)
     val doneDir = args(1)
+
+    FileUtils.ensureDirsExist(inputDir, doneDir)
 
     loop {
       () => new RestProducerLoopApp(inputDir, doneDir).thread

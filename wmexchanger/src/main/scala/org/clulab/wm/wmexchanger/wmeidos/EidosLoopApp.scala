@@ -59,8 +59,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
 
       EidosLoopApp.synchronized {
         val doneFile = FileEditor(file).setDir(doneDir).get
-        if (doneFile.exists) doneFile.delete
-        file.renameTo(doneFile)
+        FileUtils.rename(file, doneFile)
         filesBeingProcessed -= file.getAbsolutePath
       }
     }
@@ -112,6 +111,8 @@ object EidosLoopApp extends LoopApp {
     val outputDir: String = args(1)
     val doneDir: String = args(2)
     val threads: Int = args(3).toInt
+
+    FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
 
     loop {
       () => new EidosLoopApp(inputDir, outputDir, doneDir, threads).thread

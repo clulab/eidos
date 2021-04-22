@@ -3,6 +3,7 @@ package org.clulab.wm.wmexchanger.wmconsumer
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.eidoscommon.utils.Sinker
@@ -46,8 +47,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
         lockFile.createNewFile()
 
         val doneFile = FileEditor(file).setDir(doneDir).get
-        if (doneFile.exists) doneFile.delete
-        file.renameTo(doneFile)
+        FileUtils.rename(file, doneFile)
       }
       catch {
         case exception: Exception =>
@@ -93,6 +93,8 @@ object RestConsumerLoopApp extends LoopApp {
     val inputDir: String = args(0)
     val outputDir: String = args(1)
     val doneDir: String = args(2)
+
+    FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
 
     loop {
       () => new RestConsumerLoopApp(inputDir, outputDir, doneDir).thread

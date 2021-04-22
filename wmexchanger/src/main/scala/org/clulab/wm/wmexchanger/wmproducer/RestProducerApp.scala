@@ -146,8 +146,8 @@ object RestProducerApp extends App with Logging {
 
         logger.info(s"Reporting storage key $storageKey for ${file.getName}")
 
-        val newFile = FileEditor(file).setDir(doneDir).get
-        file.renameTo(newFile)
+        val doneFile = FileEditor(file).setDir(doneDir).get
+        FileUtils.rename(file, doneFile)
       }
       catch {
         case exception: Exception =>
