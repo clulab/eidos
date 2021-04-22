@@ -1,13 +1,17 @@
 # This file is for the looping/streaming version of the wmexchanger subproject.
+# Run in the ./Docker directory because the context is smaller there.
+# docker build -f ./Docker/DockerfileLoop ./Docker -t eidos-loop
+# docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g eidos-loop
 
 FROM ubuntu:20.04
 
 # Install base packages
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    software-properties-common \ 
-    git \
-    vim
+RUN apt-get update
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
+RUN apt-get install -y \
+    software-properties-common \
+    dialog \
+    git
 
 # Install Java
 RUN add-apt-repository -y ppa:openjdk-r/ppa
@@ -29,12 +33,16 @@ RUN git clone https://github.com/clulab/eidos.git
 WORKDIR /eidos
 # Checkout this branch until we've merged changes into the main branch.
 RUN git checkout kwalcock/stream
-RUN sbt wmexchanger/compile
-
-# Copy the script to a central location for startup.
 RUN chmod 751 ./wmexchanger/*.sh
+# Copy the script to a central location for startup.
 RUN cp ./wmexchanger/loop_sbt_all.sh .
+# Force the packaging of all dependencies of the subproject.
+RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
+RUN mkdir ../corpus
+RUN mkdir ../credentials
+RUN chmod 700 ../credentials
+COPY ../credentials/login.properties .
+RUN chmod 500 ../credentials/login.properties
 
 # Run Web Service
-ENTRYPOINT ["./loop_sbt_all.sh"]
-
+ENTRYPOINT ["/bin/bash", "./loop_sbt_all.sh"]
