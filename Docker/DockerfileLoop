@@ -1,5 +1,6 @@
 # This file is for the looping/streaming version of the wmexchanger subproject.
 # Run in the ./Docker directory because the context is smaller there.
+# Copy ../credentials/login.properties to the ./Docker directory first.
 # docker build -f ./Docker/DockerfileLoop ./Docker -t eidos-loop
 # docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g eidos-loop
 
@@ -41,8 +42,9 @@ RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
 RUN mkdir ../corpus
 RUN mkdir ../credentials
 RUN chmod 700 ../credentials
-COPY ../credentials/login.properties .
+COPY ./login.properties .
 RUN chmod 500 ../credentials/login.properties
 
 # Run Web Service
-ENTRYPOINT ["/bin/bash", "./loop_sbt_all.sh"]
+ENTRYPOINT ["/bin/bash"]
+CMD ["./loop_sbt_all.sh"]
