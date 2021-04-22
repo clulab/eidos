@@ -186,12 +186,12 @@ object SbtLauncher {
   def main(args: Array[String]): Unit = {
     if (args.length == 0) {
       val syntax = s"""
-        |Syntax: ${this.getClass.getSimpleName.dropRight(1)}
-        |  mainClass
-        |  mainClass nonIntProgramArg otherProgramArgs*
-        |  mainClass intProgramArgCount programArgs{intProgramArgCount} [nonIntJavaArg otherJavaArgs*]
-        |  mainClass intProgramArgCount programArgs{intProgramArgCount} [intJavaArgCount javaArgs{intJavaArgCount} sbtArgs*]
-        |""".stripMargin
+                      |Syntax: ${this.getClass.getSimpleName.dropRight(1)}
+                      |  mainClass
+                      |  mainClass nonIntProgramArg otherProgramArgs*
+                      |  mainClass intProgramArgCount programArgs{intProgramArgCount} [nonIntJavaArg otherJavaArgs*]
+                      |  mainClass intProgramArgCount programArgs{intProgramArgCount} [intJavaArgCount javaArgs{intJavaArgCount} sbtArgs*]
+                      |""".stripMargin
       println(syntax)
     }
     else {
