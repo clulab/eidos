@@ -1,6 +1,6 @@
 baseDir=../corpora/loop
 threads=4
-memory=-Xmx16g
+memory=-Xmx20g
 sleep=30
 
 export _JAVA_OPTIONS=${memory}
