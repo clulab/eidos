@@ -42,8 +42,8 @@ RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
 RUN mkdir ../corpus
 RUN mkdir ../credentials
 RUN chmod 700 ../credentials
-COPY ./login.properties .
-RUN chmod 500 ../credentials/login.properties
+COPY ./login.properties ../credentials
+RUN chmod 600 ../credentials/login.properties
 
 # Run Web Service
 ENTRYPOINT ["/bin/bash"]
