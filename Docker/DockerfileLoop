@@ -38,7 +38,7 @@ RUN git checkout kwalcock/stream
 RUN chmod 751 ./wmexchanger/*.sh
 # Move this file to .., outside of sbt and git realm.
 RUN cp ./wmexchanger/loop_sbt_all.sh ..
-RUN mkdir ../corpus
+RUN mkdir ../corpora
 RUN mkdir ../credentials
 RUN chmod 700 ../credentials
 COPY ./login.properties ../credentials
