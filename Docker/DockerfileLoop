@@ -1,8 +1,16 @@
 # This file is for the looping/streaming version of the wmexchanger subproject.
-# Run in the ./Docker directory because the context is smaller there.
-# Copy ../credentials/login.properties to the ./Docker directory first.
+
+# Add credentials to ./Docker/login.properties first, or alternatively,
+# be prepared to provide them to the container with -v <path>:/credentials so
+# that they are accessible in the container as /credentials/login.properties.
+
+# Build in the ./Docker directory because the context is smaller there.
 # docker build -f ./Docker/DockerfileLoop ./Docker -t eidos-loop
-# Note that -it may be needed below to keep the container from exiting.
+
+# When running, note that -it may be useful either to help with a clean
+# exit from the ENTRYPOINT/CMD that runs or to keep the container from exiting.
+# (The programs wait for entry to trigger a clean exit.)
+# Don't forget to add -v to provide credentials, if necessary.
 # docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g eidos-loop
 
 FROM ubuntu:20.04
