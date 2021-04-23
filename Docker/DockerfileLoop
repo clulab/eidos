@@ -2,7 +2,8 @@
 # Run in the ./Docker directory because the context is smaller there.
 # Copy ../credentials/login.properties to the ./Docker directory first.
 # docker build -f ./Docker/DockerfileLoop ./Docker -t eidos-loop
-# docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g eidos-loop
+# Note that the -it is important because it keeps the container from exiting.
+# docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g -it eidos-loop
 
 FROM ubuntu:20.04
 
@@ -35,6 +36,8 @@ WORKDIR /eidos
 # Checkout this branch until we've merged changes into the main branch.
 RUN git checkout kwalcock/stream
 RUN chmod 751 ./wmexchanger/*.sh
+# Move this file to .., outside of sbt and git realm.
+RUN cp ./wmexchanger/loop_sbt_all.sh ..
 # Force the packaging of all dependencies of the subproject.
 RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
 RUN mkdir ../corpus
@@ -45,5 +48,5 @@ RUN chmod 600 ../credentials/login.properties
 
 # Run Web Service
 ENTRYPOINT ["/bin/bash"]
-CMD ["./wmexchanger/loop_sbt_all.sh"]
+CMD ["/loop_sbt_all.sh"]
 
