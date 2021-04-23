@@ -129,7 +129,7 @@
     </appender>
 
 
-    <logger name="org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumerLoopApp" level="all" additivity="false">
+    <logger name="org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumerLoopApp" level="info" additivity="false">
         <appender-ref ref="eidos:stderr"/>
         <appender-ref ref="eidos:stdout"/>
         <appender-ref ref="eidos:KafkaConsumerLoopApp"/>
