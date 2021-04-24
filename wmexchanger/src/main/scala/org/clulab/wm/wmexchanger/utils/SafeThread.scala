@@ -5,11 +5,18 @@ import java.util.Scanner
 import org.apache.kafka.common.errors.InterruptException
 import org.slf4j.Logger
 
-abstract class SafeThread(logger: Logger) extends Thread {
+abstract class SafeThread(logger: Logger, interactive: Boolean = false, duration: Long = 0L) extends Thread {
+  var userInterruption: Boolean = false
 
   def runSafely(): Unit
 
+  def shutdown(): Unit = ()
+
   override def run(): Unit = {
+    val monitorThreadOpt: Option[MonitorThread] =
+      if (interactive) Some(new MonitorThread(this, logger, duration))
+      else None
+
     try {
       runSafely()
     }
@@ -23,11 +30,23 @@ abstract class SafeThread(logger: Logger) extends Thread {
         logger.error("Consumer interruption", exception)
     }
     finally {
-      // This seems to be the only way to "cancel" the scanner.nextLine.
-      System.exit(0)
+      shutdown()
+      if (!userInterruption) {
+        if (monitorThreadOpt.isDefined) {
+          val monitorThread = monitorThreadOpt.get
+
+          monitorThread.interrupt
+          if (monitorThread.isAlive)
+            monitorThread.stop
+        }
+        else
+          // This seems to be the only way to "cancel" the scanner.nextLine.
+          System.exit(0)
+      }
     }
   }
 
+  // This is a soon to be deprecated interface.
   def waitSafely(duration: Long): Unit = SafeThread.waitSafely(this, logger, duration)
 
   start
@@ -35,12 +54,13 @@ abstract class SafeThread(logger: Logger) extends Thread {
 
 object SafeThread {
 
-  def stop(thread: Thread, duration: Long): Unit = {
+  def stop(safeThread: SafeThread, duration: Long): Unit = {
     try {
-      thread.interrupt
-      thread.join(duration)
-      if (thread.isAlive)
-        thread.stop
+      safeThread.userInterruption = true
+      safeThread.interrupt
+      safeThread.join(duration)
+      if (safeThread.isAlive)
+        safeThread.stop
     }
     catch {
       case _: InterruptedException =>
@@ -48,12 +68,12 @@ object SafeThread {
     }
   }
 
-  def waitSafely(thread: Thread, logger: Logger, duration: Long): Unit = {
+  def waitSafely(safeThread: SafeThread, logger: Logger, duration: Long): Unit = {
     try {
       println("Press ENTER to exit...")
       new Scanner(System.in).nextLine()
       logger.info("User interruption")
-      stop(thread, duration)
+      stop(safeThread, duration)
       logger.info("Exiting...")
     }
     catch {

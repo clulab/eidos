@@ -24,6 +24,7 @@ class KafkaConsumerApp(args: Array[String]) extends WmUserApp(args,  "/kafkacons
   val closeDuration: Int = appProperties.getProperty("close.duration").toInt
 
   val thread: SafeThread = new SafeThread(KafkaConsumerApp.logger) {
+
     override def runSafely(): Unit = {
       val consumer = new KafkaConsumer(localKafkaProperties, closeDuration, topic, outputDir)
 
