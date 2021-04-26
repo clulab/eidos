@@ -181,8 +181,8 @@ class TestDoc1 extends EnglishTest {
     val building = NodeSpec("traders", Dec("discourages"))
     val building2 = NodeSpec("retailers from building marketing infrastructure", Dec("discourages"))
     val publicInvestment = NodeSpec("extremely low level of public investment in recent decades", Dec("low", "extremely"), Quant("low", "extremely"), TimEx("recent decades"))
-    val irrigation = NodeSpec("essentially no irrigation infrastructure exists", Dec("no")) // with Neg of "no"
-    val paved = NodeSpec("only 2 percent of South Sudan's limited road network is paved", Dec("limited"), GeoLoc("South Sudan"))
+    val irrigation = NodeSpec("essentially no irrigation infrastructure exists") // with Neg of "no"
+    val paved = NodeSpec("only 2 percent of South Sudan's limited road network is paved", GeoLoc("South Sudan"))
     val roads = NodeSpec("roads", Unmarked("poorly maintained"), Unmarked("not repaired"), Unmarked("washed out")) // fixme - dec??
     val transportation = NodeSpec("inadequate transportation infrastructure", Dec("inadequate"), Quant("inadequate"))
     // todo: resolve the Unmarked ones...

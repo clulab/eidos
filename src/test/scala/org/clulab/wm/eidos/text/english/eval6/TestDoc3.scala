@@ -565,6 +565,7 @@ class TestDoc3 extends EnglishTest {
     passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful)
     }
+    // FIXME: duplicate test?
     passingTest should "have correct edges 3" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful)
     }
