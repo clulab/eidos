@@ -1,11 +1,12 @@
 package org.clulab.wm.eidos.groundings
 
-import java.io.File
-import org.clulab.embeddings.{CompactWordEmbeddingMap => CompactWord2Vec}
-import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
+import org.clulab.embeddings.DefaultWordSanitizer
+import org.clulab.embeddings.WordEmbeddingMap
+import org.clulab.embeddings.WordEmbeddingMapPool
 import org.clulab.odin.Mention
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.Namer
+import org.clulab.wm.eidoscommon.utils.StringUtils
 
 trait EidosWordToVec {
   def stringSimilarity(string1: String, string2: String): Float
@@ -14,7 +15,7 @@ trait EidosWordToVec {
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Seq[String], weight:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], termWeights: Seq[Float], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities
 
-  def makeCompositeVector(t:Iterable[String]): Array[Float]
+  def makeCompositeVector(t: Iterable[String]): Array[Float]
 }
 
 class FakeWordToVec extends EidosWordToVec {
@@ -33,34 +34,21 @@ class FakeWordToVec extends EidosWordToVec {
   def makeCompositeVector(t:Iterable[String]): Array[Float] = Array.emptyFloatArray
 }
 
-class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNegScoreThreshold: Float, groundPenalizeValue: Float) extends EidosWordToVec {
+class RealWordToVec(val w2v: WordEmbeddingMap, topKNodeGroundings: Int,
+    groundNegScoreThreshold: Float, groundPenalizeValue: Float) extends EidosWordToVec {
 
   protected def split(string: String): Array[String] = string.split(" +")
 
-  def stringSimilarity(string1: String, string2: String): Float =
-      constrainRange(w2v.avgSimilarity(split(string1), split(string2)))
+  def stringSimilarity(string1: String, string2: String): Float = {
+    val sanitizedString1 = split(string1).map(EidosWordToVec.sanitizer.sanitizeWord)
+    val sanitizedString2 = split(string2).map(EidosWordToVec.sanitizer.sanitizeWord)
+    val similarity = w2v.avgSimilarity(sanitizedString1, sanitizedString2)
 
-  def calculateSimilarity(mention1: Mention, mention2: Mention): Float = {
-    // avgSimilarity does sanitizeWord itself, so it is unnecessary here.
-    val sanitisedM1 =  split(mention1.text)
-    val sanitisedM2 =  split(mention2.text)
-    val similarity = w2v.avgSimilarity(sanitisedM1, sanitisedM2)
-    
     constrainRange(similarity)
   }
 
-  def dotProduct(v1: Array[Float], v2: Array[Float]): Float = {
-    assert(v1.length == v2.length) //should we always assume that v2 is longer? perhaps set shorter to length of longer...
-    // This would be way prettier, but it is ~20 times slower
-    // v1.indices.foldRight(0.0f)((i, sum) => sum + v1(i) * v2(i))
-    var sum = 0.0f // optimization
-    var i = 0 // optimization
-    while (i < v1.length) {
-      sum += v1(i) * v2(i)
-      i += 1
-    }
-    constrainRange(sum)
-  }
+  def calculateSimilarity(mention1: Mention, mention2: Mention): Float =
+    stringSimilarity(mention1.text, mention2.text)
 
   // case class ConceptEmbedding(
   //   val namer: Namer,
@@ -68,10 +56,10 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
   //   negEmbeddingOpt: Option[Array[Float]] = None) extends Serializable
 
   def calculateSimilarities(canonicalNameParts: Array[String], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
-    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
+    val sanitizedNameParts = canonicalNameParts.map(EidosWordToVec.sanitizer.sanitizeWord)
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
-    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
+    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary)
 
     if (outOfVocabulary)
       Seq.empty
@@ -88,8 +76,8 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
   def constrainRange(value: Float): Float = math.max(-1f, math.min(1f, value))
 
   def scoreNode(posEmbedding: Array[Float], negEmbeddingOpt: Option[Array[Float]], nodeEmbedding: Array[Float]): Float = {
-    val posScore = dotProduct(posEmbedding, nodeEmbedding)
-    val negScore = negEmbeddingOpt.map(dotProduct(_, nodeEmbedding)).getOrElse(0f)
+    val posScore = EidosWordToVec.dotProduct(posEmbedding, nodeEmbedding)
+    val negScore = negEmbeddingOpt.map(EidosWordToVec.dotProduct(_, nodeEmbedding)).getOrElse(0f)
     val score =
       if (negScore > groundNegScoreThreshold) math.max(-1f, posScore - groundPenalizeValue)
       else posScore
@@ -98,10 +86,10 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], posTags:Seq[String], nounVerbWeightRatio:Float, conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
-    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
+    val sanitizedNameParts = canonicalNameParts.map(EidosWordToVec.sanitizer.sanitizeWord)
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
-    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
+    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary)
     val termWeights = posTags.map(tag=>if (tag.startsWith("NN")) nounVerbWeightRatio else 1.0f)
 
     if (outOfVocabulary)
@@ -109,7 +97,7 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
     else {
       val nodeEmbedding = w2v.makeCompositeVectorWeighted(sanitizedNameParts, termWeights)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
-        (conceptEmbedding.namer, dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+        (conceptEmbedding.namer, EidosWordToVec.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
       }
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
@@ -117,17 +105,17 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
   }
 
   def calculateSimilaritiesWeighted(canonicalNameParts: Array[String], termWeights: Seq[Float], conceptEmbeddings: Seq[ConceptEmbedding]): EidosWordToVec.Similarities = {
-    val sanitizedNameParts = canonicalNameParts.map(Word2Vec.sanitizeWord(_))
+    val sanitizedNameParts = canonicalNameParts.map(EidosWordToVec.sanitizer.sanitizeWord)
     // It could be that the composite vectore below has all zeros even though some values are defined.
     // That wouldn't be OOV, but a real 0 value.  So, conclude OOV only if none is found (all are not found).
-    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary(_))
+    val outOfVocabulary = sanitizedNameParts.forall(w2v.isOutOfVocabulary)
 
     if (outOfVocabulary)
       Seq.empty
     else {
       val nodeEmbedding = w2v.makeCompositeVectorWeighted(sanitizedNameParts, termWeights)
       val similarities = conceptEmbeddings.map { conceptEmbedding =>
-        (conceptEmbedding.namer, dotProduct(conceptEmbedding.embedding, nodeEmbedding))
+        (conceptEmbedding.namer, EidosWordToVec.dotProduct(conceptEmbedding.embedding, nodeEmbedding))
       }
 
       similarities.sortBy(-_._2).take(topKNodeGroundings)
@@ -140,16 +128,21 @@ class RealWordToVec(val w2v: CompactWord2Vec, topKNodeGroundings: Int, groundNeg
 object EidosWordToVec extends Logging {
   type Similarities = Seq[(Namer, Float)]
 
+  val sanitizer: DefaultWordSanitizer = new DefaultWordSanitizer() // WordEmbeddingMap.defaultWordSanitizer
+
+  def dotProduct(v1: IndexedSeq[Float], v2: IndexedSeq[Float]): Float = WordEmbeddingMap.dotProduct(v1, v2)
+
   def makeCachedFilename(path: String, file: String): String =
-      path + "/" + file.split('/').last + ".serialized"
+    path + "/" + file.split('/').last
 
   def apply(enabled: Boolean, wordToVecPath: String, topKNodeGroundings: Int, groundNegScoreThreshold: Float, groundPenalizeValue: Float, cachedPath: String, cached: Boolean = false): EidosWordToVec = {
     if (enabled) {
-      logger.info(s"Loading w2v from $wordToVecPath...")
+      logger.info(s"Loading w2v from $wordToVecPath (or possibly $cachedPath)...")
 
-      val w2v =
-        if (cached) CompactWord2Vec(makeCachedFilename(cachedPath, wordToVecPath), resource = false, cached)
-        else CompactWord2Vec(wordToVecPath, resource = true, cached)
+      val name = StringUtils.afterLast(wordToVecPath, '/', all = true, keep = false)
+      val resourceLocation = StringUtils.beforeLast(wordToVecPath, '/', all = false, keep = true)
+      val fileLocation = cachedPath + "/"
+      val w2v = WordEmbeddingMapPool.getOrElseCreate(name, compact = true, fileLocation, resourceLocation)
 
       new RealWordToVec(w2v, topKNodeGroundings, groundNegScoreThreshold, groundPenalizeValue)
     }
