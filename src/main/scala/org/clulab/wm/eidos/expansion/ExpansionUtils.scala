@@ -1,20 +1,15 @@
 package org.clulab.wm.eidos.expansion
 
 import org.clulab.odin._
-import org.clulab.wm.eidos.attachments.AttachmentHandler
-import org.clulab.wm.eidos.attachments.DCTime
-import org.clulab.wm.eidos.attachments.Property
-import org.clulab.wm.eidos.attachments.Time
+import org.clulab.wm.eidos.attachments.{AttachmentHandler, ContextAttachment, DCTime, Property, Time}
 import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.mentions.MentionUtils
 import org.clulab.wm.eidos.utils.FoundBy
 
 object ExpansionUtils {
-
   /*
       Attachments helper methods
    */
-
   // During expansion, sometimes there are attachments that got sucked up, here we add them to the expanded argument mention
   def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
     // find mentions of the same label and sentence overlap
@@ -22,11 +17,11 @@ object ExpansionUtils {
     // new foundBy for paper-trail, removes duplicate portions
     val completeFoundBy = if (overlapping.nonEmpty) FoundBy.concat(overlapping) else expanded.foundBy
     // get all the attachments for the overlapping mentions
-    val allAttachments = overlapping.flatMap(m => m.attachments).distinct
+    val contextAttachments = overlapping.flatMap(m => m.attachments).collect{ case a: ContextAttachment => a}
     // make attachments out of the properties todo: should we have already done this?
     val propertyAttachments = getOverlappingPropertyAttachments(expanded, state)
     // filter out substring attachments
-    val filtered = AttachmentHandler.filterAttachments(allAttachments ++ expanded.attachments.toSeq ++ propertyAttachments)
+    val filtered = AttachmentHandler.filterAttachments(contextAttachments ++ expanded.attachments.toSeq ++ propertyAttachments)
     // Add in all attachments
     val withAttachments = MentionUtils.withOnlyAttachments(expanded, filtered)
     // Modify the foundby for paper trail
