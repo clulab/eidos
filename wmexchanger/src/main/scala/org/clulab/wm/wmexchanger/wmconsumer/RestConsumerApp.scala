@@ -2,8 +2,7 @@ package org.clulab.wm.wmexchanger.wmconsumer
 
 import java.io.File
 import java.net.URL
-
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -120,13 +119,11 @@ object RestConsumerApp extends App with Logging {
   val outputDir = args(1)
   val doneDir = args(2)
 
-  val config = ConfigFactory.load("restconsumer")
-  val service = config.getString("RestConsumerApp.service")
-  val annotations = config.getBoolean("RestConsumerApp.annotations")
-  val login = config.getString("RestConsumerApp.login")
-  val properties = PropertiesBuilder.fromFile(login).get
-  val username = properties.getProperty("username")
-  val password = properties.getProperty("password")
+  val config: Config = ConfigFactory.defaultApplication().resolve()
+  val service = config.getString("rest.consumer.service")
+  val annotations = config.getBoolean("rest.consumer.annotations")
+  val username: String = config.getString("rest.consumer.username")
+  val password: String = config.getString("rest.consumer.password")
 
   val url = new URL(service)
   val httpHost = newHttpHost(url)
