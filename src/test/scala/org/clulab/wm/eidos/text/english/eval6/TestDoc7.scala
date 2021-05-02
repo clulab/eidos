@@ -52,6 +52,7 @@ class TestDoc7 extends EnglishTest {
   
     val tester = new GraphTester(text)
 
+    //FIXME: only getting Quant("slight") right now
     val foodAvailability = NodeSpec("slight improvements in food availability",
                                     Quant("slight"), Pos("improvements", "slight"))
     val seasonalHarvests = NodeSpec("seasonal harvests from October", TimEx("October to December"))
@@ -120,7 +121,8 @@ class TestDoc7 extends EnglishTest {
     val communities = NodeSpec("communities")
     val livelihoodActivities = NodeSpec("livelihood activities", Dec("disrupt"))
     val foodInsecurity = NodeSpec("food insecurity", Neg("exacerbate"))
-    val populations = NodeSpec("vulnerable populations", Dec("impede"), Quant("vulnerable"))
+    //FIXME: only gets "vulnerable populations" as span
+    val humanitarianAccess = NodeSpec("humanitarian access to vulnerable populations", Dec("impede"), Quant("vulnerable"))
     
     behavior of "TestDoc7 Paragraph 4"
 
@@ -138,7 +140,7 @@ class TestDoc7 extends EnglishTest {
       tester.test(EdgeSpec(insecurity, Causal, foodInsecurity)) should be (successful) 
     }
     passingTest should "have correct edge 4" taggedAs(Egoitz) in {
-      tester.test(EdgeSpec(insecurity, Causal, populations)) should be (successful)
+      tester.test(EdgeSpec(insecurity, Causal, humanitarianAccess)) should be (successful)
     }
   }
   { // Paragraph 5

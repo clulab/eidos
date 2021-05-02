@@ -130,6 +130,7 @@ class TestDoc3 extends EnglishTest {
     val tester = new GraphTester(text)
 
     val rainfall1 = NodeSpec("rainfall in July", Quant("average to above average"), TimEx("July"), GeoLoc("South Sudan"))
+    //FIXME: missing Pos("favorable")
     val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Pos("favorable"), Quant("favorable"))
     val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr"), GeoLoc("Ghazal"), GeoLoc("Greater Upper Nile"), Pos("favorable"))
     val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight"), TimEx("July"), TimEx("the previous month")) // todo (temporal?): really should capture the "compared to the previous month"...
@@ -307,7 +308,7 @@ class TestDoc3 extends EnglishTest {
     behavior of "TestDoc3 Paragraph 9"
     val cropCond = NodeSpec("Cropping conditions", Pos("favorable"), Quant("favorable"))
     val rainfall = NodeSpec("good performance of seasonal rainfall", Quant("good"), Pos("good"))
-    val rainfall2 = NodeSpec("persistently well above-average rainfall over the western Ethiopia highlands", Inc("above-average","persistently", "well"), Quant("above-average", "persistently", "well"), GeoLoc("Ethiopia"), TimEx("the coming weeks"))
+    val rainfall2 = NodeSpec("persistently well above-average rainfall over the western Ethiopia highlands", Inc("above-average", "persistently", "well"), Quant("above-average", "persistently", "well"), GeoLoc("Ethiopia"), TimEx("the coming weeks"))
     val flood = NodeSpec("flooding", TimEx("the coming weeks"))
     val rainfall3 = NodeSpec("continued rains")
     val worm = NodeSpec("impact of Fall Armyworm", Dec("reduce"), TimEx("Fall"))
@@ -319,6 +320,7 @@ class TestDoc3 extends EnglishTest {
     passingTest should "have correct edges 1" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall, Causal, cropCond)) should be (successful) // Test edges connecting them
     }
+    //FIXME: not sure why this one is failing; both edges have all the right attachments
     passingTest should "have correct edges 2" taggedAs(Zheng) in {
       tester.test(EdgeSpec(rainfall2, Causal, flood)) should be (successful) // Test edges connecting them
     }
@@ -539,9 +541,10 @@ class TestDoc3 extends EnglishTest {
 
     val vegetation2 = NodeSpec("above-average vegetation conditions in parts of Ta'izz and Ibb governorates", Inc("above-average"), Quant("above-average")) // Increase??
 
+    //FIXME: missing Pos("favorable")
     val rainfallForecasts = NodeSpec("short-and long-term rainfall forecasts", Quant("favorable"), Pos("favorable"), Dec("short-and"))
     val agriculturalAreas = NodeSpec("agricultural areas of the western and central highlands", Pos("favorable"))
-
+    //FIXME: missing Quant("most")
     val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"), Quant("most"))
     val insecurity = NodeSpec("insecurity")
     val availability = NodeSpec("lack of availability and/or access to farm inputs", Dec("lack"))
@@ -565,10 +568,10 @@ class TestDoc3 extends EnglishTest {
     passingTest should "have correct edges 2" taggedAs(Somebody) in {
       tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful)
     }
-    // FIXME: duplicate test?
-    passingTest should "have correct edges 3" taggedAs(Somebody) in {
-      tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful)
-    }
+    // FIXME: duplicate test of edges 2?
+//    passingTest should "have correct edges 3" taggedAs(Somebody) in {
+//      tester.test(EdgeSpec(insecurity, Causal, production)) should be (successful)
+//    }
     passingTest should "have correct edges 4" taggedAs(Somebody) in {
       tester.test(EdgeSpec(availability, Causal, production)) should be (successful)
     }

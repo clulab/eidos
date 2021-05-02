@@ -53,6 +53,7 @@ class TestRaps extends EnglishTest {
     val tester = new GraphTester(sent3)
 
     val financial = NodeSpec("Limited financial capacities", Dec("Limited"))
+    //AZ note: removed Inc("higher"), Inc("increased") from ability value
     val ability = NodeSpec("farmers' ability for higher benefits from increased agricultural production", Dec("restrict"))
     val education = NodeSpec("low education levels", Dec("low"), Quant("low"))
 
@@ -83,7 +84,7 @@ class TestRaps extends EnglishTest {
     val tester = new GraphTester(sent4)
     //increase
     val cultivar1 = NodeSpec("improved cultivar", Pos("improved"), Inc("promotes"))
-    val tech = NodeSpec("climate-smart technologies", Pos("improved"), Inc("promotes"))
+    val tech = NodeSpec("climate-smart technologies", Inc("promotes"))
 
     //decrease
     val fertUse1 = NodeSpec("use of inorganic fertilizer", Dec("cut"))

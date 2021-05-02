@@ -133,7 +133,7 @@ class TestCagP0 extends EnglishTest {
     val rainfall3 = NodeSpec("record high above-average rainfall", Quant("above-average", "high", "record"), Inc("high"), Inc("above-average"), Inc("above-average"))
 
     behavior of "text"
-
+// FIXME: Should these include "above-average" and "high" as Increase attachments?
     it should "find nodes at all" in {
       tester.test(rainfall1) should be (successful)
     }

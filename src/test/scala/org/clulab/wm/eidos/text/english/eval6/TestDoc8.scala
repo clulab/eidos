@@ -202,6 +202,7 @@ class TestDoc8 extends EnglishTest {
     val livelihoodActivities = NodeSpec("livelihood activities", Dec("disruption"))
     val accessToMarkets = NodeSpec("access to local food markets", Dec("disruption"), Dec("limited"))
 
+    //AZ note: removed Neg("Exacerbated") from cerealGap value
     val cerealGap = NodeSpec("national cereal gap", Inc("widened"))
     val climateExtremes = NodeSpec("climate extremes")
     val areaPlanted = NodeSpec("planted area", Dec("reduction"))
