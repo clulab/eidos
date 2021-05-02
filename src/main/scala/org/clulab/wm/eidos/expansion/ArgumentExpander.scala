@@ -77,18 +77,18 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
       if (validArgs.contains(argType)) {
         // Sort, because we want to expand the closest first so they don't get subsumed
         val sortedClosestFirst = argMentions.sortBy(distToTrigger(trigger, _))
-        val expandedArgs = new ArrayBuffer[Mention]
+        val expandedArgs = new ArrayBuffer[(Mention, Boolean)]
         // Expand each one, updating the state as we go
         for (argToExpand <- sortedClosestFirst) {
           val expanded = expandIfNotAvoid(argToExpand, maxHops, stateToAvoid)
-          expandedArgs.append(expanded)
+          expandedArgs.append((expanded,containsVerb(argToExpand)))
           // Add the mention to the ones to avoid so we don't suck it up
           stateToAvoid = stateToAvoid.updated(Seq(expanded))
         }
 
         // Handle attachments
         val attached = expandedArgs
-          .map(ExpansionUtils.addSubsumedAttachments(_, state))
+          .map{case (m, b) => ExpansionUtils.addSubsumedAttachments(m, state, b)}
           .map(ExpansionUtils.attachDCT(_, state))
           .map(EntityHelper.trimEntityEdges(_, tagSet))
         // Store
@@ -100,6 +100,10 @@ class ArgumentExpander(validArgs: Set[String], validLabels: Set[String], depende
     }
     // Return the event with the expanded args as well as the arg mentions themselves
     Seq(copyWithNewArgs(m, newArgs.toMap)) ++ newArgs.values.toSeq.flatten
+  }
+
+  def containsVerb(m: Mention): Boolean = {
+    m.tags.get.exists(t => t.startsWith("V"))
   }
 
   // Do the expansion, but if the expansion causes you to suck up something we wanted to avoid, split at the

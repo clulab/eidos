@@ -11,17 +11,19 @@ object ExpansionUtils {
       Attachments helper methods
    */
   // During expansion, sometimes there are attachments that got sucked up, here we add them to the expanded argument mention
-  def addSubsumedAttachments(expanded: Mention, state: State): Mention = {
+  def addSubsumedAttachments(expanded: Mention, state: State, addSubsumedTriggered: Boolean): Mention = {
     // find mentions of the same label and sentence overlap
     val overlapping = state.mentionsFor(expanded.sentence, expanded.tokenInterval)
     // new foundBy for paper-trail, removes duplicate portions
     val completeFoundBy = if (overlapping.nonEmpty) FoundBy.concat(overlapping) else expanded.foundBy
+    val subsumedAttachments = overlapping.flatMap(m => m.attachments)
     // get all the attachments for the overlapping mentions
-    val contextAttachments = overlapping.flatMap(m => m.attachments).collect{ case a: ContextAttachment => a}
+    val attachmentsToAdd = if (addSubsumedTriggered) subsumedAttachments
+      else subsumedAttachments.collect{ case a: ContextAttachment => a}
     // make attachments out of the properties todo: should we have already done this?
     val propertyAttachments = getOverlappingPropertyAttachments(expanded, state)
     // filter out substring attachments
-    val filtered = AttachmentHandler.filterAttachments(contextAttachments ++ expanded.attachments.toSeq ++ propertyAttachments)
+    val filtered = AttachmentHandler.filterAttachments(attachmentsToAdd ++ expanded.attachments.toSeq ++ propertyAttachments)
     // Add in all attachments
     val withAttachments = MentionUtils.withOnlyAttachments(expanded, filtered)
     // Modify the foundby for paper trail
