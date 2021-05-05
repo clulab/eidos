@@ -130,7 +130,7 @@ class TestDoc3 extends EnglishTest {
     val tester = new GraphTester(text)
 
     val rainfall1 = NodeSpec("rainfall in July", Quant("average to above average"), TimEx("July"), GeoLoc("South Sudan"))
-    //FIXME: missing Pos("favorable")
+    //FIXME: add pattern in modifier template to get Pos("favorable")
     val rainfall2 = NodeSpec("Widespread rains", Inc("Widespread"), Pos("favorable"), Quant("favorable"))
     val cropDevelopment = NodeSpec("crop development in Greater Bahr el Ghazal and Greater Upper Nile states", GeoLoc("Greater Bahr"), GeoLoc("Ghazal"), GeoLoc("Greater Upper Nile"), Pos("favorable"))
     val rainfall3 = NodeSpec("rainfall", Dec("reduction", "slight"), TimEx("July"), TimEx("the previous month")) // todo (temporal?): really should capture the "compared to the previous month"...
@@ -544,8 +544,7 @@ class TestDoc3 extends EnglishTest {
     //FIXME: missing Pos("favorable")
     val rainfallForecasts = NodeSpec("short-and long-term rainfall forecasts", Quant("favorable"), Pos("favorable"), Dec("short-and"))
     val agriculturalAreas = NodeSpec("agricultural areas of the western and central highlands", Pos("favorable"))
-    //FIXME: missing Quant("most")
-    val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"), Quant("most"))
+    val production = NodeSpec("production of most crops", Quant("likely"), Dec("limited"))
     val insecurity = NodeSpec("insecurity")
     val availability = NodeSpec("lack of availability and/or access to farm inputs", Dec("lack"))
     //val longFarmInput = NodeSpec("access to farm inputs due to ongoing conflict", Dec("lack"), Quant("ongoing"))
