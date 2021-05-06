@@ -10,13 +10,16 @@ import org.clulab.wm.eidos.extraction.EntityHelper
 import org.clulab.wm.eidoscommon.EnglishTagSet
 import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.processors.{Document, Processor}
+import scala.collection.mutable
 
 import scala.collection.mutable.ArrayBuffer
 
 case class CdrDocument(text: String, docid: String, sentenceRankings: Seq[SentenceScore])
 case class SentenceScore(start: Int, end: Int, score: Double)
 
-case class Concept(phrase: String, frequency: Int, documentLocations: Set[String])
+case class Concept(phrase: String, documentLocations: Set[String]) {
+  def frequency: Int = documentLocations.size
+}
 
 case class RankedConcept(concept: Concept, saliency: Double)
 
@@ -32,37 +35,20 @@ class ConceptDiscovery {
     val processor = new CluCoreProcessor()
     val textListAll = new ArrayBuffer[String]()
     val sentenceListAll = new ArrayBuffer[String]()
+    val conceptLocations = mutable.Map.empty[String, Set[String]].withDefaultValue(Set.empty)
     for ((cdr, idx) <- cdrs.zipWithIndex) {
       // make a Processors Document, pruning sentences with a threshold if applicable
       val document = mkDocument(processor, cdr.text, sentenceThreshold, cdr.sentenceRankings)
       val mentions = entityFinder.find(document)
       val trimmed_mentions = mentions.map(EntityHelper.trimEntityEdges(_, tagSet))
       val annotatedDocument = AnnotatedDocument(document, trimmed_mentions)
-      val textList = annotatedDocument.odinMentions.map{x => x.text}
-      textListAll.appendAll(textList)
-      val sentenceList = annotatedDocument.odinMentions.map{x => x.sentenceObj.getSentenceText}
-      sentenceListAll.appendAll(sentenceList)
-    }
-    val textListCount = scala.collection.mutable.Map[String, Int]()
-    for (x <- textListAll) {
-      if (textListCount.contains(x)) {
-        textListCount(x)+=1
-      }
-      else {
-        textListCount(x) = 1
+      for (mention <- annotatedDocument.odinMentions) {
+        conceptLocations(mention.text) += s"${path}:${mention.sentence}"
       }
     }
-    val text2SentenceCount = scala.collection.mutable.Map[String, ArrayBuffer[String]]()
-    for ((y, idx) <- textListAll.zipWithIndex) {
-      if (text2SentenceCount.contains(y)) {
-        text2SentenceCount(y).append(sentenceListAll(idx).replaceAll("\t"," "))
-      }
-      else {
-        text2SentenceCount(y) = ArrayBuffer[String](sentenceListAll(idx).replaceAll("\t"," "))
-      }
+    Set.empty ++ conceptLocations.map {
+      case (phrase, documentLocations) => Concept(phrase, documentLocations)
     }
-    val conceptSet = textListCount.keys.map{x => Concept(x, textListCount(x), text2SentenceCount(x).toSet)}.toSet
-    conceptSet
   }
 
   /** Currently pruning sentences from the text whose Qntfy sentence score are below a threshold.
