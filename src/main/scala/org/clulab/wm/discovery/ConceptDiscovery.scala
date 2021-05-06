@@ -30,39 +30,20 @@ class ConceptDiscovery {
     val config = ConfigFactory.load("reference")
     val entityFinder = RuleBasedEntityFinder.fromConfig(config, tagSet, stopwordManager)
     val processor = new CluCoreProcessor()
-    val textListAll = new ArrayBuffer[String]()
-    val sentenceListAll = new ArrayBuffer[String]()
-    for ((textDir,idx) <- documents.zipWithIndex) {
-      val text = FileUtils.getTextFromFile(textDir.toString)
+    val conceptLocations = mutable.Map.empty[String, Set[String]].withDefaultValue(Set.empty)
+    for (path <- documents) {
+      val text = FileUtils.getTextFromFile(path.toString)
       val document = processor.annotate(text)
       val mentions = entityFinder.find(document)
       val trimmed_mentions = mentions.map(EntityHelper.trimEntityEdges(_, tagSet))
       val annotatedDocument = AnnotatedDocument(document, trimmed_mentions)
-      val textList = annotatedDocument.odinMentions.map{x => x.text}
-      textListAll.appendAll(textList)
-      val sentenceList = annotatedDocument.odinMentions.map{x => x.sentenceObj.getSentenceText}
-      sentenceListAll.appendAll(sentenceList)
-    }
-    val textListCount = scala.collection.mutable.Map[String, Int]()
-    for (x <- textListAll) {
-      if (textListCount.contains(x)) {
-        textListCount(x)+=1
-      }
-      else {
-        textListCount(x) = 1
+      for (mention <- annotatedDocument.odinMentions) {
+        conceptLocations(mention.text) += s"${path}:${mention.sentence}"
       }
     }
-    val text2SentenceCount = scala.collection.mutable.Map[String, ArrayBuffer[String]]()
-    for ((y, idx) <- textListAll.zipWithIndex) {
-      if (text2SentenceCount.contains(y)) {
-        text2SentenceCount(y).append(sentenceListAll(idx).replaceAll("\t"," "))
-      }
-      else {
-        text2SentenceCount(y) = ArrayBuffer[String](sentenceListAll(idx).replaceAll("\t"," "))
-      }
+    Set.empty ++ conceptLocations.map {
+      case (phrase, documentLocations) => Concept(phrase, documentLocations.size, documentLocations)
     }
-    val conceptSet = textListCount.keys.map{x => Concept(x, textListCount(x), text2SentenceCount(x).toSet)}.toSet
-    conceptSet
   }
 
   def rankConcepts(concepts: Set[Concept]): Seq[RankedConcept] = ???
