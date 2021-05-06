@@ -37,7 +37,7 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
     }
 
     val conceptDiscovery = new ConceptDiscovery
-    val concepts = conceptDiscovery.discoverConcepts(documents, None)
+    val concepts = conceptDiscovery.discoverConcepts(documents)
 
     it should "find food security concepts" in {
       concepts.map(_.phrase) should contain allOf("food security", "access", "availability")

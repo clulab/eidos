@@ -23,7 +23,7 @@ case class RankedConcept(concept: Concept, saliency: Double)
 
 class ConceptDiscovery {
 
-  def discoverConcepts(cdrs: Seq[CdrDocument], sentenceThreshold: Option[Double]): Set[Concept] = {
+  def discoverConcepts(cdrs: Seq[CdrDocument], sentenceThreshold: Option[Double] = None): Set[Concept] = {
     Utils.initializeDyNet()
     val tagSet = new EnglishTagSet()
     val Config = EidosSystem.defaultConfig
