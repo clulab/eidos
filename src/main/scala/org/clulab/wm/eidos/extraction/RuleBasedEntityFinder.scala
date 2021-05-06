@@ -12,7 +12,7 @@ import org.clulab.wm.eidoscommon.StopwordManaging
 import org.clulab.wm.eidoscommon.TagSet
 
 class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: ExtractorEngine,
-    val avoidEngine: ExtractorEngine, tagSet: TagSet, stopwordManaging: StopwordManaging) extends Finder {
+                            val avoidEngine: ExtractorEngine, tagSet: TagSet, stopwordManaging: StopwordManaging, requireNNVB: Boolean) extends Finder {
   /**
     * Performs rule-based entity extraction with selective expansion along syntactic dependencies.
     * For filtering, see filterEntities.
@@ -24,7 +24,11 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
     val stateFromAvoid = initialState.updated(avoid)
     val baseEntities = entityEngine.extractFrom(doc, stateFromAvoid).filter{ entity => ! stateFromAvoid.contains(entity) }
     // make sure that all are valid (i.e., contain a noun or would have contained a noun except for trigger avoidance)
-    val validBaseEntities = baseEntities.filter(isValidBaseEntity)
+    val validBaseEntities = if (requireNNVB) {
+      baseEntities.filter(containsValidNounVerb)
+    } else {
+      baseEntities.filter(isValidBaseEntity)
+    }
     // Optionally expand
     val expandedEntities = expander.map(_.expand(validBaseEntities, stateFromAvoid)).getOrElse(validBaseEntities)
     // split entities on likely coordinations
@@ -67,25 +71,29 @@ class RuleBasedEntityFinder(val expander: Option[Expander], val entityEngine: Ex
       val tags = entity.sentenceObj.tags.get
       entity.end < tags.length && tagSet.isAnyNoun(tags(entity.end))
     }
-
-    def containsValidNounVerb(entity: Mention): Boolean = {
-      //val lemmas = entity.lemmas.get
-      val tags = entity.tags.get
-      val entities = entity.entities.get
-
-      // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
-      tags.indices.exists { i =>
-        (tagSet.isAnyNoun(tags(i)) || tagSet.isAnyVerb(tags(i))) && !stopwordManaging.containsStopwordNer(entities(i))
-      }
-    }
     // If there's a non-named entity noun in the entity, it's valid
     containsValidNounVerb(entity) ||
-        // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
-        // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
-        tagSet.isAnyAdjective(entity.tags.get.last) && nextTagNN(entity) ||
-        // Otherwise, is it a determiner that may need to be resolved downstream?
-        CorefHandler.startsWithCorefDeterminer(entity) // fixme
+      // Otherwise, if the entity ends with an adjective and the next word is a noun (which was excluded because ]
+      // it's needed as a trigger downstream), it's valid (ex: 'economic declines')
+      tagSet.isAnyAdjective(entity.tags.get.last) && nextTagNN(entity) ||
+      // Otherwise, is it a determiner that may need to be resolved downstream?
+      CorefHandler.startsWithCorefDeterminer(entity) // fixme
     // Otherwise, it's not valid
+  }
+
+  /**
+    * Determines if the entity has at least one noun/verb that is not a stopNER
+    * @param entity
+    */
+  def containsValidNounVerb(entity: Mention): Boolean = {
+    //val lemmas = entity.lemmas.get
+    val tags = entity.tags.get
+    val entities = entity.entities.get
+
+    // Make sure there is a noun that isn't a named entity.  We can also check for stop words with some re-architecting...
+    tags.indices.exists { i =>
+      (tagSet.isAnyNoun(tags(i)) || tagSet.isAnyVerb(tags(i))) && !stopwordManaging.containsStopwordNer(entities(i))
+    }
   }
 
   /**
@@ -133,6 +141,8 @@ object RuleBasedEntityFinder {
     val expanderConfig = config.get[Config]("ruleBasedEntityFinder.expander")
     val expander: Option[Expander] = expanderConfig.map(Expander.fromConfig(_, tagSet))
 
-    new RuleBasedEntityFinder(expander, entityEngine, avoidEngine, tagSet, stopwordManaging)
+    val requireNNVB: Boolean = config[Boolean]("ruleBasedEntityFinder.requireNNVB")
+
+    new RuleBasedEntityFinder(expander, entityEngine, avoidEngine, tagSet, stopwordManaging, requireNNVB)
   }
 }
