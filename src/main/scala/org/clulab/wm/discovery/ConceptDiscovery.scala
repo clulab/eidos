@@ -2,7 +2,7 @@ package org.clulab.wm.discovery
 
 import org.clulab.dynet.Utils
 import org.clulab.wm.eidos.extraction.RuleBasedEntityFinder
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import org.clulab.processors.clucore.CluCoreProcessor
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
@@ -11,8 +11,6 @@ import org.clulab.wm.eidoscommon.EnglishTagSet
 import org.clulab.wm.eidos.utils.StopwordManager
 import org.clulab.processors.{Document, Processor}
 import scala.collection.mutable
-
-import scala.collection.mutable.ArrayBuffer
 
 case class CdrDocument(docid: String, sentences: Seq[ScoredSentence])
 case class ScoredSentence(text: String, start: Int, end: Int, score: Double)
@@ -35,7 +33,7 @@ class ConceptDiscovery {
     val entityFinder = RuleBasedEntityFinder.fromConfig(config, tagSet, stopwordManager)
     val processor = new CluCoreProcessor()
     val conceptLocations = mutable.Map.empty[String, Set[String]].withDefaultValue(Set.empty)
-    for ((cdr, idx) <- cdrs.zipWithIndex) {
+    for (cdr <- cdrs) {
       // make a Processors Document, pruning sentences with a threshold if applicable
       val document = mkDocument(processor, cdr.sentences, sentenceThreshold)
       val mentions = entityFinder.find(document)
