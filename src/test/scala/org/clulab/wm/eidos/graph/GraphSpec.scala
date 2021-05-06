@@ -375,6 +375,10 @@ object NodeSpec {
   def trueFilter: NodeFilter = (_: TextBoundMention, _: Int, _: Int) => true
   def firstFilter: NodeFilter = (_: TextBoundMention, index: Int, _: Int) => index == 0
   def lastFilter: NodeFilter = (_: TextBoundMention, index: Int, count: Int) => index == count - 1
+  // For some texts, Mentions from completely different sentences might match the NodeSpec.
+  // These Mentions will have escaped any other deduplication.  This filter allows the sentence
+  // index to be specified.
+  def sentenceFilter(index: Int): NodeFilter = (textBoundMention: TextBoundMention, _: Int, _: Int) => textBoundMention.sentence == index
 
   def indexOfCount(outerIndex: Int, outerCount: Int): NodeFilter =
       (_: TextBoundMention, innerIndex: Int, innerCount: Int) => innerIndex == outerIndex && innerCount == outerCount
