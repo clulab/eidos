@@ -74,28 +74,23 @@ class ConceptDiscovery {
     g
   }
 
-  def rankConcepts(concepts: Set[Concept], threshold1: Double, threshold2: Double): Seq[RankedConcept] = {
-    val doc = new HashMap[String, ListBuffer[String]]()
+  def rankConcepts(concepts: Set[Concept], threshold_frequency: Double, threshold_similarity: Double, top_pick: Int): Seq[RankedConcept] = {
     val temp = new HashMap[String, Double]()
     val embed_file = getClass.getResource("vectors.txt").getPath
     val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_file, compact = false).asInstanceOf[ExplicitWordEmbeddingMap]
     for (concept <- concepts){
       val phrase = concept.phrase
-      for (sentence <- concept.documentLocations){
-        doc.getOrElseUpdate(sentence, new ListBuffer[String]) += phrase
-        temp.getOrElseUpdate(phrase, 0.0)
-        temp(phrase) += 1
-      }
+      temp(phrase) = concept.frequency
     }
     val url_starts = List("www", "http")
     val url_ends = List(".com", ".org", ".edu")
     val stop_words = List("a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with")
-    val filtered_concepts = temp.filter(x => !url_starts.exists(y => x._1.startsWith(y)) && !url_ends.exists(y => x._1.endsWith(y)) && x._2 > threshold1 && !stop_words.contains(x._1))
+    val filtered_concepts = temp.filter(x => !url_starts.exists(y => x._1.startsWith(y)) && !url_ends.exists(y => x._1.endsWith(y)) && x._2 > threshold_frequency && !stop_words.contains(x._1))
 
-    val topn = filtered_concepts.toSeq.sortWith(_._2 > _._2).toList.take(10000).map(i => i._1 -> i._2)
+    val topn = filtered_concepts.toSeq.sortWith(_._2 > _._2).toList.take(top_pick).map(i => i._1 -> i._2)
     val concept_topn = new HashMap[String, Double]
     topn.foreach(p => concept_topn.put(p._1, p._2))
-    val g = build_graph(concept_topn, threshold2, wordEmbeddings)
+    val g = build_graph(concept_topn, threshold_similarity, wordEmbeddings)
     val pr = new PageRank(g)
     val score_map = pr.getScores
     val ranked_concepts = ListBuffer[RankedConcept]()
