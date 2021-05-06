@@ -15,8 +15,7 @@ import java.nio.file.Path
 import scala.collection.mutable
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
-import org.clulab.embeddings.{WordEmbeddingMapPool, ExplicitWordEmbeddingMap}
-
+import org.clulab.embeddings.{ExplicitWordEmbeddingMap, WordEmbeddingMapPool}
 import org.jgrapht.graph._
 import org.jgrapht.alg.scoring.PageRank
 
@@ -99,9 +98,13 @@ class ConceptDiscovery {
     val g = build_graph(concept_topn, threshold2, wordEmbeddings)
     val pr = new PageRank(g)
     val score_map = pr.getScores
-    Set.empty ++ score_map.map {
-      case (phrase, saliency) => RankedConcept(phrase, saliency)
+    val ranked_concepts = ListBuffer[RankedConcept]()
+    for (concept<-concepts){
+      val phrase = concept.phrase
+      if (score_map.containsKey(phrase))
+        ranked_concepts += RankedConcept(concept, score_map.get(phrase))
     }
+    ranked_concepts
   }
 }
 
