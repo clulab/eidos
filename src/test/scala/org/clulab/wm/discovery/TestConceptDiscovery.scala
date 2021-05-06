@@ -56,9 +56,9 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
 
     it should "have reasonable frequency estimates" in {
       concepts.foreach{
-        case Concept("food security", frequency, _) => frequency should be > 4 // actual: 7
-        case Concept("access", frequency, _) => frequency should be > 2 // actual: 4
-        case Concept("availability", frequency, _) => frequency should be > 2 // actual: 4
+        case c @ Concept("food security", _) => c.frequency should be > 4 // actual: 7
+        case c @ Concept("access", _) => c.frequency should be > 2 // actual: 4
+        case c @ Concept("availability", _) => c.frequency should be > 2 // actual: 4
         case _ =>
       }
     }

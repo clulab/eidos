@@ -11,12 +11,12 @@ import org.clulab.wm.eidoscommon.EnglishTagSet
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidos.utils.StopwordManager
 
-import java.io.{File, PrintWriter}
 import java.nio.file.Path
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
-case class Concept(phrase: String, frequency: Int, documentLocations: Set[String])
+case class Concept(phrase: String, documentLocations: Set[String]) {
+  def frequency: Int = documentLocations.size
+}
 
 case class RankedConcept(concept: Concept, saliency: Double)
 
@@ -42,7 +42,7 @@ class ConceptDiscovery {
       }
     }
     Set.empty ++ conceptLocations.map {
-      case (phrase, documentLocations) => Concept(phrase, documentLocations.size, documentLocations)
+      case (phrase, documentLocations) => Concept(phrase, documentLocations)
     }
   }
 
