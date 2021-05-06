@@ -50,7 +50,10 @@ libraryDependencies ++= {
     // This next one is used in MaaSUtils.
     "com.lihaoyi"              %% "upickle"                 % lihaoyiVer,
     // These are used for testing only.
-    "com.github.jsonld-java"    % "jsonld-java"             % "0.12.0" % Test
+    "com.github.jsonld-java"    % "jsonld-java"             % "0.12.0" % Test,
+    "org.jgrapht"               % "jgrapht-core"             % "1.4.0",
+    "org.clulab"                %% "processors-main"        % "7.4.4",
+    "org.clulab"                %% "processors-corenlp"     % "7.4.4",
   )
 }
 

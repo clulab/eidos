@@ -13,6 +13,12 @@ import org.clulab.wm.eidos.utils.StopwordManager
 
 import java.nio.file.Path
 import scala.collection.mutable
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.ListBuffer
+import org.clulab.embeddings.word2vec.Word2Vec
+
+import org.jgrapht.graph._
+import org.jgrapht.alg.scoring.PageRank
 
 case class Concept(phrase: String, documentLocations: Set[String]) {
   def frequency: Int = documentLocations.size
@@ -45,8 +51,71 @@ class ConceptDiscovery {
       case (phrase, documentLocations) => Concept(phrase, documentLocations)
     }
   }
+  def mkEmbedding(tokens: Seq[String]): Array[Double] = {
+    wordEmbeddings.makeCompositeVector(tokens)
+  }
 
-  def rankConcepts(concepts: Set[Concept]): Seq[RankedConcept] = ???
+  def similarityScore(query: Seq[String], result: Seq[String]): Double = {
+    // 2. get embedding for MWEs
+    //    a. embedding of head word
+    //    b. average of all word embeddings
+    //    c. weighted average (more weight to the head)
+    //    d. robert's model
+    // 3. frequency * cosineSimilarity(emb(query), emb(result))
+    val q = mkEmbedding(query)
+    val r = mkEmbedding(result)
+    Word2Vec.dotProduct(q, r)
+  }
 
+  def build_graph(concepts: HashMap[String, Double], threshold: Double): SimpleWeightedGraph[String, DefaultEdge] = {
+    val g = new SimpleWeightedGraph[String, DefaultEdge](classOf[DefaultEdge])
+    val pairs = concepts.keySet.toList.combinations(2).toList
+    for (x <- pairs) {
+      val x1 = x(0)
+      val x2 = x(1)
+      if (!g.containsVertex(x1)) {
+        g.addVertex(x1)
+      }
+      if (!g.containsVertex(x2)) {
+        g.addVertex(x2)
+      }
+      val weight = similarityScore(x1.split(' '), x2.split(' '))
+      if (weight > threshold) {
+        if (!g.containsEdge(x1, x2)) {
+          val e = g.addEdge(x1, x2)
+          g.setEdgeWeight(e, weight)
+        }
+      }
+    }
+    g
+  }
+
+  def rankConcepts(concepts: Set[Concept], threshold1: Double, threshold2: Double): Seq[RankedConcept] = {
+    val doc = new HashMap[String, ListBuffer[String]]()
+    val temp = new HashMap[String, Double]()
+    val embed_file = getClass.getResource("vectors.txt").getPath
+    val wordEmbeddings = new Word2Vec(embed_file)
+    for (concept <- concepts){
+      val phrase = concept.phrase
+      for (sentence <- concept.documentLocations){
+        doc.getOrElseUpdate(sentence, new ListBuffer[String]) += phrase
+        temp.getOrElseUpdate(phrase, 0.0)
+        temp(phrase) += 1
+      }
+    }
+    val url_starts = List("www", "http")
+    val url_ends = List(".com", ".org", ".edu")
+    val concepts = temp.filter(x => !url_starts.exists(y => x._1.startsWith(y)) && !url_ends.exists(y => x._1.endsWith(y)) && x._2 > threshold1)
+
+    val topn = concepts.toSeq.sortWith(_._2 > _._2).toList.take(10000).map(i => i._1 -> i._2)
+    val concept_topn = new HashMap[String, Double]
+    topn.foreach(p => concept_topn.put(p._1, p._2))
+    val g = build_graph(concept_topn, threshold2)
+    val pr = new PageRank(g)
+    val score_map = pr.getScores
+    Set.empty ++ score_map.map {
+      case (phrase, saliency) => RankedConcept(phrase, saliency)
+    }
+  }
 }
 
