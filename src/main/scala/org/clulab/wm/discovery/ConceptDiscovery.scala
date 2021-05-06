@@ -14,8 +14,9 @@ import scala.collection.mutable
 
 import scala.collection.mutable.ArrayBuffer
 
-case class CdrDocument(text: String, docid: String, sentenceRankings: Seq[SentenceScore])
-case class SentenceScore(start: Int, end: Int, score: Double)
+case class CdrDocument(docid: String, sentences: Seq[ScoredSentence])
+case class ScoredSentence(text: String, start: Int, end: Int, score: Double)
+
 
 case class Concept(phrase: String, documentLocations: Set[String]) {
   def frequency: Int = documentLocations.size
@@ -33,46 +34,42 @@ class ConceptDiscovery {
     val config = ConfigFactory.load("reference")
     val entityFinder = RuleBasedEntityFinder.fromConfig(config, tagSet, stopwordManager)
     val processor = new CluCoreProcessor()
-    val textListAll = new ArrayBuffer[String]()
-    val sentenceListAll = new ArrayBuffer[String]()
     val conceptLocations = mutable.Map.empty[String, Set[String]].withDefaultValue(Set.empty)
     for ((cdr, idx) <- cdrs.zipWithIndex) {
       // make a Processors Document, pruning sentences with a threshold if applicable
-      val document = mkDocument(processor, cdr.text, sentenceThreshold, cdr.sentenceRankings)
+      val document = mkDocument(processor, cdr.sentences, sentenceThreshold)
       val mentions = entityFinder.find(document)
       val trimmed_mentions = mentions.map(EntityHelper.trimEntityEdges(_, tagSet))
       val annotatedDocument = AnnotatedDocument(document, trimmed_mentions)
       for (mention <- annotatedDocument.odinMentions) {
-        conceptLocations(mention.text) += s"${path}:${mention.sentence}"
+        conceptLocations(mention.text) += s"${cdr.docid}:${mention.sentence}"
       }
     }
-    Set.empty ++ conceptLocations.map {
-      case (phrase, documentLocations) => Concept(phrase, documentLocations)
-    }
+
+    conceptLocations.map{
+      case (phrase, locations) => Concept(phrase, locations)
+    }.toSet
   }
 
   /** Currently pruning sentences from the text whose Qntfy sentence score are below a threshold.
     * TODO: should this be a top k instead? */
-  def mkDocument(processor: Processor, text: String, sentenceThreshold: Option[Double], rankedSentences: Seq[SentenceScore]): Document = {
+  def mkDocument(processor: Processor, sentences: Seq[ScoredSentence], sentenceThreshold: Option[Double]): Document = {
     if (sentenceThreshold.isEmpty) {
-      processor.annotate(text)
+      processor.mkDocumentFromSentences(sentences.map(_.text))
     }
     else {
-      val document = processor.mkDocument(text)
-      val lastValid = rankedSentences.indexWhere(_.score < sentenceThreshold)
+      // ranked in descending order of score
+      val rankedSentences = sentences.sortBy(-_.score)
+
       // only accept sentences with a saliency above some threshold
-      val validSentences = rankedSentences.slice(0, lastValid)
-      val sentencesByOffsets = document.sentences.map(s => ((s.startOffsets.head, s.endOffsets.last), s)).toMap
-      val keptSentences = validSentences
-        // keep ones that are in the validSentences
-        .map(s => sentencesByOffsets((s.start, s.end)))
+      val lastValid = rankedSentences.indexWhere(_.score < sentenceThreshold.get)
+      val validSentences = rankedSentences
+        .slice(0, lastValid)
         // put them back in order
-        .sortBy(_.startOffsets.head)
-        // get their text
-        .map(_.getSentenceText)
-        .toArray
+        .sortBy(_.start)
+
       // annotate and return as a Document
-      processor.annotateFromSentences(keptSentences)
+      processor.annotateFromSentences(validSentences.map(_.text))
     }
   }
 

@@ -48,20 +48,20 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
     }
 
     val conceptDiscovery = new ConceptDiscovery
-    val concepts = conceptDiscovery.discoverConcepts(paths)
-
-    it should "find food security concepts" in {
-      concepts.map(_.phrase) should contain allOf("food security", "access", "availability")
-    }
-
-    it should "have reasonable frequency estimates" in {
-      concepts.foreach{
-        case c @ Concept("food security", _) => c.frequency should be > 4 // actual: 7
-        case c @ Concept("access", _) => c.frequency should be > 2 // actual: 4
-        case c @ Concept("availability", _) => c.frequency should be > 2 // actual: 4
-        case _ =>
-      }
-    }
+//    val concepts = conceptDiscovery.discoverConcepts(paths)
+//
+//    it should "find food security concepts" in {
+//      concepts.map(_.phrase) should contain allOf("food security", "access", "availability")
+//    }
+//
+//    it should "have reasonable frequency estimates" in {
+//      concepts.foreach{
+//        case c @ Concept("food security", _) => c.frequency should be > 4 // actual: 7
+//        case c @ Concept("access", _) => c.frequency should be > 2 // actual: 4
+//        case c @ Concept("availability", _) => c.frequency should be > 2 // actual: 4
+//        case _ =>
+//      }
+//    }
   }
 
 }
