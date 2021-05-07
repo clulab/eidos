@@ -3,7 +3,11 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
-import com.github.worldModelers.ontologies.{Versions => AwayVersions}
+import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
+
+import java.io.File
+//import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
@@ -25,9 +29,20 @@ object DomainHandler extends Logging {
     val goodVersionOpt = Versions.versions.get(MockVersions.codeDir + ontologyPath)
     // See what might have come from WordModelers/Ontologies
     val bestVersionOpt = goodVersionOpt.getOrElse {
+      // AwayVersions are no longer available.  Instead, look for a properties resource next to the ontologyPath.
       // These are always stored in top level directory.
-      val awayVersionOpt = AwayVersions.versions.get(StringUtils.afterLast(ontologyPath, '/')).getOrElse(None)
-      val homeVersionOpt = awayVersionOpt.map { awayVersion => Version(awayVersion.commit, awayVersion.date) }
+      // val awayVersionOpt = AwayVersions.versions.get(StringUtils.afterLast(ontologyPath, '/')).getOrElse(None)
+      // val homeVersionOpt = awayVersionOpt.map { awayVersion => Version(awayVersion.commit, awayVersion.date) }
+
+      val propertiesPath = StringUtils.beforeLast(ontologyPath, '.', true) + ".properties"
+      val properties = PropertiesBuilder.fromResource(propertiesPath).get
+      val hash = Option(properties.getProperty("hash"))
+      val date = Option(properties.getProperty("date"))
+      val homeVersionOpt =
+          if (hash.isDefined && date.isDefined)
+            Some(Version(hash.get, ZonedDateTime.parse(date.get)))
+          else
+            None
 
       homeVersionOpt
     }

@@ -8,4 +8,4 @@ import scala.util.matching.Regex
 case class ConceptEmbedding(val namer: Namer, embedding: Array[Float], negEmbeddingOpt: Option[Array[Float]] = None) extends Serializable
 
 @SerialVersionUID(1000L)
-case class ConceptPatterns(val namer: Namer, patterns: Option[Array[Regex]]) extends Serializable
+case class ConceptPatterns(namer: Namer, patterns: Option[Array[Regex]]) extends Serializable

@@ -1,4 +1,6 @@
 # Changes
++ **1.2.1** - Update to processors 8.3.2
++ **1.2.0** - Update to processors 8.3.1, break into subprojects
 + **1.1.0** - Update to processors 8.2.6
 + **1.1.0** - Run main as Finder, set fork to true, use Resourcer, generate HTML from Eidos & use in EidosShell,
 remove migration, clean up Eidos Mention, include SentenceClassifier, use FastNLPProcessorWithSemanticRoles

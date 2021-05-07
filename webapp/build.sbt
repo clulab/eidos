@@ -1,15 +1,11 @@
-name := """eidos-webapp"""
+name := "eidos-webapp"
+description := "A web application providing a user interface to Eidos"
 
+// This is because of a transitive dependency, apparently.
 resolvers += "jitpack" at "https://jitpack.io"
 
 libraryDependencies ++= Seq(
+  // Versions were last checked 2021 Mar 12.
   guice,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
-  "com.github.clulab"       % "timenorm"           % "timenorm-0.9.6.14" exclude("org.slf4j", "slf4j-log4j12")
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test // up to 5.1.0
 )
-
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "org.clulab.controllers._"
-
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "org.clulab.binders._"

@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.apps
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.ConfigFactory
-import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
+import org.clulab.embeddings.DefaultWordSanitizer
 import org.clulab.wm.eidoscommon.EidosProcessor
 import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
 import org.clulab.wm.eidos.EidosSystem
@@ -17,6 +17,7 @@ import org.clulab.wm.ontologies.DomainOntology
 import scala.collection.mutable.ArrayBuffer
 
 object OntologyMapper {
+  val sanitizer: DefaultWordSanitizer = EidosWordToVec.sanitizer
 
   // All of this and the call to mapIndicators is usually arranged in CacheOntologies.
   def main(args: Array[String]): Unit = {
@@ -35,7 +36,7 @@ object OntologyMapper {
         line <- lines
         fields = line.split("\t")
         path = fields(0).split(",")
-        examples = fields(1).split(",").map(Word2Vec.sanitizeWord(_))
+        examples = fields(1).split(",").map(sanitizer.sanitizeWord(_))
         embedding = w2v.makeCompositeVector(examples)
       } yield ConceptEmbedding(new PassThruNamer(path.mkString(DomainOntology.SEPARATOR)), embedding)
 
@@ -74,14 +75,15 @@ object OntologyMapper {
   }
 
   // todo query expansion
-
-  def mkMWEmbedding(s: String, reader: EidosSystem, contentOnly: Boolean = false): Array[Float] = {
-    val words = s.split("[ |_]").map(Word2Vec.sanitizeWord(_)).map(replaceSofiaAbbrev)
-    reader.components.ontologyHandlerOpt.get.wordToVec.makeCompositeVector(selectWords(words, contentOnly, reader.components.procOpt.get))
-  }
-
   def mweStringSimilarity(a: String, b: String, reader: EidosSystem): Float = {
-    dotProduct(mkMWEmbedding(a, reader), mkMWEmbedding(b, reader))
+    val eidosWordToVec = reader.components.ontologyHandlerOpt.get.wordToVec
+
+    def mkMWEmbedding(s: String): Array[Float] = {
+      val words = s.split("[ |_]").map(sanitizer.sanitizeWord(_)).map(replaceSofiaAbbrev)
+      eidosWordToVec.makeCompositeVector(selectWords(words, contentOnly = false, reader.components.procOpt.get))
+    }
+
+    EidosWordToVec.dotProduct(mkMWEmbedding(a), mkMWEmbedding(b))
   }
 
   def weightedParentScore(path1: String, path2: String, reader: EidosSystem): Float = {
@@ -118,20 +120,9 @@ object OntologyMapper {
     ???
   }
 
-  def dotProduct(v1:Array[Float], v2:Array[Float]):Float = {
-    assert(v1.length == v2.length) //should we always assume that v2 is longer? perhaps set shorter to length of longer...
-    var sum = 0.0f // optimization
-    var i = 0 // optimization
-    while(i < v1.length) {
-      sum += v1(i) * v2(i)
-      i += 1
-    }
-    sum
-  }
-
   def pairwiseScore(ce1: ConceptEmbedding, ce2: ConceptEmbedding, reader: EidosSystem, exampleWeight: Float, parentWeight: Float): Float = {
     // Semantic similarity between leaf nodes (based on their examples)
-    val examplesScore = dotProduct(ce1.embedding, ce2.embedding)
+    val examplesScore = EidosWordToVec.dotProduct(ce1.embedding, ce2.embedding)
     // Semantic similarity of the parents (going up the hierarchy, more weight closer to leaves)
     val structureScore = weightedParentScore(ce1.namer.name, ce2.namer.name, reader)
     // Similarity between the indicator an the ontology concept ancestors

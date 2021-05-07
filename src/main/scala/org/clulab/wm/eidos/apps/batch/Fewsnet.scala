@@ -29,7 +29,7 @@ object Fewsnet extends App with Logging {
       val arguments = List(
         "pdfinfo",
         "-isodates",
-        inputFile.getCanonicalPath,
+        inputFile.getCanonicalPath
       ).map(_.replace('/', File.separatorChar))
       val processBuilder = new ProcessBuilder(arguments.asJava)
 
