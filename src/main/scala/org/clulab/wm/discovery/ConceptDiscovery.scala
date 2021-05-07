@@ -81,8 +81,9 @@ class ConceptDiscovery {
 
   def rankConcepts(concepts: Set[Concept], threshold_frequency: Double, threshold_similarity: Double, top_pick: Int): Seq[RankedConcept] = {
     val temp = new HashMap[String, Double]()
-    val embed_file = getClass.getResource("/org/clulab/glove/glove.840B.300d.10f").getPath
-    val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_file, compact = false).asInstanceOf[ExplicitWordEmbeddingMap]
+    val config = ConfigFactory.load("eidos")
+    val embed_file_path = config.getArgString("glove.matrixResourceName", None)
+    val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_file_path, compact = false).asInstanceOf[ExplicitWordEmbeddingMap]
     for (concept <- concepts){
       val phrase = concept.phrase
       temp(phrase) = concept.frequency
