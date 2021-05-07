@@ -1,0 +1,17 @@
+deployment:
+  name: "dart-kafka-examples"
+  bootstrap_servers:
+    - "kafka-broker-1:19092"
+  topics:
+    - topic:
+        name: "stream.in"
+        num_partitions: 1
+        cleanup_policy: "delete"
+        compression_type: "gzip"
+        max_message_bytes: 3000000
+    - topic:
+        name: "stream.out"
+        num_partitions: 1
+        cleanup_policy: "delete"
+        compression_type: "gzip"
+        max_message_bytes: 3000000

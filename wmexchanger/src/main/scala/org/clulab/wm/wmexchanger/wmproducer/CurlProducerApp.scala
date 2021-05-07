@@ -2,8 +2,7 @@ package org.clulab.wm.wmexchanger.wmproducer
 
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.eidoscommon.utils.{FileUtils, PropertiesBuilder, Sinker, StringUtils}
+import org.clulab.wm.eidoscommon.utils.{FileUtils, Logging, Sinker, StringUtils}
 
 object CurlProducerApp extends App with Logging {
   val version = "0.2.3"
@@ -11,12 +10,11 @@ object CurlProducerApp extends App with Logging {
   val inputDir = args(0)
   val outputFile = args(1)
 
-  val config = ConfigFactory.load("curlproducer")
-  val service = config.getString("CurlProducerApp.service")
-  val login = config.getString("CurlProducerApp.login")
-  val properties = PropertiesBuilder.fromFile(login).get
-  val username = properties.getProperty("username")
-  val password = properties.getProperty("password")
+  val config = ConfigFactory.defaultApplication().resolve()
+  val service = config.getString("curl.producer.service")
+  val login = config.getString("curl.producer.login")
+  val username: String = config.getString("curl.producer.username")
+  val password: String = config.getString("curl.producer.password")
 
   val files = FileUtils.findFiles(inputDir, "jsonld")
 

@@ -22,10 +22,10 @@ import scala.collection.mutable.{HashSet => MutableHashSet}
 class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads: Int) {
   var useReal = EidosLoopApp.useReal
 
-  val config: Config = ConfigFactory.load("eidos")
-  val interactive: Boolean = config.getBoolean("Eidos.interactive")
-  val waitDuration: Int = config.getInt("Eidos.duration.wait")
-  val pauseDuration: Int = config.getInt("Eidos.duration.pause")
+  val config: Config = ConfigFactory.defaultApplication().resolve().getConfig("eidos")
+  val interactive: Boolean = config.getBoolean("interactive")
+  val waitDuration: Int = config.getInt("duration.wait")
+  val pauseDuration: Int = config.getInt("duration.pause")
 
   val options: EidosOptions = EidosOptions()
   val reader =
