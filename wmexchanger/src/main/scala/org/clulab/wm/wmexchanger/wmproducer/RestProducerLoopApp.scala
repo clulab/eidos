@@ -18,15 +18,13 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
   var useReal: Boolean = RestProducerLoopApp.useReal
   val version = "1.2.0"
 
-  val config: Config = ConfigFactory.load("restproducer")
-  val service: String = config.getString("RestProducerApp.service")
-  val login: String = config.getString("RestProducerApp.login")
-  val interactive: Boolean = config.getBoolean("RestProducerApp.interactive")
-  val waitDuration: Int = config.getInt("RestProducerApp.duration.wait")
-  val pauseDuration: Int = config.getInt("RestProducerApp.duration.pause")
-  val properties: Properties = PropertiesBuilder.fromFile(login).get
-  val username: String = properties.getProperty("username")
-  val password: String = properties.getProperty("password")
+  val config: Config = ConfigFactory.defaultApplication().resolve()
+  val service: String = config.getString("rest.producer.service")
+  val interactive: Boolean = config.getBoolean("rest.producer.interactive")
+  val waitDuration: Int = config.getInt("rest.producer.duration.wait")
+  val pauseDuration: Int = config.getInt("rest.producer.duration.pause")
+  val username: String = config.getString("rest.producer.username")
+  val password: String = config.getString("rest.producer.password")
 
   val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
 
