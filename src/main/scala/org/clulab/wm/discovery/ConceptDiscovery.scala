@@ -9,13 +9,15 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.extraction.EntityHelper
 import org.clulab.wm.eidoscommon.EnglishTagSet
 import org.clulab.wm.eidos.utils.StopwordManager
+
 import scala.collection.mutable
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
-import org.clulab.embeddings.{ExplicitWordEmbeddingMap, WordEmbeddingMapPool}
+import org.clulab.embeddings.{CompactWordEmbeddingMap, WordEmbeddingMapPool}
 import org.jgrapht.graph._
 import org.jgrapht.alg.scoring.PageRank
 import ai.lum.common.ConfigUtils._
+import org.clulab.utils.StringUtils
 
 case class CdrDocument(docid: String, sentences: Seq[ScoredSentence])
 case class ScoredSentence(text: String, start: Int, end: Int, score: Double)
@@ -57,7 +59,7 @@ class ConceptDiscovery {
     }.toSet
   }
 
-  def build_graph(concepts: HashMap[String, Double], threshold: Double, embedding:ExplicitWordEmbeddingMap): SimpleWeightedGraph[String, DefaultEdge] = {
+  def build_graph(concepts: HashMap[String, Double], threshold: Double, embedding:CompactWordEmbeddingMap): SimpleWeightedGraph[String, DefaultEdge] = {
     val g = new SimpleWeightedGraph[String, DefaultEdge](classOf[DefaultEdge])
     val pairs = concepts.keySet.toList.combinations(2).toList
     for (x <- pairs) {
@@ -82,9 +84,11 @@ class ConceptDiscovery {
 
   def rankConcepts(concepts: Set[Concept], threshold_frequency: Double, threshold_similarity: Double, top_pick: Int): Seq[RankedConcept] = {
     val temp = new HashMap[String, Double]()
-    val config = ConfigFactory.load("eidos")
+    val config = ConfigFactory.load("glove")
     val embed_file_path:String = config[String]("glove.matrixResourceName")
-    val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_file_path, compact = false).asInstanceOf[ExplicitWordEmbeddingMap]
+    val embed_name = StringUtils.afterLast(embed_file_path, '/', all = true, keep = false)
+    val location = StringUtils.beforeLast(embed_file_path, '/', all = false, keep = true)
+    val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_name, resourceLocation = location, compact = true).asInstanceOf[CompactWordEmbeddingMap]
     for (concept <- concepts){
       val phrase = concept.phrase
       temp(phrase) = concept.frequency
