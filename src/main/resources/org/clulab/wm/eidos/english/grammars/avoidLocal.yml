@@ -118,6 +118,13 @@ rules:
         # functioning is a correlation trigger that should be avoided
         [incoming=advcl_as]
 
+  - name: avoid_urls
+    label: Avoid
+    priority: 3
+    type: token
+    pattern: |
+      [word = /www|http|[.]com|[.]org|[.]edu/]
+
 #  - name: produce_vb
 #    label: Avoid
 #    priority: 3

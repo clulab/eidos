@@ -91,10 +91,9 @@ class ConceptDiscovery {
       val phrase = concept.phrase
       temp(phrase) = concept.frequency
     }
-    val url_starts = List("www", "http")
-    val url_ends = List(".com", ".org", ".edu")
+
     val stop_words = List("a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with")
-    val filtered_concepts = temp.filter(x => !url_starts.exists(y => x._1.startsWith(y)) && !url_ends.exists(y => x._1.endsWith(y)) && x._2 > threshold_frequency && !stop_words.contains(x._1))
+    val filtered_concepts = temp.filter(x => x._2 > threshold_frequency && !stop_words.contains(x._1))
 
     val topn = filtered_concepts.toSeq.sortWith(_._2 > _._2).toList.take(top_pick).map(i => i._1 -> i._2)
     val concept_topn = new HashMap[String, Double]

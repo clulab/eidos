@@ -25,7 +25,13 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
         "In the years 2011–2013, an estimated 842 million people were suffering from chronic hunger.[8]",
         "The Food and Agriculture Organization of the United Nations, or FAO, identified the four pillars of food security as availability, access, utilization, and stability.[9]",
         "The United Nations (UN) recognized the Right to Food in the Declaration of Human Rights in 1948,[6] and has since said that it is vital for the enjoyment of all other rights.[10]"))
-
+    val url_tests = Seq(
+      Seq(
+        "www.google.com",
+        "www.google",
+        "google.com",
+        "Mr.google")
+    )
     // convert texts to CDR documents
     val documents = for ((sentences, i) <- texts.zipWithIndex) yield {
       var end = 0
@@ -51,6 +57,18 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
         case _ =>
       }
     }
+    val documents_urls = for ((sentences, i) <- url_tests.zipWithIndex) yield {
+      var end = 0
+      CdrDocument(s"doc$i", for (sentence <- sentences) yield {
+        val start = end
+        end = start + sentence.length
+        ScoredSentence(sentence, start, end, 0)
+      })
+    }
+    val rankedConcepts = conceptDiscovery.rankConcepts(conceptDiscovery.discoverConcepts(documents_urls), 0, 0.0, 1000)
+    rankedConcepts.size should be == 1
+
+
   }
 
 }
