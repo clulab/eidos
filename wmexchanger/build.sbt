@@ -1,12 +1,9 @@
-name := "eidos-wmexchanger"
+name := "wmexchanger"
 
 resolvers ++= Seq(
-  // Ontologies needs this.
-  "jitpack" at "https://jitpack.io" //,
-  // This is needed by processors-main, geonames, and glove-840b-300d.
-//  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
-  // .withAllowInsecureProtocol(true) // newer sbt
-)
+  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release").withAllowInsecureProtocol(true), // processors-models
+  "Local Ivy Repository" at s"file://${System.getProperty("user.home")}/.ivy2/local"
+  )
 
 libraryDependencies ++= {
   // Versions were last checked 2021 Mar 12.
