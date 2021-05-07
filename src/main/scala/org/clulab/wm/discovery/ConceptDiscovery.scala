@@ -86,9 +86,7 @@ class ConceptDiscovery {
     val temp = new HashMap[String, Double]()
     val config = ConfigFactory.load("glove")
     val embed_file_path:String = config[String]("glove.matrixResourceName")
-    val embed_name = StringUtils.afterLast(embed_file_path, '/', all = true, keep = false)
-    val location = StringUtils.beforeLast(embed_file_path, '/', all = false, keep = true)
-    val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_name, resourceLocation = location, compact = true).asInstanceOf[CompactWordEmbeddingMap]
+    val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_file_path, compact = true).asInstanceOf[CompactWordEmbeddingMap]
     for (concept <- concepts){
       val phrase = concept.phrase
       temp(phrase) = concept.frequency
