@@ -15,6 +15,7 @@ import scala.collection.mutable.ListBuffer
 import org.clulab.embeddings.{ExplicitWordEmbeddingMap, WordEmbeddingMapPool}
 import org.jgrapht.graph._
 import org.jgrapht.alg.scoring.PageRank
+import ai.lum.common.ConfigUtils._
 
 case class CdrDocument(docid: String, sentences: Seq[ScoredSentence])
 case class ScoredSentence(text: String, start: Int, end: Int, score: Double)
@@ -82,7 +83,7 @@ class ConceptDiscovery {
   def rankConcepts(concepts: Set[Concept], threshold_frequency: Double, threshold_similarity: Double, top_pick: Int): Seq[RankedConcept] = {
     val temp = new HashMap[String, Double]()
     val config = ConfigFactory.load("eidos")
-    val embed_file_path = config.getArgString("glove.matrixResourceName", None)
+    val embed_file_path:String = config[String]("glove.matrixResourceName")
     val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_file_path, compact = false).asInstanceOf[ExplicitWordEmbeddingMap]
     for (concept <- concepts){
       val phrase = concept.phrase
