@@ -7,13 +7,13 @@ services:
     image: eidos:multi
     environment:
       EIDOS_MEMORY: -Xmx20g
-      REST_CONSUMER_SERVICE: ${REST_CONSUMER_SERVICE:-http://localhost}/dart/api/v1/cdrs
-      REST_CONSUMER_USERNAME: ${REST_CONSUMER_USERNAME:-eidos}
-      REST_CONSUMER_PASSWORD: ${REST_CONSUMER_PASSWORD:-eidos_pass}
-      REST_PRODUCER_SERVICE: ${REST_PRODUCER_SERVICE:-http://localhost}/dart/api/v1/readers/upload
-      REST_PRODUCER_USERNAME: ${REST_PRODUCER_USERNAME:-eidos}
-      REST_PRODUCER_PASSWORD: ${REST_PRODUCER_PASSWORD:-edos_pass}
-      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: ${KAFKA_CONSUMER_BOOTSTRAP_SERVERS:-localhost:9093}
+      REST_CONSUMER_SERVICE: ${REST_HOSTNAME:-http://localhost}/dart/api/v1/cdrs
+      REST_CONSUMER_USERNAME: ${REST_USERNAME:-eidos}
+      REST_CONSUMER_PASSWORD: ${REST_PASSWORD:-eidos_pass}
+      REST_PRODUCER_SERVICE: ${REST_HOSTNAME:-http://localhost}/dart/api/v1/readers/upload
+      REST_PRODUCER_USERNAME: ${REST_USERNAME:-eidos}
+      REST_PRODUCER_PASSWORD: ${REST_PASSWORD:-edos_pass}
+      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSRAP_SERVER:-localhost:9093}
       KAFKA_APP_TOPIC: dart.cdr.streaming.updates
       KAFKA_APP_OUTPUT_DIR: /opt/app/data/input/kafka
       KAFKA_CONSUMER_APP_SASL_JAAS_CONFIG: ${KAFKA_CONSUMER_APP_SASL_JAAS_CONFIG}
