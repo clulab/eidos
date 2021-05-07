@@ -1,28 +1,159 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <property name="eidos:pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
 
-	<appender name="STDERR" target="System.err" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<Pattern>
-				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
-			</Pattern>
-		</encoder>
-	</appender>
+    <appender name="eidos:stderr" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>TRACE</level>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
 
-	<appender name="STDOUT" target="System.out" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<Pattern>
-				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
-			</Pattern>
-		</encoder>
-	</appender>
+    <appender name="eidos:stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>TRACE</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+        </filter>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
 
-	<logger name="org.clulab.wm" level="info" additivity="false">
-		<appender-ref ref="STDOUT" />
-	</logger>
+    <appender name="eidos:eidos" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-eidos.log</file>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
 
-	<root level="error">
-		<appender-ref ref="STDOUT" />
-	</root>
+    <appender name="eidos:timer" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-timer.log</file>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
 
+    <logger name="org.clulab.wm.eidoscommon.utils.Timer" level="all" additivity="true">
+        <appender-ref ref="eidos:timer" />
+    </logger>
+
+    <!-- This accounts for anything coming from the eidoscommon subproject. -->
+    <logger name="org.clulab.wm.eidoscommon" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </logger>
+
+    <!-- This accounts for anything coming from the ontologies subproject. -->
+    <logger name="org.clulab.wm.ontologies" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </logger>
+
+    <!-- This accounts for anything coming from the eidos core project. -->
+    <!-- ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
+    <logger name="org.clulab.wm.eidos" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </logger>
+
+
+    <!-- These are special for the wmexchanger apps -->
+    <appender name="eidos:KafkaConsumerLoopApp" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-KafkaConsumerLoopApp.log</file>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
+    <appender name="eidos:RestConsumerLoopApp" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-RestConsumerLoopApp.log</file>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
+    <appender name="eidos:EidosLoopApp" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-EidosLoopApp.log</file>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
+    <appender name="eidos:RestProducerLoopApp" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-RestProducerLoopApp.log</file>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
+
+
+    <logger name="org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumerLoopApp" level="debug" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:KafkaConsumerLoopApp"/>
+    </logger>
+    <logger name="org.clulab.wm.wmexchanger.wmconsumer.RestConsumerLoopApp" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:RestConsumerLoopApp"/>
+    </logger>
+    <logger name="org.clulab.wm.wmexchanger.wmeidos.EidosLoopApp" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:EidosLoopApp"/>
+    </logger>
+    <logger name="org.clulab.wm.wmexchanger.wmproducer.RestProducerLoopApp" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:RestProducerLoopApp"/>
+    </logger>
+
+    <!-- This handles anything from outside of eidos that isn't configured otherwise. -->
+    <root level="info">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </root>
 </configuration>
