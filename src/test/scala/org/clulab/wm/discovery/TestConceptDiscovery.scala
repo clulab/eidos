@@ -66,7 +66,7 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
       })
     }
     val rankedConcepts = conceptDiscovery.rankConcepts(conceptDiscovery.discoverConcepts(documents_urls), 0, 0.0, 1000)
-    rankedConcepts.size should be == 1
+    assert(rankedConcepts.size == 1)
 
 
   }
