@@ -74,7 +74,7 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
         })
       }
       val rankedConcepts = conceptDiscovery.rankConcepts(conceptDiscovery.discoverConcepts(documents_urls), 0, 0.0, 1000)
-      rankedConcepts should be (Seq("Mr.google"))
+      rankedConcepts.map(_.concept.phrase) should be (Seq("Mr.google"))
     }
 
 
