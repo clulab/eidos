@@ -1,4 +1,4 @@
-FROM docker.causeex.com/dart/sbt-builder:clulab as builder
+FROM eidos:base as builder
 
 ENV SBT_OPTS "-Xms5G -Xmx5G -XX:+UseConcMarkSweepGC $GLOBAL_JAVA_OPTS"
 
