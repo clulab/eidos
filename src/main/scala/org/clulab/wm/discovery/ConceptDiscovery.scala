@@ -59,55 +59,31 @@ class ConceptDiscovery {
     }.toSet
   }
 
-  def build_graph(concepts: HashMap[String, Double], threshold: Double, embedding:CompactWordEmbeddingMap): SimpleWeightedGraph[String, DefaultEdge] = {
-    val g = new SimpleWeightedGraph[String, DefaultEdge](classOf[DefaultEdge])
-    val pairs = concepts.keySet.toList.combinations(2).toList
-    for (x <- pairs) {
-      val x1 = x(0)
-      val x2 = x(1)
-      if (!g.containsVertex(x1)) {
-        g.addVertex(x1)
-      }
-      if (!g.containsVertex(x2)) {
-        g.addVertex(x2)
-      }
-      val weight = embedding.avgSimilarity(x1.split(' '), x2.split(' '))
-      if (weight > threshold) {
-        if (!g.containsEdge(x1, x2)) {
-          val e = g.addEdge(x1, x2)
-          g.setEdgeWeight(e, weight)
-        }
-      }
-    }
-    g
-  }
-
   def rankConcepts(concepts: Set[Concept], threshold_frequency: Double, threshold_similarity: Double, top_pick: Int): Seq[RankedConcept] = {
-    val temp = new HashMap[String, Double]()
     val config = ConfigFactory.load("glove")
     val embed_file_path:String = config[String]("glove.matrixResourceName")
     val wordEmbeddings = WordEmbeddingMapPool.getOrElseCreate(embed_file_path, compact = true).asInstanceOf[CompactWordEmbeddingMap]
-    for (concept <- concepts){
-      val phrase = concept.phrase
-      temp(phrase) = concept.frequency
+    val stop_words = Set("a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with")
+
+    // select top k concepts
+    val selectedConcepts = concepts.filter(c => c.frequency > threshold_frequency && !stop_words.contains(c.phrase)).toSeq.sortBy(-_.frequency).take(top_pick)
+
+    // construct graph from concepts
+    val g = new SimpleWeightedGraph[String, DefaultEdge](classOf[DefaultEdge])
+    for (concept <- selectedConcepts) {
+      g.addVertex(concept.phrase)
+    }
+    for (List(c1, c2) <- selectedConcepts.combinations(2)) {
+      val weight = wordEmbeddings.avgSimilarity(c1.phrase.split(' '), c2.phrase.split(' '))
+      if (weight > threshold_similarity && !g.containsEdge(c1.phrase, c2.phrase)) {
+        val e = g.addEdge(c1.phrase, c2.phrase)
+        g.setEdgeWeight(e, weight)
+      }
     }
 
-    val stop_words = List("a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with")
-    val filtered_concepts = temp.filter(x => x._2 > threshold_frequency && !stop_words.contains(x._1))
-
-    val topn = filtered_concepts.toSeq.sortWith(_._2 > _._2).toList.take(top_pick).map(i => i._1 -> i._2)
-    val concept_topn = new HashMap[String, Double]
-    topn.foreach(p => concept_topn.put(p._1, p._2))
-    val g = build_graph(concept_topn, threshold_similarity, wordEmbeddings)
+    // add PageRank scores to each concept
     val pr = new PageRank(g)
-    val score_map = pr.getScores
-    val ranked_concepts = ListBuffer[RankedConcept]()
-    for (concept<-concepts){
-      val phrase = concept.phrase
-      if (score_map.containsKey(phrase))
-        ranked_concepts += RankedConcept(concept, score_map.get(phrase))
-    }
-    ranked_concepts
+    selectedConcepts.map(c => RankedConcept(c, pr.getVertexScore(c.phrase)))
   }
 }
 
