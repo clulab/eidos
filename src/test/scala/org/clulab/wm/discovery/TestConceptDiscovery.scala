@@ -25,13 +25,6 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
         ("In the years 2011–2013, an estimated 842 million people were suffering from chronic hunger.[8]", 0.2),
         ("The Food and Agriculture Organization of the United Nations, or FAO, identified the four pillars of food security as availability, access, utilization, and stability.[9]", 0.2),
         ("The United Nations (UN) recognized the Right to Food in the Declaration of Human Rights in 1948,[6] and has since said that it is vital for the enjoyment of all other rights.[10]", 0.2)))
-    val url_tests = Seq(
-      Seq(
-        "www.google.com",
-        "www.google",
-        "google.com",
-        "Mr.google")
-    )
     // convert texts to CDR documents
     val documents = for ((sentences, i) <- texts.zipWithIndex) yield {
       var end = 0
@@ -43,7 +36,7 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
     }
 
     val conceptDiscovery = new ConceptDiscovery
-    val concepts = conceptDiscovery.discoverConcepts(documents, Some(0.5))
+    val concepts = conceptDiscovery.discoverConcepts(documents)
 
     it should "find food security concepts" in {
       concepts.map(_.phrase) should contain allOf("food security", "access", "availability")
@@ -57,16 +50,32 @@ class TestConceptDiscovery extends AnyFlatSpec with Matchers {
         case _ =>
       }
     }
-    val documents_urls = for ((sentences, i) <- url_tests.zipWithIndex) yield {
-      var end = 0
-      CdrDocument(s"doc$i", for (sentence <- sentences) yield {
-        val start = end
-        end = start + sentence.length
-        ScoredSentence(sentence, start, end, 0)
-      })
+
+    it should "filter low saliency sentences" in {
+      val filteredConcepts = conceptDiscovery.discoverConcepts(documents, Some(0.5)).map(_.phrase)
+      filteredConcepts should contain ("food security")
+      filteredConcepts should not contain ("availability")
     }
-    val rankedConcepts = conceptDiscovery.rankConcepts(conceptDiscovery.discoverConcepts(documents_urls), 0, 0.0, 1000)
-    assert(rankedConcepts.size == 1)
+
+    it should "filter URLs" in {
+      val url_tests = Seq(
+        Seq(
+          "www.google.com",
+          "www.google",
+          "google.com",
+          "Mr.google")
+      )
+      val documents_urls = for ((sentences, i) <- url_tests.zipWithIndex) yield {
+        var end = 0
+        CdrDocument(s"doc$i", for (sentence <- sentences) yield {
+          val start = end
+          end = start + sentence.length
+          ScoredSentence(sentence, start, end, 1.0)
+        })
+      }
+      val rankedConcepts = conceptDiscovery.rankConcepts(conceptDiscovery.discoverConcepts(documents_urls), 0, 0.0, 1000)
+      rankedConcepts should be (Seq("Mr.google"))
+    }
 
 
   }
