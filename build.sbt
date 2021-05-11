@@ -62,9 +62,6 @@ lazy val core = (project in file("."))
       assembly / aggregate := false
     )
 
-// This prevents "error: recursive lazy value core needs type".
-lazy val coreRef = LocalProject("core")
-
 lazy val eidoscommon = project
 
 // Skip scala11 on this internal project.
@@ -76,8 +73,8 @@ lazy val ontologies = project
 
 lazy val webapp = project
     .enablePlugins(PlayScala)
-    .dependsOn(coreRef)
+    .dependsOn(core)
 
 // Skip scala11 on this internal project.
 lazy val wmexchanger = project
-    .dependsOn(coreRef % "compile -> compile; test -> test", eidoscommon)
+    .dependsOn(core % "compile -> compile; test -> test", eidoscommon)
