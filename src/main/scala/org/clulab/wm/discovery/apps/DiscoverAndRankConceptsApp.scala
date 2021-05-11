@@ -5,9 +5,6 @@ import org.clulab.wm.discovery.CdrDocument
 import org.clulab.wm.discovery.ConceptDiscovery
 import org.clulab.wm.discovery.ConceptSink
 import org.clulab.wm.discovery.ConceptSource
-import org.json4s.JArray
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods
 
 object DiscoverAndRankConceptsApp extends App {
   val inputDir = args(0)
