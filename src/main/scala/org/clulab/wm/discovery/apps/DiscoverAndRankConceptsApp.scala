@@ -3,18 +3,11 @@ package org.clulab.wm.discovery.apps
 import org.clulab.utils.Files
 import org.clulab.wm.discovery.CdrDocument
 import org.clulab.wm.discovery.ConceptDiscovery
-import org.clulab.wm.discovery.ScoredSentence
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.json4s.DefaultFormats
+import org.clulab.wm.discovery.ConceptSink
+import org.clulab.wm.discovery.ConceptSource
 import org.json4s.JArray
-import org.json4s.JDouble
-import org.json4s.JField
-import org.json4s.JObject
-import org.json4s.JString
-import org.json4s.JValue
+import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods
-
-import java.io.File
 
 object DiscoverAndRankConceptsApp extends App {
   val inputDir = args(0)
@@ -39,68 +32,7 @@ object DiscoverAndRankConceptsApp extends App {
   }
   val concepts = conceptDiscovery.discoverConcepts(cdrDocuments, sentenceThresholdOpt)
   val rankedConcepts = conceptDiscovery.rankConcepts(concepts, thresholdFrequency, thresholdSimilarity, topPick)
-  val jArray = new JArray(
-    rankedConcepts.map { rankedConcept =>
-      new JObject(List(
-        new JField("concept", new JObject(List(
-          new JField("phrase", new JString(rankedConcept.concept.phrase)),
-          new JField("locations", new JArray(
-            rankedConcept.concept.documentLocations.map { documentLocation =>
-              val Array(docId, sentenceIndex) = documentLocation.split(':')
-              new JObject(List(
-                new JField("document_id", new JString(docId)),
-                new JField("sentence_index", new JString(sentenceIndex))
-              ))
-            }.toList
-          ))
-        ))),
-        new JField("saliency", new JDouble(rankedConcept.saliency))
-      ))
-    }.toList
-  )
-}
+  val conceptSink = new ConceptSink(rankedConcepts)
 
-class ConceptSource(cdr: JValue) {
-  implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
-
-  val text: String = (cdr \ "extracted_text").extractOpt[String].getOrElse("")
-  val idOpt: Option[String] = (cdr \ "document_id").extractOpt[String]
-  val scoredSentences: Seq[ScoredSentence] = {
-    // If there are no concepts, the result is an empty Seq rather than None.
-    val annotations: Seq[JValue] = (cdr \ "annotations").extractOrElse[JArray](new JArray(List.empty[JValue])).arr
-    val keySentenceAnnotation: JValue = annotations.find { jValue =>
-      (jValue \ "label").extract[String] == "qntfy-key-sentence-annotator"
-    }.getOrElse(new JObject(List.empty[JField]))
-    val content = (keySentenceAnnotation \ "content").extractOrElse[JArray](new JArray(List.empty[JValue])).arr
-    val scoredSentences = content.flatMap { jValue =>
-      val offsetStart = (jValue \ "offset_start").extract[Int]
-      val offsetEnd = (jValue \ "offset_end").extract[Int]
-      val phrase = (jValue \ "value").extract[String]
-      val score = (jValue \ "score").extract[Double]
-
-      // We need each phrase to amount to at least one sentence in processors.
-      // That doesn't happen when the phrase is empty, or probably under other conditions.
-      if (phrase.trim.nonEmpty)
-        Some(ScoredSentence(phrase, offsetStart, offsetEnd, score))
-      else
-        None
-    }
-
-    scoredSentences
-  }
-
-  def getText: String = text
-
-  def getIdOpt: Option[String] = idOpt
-
-  def getScoredSentences: Seq[ScoredSentence] = scoredSentences
-}
-
-object ConceptSource {
-
-  def apply(file: File): ConceptSource = apply(FileUtils.getTextFromFile(file))
-
-  def apply(json: String): ConceptSource = apply(JsonMethods.parse(json))
-
-  def apply(jValue: JValue): ConceptSource = new ConceptSource(jValue)
+  conceptSink.printJson()
 }
