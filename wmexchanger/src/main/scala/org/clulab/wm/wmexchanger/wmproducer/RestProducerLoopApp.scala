@@ -16,9 +16,9 @@ import java.util.Properties
 
 class RestProducerLoopApp(inputDir: String, doneDir: String) {
   var useReal: Boolean = RestProducerLoopApp.useReal
-  val version = "1.2.0"
 
   val config: Config = ConfigFactory.load("restproducer")
+  val version = config.getString("RestProducerApp.version")
   val service: String = config.getString("RestProducerApp.service")
   val login: String = config.getString("RestProducerApp.login")
   val interactive: Boolean = config.getBoolean("RestProducerApp.interactive")
