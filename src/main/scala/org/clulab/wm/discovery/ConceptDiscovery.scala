@@ -44,13 +44,16 @@ class ConceptDiscovery {
       // make a Processors Document, pruning sentences with a threshold if applicable
       val sentencesOverThresholdOption = sentenceThreshold.map(t => cdr.sentences.filter(_.score >= t))
       val sentences = sentencesOverThresholdOption.getOrElse(cdr.sentences)
-      val document = processor.annotateFromSentences(sentences.map(_.text))
-      // find and collect concept mentions
-      val mentions = entityFinder.find(document)
-      val trimmed_mentions = mentions.map(EntityHelper.trimEntityEdges(_, tagSet))
-      val annotatedDocument = AnnotatedDocument(document, trimmed_mentions)
-      for (mention <- annotatedDocument.odinMentions) {
-        conceptLocations(mention.text) += s"${cdr.docid}:${mention.sentence}"
+
+      if (sentences.nonEmpty) { // Processors requires sentences.
+        val document = processor.annotateFromSentences(sentences.map(_.text))
+        // find and collect concept mentions
+        val mentions = entityFinder.find(document)
+        val trimmed_mentions = mentions.map(EntityHelper.trimEntityEdges(_, tagSet))
+        val annotatedDocument = AnnotatedDocument(document, trimmed_mentions)
+        for (mention <- annotatedDocument.odinMentions) {
+          conceptLocations(mention.text) += s"${cdr.docid}:${mention.sentence}"
+        }
       }
     }
 
@@ -86,4 +89,3 @@ class ConceptDiscovery {
     selectedConcepts.map(c => RankedConcept(c, pr.getVertexScore(c.phrase)))
   }
 }
-
