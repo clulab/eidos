@@ -11,15 +11,19 @@ class ConceptSink(rankedConcepts: Seq[RankedConcept]) {
     val jArray = new JArray(
       rankedConcepts.toList.map { rankedConcept =>
         ("concept" ->
-        ("phrase" -> rankedConcept.concept.phrase) ~
-          ("locations", new JArray(
-            rankedConcept.concept.documentLocations.toList.map { documentLocation =>
+          ("phrase" -> rankedConcept.concept.phrase) ~
+          ("locations" -> new JArray( {
+            val documendIdsAndSentenceIndexes = rankedConcept.concept.documentLocations.toList.map { documentLocation =>
               val Array(documentId, sentenceIndex) = documentLocation.split(':')
-
+              (documentId, sentenceIndex.toInt)
+            }.sortBy(_._2)
+            val jObjects = documendIdsAndSentenceIndexes.map { case (documentId, sentenceIndex) =>
               ("document_id" -> documentId) ~
               ("sentence_index" -> sentenceIndex)
             }
-          ))
+
+            jObjects
+          }))
         ) ~
         ("saliency" -> rankedConcept.saliency)
       }
