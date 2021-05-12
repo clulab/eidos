@@ -1,5 +1,7 @@
 package org.clulab.wm.eidoscommon.utils
 
+import com.typesafe.config.Config
+
 import java.util.Properties
 import org.clulab.wm.eidoscommon.utils.Closer._
 
@@ -65,6 +67,15 @@ object PropertiesBuilder {
       properties.load(bufferedInputStream)
     }
 
+    new PropertiesBuilder(properties)
+  }
+
+  def fromConfig(config: Config): PropertiesBuilder = {
+    val properties = new Properties
+    config
+      .entrySet()
+      .asScala
+      .foreach( pair => properties.put(pair.getKey, pair.getValue.unwrapped().toString) )
     new PropertiesBuilder(properties)
   }
 }

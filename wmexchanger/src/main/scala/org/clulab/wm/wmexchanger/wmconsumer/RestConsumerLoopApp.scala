@@ -20,16 +20,14 @@ import java.util.Properties
 class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) {
   var useReal = RestConsumerLoopApp.useReal
 
-  val config: Config = ConfigFactory.load("restconsumer")
-  val service: String = config.getString("RestConsumerApp.service")
-  val annotations: Boolean = config.getBoolean("RestConsumerApp.annotations")
-  val login: String = config.getString("RestConsumerApp.login")
-  val interactive: Boolean = config.getBoolean("RestConsumerApp.interactive")
-  val waitDuration: Int = config.getInt("RestConsumerApp.duration.wait")
-  val pauseDuration: Int = config.getInt("RestConsumerApp.duration.pause")
-  val properties: Properties = PropertiesBuilder.fromFile(login).get
-  val username: String = properties.getProperty("username")
-  val password: String = properties.getProperty("password")
+  val config: Config = ConfigFactory.defaultApplication().resolve()
+  val service: String = config.getString("rest.consumer.service")
+  val annotations: Boolean = config.getBoolean("rest.consumer.annotations")
+  val interactive: Boolean = config.getBoolean("rest.consumer.interactive")
+  val waitDuration: Int = config.getInt("rest.consumer.duration.wait")
+  val pauseDuration: Int = config.getInt("rest.consumer.duration.pause")
+  val username: String = config.getString("rest.consumer.username")
+  val password: String = config.getString("rest.consumer.password")
 
   val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
 
