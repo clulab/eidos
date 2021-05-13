@@ -30,7 +30,7 @@ ThisBuild / publishTo := {
         else ""
     val location = artifactory + repository + details
 
-    Some("Artifactory Realm" at location)
+    Some(("Artifactory Realm" at location).withAllowInsecureProtocol(true))
   }
   else {
     // This is for maven central, the default for when not artifactory.
