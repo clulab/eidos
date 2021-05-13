@@ -16,7 +16,6 @@ import java.util.Properties
 
 class RestProducerLoopApp(inputDir: String, doneDir: String) {
   var useReal: Boolean = RestProducerLoopApp.useReal
-  val version = "1.2.0"
 
   val config: Config = ConfigFactory.defaultApplication().resolve()
   val service: String = config.getString("rest.producer.service")
@@ -25,6 +24,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
   val pauseDuration: Int = config.getInt("rest.producer.duration.pause")
   val username: String = config.getString("rest.producer.username")
   val password: String = config.getString("rest.producer.password")
+  val version: String = config.getString("rest.producer.version")
 
   val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
 
