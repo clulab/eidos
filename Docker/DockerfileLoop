@@ -57,3 +57,4 @@ RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
 # Run Web Service
 ENTRYPOINT ["/bin/bash"]
 CMD ["/loop_sbt_all.sh"]
+
