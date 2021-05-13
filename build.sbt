@@ -1,5 +1,5 @@
 import org.clulab.sbt.BuildUtils
-//import sbt._
+import org.clulab.sbt.Resolvers
 
 // See also the other files in the project directory with sbt extensions.
 // They are generally named according to the task they are associated with:
@@ -20,9 +20,9 @@ ThisBuild / crossScalaVersions := Seq(scala12, scala11) // , scala13)
 ThisBuild / scalaVersion := crossScalaVersions.value.head
 
 resolvers ++= Seq(
-  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release" ).withAllowInsecureProtocol(true), // processors-models
-  "Local Ivy Repository" at s"file://${System.getProperty( "user.home" )}/.ivy2/local",
-  "jitpack" at "https://jitpack.io"
+  Resolvers.localResolver,
+  Resolvers.clulabResolver, // glove
+  Resolvers.jitpackResolver // Ontologies
 )
 
 libraryDependencies ++= {
