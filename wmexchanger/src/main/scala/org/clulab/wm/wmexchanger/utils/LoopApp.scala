@@ -22,4 +22,10 @@ trait LoopApp extends Logging {
     // Keep looping until true is returned, indicating normal loop termination.
     while (safeLoop(f)) Thread.sleep(5000)
   }
+
+  def getArgOrEnv(args: Array[String], index: Int, name: String): String = {
+    // Only use the environment variables if there aren't any command line arguments at all.
+    if (args.isEmpty) System.getenv(name)
+    else args(index)
+  }
 }

@@ -88,12 +88,11 @@ object RestConsumerLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
-    val inputDir: String = args(0)
-    val outputDir: String = args(1)
-    val doneDir: String = args(2)
+    val  inputDir: String = getArgOrEnv(args, 0, "REST_CONSUMER_INPUT_DIR")
+    val outputDir: String = getArgOrEnv(args, 1, "REST_CONSUMER_OUTPUT_DIR")
+    val   doneDir: String = getArgOrEnv(args, 2, "REST_CONSUMER_DONE_DIR")
 
     FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
-
     loop {
       () => new RestConsumerLoopApp(inputDir, outputDir, doneDir).thread
     }

@@ -40,7 +40,6 @@ object KafkaConsumerLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
-    args.foreach(println)
     loop {
       () => new KafkaConsumerLoopApp(args).thread
     }
