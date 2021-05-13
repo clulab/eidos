@@ -1,5 +1,5 @@
 import org.clulab.sbt.BuildUtils
-import sbt._
+//import sbt._
 
 // See also the other files in the project directory with sbt extensions.
 // They are generally named according to the task they are associated with:
