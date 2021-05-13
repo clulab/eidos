@@ -2,9 +2,8 @@ name := "eidos-eidoscommon"
 description := "Code to be shared by other Eidos subprojects and clients"
 
 resolvers ++= Seq(
-  // This is needed by processors-main.
-  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
-      // .withAllowInsecureProtocol(true) // newer sbt
+  "Local Ivy Repository" at s"file://${System.getProperty("user.home")}/.ivy2/local",
+  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release").withAllowInsecureProtocol(true), // processors-models
 )
 
 libraryDependencies ++= {
