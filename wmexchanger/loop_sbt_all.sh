@@ -1,3 +1,5 @@
+./loop_sbt_configure.sh
+
 # These are started in reverse order so that the pipeline is mostly ready when the first document is retrieved.
 sbt ";set ThisBuild/offline := true ;wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
 ./wmexchanger/loop_sbt_restProducer.sh &
