@@ -4,7 +4,7 @@ name := "eidos-eidoscommon"
 description := "Code to be shared by other Eidos subprojects and clients"
 
 resolvers ++= Seq(
-  Resolvers.localResolver,
+  Resolvers.localResolver, // Reserve for Two Six.
   Resolvers.clulabResolver // processors-models, transitive dependency
 )
 

@@ -20,7 +20,7 @@ ThisBuild / crossScalaVersions := Seq(scala12, scala11) // , scala13)
 ThisBuild / scalaVersion := crossScalaVersions.value.head
 
 resolvers ++= Seq(
-  Resolvers.localResolver,
+  Resolvers.localResolver,  // Reserve for Two Six.
   Resolvers.clulabResolver, // glove
   Resolvers.jitpackResolver // Ontologies
 )

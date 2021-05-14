@@ -2,7 +2,8 @@ import org.clulab.sbt.BuildUtils
 
 // The server usually doesn't work on Windows, at least not for Keith,
 // and failing on the timeout is very time consuming, so skip it.
-ThisBuild / autoStartServer := !BuildUtils.isWindows()
+Global / autoStartServer := !BuildUtils.isWindows()
+Global / excludeLintKeys += autoStartServer
 // Certain library dependencies, particularly Stanford NLP, have been observed to have problems with
 // versions of Java other than the required one.  Proceed with caution if you ignore this check.
 // See https://stackoverflow.com/questions/19208942/enforcing-java-version-for-scala-project-in-sbt

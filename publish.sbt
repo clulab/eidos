@@ -18,9 +18,9 @@ ThisBuild / licenses := List(
 ThisBuild / organization := "org.clulab"
 ThisBuild / organizationHomepage := Some(url("http://clulab.org/"))
 ThisBuild / organizationName := "Computational Language Understanding (CLU) Lab"
-// The sonatype plugin seems to overwrite these two values.
-ThisBuild / pomIncludeRepository := BuildUtils.keepHttpRepos
-ThisBuild / publishMavenStyle := true
+// The sonatype plugin seems to overwrite these two values, so they are in sonatype.sbt.
+// ThisBuild / pomIncludeRepository := BuildUtils.keepHttpRepos
+// ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := {
   if (BuildUtils.useArtifactory) {
     val artifactory = "http://artifactory.cs.arizona.edu:8081/artifactory/"
