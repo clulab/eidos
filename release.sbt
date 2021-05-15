@@ -2,6 +2,8 @@ import ReleaseTransformations._
 import org.clulab.sbt.BuildUtils
 
 ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / ".clulab-credentials")
+# This is actually for the native packager.
+ThisBuild / maintainer := "msurdeanu@email.arizona.edu"
 
 releaseProcess :=
     Seq[ReleaseStep](
