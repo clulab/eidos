@@ -1,0 +1,37 @@
+# This docker image is for building an base image which include Eidos dependencies and models
+FROM ubuntu:20.04
+
+# Install base packages
+RUN apt-get update
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
+RUN apt-get install -y \
+    software-properties-common \
+    dialog \
+    unzip
+
+
+# Install Java
+RUN add-apt-repository -y ppa:openjdk-r/ppa
+RUN apt-get update
+RUN apt-get -y install openjdk-8-jdk
+RUN export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+RUN export PATH="$JAVA_HOME/bin:$PATH"
+
+# Install sbt
+WORKDIR /
+RUN apt-get remove scala-library scala
+RUN apt-get install apt-transport-https -y
+RUN echo "deb https://dl.bintray.com/sbt/debian /" |  tee -a /etc/apt/sources.list.d/sbt.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+RUN apt-get update && apt-get install sbt -y
+
+# Building Eidos and getting it's dependencies
+ADD . /opt/app/eidos
+WORKDIR /opt/app/eidos
+
+# Downloading Eidos dependencies
+RUN sbt update
+
+# Run Web Service
+
+ENTRYPOINT ["/bin/bash"]
