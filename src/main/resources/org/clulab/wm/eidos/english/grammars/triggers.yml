@@ -7,7 +7,7 @@ increase_triggers:
   - boost
   - compel(s?$)|compell
   - compound
-  - cultivat[e|ing]
+  - cultivat(e|ing)
   - doubl
   - elev
   - enhanc
