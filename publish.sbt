@@ -6,7 +6,7 @@ ThisBuild / developers := List(
   Developer(
     id    = "mihai.surdeanu",
     name  = "Mihai Surdeanu",
-    email = "mihai@surdeanu.info",
+    email = "msurdeanu@email.arizona.edu",
     url   = url("https://www.cs.arizona.edu/person/mihai-surdeanu")
   )
 )
@@ -18,9 +18,9 @@ ThisBuild / licenses := List(
 ThisBuild / organization := "org.clulab"
 ThisBuild / organizationHomepage := Some(url("http://clulab.org/"))
 ThisBuild / organizationName := "Computational Language Understanding (CLU) Lab"
-// The sonatype plugin seems to overwrite these two values.
-ThisBuild / pomIncludeRepository := BuildUtils.keepHttpRepos
-ThisBuild / publishMavenStyle := true
+// The sonatype plugin seems to overwrite these two values, so they are in sonatype.sbt.
+// ThisBuild / pomIncludeRepository := BuildUtils.keepHttpRepos
+// ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := {
   if (BuildUtils.useArtifactory) {
     val artifactory = "http://artifactory.cs.arizona.edu:8081/artifactory/"
@@ -30,7 +30,7 @@ ThisBuild / publishTo := {
         else ""
     val location = artifactory + repository + details
 
-    Some("Artifactory Realm" at location)
+    Some(("Artifactory Realm" at location).withAllowInsecureProtocol(true))
   }
   else {
     // This is for maven central, the default for when not artifactory.
