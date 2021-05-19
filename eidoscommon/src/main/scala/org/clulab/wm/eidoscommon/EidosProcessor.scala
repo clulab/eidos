@@ -3,6 +3,7 @@ package org.clulab.wm.eidoscommon
 import java.text.Normalizer
 import java.util.regex.Pattern
 
+import org.clulab.dynet.Utils.initializeDyNet
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
@@ -44,6 +45,8 @@ trait LanguageSpecific {
 
 class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
     with EidosProcessor {
+
+  initializeDyNet()
   lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
   override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new EnglishTagSet()
@@ -59,6 +62,7 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
       tagPartsOfSpeech(document)
       lemmatize(document)
       recognizeNamedEntities(document)
+      srl(document)
     }
     document
   }
