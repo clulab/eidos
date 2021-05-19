@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.exporters
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.PredicateGrounding
-import org.clulab.wm.eidoscommon.{EidosCluProcessor, EidosProcessor}
+import org.clulab.wm.eidoscommon.EidosCluProcessor
 import org.clulab.wm.eidoscommon.utils.Closer._
 import org.clulab.wm.eidoscommon.utils.FileUtils
 
@@ -25,9 +25,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
     FileUtils.printWriterFromFile(filename + ".debug.txt").autoClose { pw =>
 
       val doc = annotatedDocument.document
-      for (i <- doc.sentences.indices) {
-        val clusent = reader.components.procOpt.get.asInstanceOf[EidosCluProcessor].annotate(doc.sentences(i)
-          .getSentenceText).sentences.head
+      for ((clusent, i) <- doc.sentences.zipWithIndex) {
         pw.println("********************************************\n")
         pw.println(s"Sentence $i: ${clusent.getSentenceText}.\n")
         pw.println("SRLS:")
