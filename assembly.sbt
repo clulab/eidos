@@ -11,6 +11,8 @@ assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
   case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
   case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat
+  // If two copies of glove are included, this readme file will be duplicated.
+  // case PathList("org", "clulab", "glove", "README.md") => MergeStrategy.concat
   // These all have different contents and cannot be automatically deduplicated.
   case PathList("reference.conf") => MergeStrategy.concat // Scala configuration files--important!
   case PathList("META-INF", "services", "org.apache.lucene.codecs.PostingsFormat")    => MergeStrategy.filterDistinctLines
@@ -18,6 +20,14 @@ assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")     => MergeStrategy.first // or last or both?
   // Otherwise just keep one copy if the contents are the same and complain if not.
   case _ => MergeStrategy.deduplicate
+}
+// This file comes from processors-main, but we're overriding it in eidos with the binary version.
+assembly / assemblyExcludedJars := {
+  val classpath = (assembly / fullClasspath).value
+  classpath.filter { attributedFile =>
+      println(attributedFile.data.getName)
+    attributedFile.data.getName == "glove-840b-300d-10f-1.0.0.jar"
+  }
 }
 // This prevents testing in core, then non-aggregation prevents it in other subprojects.
 assembly / test := {}

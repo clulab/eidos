@@ -2,8 +2,7 @@ package org.clulab.wm.wmexchanger.wmproducer
 
 import java.io.File
 import java.net.URL
-
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.http.HttpHeaders
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
@@ -126,12 +125,13 @@ object RestProducerApp extends App with Logging {
   val inputDir = args(0)
   val doneDir = args(1)
 
-  val config = ConfigFactory.load("restproducer")
-  val service = config.getString("RestProducerApp.service")
-  val login = config.getString("RestProducerApp.login")
-  val properties = PropertiesBuilder.fromFile(login).get
-  val username = properties.getProperty("username")
-  val password = properties.getProperty("password")
+  val config: Config = ConfigFactory.defaultApplication().resolve()
+  val service: String = config.getString("rest.producer.service")
+  val interactive: Boolean = config.getBoolean("rest.producer.interactive")
+  val waitDuration: Int = config.getInt("rest.producer.duration.wait")
+  val pauseDuration: Int = config.getInt("rest.producer.duration.pause")
+  val username: String = config.getString("rest.producer.username")
+  val password: String = config.getString("rest.producer.password")
 
   val url = new URL(service)
   val httpHost = newHttpHost(url)

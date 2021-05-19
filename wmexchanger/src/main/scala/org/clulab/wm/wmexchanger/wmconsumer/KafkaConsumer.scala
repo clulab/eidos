@@ -1,28 +1,28 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
-import java.io.File
-import java.time.Duration
-import java.util.Collections
-import java.util.ConcurrentModificationException
-import java.util.Properties
 import org.apache.kafka.clients.consumer.{KafkaConsumer => ApacheKafkaConsumer}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Logging}
+import org.clulab.wm.wmexchanger.utils.{Extensions, LockUtils}
 import org.json4s._
 
-class KafkaConsumer(properties: Properties, closeDuration: Int, topic: String, outputDir: String, lock: Boolean = false)
+import java.io.File
+import java.time.Duration
+import java.util.{Collections, ConcurrentModificationException, Properties}
+
+class KafkaConsumer(appProperties: Properties, kafkaProperties: Properties, lock: Boolean = false)
     extends KafkaConsumerish {
-  import KafkaConsumer._
+  import org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumer._
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
   logger.info("Opening consumer...")
+  val topic: String = appProperties.getProperty("topic")
+  val outputDir: String = appProperties.getProperty("output.dir")
+  FileUtils.ensureDirsExist(outputDir)
+  val closeDuration: Int = appProperties.getProperty("close.duration").toInt
 
   protected val consumer: ApacheKafkaConsumer[String, String] = {
-    val consumer = new ApacheKafkaConsumer[String, String](properties)
+    val consumer = new ApacheKafkaConsumer[String, String](kafkaProperties)
 
     consumer.subscribe(Collections.singletonList(topic))
     consumer
