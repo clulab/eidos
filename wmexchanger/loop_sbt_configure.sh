@@ -1,7 +1,7 @@
-defaultBaseDir="../corpora/loop"
+default_base_dir="../corpora/loop"
 
 # Coordinate everything.
-EIDOS_BASE_DIR="${EIDOS_BASE_DIR:-$default_baseDir}"
+EIDOS_BASE_DIR="${EIDOS_BASE_DIR:-$default_base_dir}"
 EIDOS_INPUT_SUBDIR="${EIDOS_INPUT_SUBDIR:-input}"
 EIDOS_OUTPUT_SUBDIR="${EIDOS_OUTPUT_SUBDIR:-output}"
 DONE_SUBDIR="${DONE_SUBDIR:-done}"

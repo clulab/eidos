@@ -125,7 +125,7 @@ files present at any given time.
 
 Although shared directories can be placed almost anywhere, these are the
 conventional locations which can be used in Run/Debug Configurations in
-IntelliJ or from the command line.  The base directory, named `$aseDir`
+IntelliJ or from the command line.  The base directory, named `$baseDir`
 in the table, could be `../corpora/loop`.
 
 | LoopApp | InputDir | OutputDir | DoneDir |

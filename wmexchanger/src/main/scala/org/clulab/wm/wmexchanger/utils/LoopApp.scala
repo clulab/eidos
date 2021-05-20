@@ -25,7 +25,15 @@ trait LoopApp extends Logging {
 
   def getArgOrEnv(args: Array[String], index: Int, name: String): String = {
     // Only use the environment variables if there aren't any command line arguments at all.
-    if (args.isEmpty) System.getenv(name)
-    else args(index)
+    if (args.isEmpty) {
+      val envOpt = Option(System.getenv(name))
+
+      envOpt.getOrElse(throw new RuntimeException("There is no arg($index) or environment variable '$name'."))
+    }
+    else {
+      val argOpt = args.lift(index)
+
+      argOpt.getOrElse(throw new RuntimeException("There are args but no arg($index)."))
+    }
   }
 }
