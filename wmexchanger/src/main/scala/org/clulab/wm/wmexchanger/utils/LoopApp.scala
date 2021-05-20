@@ -37,3 +37,14 @@ trait LoopApp extends Logging {
     }
   }
 }
+
+object LoopApp {
+
+  def getNamedArg(args: Array[String], name: String): Option[String] = {
+    val prefix = s"$name="
+
+    args
+        .find(_.startsWith(prefix))
+        .map(_.substring(prefix.length))
+  }
+}

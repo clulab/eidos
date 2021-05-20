@@ -208,6 +208,12 @@ class LoopTest extends Test {
       outputIdsOpt.foreach { outputIds =>
         outputIds should be (fileIds)
       }
+      dirs.inputDirOpt.foreach { inputDir =>
+        FileUtils.findFiles(inputDir, "") shouldBe empty
+      }
+      dirs.outputDirOpt.foreach { outputDir =>
+        FileUtils.findFiles(outputDir, "") shouldBe empty
+      }
     }
   }
 

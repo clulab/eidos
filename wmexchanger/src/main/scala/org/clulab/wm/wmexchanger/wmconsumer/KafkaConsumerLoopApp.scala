@@ -16,6 +16,7 @@ class KafkaConsumerLoopApp(args: Array[String]) {
   val waitDuration: Long = appProperties.getProperty("wait.duration").toLong
   val interactive: Boolean = appProperties.getProperty("interactive").toBoolean
   val pollDuration: Int = appProperties.getProperty("poll.duration").toInt
+  // TODO: Move this below so that it only affects the Mock version.
   val outputDir: String = appProperties.getProperty("output.dir")
 
   val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp.logger, interactive, waitDuration) {
@@ -23,8 +24,15 @@ class KafkaConsumerLoopApp(args: Array[String]) {
     override def runSafely(): Unit = {
       // This is kept open the entire time, so time between pings is extra important.
       val consumer =
-          if (useReal) new KafkaConsumer(appProperties, kafkaProperties, lock = true)
-          else new MockKafkaConsumer(outputDir)
+          if (useReal)
+            new KafkaConsumer(appProperties, kafkaProperties, lock = true)
+          else {
+            // In some tests with useReal = false, the outputDir is passed in args.
+            val mockOutputDir = LoopApp
+                .getNamedArg(args, "app.outputDir")
+                .getOrElse(outputDir)
+            new MockKafkaConsumer(mockOutputDir)
+          }
       // autoClose isn't executed if the thread is shot down, so this hook is used instead.
       sys.ShutdownHookThread { consumer.close() }
 
