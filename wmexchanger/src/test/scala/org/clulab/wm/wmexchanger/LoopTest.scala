@@ -209,10 +209,12 @@ class LoopTest extends Test {
         outputIds should be (fileIds)
       }
       dirs.inputDirOpt.foreach { inputDir =>
-        FileUtils.findFiles(inputDir, "") shouldBe empty
+        val files = FileUtils.findFiles(inputDir, "")
+        files shouldBe empty
       }
       dirs.outputDirOpt.foreach { outputDir =>
-        FileUtils.findFiles(outputDir, "") shouldBe empty
+        val files = FileUtils.findFiles(outputDir, "")
+        files shouldBe empty
       }
     }
   }
