@@ -1,4 +1,5 @@
 import org.clulab.sbt.BuildUtils
+import org.clulab.sbt.Resolvers
 
 // See also the other files in the project directory with sbt extensions.
 // They are generally named according to the task they are associated with:
@@ -19,11 +20,9 @@ ThisBuild / crossScalaVersions := Seq(scala12, scala11) // , scala13)
 ThisBuild / scalaVersion := crossScalaVersions.value.head
 
 resolvers ++= Seq(
-  // Ontologies needs this.
-  "jitpack" at "https://jitpack.io",
-  // This is needed by processors-main, geonames, and glove-840b-300d.
-  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release")
-      // .withAllowInsecureProtocol(true) // newer sbt
+  Resolvers.localResolver,  // Reserve for Two Six.
+  Resolvers.clulabResolver, // glove
+  Resolvers.jitpackResolver // Ontologies
 )
 
 libraryDependencies ++= {
@@ -56,14 +55,12 @@ libraryDependencies ++= {
 
 lazy val core = (project in file("."))
     .enablePlugins(BuildInfoPlugin)
+    .disablePlugins(PlayScala, JavaAppPackaging, SbtNativePackager)
     .dependsOn(eidoscommon % "compile -> compile; test -> test", ontologies)
     .aggregate(eidoscommon, ontologies)
     .settings(
       assembly / aggregate := false
     )
-
-// This prevents "error: recursive lazy value core needs type".
-lazy val coreRef = LocalProject("core")
 
 lazy val eidoscommon = project
 
@@ -76,8 +73,11 @@ lazy val ontologies = project
 
 lazy val webapp = project
     .enablePlugins(PlayScala)
-    .dependsOn(coreRef)
+    .dependsOn(core)
 
 // Skip scala11 on this internal project.
 lazy val wmexchanger = project
-    .dependsOn(coreRef % "compile -> compile; test -> test", eidoscommon)
+    .enablePlugins(JavaAppPackaging)
+    .disablePlugins(PlayScala)
+    .aggregate(core)
+    .dependsOn(core % "compile -> compile; test -> test", eidoscommon)
