@@ -13,7 +13,7 @@ import java.io.File
 import java.nio.file.Files
 
 class LoopTest extends Test {
-  val useRealEidos = true
+  val useRealEidos = false // true
   val threads = 3
 
   class Dirs(baseDir: String, relInputDirOpt: Option[String], relOutputDirOpt: Option[String], relDoneDirOpt: Option[String], relMockDirOpt: Option[String]) {
@@ -89,14 +89,22 @@ class LoopTest extends Test {
   val  restProducerDirs = new Dirs(baseDir, Some("output"),      None,                Some("output/done"),      None)
   val allDirs = Seq(kafkaConsumerDirs, restConsumerDirs, eidosDirs, restProducerDirs)
 
-  val kafkaResourceDir = "./wmexchanger/src/test/resources/kafkaProducer"
-  val  restResourceDir = "./wmexchanger/src/test/resources/restProducer"
+  // The default value works readily for IntelliJ, but not for sbt.
+  def getResourceDir(approximation: String): String = {
+    if (new File(approximation).exists) approximation
+    else "." + approximation
+  }
+
+  val kafkaResourceDir: String = getResourceDir("./wmexchanger/src/test/resources/kafkaConsumer")
+  val  restResourceDir: String = getResourceDir("./wmexchanger/src/test/resources/restConsumer")
 
   val fileIds: Set[String] = getFileIds(kafkaResourceDir)
 
   assert(fileIds == getFileIds(restResourceDir))
 
   def getFileIds(dir: String): Set[String] = {
+    println(new File(".").getCanonicalPath)
+
     val fileIds = FileUtils
         .findFiles(dir, "")
         .filter(_.isFile)
@@ -199,6 +207,14 @@ class LoopTest extends Test {
 
       outputIdsOpt.foreach { outputIds =>
         outputIds should be (fileIds)
+      }
+      dirs.inputDirOpt.foreach { inputDir =>
+        val files = FileUtils.findFiles(inputDir, "")
+        files shouldBe empty
+      }
+      dirs.outputDirOpt.foreach { outputDir =>
+        val files = FileUtils.findFiles(outputDir, "")
+        files shouldBe empty
       }
     }
   }

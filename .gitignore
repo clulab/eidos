@@ -67,3 +67,6 @@ scripts/*
 
 # For MacOS filesystem
 .DS_Store
+
+# Test remnants
+corpora/

@@ -77,11 +77,10 @@ object RestProducerLoopApp extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
-    val inputDir = args(0)
-    val doneDir = args(1)
+    val inputDir = getArgOrEnv(args, 0, "REST_PRODUCER_INPUT_DIR")
+    val  doneDir = getArgOrEnv(args, 1, "REST_PRODUCER_DONE_DIR")
 
     FileUtils.ensureDirsExist(inputDir, doneDir)
-
     loop {
       () => new RestProducerLoopApp(inputDir, doneDir).thread
     }
