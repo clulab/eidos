@@ -2,6 +2,7 @@ package org.clulab.wm.eidos.actions
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
@@ -13,6 +14,7 @@ import org.clulab.odin.State
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
+import org.clulab.wm.eidos.actions.EidosActions.adjTriggers
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.expansion.Expander
 import org.clulab.wm.eidos.expansion.MostCompleteEventsKeeper
@@ -23,6 +25,7 @@ import org.clulab.wm.eidoscommon.TagSet
 import org.clulab.wm.eidoscommon.utils.Logging
 
 import scala.util.Try
+import scala.util.matching.Regex
 
 // 1) the signature for an action `(mentions: Seq[Mention], state: State): Seq[Mention]`
 // 2) the methods available on the `State`
@@ -40,10 +43,14 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
       Global Action -- performed after each round in Odin
   */
   def globalAction(mentions: Seq[Mention], state: State): Seq[Mention] = {
+    // remove extractions whose triggers are very likely to be JJ mis-parsed as VBN,
+    // e.g., women have limited options ..... != "women LIMIT options"
+    val pruned = mentions.filterNot(likelyMisparsedTrigger)
+
     // TODO: We can add this in if it makes things better/faster (i.e., not expanding duplicates)
     // val deduped = mentions.groupBy(mostCompleteEventsKeeper.weakIdentity).map(_._2.head).toVector
     // Expand mentions, if enabled
-    val expanded = expansionHandler.map(_.expand(mentions, state)).getOrElse(mentions)
+    val expanded = expansionHandler.map(_.expand(pruned, state)).getOrElse(pruned)
 
     // Stitch together causal chains
     val (causal, nonCausal) = expanded.partition(m => EidosParameters.CAG_EDGES.contains(m.label))
@@ -219,6 +226,26 @@ class EidosActions(val expansionHandler: Option[Expander]) extends Actions with 
 
   def getAttachment(mention: Mention): EidosAttachment = EidosAttachment.newEidosAttachment(mention)
 
+  def likelyMisparsedTrigger(mention: Mention): Boolean = {
+    def likelyAdjTriggerMarkedVBN(trigger: Mention): Boolean = {
+      // This is really only pertinent when there is a single word trigger
+      val VBNTagOnly: Boolean = {
+        val tags = trigger.tags.get
+        tags.length == 1 && tags.head == "VBN"
+      }
+      // if the trigger is more likely to be an adjective than a verb
+      val typicallyJJTrigger = adjTriggers.contains(trigger.text)
+      // if the trigger is typically a JJ AND here it's matched as a VBN, probably it's a false
+      // positive causal extraction.
+      typicallyJJTrigger && VBNTagOnly
+    }
+
+    mention match {
+      case em: EventMention => likelyAdjTriggerMarkedVBN(em.trigger)
+      case _ => false
+    }
+  }
+
   def pass(mentions: Seq[Mention], state: State): Seq[Mention] = mentions
 }
 
@@ -232,6 +259,10 @@ object EidosActions extends Actions with Logging {
   val APPROXIMATE_PATTERN: Pattern = Pattern.compile("""about|approximately|around""")
   val MIN_PATTERN: Pattern = Pattern.compile("""(at\s+least)|(more\s+than)|over""")
   val MAX_PATTERN: Pattern = Pattern.compile("""(at\s+most)|(less\s+than)|almost|under""")
+
+  // triggers that are more likely to be adjectives, but can be misparsed as VBN.  We have
+  val adjTriggers: Set[String] = Set("diminished", "limited")
+
 
   def fromConfig(config: Config, tagSet: TagSet): EidosActions = {
 

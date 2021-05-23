@@ -9,6 +9,7 @@ import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.actions.EidosActions
 import org.clulab.wm.eidos.test.ExtractionTest
+import org.clulab.wm.eidoscommon.EidosParameters.CAUSAL_LABEL
 
 import scala.collection.JavaConverters._
 
@@ -129,5 +130,11 @@ class TestEidosActions extends ExtractionTest {
     val text = "Rainfall increases the price of puppies."
     val mentions = extractMentions(text)
     mentions.exists(m => hasProperty(m, "price")) should be (true)
+  }
+
+  it should "remove mentions whose triggers were likely JJs misparsed as VBN" in {
+    val text = "Concurrently , female holders have limited access to extension and advisory services."
+    val mentions = extractMentions(text)
+    mentions.filter(_ matches CAUSAL_LABEL) should have size(0)
   }
 }

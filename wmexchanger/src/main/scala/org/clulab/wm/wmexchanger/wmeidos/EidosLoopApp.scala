@@ -106,13 +106,12 @@ object EidosLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
-    val inputDir: String = args(0)
-    val outputDir: String = args(1)
-    val doneDir: String = args(2)
-    val threads: Int = args(3).toInt
+    val  inputDir: String = getArgOrEnv(args, 0, "EIDOS_INPUT_DIR")
+    val outputDir: String = getArgOrEnv(args, 1, "EIDOS_OUTPUT_DIR")
+    val   doneDir: String = getArgOrEnv(args, 2, "EIDOS_DONE_DIR")
+    val   threads: Int    = getArgOrEnv(args, 3, "EIDOS_THREADS").toInt
 
     FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
-
     loop {
       () => new EidosLoopApp(inputDir, outputDir, doneDir, threads).thread
     }

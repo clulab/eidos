@@ -37,13 +37,15 @@ object FileUtils {
 
   def findFiles(collectionDir: String, extension: String): Seq[File] = {
     val dir = new File(collectionDir)
-    val filter = new FilenameFilter {
-      def accept(dir: File, name: String): Boolean = name.endsWith(extension)
+    val fileFilter = new FileFilter {
+      override def accept(file: File): Boolean = {
+        file.isFile && file.getCanonicalPath.endsWith(extension)
+      }
     }
-
-    val result = Option(dir.listFiles(filter))
+    val files = Option(dir.listFiles(fileFilter))
       .getOrElse(throw Sourcer.newFileNotFoundException(collectionDir))
-    result
+
+    files
   }
 
   def getCommentedLinesFromSource(source: Source): Iterator[String] =

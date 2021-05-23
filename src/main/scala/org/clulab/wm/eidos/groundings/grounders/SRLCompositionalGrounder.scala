@@ -106,25 +106,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       Seq(newOntologyGrounding())
     else {
       // or else ground them.
-      val reParsed = proc.annotate(mention.odinMention.sentenceObj.getSentenceText)
-      // The same tokenizer should get the same number of sentences.
-      val oldSentenceLength = 1
-      val newSentenceLength = reParsed.sentences.length
-
-      if (oldSentenceLength == newSentenceLength) {
-        val oldWordsLength = mention.odinMention.sentenceObj.words.length
-        val newWordsLength = reParsed.sentences.head.words.length
-
-        // The same number of words should also be found.  If not, then the token indexes of the one tokenization
-        // will not align with the other tokenization and all further bets are off.  In the worst case, there will
-        // be a bounds error on an index and an exception.
-        if (oldWordsLength == newWordsLength)
-          groundSentenceSpan(reParsed.sentences.head, mention.odinMention.start, mention.odinMention.end, attachmentStrings(mention.odinMention), topN, threshold)
-        else
-          Seq.empty
-      }
-      else
-        Seq.empty
+      groundSentenceSpan(
+        mention.odinMention.sentenceObj,
+        mention.odinMention.start,
+        mention.odinMention.end,
+        attachmentStrings(mention.odinMention),
+        topN,
+        threshold
+      )
     }
   }
 
