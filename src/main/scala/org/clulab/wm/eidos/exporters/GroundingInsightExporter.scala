@@ -38,23 +38,36 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem) extends Ex
     FileUtils.printWriterFromFile(filename + ".insight.txt").autoClose { pw =>
 
       val doc = annotatedDocument.document
+//      println("DOC SENTENCES")
+//      for (i <- doc.sentences) {
+//        println("\t" + i + "\t" + i.getSentenceText)
+//      }
       val mentionsPerSentence = annotatedDocument.eidosMentions.groupBy(_.odinMention.sentence)
-      for ((clusent, i) <- doc.sentences.zipWithIndex) {
+//      println("\nMentionsPerSentence:")
+      val sentIDs = mentionsPerSentence.keys.toSeq.sorted
+//      for (m <- mentionsPerSentence) {
+//        println("START GROUP "+m._1)
+//        for (x <- m._2) {
+//          println("\t"+x.canonicalName)
+//        }
+//      }
+      for (i <- sentIDs) {
         pw.println("********************************************\n")
-        pw.println(s"Sentence $i: ${clusent.getSentenceText}.\n\n")
-        pw.println("SRLS:")
-        pw.println(clusent.enhancedSemanticRoles.getOrElse(None))
-        pw.println("DEPS:")
-        pw.println(clusent.dependencies.get)
+        pw.println(s"Sentence $i:\t${doc.sentences(i).getSentenceText.strip()}\n\n")
+        pw.println("SRLs:")
+        pw.println(doc.sentences(i).enhancedSemanticRoles.getOrElse(None))
+        pw.println("\nDEPs:")
+        pw.println(doc.sentences(i).dependencies.get)
+//        println("KEY?:\t"+i)
         val mentions = mentionsPerSentence(i)
 
         mentions.filter(_.odinMention matches "Causal").foreach { em =>
           val cause = em.eidosArguments("cause").headOption.getOrElse(throw new RuntimeException("no cause!"))
-          pw.println("\n CAUSE:\n")
+          pw.println("\nCAUSE:\n")
           pw.println(mentionGroundingInfo(cause))
 
           val effect = em.eidosArguments("effect").headOption.getOrElse(throw new RuntimeException("no effect!"))
-          pw.println("\n EFFECT:\n")
+          pw.println("\nEFFECT:\n")
           pw.println(mentionGroundingInfo(effect))
 
         }
@@ -82,11 +95,11 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem) extends Ex
   }
 
   def groundingInfo(grounding: IndividualGrounding, canonical: String): String = {
-    val node = nodes(grounding.name)
     val lines = new ArrayBuffer[String]
 
     grounding match {
       case single: SingleOntologyNodeGrounding =>
+        val node = nodes(grounding.name)
         lines.append("--------GROUNDING INFO----------")
         lines.append(s"  NODE: ${single.name}")
         lines.append("")
@@ -108,7 +121,7 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem) extends Ex
       case comp: PredicateGrounding =>
         val tuple = comp.predicateTuple
         // theme
-        lines.append("===== Theme =====")
+        lines.append("\n===== Theme =====")
         lines.appendAll(groundingInfo(tuple.theme, canonical))
         // theme_properties
         lines.append("===== Theme Properties =====")
