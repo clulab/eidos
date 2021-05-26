@@ -164,7 +164,8 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem) extends Ex
 
     lines.append(s"       num examples: ${scoredExamples.length}")
     lines.append(s"       examples with top score:")
-    topk.map(t => s"          --> ${t._1}\t(${t._2})")
+    val topKLines = topk.map(t => s"          --> ${t._1}\t(${t._2})")
+    lines.appendAll(topKLines)
     lines.append(s"       max match: ${bestMatch._1} (${bestMatch._2})")
     lines.append(s"       min match: ${worstMatch._1} (${worstMatch._2})")
     lines.append(s"       avg match: ${avg})")
