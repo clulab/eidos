@@ -24,7 +24,7 @@ import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntolog
 object DomainHandler extends Logging {
 
   // The intention is to stop the proliferation of the generated Version class to this single method.
-  protected def getVersionOpt(ontologyPath: String): (Option[String], Option[ZonedDateTime]) = {
+  def getVersionOpt(ontologyPath: String): (Option[String], Option[ZonedDateTime]) = {
     // This should work for local ontologies.  Absolute
     val goodVersionOpt = Versions.versions.get(MockVersions.codeDir + ontologyPath)
     // See what might have come from WordModelers/Ontologies
