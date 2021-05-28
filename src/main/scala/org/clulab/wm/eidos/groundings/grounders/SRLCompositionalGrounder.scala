@@ -64,6 +64,13 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
   }
 
+  def ensureSRLs(s: Sentence): Sentence = {
+    if (s.enhancedSemanticRoles.isDefined) return s
+    // otherwise, reparse
+    val newDoc = proc.annotateFromSentences(Seq(s.getSentenceText))
+    newDoc.sentences.head
+  }
+
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
     branches.exists(_.namer.name == s)
 
@@ -106,8 +113,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       Seq(newOntologyGrounding())
     else {
       // or else ground them.
+      val sentenceObj = ensureSRLs(mention.odinMention.sentenceObj)
       groundSentenceSpan(
-        mention.odinMention.sentenceObj,
+        sentenceObj,
         mention.odinMention.start,
         mention.odinMention.end,
         attachmentStrings(mention.odinMention),
