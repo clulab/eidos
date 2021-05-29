@@ -9,19 +9,16 @@ object DiffDirs extends App {
   val outputExt = "jsonld"
 
   val inputFiles = FileUtils.findFiles(inputDir, inputExt)
-  val outputFiles = FileUtils.findFiles(inputDir, outputExt)
+  val outputFiles = FileUtils.findFiles(outputDir, outputExt)
 
-  val inputMap = inputFiles.map { file => (StringUtils.beforeLast(file.getName, '.', true)) -> file }.toMap
-  val outputMap = outputFiles.map { file => (StringUtils.beforeLast(file.getName, '.', true)) -> file }.toMap
+  val inputSet = inputFiles.map { file => (StringUtils.beforeLast(file.getName, '.', true)) }.toSet
+  val outputSet = outputFiles.map { file => (StringUtils.beforeLast(file.getName, '.', true)) }.toSet
 
-  assert(inputMap.size == inputFiles.length)
-  assert(outputMap.size == outputFiles.length)
+  assert(inputSet.size == inputFiles.length)
+  assert(outputSet.size == outputFiles.length)
 
-  val inputSet = inputMap.keySet
-  val outputSet = outputMap.keySet
-
-  val onlyInput = inputSet.diff(outputSet)
-  val onlyOutput = outputSet.diff(inputSet)
+  val onlyInput = inputSet.diff(outputSet).toSeq.sorted
+  val onlyOutput = outputSet.diff(inputSet).toSeq.sorted
 
   println("OnlyInput:")
   onlyInput.foreach(println)
