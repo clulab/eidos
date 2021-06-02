@@ -1,7 +1,12 @@
 import ReleaseTransformations._
 import org.clulab.sbt.BuildUtils
 
-ThisBuild / credentials += Credentials(Path.userHome / ".sbt" / ".clulab-credentials")
+ThisBuild / credentials ++= {
+  val file = Path.userHome / ".sbt" / ".clulab-credentials"
+
+  if (file.exists) Seq(Credentials(file))
+  else Seq.empty
+}
 
 releaseProcess :=
     Seq[ReleaseStep](
