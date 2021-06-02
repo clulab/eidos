@@ -64,6 +64,19 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
   }
 
+  // If we are "regrounding" from documents that were saved as jsonld and deserialized,
+  // then the sentence has the wrong kind of graph and the right kind must be recalculated.
+  // TODO: rectify this situation.
+  def ensureSRLs(sentence: Sentence): Sentence = {
+    if (sentence.enhancedSemanticRoles.isDefined)
+      sentence
+    else {
+      SRLCompositionalGrounder.logger.warn("A graph is being recalculated in order to reground a sentence.")
+      val document = proc.annotateFromSentences(Seq(sentence.getSentenceText))
+      document.sentences.head
+    }
+  }
+
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
     branches.exists(_.namer.name == s)
 
@@ -106,8 +119,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       Seq(newOntologyGrounding())
     else {
       // or else ground them.
+      val sentenceObj = ensureSRLs(mention.odinMention.sentenceObj)
       groundSentenceSpan(
-        mention.odinMention.sentenceObj,
+        sentenceObj,
         mention.odinMention.start,
         mention.odinMention.end,
         attachmentStrings(mention.odinMention),
