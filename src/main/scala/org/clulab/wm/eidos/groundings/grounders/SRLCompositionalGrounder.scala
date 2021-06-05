@@ -196,7 +196,15 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     else {
       // If the predicate was a property, it is "demoted" to a process property
       if (theme.nonEmpty) {
-        packagePredicate(theme.get, attachedProperties ++ Seq(propertyOpt.get), s, topN, threshold, predicatesCovered ++ Set(pred, theme.get))
+        // if both the theme and the now demoted process are properties, it will bounce back and forth.
+        if (predicatesCovered.contains(pred)) {
+          // If there's a theme, it occupies the theme position in the tuple,
+          // the predicate which was a property is not the property of the theme
+          val (groundedTheme, _) = tupelize(theme.get, s, topN, threshold)
+          PredicateTuple(groundedTheme, propertyOpt.get, newOntologyGrounding(), newOntologyGrounding(), predicatesCovered ++ Set(pred, theme.get))
+        } else {
+          packagePredicate(theme.get, attachedProperties ++ Seq(propertyOpt.get), s, topN, threshold, predicatesCovered ++ Set(pred, theme.get))
+        }
       } else {
         // property and no theme -- promote the property
         PredicateTuple(propertyOpt.get, newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), predicatesCovered++ Set(pred))
