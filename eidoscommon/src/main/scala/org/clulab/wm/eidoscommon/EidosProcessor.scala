@@ -322,8 +322,11 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     // split() looks only at the word, not the token, so it is safe to have
     // rewritten the tokens at this point.
     val sentences = sentenceSplitter.split(tokens, sentenceSplit)
-    // The second change is to filter by sentence length.
-    val shortSentences = sentences.filter { sentence => sentence.words.length < cutoff }
+    val shortSentences = sentences
+      // The second change is to filter by sentence length.
+      .filter { sentence => sentence.words.length < cutoff }
+      // This is to filter out tables mis-parsed as text.
+      .filter { sentence => notTable(sentence) }
     val skipLength = sentences.length - shortSentences.length
 
     if (skipLength > 0)
@@ -338,6 +341,14 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
 
     sentences
   }
+
+  private def notTable(sentence: Sentence): Boolean = {
+    def hasAlpha(s: String): Boolean = s.exists(char => char.isLetter)
+    val numNonAlpha = sentence.words.filterNot(hasAlpha).length
+    val numSingleChar = sentence.words.count(_.length == 1)
+    numNonAlpha < 10 && numSingleChar <= 5
+  }
+
 }
 
 object EidosTokenizer {
