@@ -325,8 +325,8 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     val shortSentences = sentences
       // The second change is to filter by sentence length.
       .filter { sentence => sentence.words.length < cutoff }
-      // This is to filter out tables mis-parsed as text.
-      .filter { sentence => notTable(sentence) }
+      // This is to filter out tables/graphs/etc mis-parsed as text.
+      .filter { sentence => notFubar(sentence) }
     val skipLength = sentences.length - shortSentences.length
 
     if (skipLength > 0)
@@ -342,9 +342,9 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     sentences
   }
 
-  // Determines if the sentence is likely a misparsed table, either because it has too many
+  // Determines if the sentence is likely a misparsed table or graph etc., either because it has too many
   // numbers in it or if there are several single character words.
-  private def notTable(sentence: Sentence): Boolean = {
+  private def notFubar(sentence: Sentence): Boolean = {
     def hasAlpha(s: String): Boolean = s.exists(char => char.isLetter)
     val numNonAlpha = sentence.words.filterNot(hasAlpha).length
     val numSingleChar = sentence.words.count(_.length == 1)
