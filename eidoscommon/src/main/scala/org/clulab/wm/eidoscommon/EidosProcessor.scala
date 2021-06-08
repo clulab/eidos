@@ -342,6 +342,8 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     sentences
   }
 
+  // Determines if the sentence is likely a misparsed table, either because it has too many
+  // numbers in it or if there are several single character words.
   private def notTable(sentence: Sentence): Boolean = {
     def hasAlpha(s: String): Boolean = s.exists(char => char.isLetter)
     val numNonAlpha = sentence.words.filterNot(hasAlpha).length
