@@ -322,16 +322,16 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     // split() looks only at the word, not the token, so it is safe to have
     // rewritten the tokens at this point.
     val sentences = sentenceSplitter.split(tokens, sentenceSplit)
-    val shortSentences = sentences
+    val reasonableSentences = sentences
       // The second change is to filter by sentence length.
       .filter { sentence => sentence.words.length < cutoff }
       // This is to filter out tables/graphs/etc mis-parsed as text.
-      .filter { sentence => notFubar(sentence) }
-    val skipLength = sentences.length - shortSentences.length
+      .filterNot { sentence => isFubar(sentence) }
+    val skipLength = sentences.length - reasonableSentences.length
 
     if (skipLength > 0)
       EidosProcessor.logger.info(s"skipping $skipLength sentences")
-    shortSentences
+    reasonableSentences
   }
 
   // This is a bit misnamed, but we are overriding a processors method here.
@@ -344,13 +344,17 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
 
   // Determines if the sentence is likely a misparsed table or graph etc., either because it has too many
   // numbers in it or if there are several single character words.
-  private def notFubar(sentence: Sentence): Boolean = {
-    def hasAlpha(s: String): Boolean = s.exists(char => char.isLetter)
-    val numNonAlpha = sentence.words.filterNot(hasAlpha).length
-    val numSingleChar = sentence.words.count(_.length == 1)
-    numNonAlpha < 10 && numSingleChar <= 5
-  }
+  private def isFubar(sentence: Sentence): Boolean = {
+    def hasAlpha(s: String): Boolean = s.exists(_.isLetter)
+    // This lazy is an experiment related to the short-circuit ||.  Why calculate if it won't make a difference?
+    lazy val numNonAlpha = sentence.words.count(!hasAlpha(_))
+    lazy val numSingleChar = sentence.words.count(_.length == 1)
+    val fubar = false ||
+        numNonAlpha >= EidosProcessor.MAX_NON_ALPHA ||
+        numSingleChar > EidosProcessor.MAX_SINGLE_CHAR
 
+    fubar
+  }
 }
 
 object EidosTokenizer {
@@ -366,8 +370,11 @@ trait Tokenizing {
 }
 
 object EidosProcessor extends Logging {
+  val DEFAULT_CUTOFF = 200
+  val MAX_NON_ALPHA = 10
+  val MAX_SINGLE_CHAR = 5
 
-  def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
+  def apply(language: String, cutoff: Int = DEFAULT_CUTOFF): EidosProcessor = language match {
     case Language.ENGLISH =>
       new EidosEnglishProcessor(language, cutoff)
     case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
