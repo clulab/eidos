@@ -348,10 +348,10 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     def hasAlpha(s: String): Boolean = s.exists(_.isLetter)
     // This lazy is an experiment related to the short-circuit ||.  Why calculate if it won't make a difference?
     lazy val numNonAlpha = sentence.words.count(!hasAlpha(_))
-    lazy val numSingleChar = sentence.words.count(_.length == 1)
+    lazy val numSingleAlpha = sentence.words.count { word => word.length == 1 && word.head.isLetter }
     val fubar = false ||
         numNonAlpha >= EidosProcessor.MAX_NON_ALPHA ||
-        numSingleChar > EidosProcessor.MAX_SINGLE_CHAR
+        numSingleAlpha > EidosProcessor.MAX_SINGLE_ALPHA
 
     fubar
   }
@@ -372,7 +372,7 @@ trait Tokenizing {
 object EidosProcessor extends Logging {
   val DEFAULT_CUTOFF = 200
   val MAX_NON_ALPHA = 10
-  val MAX_SINGLE_CHAR = 5
+  val MAX_SINGLE_ALPHA = 5
 
   def apply(language: String, cutoff: Int = DEFAULT_CUTOFF): EidosProcessor = language match {
     case Language.ENGLISH =>
