@@ -43,11 +43,40 @@ trait LanguageSpecific {
   def getTagSet: TagSet
 }
 
+class FubarDetector {
+
+  def isFubar(sentence: Sentence): Boolean = false
+}
+
+class EnglishFubarDetector extends FubarDetector {
+
+  protected def isSingleAlphaNonword(word: String): Boolean = {
+    word.length == 1 &&
+        word.head.isLetter &&
+        !EnglishFubarDetector.SHORT_WORDS.contains(word)
+  }
+
+  // Determines if the sentence is likely a misparsed table or graph etc., possibly because
+  // of PDF to text errors.
+  override def isFubar(sentence: Sentence): Boolean = {
+    val numSingleAlphaNonwords = sentence.words.count(isSingleAlphaNonword)
+    val fubar = numSingleAlphaNonwords > EnglishFubarDetector.MAX_SINGLE_ALPHA_NONWORDS
+
+    fubar
+  }
+}
+
+object EnglishFubarDetector {
+  val MAX_SINGLE_ALPHA_NONWORDS = 10
+  // There can be problems with outlines and short itemized lists.
+  val SHORT_WORDS = List("I", "a", "A") // "A" could begin a sentence.
+}
+
 class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
     with EidosProcessor {
 
   initializeDyNet()
-  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff, new EnglishFubarDetector())
   override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new EnglishTagSet()
 
@@ -190,7 +219,7 @@ object ParagraphSplitter {
   //val eopPattern: Pattern = """^(\.?)([ \t\x0B\f\r]*)\n([ \t\x0B\f\r]*)\n(\s*)$""".r.pattern // End of paragraph
 }
 
-class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
+class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int, fubarDetector: FubarDetector = new FubarDetector()) extends Tokenizer(
   tokenizer.lexer, tokenizer.steps, tokenizer.sentenceSplitter
 ) {
   val paragraphSplitter = new ParagraphSplitter()
@@ -326,7 +355,7 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
       // The second change is to filter by sentence length.
       .filter { sentence => sentence.words.length < cutoff }
       // This is to filter out tables/graphs/etc mis-parsed as text.
-      .filterNot { sentence => isFubar(sentence) }
+      .filterNot { sentence => fubarDetector.isFubar(sentence) }
     val skipLength = sentences.length - reasonableSentences.length
 
     if (skipLength > 0)
@@ -340,21 +369,6 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     val sentences = ensentence(tokens, sentenceSplit)
 
     sentences
-  }
-
-  // Determines if the sentence is likely a misparsed table or graph etc., either because it has too many
-  // numbers in it or if there are several single character words.
-  private def isFubar(sentence: Sentence): Boolean = {
-    def hasAlpha(s: String): Boolean = s.exists(_.isLetter)
-    // This lazy is an experiment related to the short-circuit ||.  Why calculate if it won't make a difference?
-    val numNonAlpha = sentence.words.count(!hasAlpha(_))
-    val numSingleAlpha = sentence.words.count { word => word.length == 1 && word.head.isLetter }
-    println(s"Fubar:\tnumNonAlpha=$numNonAlpha\tnumSingleAlpha=$numSingleAlpha")
-    val fubar = false ||
-        numNonAlpha >= EidosProcessor.MAX_NON_ALPHA ||
-        numSingleAlpha > EidosProcessor.MAX_SINGLE_ALPHA
-
-    fubar
   }
 }
 
@@ -372,8 +386,6 @@ trait Tokenizing {
 
 object EidosProcessor extends Logging {
   val DEFAULT_CUTOFF = 200
-  val MAX_NON_ALPHA = 10
-  val MAX_SINGLE_ALPHA = 5
 
   def apply(language: String, cutoff: Int = DEFAULT_CUTOFF): EidosProcessor = language match {
     case Language.ENGLISH =>
