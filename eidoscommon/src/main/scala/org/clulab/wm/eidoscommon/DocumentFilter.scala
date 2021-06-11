@@ -47,7 +47,7 @@ class FilterByLength(processor: Processor, cutoff: Int = 200) extends DocumentFi
     val sanitizedText = sanitizeText(doc)
     val kept = doc.sentences.filter(s => s.words.length < cutoff)
     val skipped = doc.sentences.length - kept.length
-    val newDoc = Document(doc.id, kept, doc.coreferenceChains, doc.discourseTree, sanitizedText)
+    val newDoc = Document(doc.id, kept, doc.coreferenceChains, sanitizedText)
     val newerDoc = // This is a hack for lack of copy constructor for CoreNLPDocument
       if (doc.isInstanceOf[CoreNLPDocument])
         ShallowNLPProcessor.cluDocToCoreDoc(newDoc, keepText = true)

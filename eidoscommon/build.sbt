@@ -10,12 +10,11 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   // Versions were last checked 2021 Mar 12.
-  val procVer = "8.3.4"
+  val procVer = "8.4.0-SNAPSHOT"
 
   Seq(
     "org.clulab"                 %% "processors-corenlp"       % procVer,       // up to 8.3.0
     "org.clulab"                 %% "processors-main"          % procVer,       // up to 8.3.0
-    "org.clulab"                 %% "processors-odin"          % procVer,       // up to 8.3.0
     // local logging
     "ch.qos.logback"              % "logback-classic"          % "1.0.10",      // up to 1.2.
     "com.typesafe.scala-logging" %% "scala-logging"            % "3.7.2",       // up to 3.9.2
