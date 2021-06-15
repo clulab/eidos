@@ -202,14 +202,16 @@ class JLDDeserializer {
     new IdAndWordSpec(wordId, wordData)
   }
 
-  def deserializeDependency(dependencyValue: JValue, wordMap: Map[String, Int]): Edge[String] = {
+  def deserializeDependency(dependencyValue: JValue, wordMap: Map[String, Int]): (String, Edge[String]) = {
     requireType(dependencyValue, JLDDependency.typename)
+    // If no type is found, assume it is this one.  Earlier it was the only one and therefore implied.
+    val typ = (dependencyValue \ "type").extractOpt[String].getOrElse(GraphMap.UNIVERSAL_ENHANCED)
     val source = getId(dependencyValue \ "source")
     val destination = getId(dependencyValue \ "destination")
     val relation = (dependencyValue \ "relation").extract[String]
     val edge: Edge[String] = Edge(wordMap(source), wordMap(destination), relation)
 
-    edge
+    typ -> edge
   }
 
   protected def mkRaw(idsAndWordSpecs: Array[IdAndWordSpec], documentText: Option[String]): Array[String] = {
@@ -238,15 +240,19 @@ class JLDDeserializer {
       // This doesn't work if there are double spaces in the text.  Too many elements will be made.
       // val raw: Array[String] = (sentenceValue \ "text").extract[String].split(' ')
       val graphMap = (sentenceValue \ "dependencies").extractOpt[JArray].map { dependenciesValue =>
-        val dependencies = dependenciesValue.arr.map { dependencyValue: JValue =>
+        val typesAndDependencies = dependenciesValue.arr.map { dependencyValue: JValue =>
           deserializeDependency(dependencyValue, wordMap)
         }
-        val sourceRoots = dependencies.map(_.source).toSet
-        val destinationRoots = dependencies.map(_.destination).toSet
-        val roots = sourceRoots ++ destinationRoots
-        val graph = DirectedGraph[String](dependencies, roots)
+        val typeMap = typesAndDependencies.groupBy(_._1).mapValues(_.map(_._2))
+        val graphs = typeMap.map { case (key, dependencies) =>
+          val sourceRoots = dependencies.map(_.source).toSet
+          val destinationRoots = dependencies.map(_.destination).toSet
+          val roots = sourceRoots ++ destinationRoots
+          val graph = DirectedGraph[String](dependencies, roots)
 
-        GraphMap(Map(GraphMap.UNIVERSAL_ENHANCED -> graph))
+          key -> graph
+        }
+        GraphMap(graphs)
       }.getOrElse(new GraphMap)
 
       val idsAndTimexes = (sentenceValue \ "timexes").extractOpt[JArray].map { jArray =>
