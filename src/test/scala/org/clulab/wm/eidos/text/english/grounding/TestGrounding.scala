@@ -142,19 +142,13 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/property/supply"
-        ) should be(true)
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/supply")
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate"
-        ) should be(true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate")
       }
     }
   }
@@ -170,19 +164,13 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/property/price"
-        ) should be(true)
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/price")
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility"
-        ) should be(true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
       }
     }
   }
@@ -198,22 +186,14 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/property/price"
-        ) should be(true)
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/process/transportation/transportation"
-        ) should be(true)
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/concept/causal_factor/infrastructure/water"
-        ) should be(true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/property/price")
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/transportation/transportation")
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/infrastructure/water")
       }
     }
   }
@@ -229,19 +209,13 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/property/supply"
-        ) should be(true)
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/concept/causal_factor/social_and_political/education/educational_materials"
-        ) should be(true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/property/supply")
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/education/educational_materials")
       }
     }
   }
@@ -257,19 +231,13 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/concept/causal_factor/social_and_political/humanitarian/food"
-        ) should be(true)
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/property/security"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/humanitarian/food")
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/security")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/process/migration/emigration"
-        ) should be(true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/migration/emigration")
       }
     }
   }
@@ -285,41 +253,27 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause1 correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/property/insecurity"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/insecurity")
       }
     }
     passingTest should "process \"" + text + "\" cause2 correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions(1)).contains(
-          "wm_compositional/property/supply"
-        ) should be(true)
-        tester.allGroundingNames(causeMentions(1)).contains(
-          "wm_compositional/concept/causal_factor/social_and_political/humanitarian/food"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions(1)) should contain("wm_compositional/property/supply")
+        tester.allGroundingNames(causeMentions(1)) should contain("wm_compositional/concept/causal_factor/social_and_political/humanitarian/food")
       }
     }
     passingTest should "process \"" + text + "\" cause3 correctly" taggedAs Somebody in {
       if (tester.active) {
         // FIXME:  'access' not grounding properly; the others work fine
         // TODO: It seems like the second one is the problem.  It has been commented out for regression testing.
-        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)).contains(
-          "wm_compositional/process/access/access"
-        ) should be(true)
-//        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)).contains(
-//          "wm_compositional/concept/causal_factor/health_and_life/treatment/health_treatment"
-//        ) should be(true)
-        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)).contains(
-          "wm_compositional/concept/causal_factor/social_and_political/education/education"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)) should contain("wm_compositional/process/access/access")
+//        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)) should contain("wm_compositional/concept/causal_factor/health_and_life/treatment/health_treatment")
+        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)) should contain("wm_compositional/concept/causal_factor/social_and_political/education/education")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/process/migration/migration"
-        ) should be(true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/migration/migration")
       }
     }
   }
@@ -335,21 +289,13 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/process/access/access"
-        ) should be(true)
-      }
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/concept/causal_factor/agriculture/crop"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/process/access/access")
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/agriculture/crop")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/process/migration/migration"
-        ) should be(true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/migration/migration")
       }
     }
   }
@@ -365,21 +311,13 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/process/access/shortage"
-        ) should be(true)
-      }
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/concept/causal_factor/agriculture/crop"
-        ) should be(true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/process/access/shortage")
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/agriculture/crop")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/process/migration/migration"
-        ) should be(true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/migration/migration")
       }
     }
   }
@@ -395,62 +333,42 @@ class TestGrounding extends EnglishTest {
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/property/price"
-        ) should be (true)
-      }
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head).contains(
-          "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels"
-        ) should be (true)
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/price")
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/property/price"
-        ) should be(true)
-      }
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/process/transportation/transportation"
-        ) should be(true)
-      }
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head).contains(
-          "wm_compositional/concept/causal_factor/infrastructure/water"
-        ) should be (true)
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/property/price")
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/transportation/transportation")
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/infrastructure/water")
       }
     }
   }
 
 
-///// template for compositional grounder tests
-///// add test name, sentence text, and token intervals for cause and effect mentions
-///// if you have multiple causes/effects, see "Grounding 6" test for how to include them
+// template for compositional grounder tests
+// add test name, sentence text, and token intervals for cause and effect mentions
+// if you have multiple causes/effects, see "Grounding 6" test for how to include them
+/*
+  {
+    behavior of "test name"
 
-//  {
-//    behavior of "test name"
-//
-//    val text = "Sentence goes here"
-//    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,1)), Seq(Interval(1,2)))
-//    val causeMentions = eidosMentions._1
-//    val effectMentions = eidosMentions._2
-//
-//    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-//      if (active) {
-//        tester.allGroundingNames(causeMentions.head).contains(
-//          "wm_compositional/???"
-//        ) should be (true)
-//      }
-//    }
-//    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-//      if (active) {
-//        tester.allGroundingNames(effectMentions.head).contains(
-//          "wm_compositional/???"
-//        ) should be (true)
-//      }
-//    }
-//  }
+    val text = "Sentence goes here"
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,1)), Seq(Interval(1,2)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
 
+    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
+      if (tester.active) {
+        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/???")
+      }
+    }
+    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
+      if (tester.active) {
+        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/???")
+      }
+    }
+  }
+*/
 }
