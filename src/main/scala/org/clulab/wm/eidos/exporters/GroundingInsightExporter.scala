@@ -38,27 +38,18 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem) extends Ex
     FileUtils.printWriterFromFile(filename + ".insight.txt").autoClose { pw =>
 
       val doc = annotatedDocument.document
-//      println("DOC SENTENCES")
-//      for (i <- doc.sentences) {
-//        println("\t" + i + "\t" + i.getSentenceText)
-//      }
+
       val mentionsPerSentence = annotatedDocument.eidosMentions.groupBy(_.odinMention.sentence)
-//      println("\nMentionsPerSentence:")
+
       val sentIDs = mentionsPerSentence.keys.toSeq.sorted
-//      for (m <- mentionsPerSentence) {
-//        println("START GROUP "+m._1)
-//        for (x <- m._2) {
-//          println("\t"+x.canonicalName)
-//        }
-//      }
+
       for (i <- sentIDs) {
         pw.println("********************************************\n")
-        pw.println(s"Sentence $i:\t${doc.sentences(i).getSentenceText.strip()}\n\n")
+        pw.println(s"Sentence $i:\t${doc.sentences(i).getSentenceText.trim()}\n\n")
         pw.println("SRLs:")
         pw.println(doc.sentences(i).enhancedSemanticRoles.getOrElse(None))
         pw.println("\nDEPs:")
         pw.println(doc.sentences(i).dependencies.get)
-//        println("KEY?:\t"+i)
         val mentions = mentionsPerSentence(i)
 
         mentions.filter(_.odinMention matches "Causal").foreach { em =>
