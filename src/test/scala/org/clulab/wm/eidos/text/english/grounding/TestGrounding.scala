@@ -26,6 +26,13 @@ class TestGrounding extends EnglishTest {
         (Seq[EidosMention], Seq[EidosMention])
 
     def allGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[String]
+
+    def groundingShouldContain(mention: EidosMention, value: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+      if (active) {
+        val groundingNames = allGroundingNames(mention, topN, threshold)
+        groundingNames should contain(value)
+      }
+    }
   }
 
   object CompositionalGroundingTextTester {
@@ -141,15 +148,11 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/supply")
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
-      }
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/property/supply")
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/concept/causal_factor/social_and_political/security/conflict/demonstrate")
     }
   }
 
@@ -163,15 +166,11 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/price")
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
-      }
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/property/price")
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
     }
   }
 
@@ -185,16 +184,12 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
-      }
+      tester.groundingShouldContain(causeMentions.head,"wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/property/price")
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/transportation/transportation")
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/infrastructure/water")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/property/price")
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/process/transportation/transportation")
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/concept/causal_factor/infrastructure/water")
     }
   }
 
@@ -208,15 +203,11 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
-      }
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/concept/causal_factor/social_and_political/security/conflict/hostility")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/property/supply")
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/education/educational_materials")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/property/supply")
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/concept/causal_factor/social_and_political/education/educational_materials")
     }
   }
 
@@ -230,15 +221,11 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/social_and_political/humanitarian/food")
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/security")
-      }
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/concept/causal_factor/social_and_political/humanitarian/food")
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/property/security")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/migration/emigration")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/process/migration/emigration")
     }
   }
 
@@ -252,29 +239,21 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause1 correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/insecurity")
-      }
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/property/insecurity")
     }
     passingTest should "process \"" + text + "\" cause2 correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions(1)) should contain("wm_compositional/property/supply")
-        tester.allGroundingNames(causeMentions(1)) should contain("wm_compositional/concept/causal_factor/social_and_political/humanitarian/food")
-      }
+      tester.groundingShouldContain(causeMentions(1), "wm_compositional/property/supply")
+      tester.groundingShouldContain(causeMentions(1), "wm_compositional/concept/causal_factor/social_and_political/humanitarian/food")
     }
     passingTest should "process \"" + text + "\" cause3 correctly" taggedAs Somebody in {
-      if (tester.active) {
-        // FIXME:  'access' not grounding properly; the others work fine
-        // TODO: It seems like the second one is the problem.  It has been commented out for regression testing.
-        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)) should contain("wm_compositional/process/access/access")
-//        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)) should contain("wm_compositional/concept/causal_factor/health_and_life/treatment/health_treatment")
-        tester.allGroundingNames(causeMentions(2), topN = Option(50), threshold = Option(0.0f)) should contain("wm_compositional/concept/causal_factor/social_and_political/education/education")
-      }
+      // FIXME:  'access' not grounding properly; the others work fine
+      // TODO: It seems like the second one is the problem.  It has been commented out for regression testing.
+      tester.groundingShouldContain(causeMentions(2), "wm_compositional/process/access/access", topN = Option(50), threshold = Option(0.0f))
+//      tester.groundingShouldContain(causeMentions(2), "wm_compositional/concept/causal_factor/health_and_life/treatment/health_treatment", topN = Option(50), threshold = Option(0.0f))
+      tester.groundingShouldContain(causeMentions(2), "wm_compositional/concept/causal_factor/social_and_political/education/education", topN = Option(50), threshold = Option(0.0f))
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/migration/migration")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/process/migration/migration")
     }
   }
 
@@ -288,15 +267,11 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/process/access/access")
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/agriculture/crop")
-      }
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/process/access/access")
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/concept/causal_factor/agriculture/crop")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/migration/migration")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/process/migration/migration")
     }
   }
 
@@ -310,15 +285,11 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/process/access/shortage")
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/agriculture/crop")
-      }
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/process/access/shortage")
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/concept/causal_factor/agriculture/crop")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/migration/migration")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/process/migration/migration")
     }
   }
 
@@ -332,17 +303,13 @@ class TestGrounding extends EnglishTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/property/price")
-        tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
-      }
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/property/price")
+      tester.groundingShouldContain(causeMentions.head, "wm_compositional/concept/causal_factor/environment/natural_resources/fossil_fuels")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/property/price")
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/process/transportation/transportation")
-        tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/concept/causal_factor/infrastructure/water")
-      }
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/property/price")
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/process/transportation/transportation")
+      tester.groundingShouldContain(effectMentions.head, "wm_compositional/concept/causal_factor/infrastructure/water")
     }
   }
 
@@ -362,11 +329,13 @@ class TestGrounding extends EnglishTest {
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
       if (tester.active) {
         tester.allGroundingNames(causeMentions.head) should contain("wm_compositional/???")
+        tester.groundingShouldContain(causeMentions.head, "wm_compositional/???")
       }
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       if (tester.active) {
         tester.allGroundingNames(effectMentions.head) should contain("wm_compositional/???")
+        tester.groundingShouldContain(effectMentions.head, "wm_compositional/???")
       }
     }
   }
