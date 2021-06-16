@@ -10,7 +10,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   // Versions were last checked 2021 Mar 12.
-  val procVer = "8.4.0-SNAPSHOT"
+  val procVer = "8.4.1"
 
   Seq(
     "org.clulab"                 %% "processors-corenlp"       % procVer,       // up to 8.3.0
