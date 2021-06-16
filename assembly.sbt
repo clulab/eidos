@@ -21,13 +21,5 @@ assembly / assemblyMergeStrategy := {
   // Otherwise just keep one copy if the contents are the same and complain if not.
   case _ => MergeStrategy.deduplicate
 }
-// This file comes from processors-main, but we're overriding it in eidos with the binary version.
-assembly / assemblyExcludedJars := {
-  val classpath = (assembly / fullClasspath).value
-  classpath.filter { attributedFile =>
-      println(attributedFile.data.getName)
-    attributedFile.data.getName == "glove-840b-300d-10f-1.0.0.jar"
-  }
-}
 // This prevents testing in core, then non-aggregation prevents it in other subprojects.
 assembly / test := {}
