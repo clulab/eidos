@@ -698,7 +698,7 @@ object JLDRelationCoreference {
   val taxonomy = "Coreference"
 }
 
-class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: Seq[JLDWord])
+class JLDDependency(serializer: JLDSerializer, key: String, edge: (Int, Int, String), words: Seq[JLDWord])
     extends JLDObject(serializer, JLDDependency.typename) {
 
   override def toJObject: TidyJObject = {
@@ -708,6 +708,7 @@ class JLDDependency(serializer: JLDSerializer, edge: (Int, Int, String), words: 
 
     TidyJObject(List(
       serializer.mkType(this),
+      "type" -> key,
       "source" -> serializer.mkRef(source),
       "destination" -> serializer.mkRef(destination),
       "relation" -> relation
@@ -727,7 +728,7 @@ class JLDGraphMapPair(serializer: JLDSerializer, key: String, directedGraph: Dir
   def toJObject: TidyJObject = TidyJObject()
 
   def toJValue: JValue = {
-    val jldEdges = directedGraph.allEdges.map(new JLDDependency(serializer, _, words).toJObject)
+    val jldEdges = directedGraph.allEdges.map(new JLDDependency(serializer, key, _, words).toJObject)
 
     new JArray(jldEdges)
   }
@@ -887,9 +888,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
   }
 
   override def toJObject: TidyJObject = {
-    val key = GraphMap.UNIVERSAL_ENHANCED
     val jldWords = sentence.words.indices.map(new JLDWord(serializer, document, sentence, _))
-    val dependencies = sentence.graphs.get(key)
 //    val sent_id = document.sentences.indexOf(sentence)
     val timexes: Seq[JObject] = timExs.map { timEx =>
       new JLDTimex(serializer, timEx).toJObject
@@ -897,8 +896,15 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
     val geoExps: Seq[JObject] = geoPhraseIDs.map { geoPhraseID =>
       new JLDGeoID(serializer, geoPhraseID).toJObject
     }
+    // All graphs are now output.
+    val keys = sentence.graphs.keys.toSeq.sorted
     // This is given access to the words because they are nicely in order and no searching need be done.
-    val jldGraphMapPair = dependencies.map(dependency => new JLDGraphMapPair(serializer, key, dependency, jldWords).toJValue)
+    val jldGraphMapPairs = keys.flatMap { key =>
+      val dependencies = sentence.graphs(key)
+      val arr = new JLDGraphMapPair(serializer, key, dependencies, jldWords).toJValue.asInstanceOf[JArray].arr
+
+      arr
+    }
     val rawTextOpt = document.text.map(_.substring(sentence.startOffsets.head, sentence.endOffsets.last))
 
     TidyJObject(List(
@@ -908,7 +914,7 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
       "rawText" -> rawTextOpt,
       "relevance" -> relevanceOpt,
       JLDWord.plural -> jldWords.map(_.toJObject),
-      JLDDependency.plural -> jldGraphMapPair,
+      JLDDependency.plural -> jldGraphMapPairs,
       JLDTimex.plural -> timexes,
       JLDGeoID.plural -> geoExps
     ))

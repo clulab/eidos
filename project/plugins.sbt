@@ -6,7 +6,8 @@ val playVersion = BuildUtils.sbtPluginVersion
 // Latest version numbers were updated on 2021 Mar 11.
 addSbtPlugin("com.eed3si9n"             % "sbt-assembly"         % "0.15.0")    // up to 0.15.0
 addSbtPlugin("com.eed3si9n"             % "sbt-buildinfo"        % "0.10.0")    // up to 0.10.0
-addSbtPlugin("net.virtual-void"         % "sbt-dependency-graph" % "0.9.2")     // up to 0.9.2 !
+addDependencyTreePlugin // Replace the following line with this update.
+// addSbtPlugin("net.virtual-void"         % "sbt-dependency-graph" % "0.9.2")     // up to 0.9.2 !
 addSbtPlugin("com.typesafe.sbt"         % "sbt-ghpages"          % "0.6.3")     // up to 0.6.3
 addSbtPlugin("com.typesafe.sbt"         % "sbt-git"              % "1.0.0")     // up to 1.0.0
 addSbtPlugin("com.typesafe.sbt"         % "sbt-native-packager"  % "1.7.6")     // up to 1.8.1
