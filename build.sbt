@@ -32,8 +32,8 @@ libraryDependencies ++= {
   Seq(
     // These two are not needed for the docker file if the cache is used.
     "org.clulab"                % "geonames"                % "1.0.0+20200518T005330Z.gadmworedas",
-    // Only one of the glove library is needed.
-    "org.clulab"               %% "glove-840b-300d-10f-bin" % "1.0.0", // abridged, binary, quick loading if compatible
+    // Eidos now reuses the glove vectors from processors, so none of these is needed.
+ // "org.clulab"               %% "glove-840b-300d-10f-bin" % "1.0.0", // abridged, binary, quick loading if compatible
  // "org.clulab"               %% "glove-840b-300d-10f"     % "1.0.0", // abridged, text, slower loading
  // "org.clulab"                % "glove-840b-300d"         % "0.1.0", // unabridged, text, slowest loading
     // The rest from org.clulab are always needed.
