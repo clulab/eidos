@@ -1,9 +1,8 @@
-package org.clulab.wm.eidos.groundings
+package org.clulab.wm.eidos.text.english.grounding
 
-import org.clulab.wm.eidos.test.EnglishGroundingTest
+import org.clulab.wm.eidos.test.EnglishTest
 
-
-class TestSRLGrounder extends EnglishGroundingTest {
+class TestSRLGrounder extends EnglishTest {
 
   behavior of "SRLCompositionalGrounder"
 
@@ -18,5 +17,4 @@ class TestSRLGrounder extends EnglishGroundingTest {
       gr.contains("Theme properties: wm/property/support")
     ) shouldBe (true)
   }
-
 }
