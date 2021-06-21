@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.text.english.grounding
+package org.clulab.wm.eidos.text.englishGrounding
 
 import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
@@ -6,12 +6,12 @@ import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding, PredicateGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.test.EnglishTest
+import org.clulab.wm.eidos.test.EnglishGroundingTest
 import org.clulab.wm.eidos.test.TestUtils._
 
 import scala.collection.Seq
 
-class TestGrounding extends EnglishTest {
+class TestGrounding extends EnglishGroundingTest {
   // Grounding needs to be activated in englishTest.conf for these tests to be active.
   // Update: Grounding is now activated in EnglishTests by default.
   // They are usually not because of the large vector file that is required for realistic tests.

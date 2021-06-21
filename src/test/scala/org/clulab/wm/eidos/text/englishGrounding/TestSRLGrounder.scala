@@ -1,8 +1,8 @@
-package org.clulab.wm.eidos.text.english.grounding
+package org.clulab.wm.eidos.text.englishGrounding
 
-import org.clulab.wm.eidos.test.EnglishTest
+import org.clulab.wm.eidos.test.EnglishGroundingTest
 
-class TestSRLGrounder extends EnglishTest {
+class TestSRLGrounder extends EnglishGroundingTest {
 
   behavior of "SRLCompositionalGrounder"
 

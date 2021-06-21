@@ -4,17 +4,21 @@ def groupByLanguage(tests: Seq[TestDefinition]) = {
   //def newRunPolicy = SubProcess(ForkOptions())
   def newRunPolicy = InProcess
 
-  val englishTests = tests.filter(_.name.contains(".text.english."))
-  val portugueseTests = tests.filter(_.name.contains(".text.portuguese."))
-  val languageNames = englishTests.map(_.name) ++ portugueseTests.map(_.name)
-  val otherTests = tests.filter(test => !languageNames.contains(test.name))
-  val allNames = otherTests.map(_.name) ++ languageNames
-//    val otherAndEnglishGroup = new Group("otherAndEnglish", otherTests ++ englishTests, newWubProcess) 
-  val englishGroup = new Group("english", englishTests, newRunPolicy)
-  val portugueseGroup = new Group("portuguese", portugueseTests, newRunPolicy)
-  val otherGroup = new Group("other", otherTests, newRunPolicy)
+  val groupedTestDefinitions: Map[String, Seq[TestDefinition]] = tests.groupBy { testDefinition =>
+    if (testDefinition.name.contains(".text.english."))
+      "englishGroup"
+    else if (testDefinition.name.contains(".text.englishGrounding."))
+      "englishGroundingGroup"
+    else if (testDefinition.name.contains(".text.portuguese."))
+      "portugueseGroup"
+    else
+      "other"
+  }
+  val groups: Seq[Group] = groupedTestDefinitions.toSeq.map { case (name, testDefinitions) =>
+    new Group(name, testDefinitions, newRunPolicy)
+  }
 
-  Seq(otherGroup, englishGroup, portugueseGroup)
+  groups
 }
 
 ThisBuild / Test / fork := true // also forces sequential operation
