@@ -1,18 +1,18 @@
 import Tests._
 
 def groupByLanguage(tests: Seq[TestDefinition]) = {
-  //def newRunPolicy = SubProcess(ForkOptions())
-  def newRunPolicy = InProcess
-
+//val newRunPolicy = SubProcess(ForkOptions())
+  val newRunPolicy = InProcess
+  val namesAndSubstrings = Seq(
+    ("englishGroup",          ".text.english."),
+    ("englishGroundingGroup", ".text.englishGrounding."),
+    ("portugueseGroup",       ".text.portuguese."),
+    ("other",                 "")
+  )
   val groupedTestDefinitions: Map[String, Seq[TestDefinition]] = tests.groupBy { testDefinition =>
-    if (testDefinition.name.contains(".text.english."))
-      "englishGroup"
-    else if (testDefinition.name.contains(".text.englishGrounding."))
-      "englishGroundingGroup"
-    else if (testDefinition.name.contains(".text.portuguese."))
-      "portugueseGroup"
-    else
-      "other"
+    namesAndSubstrings.find { case (_, substring) =>
+      testDefinition.name.contains(substring)
+    }.get._1 // Get the name of the Option[NameAndSubstring].
   }
   val groups: Seq[Group] = groupedTestDefinitions.toSeq.map { case (name, testDefinitions) =>
     new Group(name, testDefinitions, newRunPolicy)
