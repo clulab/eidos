@@ -60,7 +60,6 @@ class EnglishGroundingTest(ieSystem: EidosSystem, config: Config) extends Extrac
   def this(config: Config = ConfigFactory.load(EidosTest.groundingConfig)) = this(newEidosSystem(config), config)
 }
 
-
 class PortugueseTest(ieSystem: EidosSystem, config: Config) extends ExtractionTest(ieSystem, config) {
   def this(config: Config = ConfigFactory.load("portugueseTest")) = this(newEidosSystem(config), config)
 }

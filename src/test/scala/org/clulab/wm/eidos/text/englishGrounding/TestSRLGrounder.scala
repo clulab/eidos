@@ -1,7 +1,6 @@
-package org.clulab.wm.eidos.groundings
+package org.clulab.wm.eidos.text.englishGrounding
 
 import org.clulab.wm.eidos.test.EnglishGroundingTest
-
 
 class TestSRLGrounder extends EnglishGroundingTest {
 
@@ -18,5 +17,4 @@ class TestSRLGrounder extends EnglishGroundingTest {
       gr.contains("Theme properties: wm/property/support")
     ) shouldBe (true)
   }
-
 }
