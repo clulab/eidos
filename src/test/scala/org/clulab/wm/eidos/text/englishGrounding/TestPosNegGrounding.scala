@@ -1,12 +1,12 @@
-package org.clulab.wm.eidos.text.english.grounding
+package org.clulab.wm.eidos.text.englishGrounding
 
 import org.clulab.wm.eidos.groundings.ConceptEmbedding
 import org.clulab.wm.eidos.groundings.EidosWordToVec
 import org.clulab.wm.eidos.groundings.IndividualGrounding
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
-import org.clulab.wm.eidos.test.EnglishTest
+import org.clulab.wm.eidos.test.EnglishGroundingTest
 
-class TestPosNegGrounding extends EnglishTest {
+class TestPosNegGrounding extends EnglishGroundingTest {
 
   val ontologyHandlerOpt = ieSystem.components.ontologyHandlerOpt
   val posNegGrounderOpt = ontologyHandlerOpt
