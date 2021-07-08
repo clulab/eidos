@@ -238,7 +238,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   private def getThemes(predicate: Int, s: SentenceHelper, backoff: Boolean): Array[Int] = {
     val found = getArguments(predicate, SRLCompositionalGrounder.THEME_ROLE, s)
     if (found.isEmpty && backoff) {
-      //val other = getArguments(predicate, OTHER_ROLE, s).toSet
       // Handle "just in case" infinite loop -- seemed to happen earlier, but the algorithm was diff then...
       s.outgoingOfType(predicate, Seq("compound")).filterNot(_ == predicate)
     } else {
@@ -252,7 +251,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     s.srls.outgoingEdges(predicate)
       .filter(edge => edge._2 == role)
       .filter(edge => s.tokenInterval.contains(edge._1))
-//      .flatMap(handlePrepositions(_, s))
       .map(_._1)
   }
 
@@ -261,20 +259,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   // object(s) of the preposition, if any.
   private def handlePrepositions(step: (Int, String), s: SentenceHelper): Seq[(Int, String)] = {
     val (dst, role) = step
-//    println(s"Checking for preposition: ${s.words(dst)}")
     s.tokenOrObjOfPreposition(dst).map((_, role))
   }
 
   // Ground the chunk that the token is in, but in isolation from the rest of the sentence
   private def groundChunk(token: Int, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): GroundedSpan = {
-//    val chunkSpan = s.chunkIntervals.collect{ case c if c.contains(token) => c} match {
-//      case Seq() =>
-//        logger.warn(s"Token $token is not in a chunk.  chunks: ${s.chunks.mkString(", ")}")
-//        Interval(token, token + 1)  // if empty, backoff
-//      case Seq(chunk) => chunk      // one found, yay! We'll use it
-//      case chunks => throw new RuntimeException(s"Chunks have overlapped, there is a problem.  \n\ttoken: $token\n\tchunks: ${chunks.mkString(", ")}")
-//    }
-//    val trimmedChunk = s.chunkAvoidingSRLs(chunkSpan, token)
     val trimmedChunk = Interval(token, token+1)
     // First check to see if it's a property, if it is, ground as that
     val propertyOpt = maybeProperty(trimmedChunk, s)
