@@ -184,7 +184,12 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       if (theme.isDefined) {
         // If there's a theme, it occupies the theme position in the tuple
         val (groundedTheme, groundedThemeProps) = tupelize(theme.get, s, topN, threshold)
-        PredicateTuple(groundedTheme, groundedThemeProps, groundedPred.grounding, groundedAttachedProps, predicatesCovered ++ Set(pred, theme.get))
+        // disallow having the process and the theme be equal
+        if (groundedTheme.headName == groundedPred.grounding.headName) {
+          PredicateTuple(groundedTheme, groundedThemeProps, newOntologyGrounding(), newOntologyGrounding(), predicatesCovered ++ Set(pred, theme.get))
+        } else {
+          PredicateTuple(groundedTheme, groundedThemeProps, groundedPred.grounding, groundedAttachedProps, predicatesCovered ++ Set(pred, theme.get))
+        }
       } else {
         // Promote the predicate
         PredicateTuple(groundedPred.grounding, groundedAttachedProps, newOntologyGrounding(), newOntologyGrounding(), predicatesCovered ++ Set(pred))
