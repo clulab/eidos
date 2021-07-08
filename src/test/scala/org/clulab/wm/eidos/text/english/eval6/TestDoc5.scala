@@ -149,7 +149,7 @@ class TestDoc5 extends EnglishTest {
     val factors = NodeSpec("macroeconomic factors")
     val prices = NodeSpec("exorbitant staple food prices", Inc("exorbitant"))
     val revenue = NodeSpec("oil revenue", Dec("decline", "substantial"), TimEx("2014"))
-    val reserves = NodeSpec("both foreign currency reserves", Dec("drop", "sharp"))
+    val reserves = NodeSpec("foreign currency reserves", Dec("drop", "sharp"))
     val value = NodeSpec("value of the South Sudanese pound", Dec("drop", "sharp"), GeoLoc("South Sudanese"))
     val factors2 = NodeSpec("factors", GeoLoc("South Sudan"))
     val insecurity = NodeSpec("insecurity along key trade routes", GeoLoc("South Sudan"))

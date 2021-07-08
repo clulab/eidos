@@ -41,7 +41,7 @@ class TestCagP2 extends EnglishTest {
     val marketDisruption = NodeSpec("market disruption", Dec("disruption")) //newNodeSpec("market disruption")
     val economic = NodeSpec("economic downturn", Dec("downturn"))
     val cropFailure = NodeSpec("localized crop failures", Dec("failures"))
-    val foodPrices = NodeSpec("record high food prices", Inc("high"), Quant("high", "record"))
+    val foodPrices = NodeSpec("record high food prices", Inc("high"), Quant("high", "record"))// Prop("prices)) //TODO: implement Prop
     val hunger = NodeSpec("hunger", Inc("spread"))
 
     behavior of "p2s2"

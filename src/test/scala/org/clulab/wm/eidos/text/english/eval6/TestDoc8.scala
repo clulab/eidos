@@ -228,7 +228,7 @@ class TestDoc8 extends EnglishTest {
     val income = NodeSpec("income", Dec("destabilised"))
 
     val localFoodProduction = NodeSpec("Supporting local food production", Quant("critical"))
-    val foodSecuritySituation = NodeSpec("further deterioration of the food security situation", Dec("deterioration"),  Dec("preventing"))
+    val foodSecuritySituation = NodeSpec("further deterioration of the food security situation in 2018", Dec("deterioration"),  Dec("preventing"))
     behavior of "TestDoc8 Impact para 2"
 
     tempBrokenEntitiesTest should "have correct edge 1" taggedAs(Ajay) in {

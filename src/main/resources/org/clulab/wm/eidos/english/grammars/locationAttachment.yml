@@ -10,3 +10,12 @@ rules:
     pattern: |
       location: Location
       entity: Entity = </^nmod/ >/^conj/? (>/^dobj/ | >/^nsubj/)? >/^nmod/*
+
+  - name: locationattachment2
+    priority: ${ rulepriority }
+    example: "rainfall over the Ethiopia highlands"
+    label: ${ label }
+    action: ${ action }
+    pattern: |
+      location: Location
+      entity: Entity = >/compound/? >/nmod_over/

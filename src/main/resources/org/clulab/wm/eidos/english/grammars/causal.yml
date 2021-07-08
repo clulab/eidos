@@ -23,7 +23,7 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = nmod_to (${ conjunctions })?
-      effect: Entity = <advmod|<amod <nmod_due_to? nsubj
+      effect: Entity = <advmod|<amod </nmod_(due_to|due|to)/? nsubj
 
   #-----------------------------------------------------------------------------------------
   # These rules are based on a parse which has 'due' with an incoming 'case' relation:
@@ -39,11 +39,11 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case /${preps}|${noun_modifiers}/{,2}
-      effect: Entity = (<case <nmod_due_to? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
+      effect: Entity = (<case </nmod_(due_to|due|to)/? (?! [outgoing=dobj]) /${agents}/ /${ preps }/{,2})
       |
-      (<case <nmod_due_to (?! [incoming=nmod_than]))
+      (<case </nmod_(due_to|due|to)/ (?! [incoming=nmod_than]))
       |
-      (<case <nmod_due_to <nmod_than >'nsubj:xsubj')
+      (<case </nmod_(due_to|due|to)/ <nmod_than >'nsubj:xsubj')
 
   # Used when the effect text has an object which is the true effect (i.e., in example this is "livestock assets")
   - name: dueTo-caseSyntax-dobj_effect-${addlabel}
@@ -54,7 +54,7 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case /${preps}/{,2}
-      effect: Entity = <case <nmod_due_to? /${objects}/
+      effect: Entity = <case </nmod_(due_to|due|to)/? /${objects}/
 
   - name: dueToSyntax4-${addlabel}
     priority: ${rulepriority}
@@ -65,7 +65,7 @@ rules:
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = <case /^(${conjunctions})/? /${preps}/{,2} /${conjunctions}/{,2}
       #cause: Entity = <case conj_and /${preps}/{,2} /${conjunctions}/{,2}
-      effect: Entity = (<case </nmod_(due_to|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case <nmod_due_to <nmod_in /${agents}/)
+      effect: Entity = (<case </nmod_(due_to|due|to)/? </^advcl/? /${agents}/ /${ preps }/{,2}) | (<case </nmod_(due_to|due|to)/ <nmod_in /${agents}/)
 
     #-----------------------------------------------------------------------------------------
     # These rules are based on a parse which has 'due' with an outgoing 'nmod_to' relation:
@@ -79,7 +79,7 @@ rules:
     pattern: |
       trigger = [lemma="due" & tag=/JJ/]
       cause: Entity = nmod_to /^acl/ dobj? (${ conjunctions })?
-      effect: Entity = <advmod|<amod <nmod_due_to? nsubj
+      effect: Entity = <advmod|<amod </nmod_(due_to|due|to)/? nsubj
 
   - name: dueToSyntax5-${addlabel}
     priority: ${rulepriority}
@@ -122,6 +122,16 @@ rules:
       trigger = [lemma="make" & tag=/^V/]
       cause: Entity = nmod_by
       effect: Entity = (>/${agents}/|</acl/)
+
+  - name: constrainSyntax3-${addlabel}
+    priority: ${rulepriority}
+    label: ${label}
+    action: ${ action }
+    example: "X made JJ by Y"
+    pattern: |
+      trigger = [lemma="constrain" & tag=/^V/]
+      cause: Entity = nmod_by /^conj/?
+      effect: Entity = >/${agents}/
 
   - name: leadToSyntax1-${addlabel}
     priority: ${rulepriority}

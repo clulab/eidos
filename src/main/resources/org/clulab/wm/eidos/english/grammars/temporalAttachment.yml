@@ -22,3 +22,13 @@ rules:
       time: Time
       entity: Entity = </^nmod/ >/^nsubj/
 
+
+#  - name: timeattachment3
+#    priority: ${ rulepriority }
+#    example: "Assistance is critical to save lives over the coming year."
+#    label: ${ label }
+#    action: ${ action }
+#    pattern: |
+#      time: Time
+#      entity: Entity = </^nmod/ </^xcomp/
+

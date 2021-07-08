@@ -54,7 +54,7 @@ class TestDoc7 extends EnglishTest {
 
     val foodAvailability = NodeSpec("slight improvements in food availability",
                                     Quant("slight"), Pos("improvements", "slight"))
-    val seasonalHarvests = NodeSpec("seasonal harvests from October", TimEx("October to December"))
+    val seasonalHarvests = NodeSpec("seasonal harvests from October to December", TimEx("October to December"))
     val leanSeasons = NodeSpec("lean seasons")
     val foodSecurity = NodeSpec("Food security", Dec("deteriorate"), TimEx("March"))
     val foodInsecurity = NodeSpec("levels of acute food insecurity", Dec("worse"))

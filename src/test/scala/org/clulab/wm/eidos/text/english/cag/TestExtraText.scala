@@ -23,9 +23,9 @@ class TestExtraText extends EnglishTest {
 
     val oil = NodeSpec("international price of oil", Inc("rise", "sharp"), TimEx("2007"))
     val reserves = NodeSpec("foreign reserves", Dec("drain", "significant"))
-    val rights = NodeSpec("curtailment of the rights enshrined in the constitution", Dec("curtailment"))
+    val rights = NodeSpec("curtailment of the rights", Dec("curtailment"))
     val investment = NodeSpec("investment opportunities", Inc("promote"))
-    val poverty = NodeSpec("alleviate poverty", Pos("alleviate"))
+    val poverty = NodeSpec("poverty", Pos("alleviate"))
     val trade = NodeSpec("intra-African trade", Inc("boost"))
     val tariffs = NodeSpec("tariffs", Dec("brought down"))
 

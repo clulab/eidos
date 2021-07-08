@@ -25,7 +25,7 @@ as IPC Phase 4: "Emergency".
     
     // Sentence 2
     // Note that the quotes are automatically smarted during processing.  The colon probably wrecks the parse.
-    val conditions2 = NodeSpec(""""Catastrophe" food security conditions""", Dec("declined"), TimEx("February"), TimEx("June"))
+    val conditions2 = NodeSpec("""Catastrophe" food security conditions""", Dec("declined"))
     val operations = NodeSpec("sustained multi-sectoral humanitarian assistance operations") // TODO: Is "sustained" a quantification?
     
     behavior of "TestDoc4 Paragraph 1"
@@ -68,10 +68,10 @@ counties in Unity State.
     val access = NodeSpec("food access", Dec("constrained", "severely"))
     val insecurity = NodeSpec("widespread insecurity", Inc("widespread"))
     val displacements = NodeSpec("large scale displacements", Quant("large"))
-    val foodPrices = NodeSpec("high food prices", Quant("high"), Inc("high"))
-    val marketDisruptions = NodeSpec("market disruptions", Dec("disruptions"))
-    val collapse = NodeSpec("macro-economic collapse", Dec("collapse"))
-    val mechanisms = NodeSpec("exhaustion of households' coping mechanisms", Dec("exhaustion"))
+    val foodPrices = NodeSpec("high food prices", Quant("high"), Inc("high"))//FIXME
+    val marketDisruptions = NodeSpec("market disruptions", Dec("disruptions"))//FIXME
+    val collapse = NodeSpec("macro-economic collapse", Dec("collapse"))//FIXME
+    val mechanisms = NodeSpec("exhaustion of households' coping mechanisms", Dec("exhaustion"))//FIXME
 
     // Sentence 2
     val concern = NodeSpec("areas of major concern", Quant("major"))

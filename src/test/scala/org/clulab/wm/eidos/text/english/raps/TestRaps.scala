@@ -267,7 +267,7 @@ class TestRaps extends EnglishTest {
     val tester = new GraphTester(sent11)
 
     val use = NodeSpec("Use", Inc("increased"))
-    val cultivars = NodeSpec("Use of improved cultivars and mechanization", Pos("improved"))
+    val cultivars = NodeSpec("Use of improved cultivars and mechanization", Pos("improved"), Inc("increased"))
     val mechanization = NodeSpec("mechanization", Pos("improved"))
     val interventions = NodeSpec("use of critical interventions", Quant("critical"))
     val productivity = NodeSpec("productivity", Inc("increases"))
