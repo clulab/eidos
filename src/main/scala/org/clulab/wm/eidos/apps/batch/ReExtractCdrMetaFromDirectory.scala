@@ -44,6 +44,10 @@ object ReExtractCdrMetaFromDirectory extends App with Logging {
             // 2. Extract causal mentions from the text
             val annotatedDocument = reader.extractFromText(text, options, metadata)
             // 3. Write to output file
+            val path = FileEditor(file).setDir(outputDir).setExt("jsonld").get
+            FileUtils.printWriterFromFile(path).autoClose { printWriter =>
+              new JLDCorpus(annotatedDocument).serialize(printWriter)
+            }
 
             val jsonld1 = {
               val stringWriter = new StringWriter
@@ -53,7 +57,7 @@ object ReExtractCdrMetaFromDirectory extends App with Logging {
               stringWriter.toString
             }
 
-            val jsonld2 = {
+            val (jsonld2, annotatedDocument2) = {
               val json = jsonld1
               val corpus = deserializer.deserialize(json)
               val annotatedDocument = corpus.head
@@ -64,11 +68,13 @@ object ReExtractCdrMetaFromDirectory extends App with Logging {
               new PrintWriter(stringWriter).autoClose { stringWriter =>
                 new JLDCorpus(annotatedDocument).serialize(stringWriter)
               }
-              stringWriter.toString
+              (stringWriter.toString, annotatedDocument)
             }
 
-            if (jsonld1 != jsonld2)
+            if (jsonld1 != jsonld2) {
               println("Regrounding is not stable!")
+              println("Why not?")
+            }
 
             text.length
           }
