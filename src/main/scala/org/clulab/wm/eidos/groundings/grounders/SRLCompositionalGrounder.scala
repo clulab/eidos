@@ -114,9 +114,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     if (!EidosOntologyGrounder.groundableType(mention))
       // Do nothing to non-groundable mentions
       Seq(newOntologyGrounding())
-    else if (StopNER.hasNamedEntity(mention))
-      // Do nothing to named entities
-      Seq(newOntologyGrounding())
     else {
       // or else ground them.
       val sentenceObj = ensureSRLs(mention.odinMention.sentenceObj)
@@ -475,7 +472,6 @@ object StopNER {
     "DATE",
     "DURATION",
     "LOCATION",
-    "MISC",
     "MONEY",
     "NUMBER",
     "ORDINAL",
