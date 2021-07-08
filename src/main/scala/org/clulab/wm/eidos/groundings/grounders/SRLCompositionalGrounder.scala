@@ -466,33 +466,6 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   }
 }
 
-object StopNER {
-  // FIXME: This could probably be implemented better by creating a real StopwordManager
-  val STOP_NER: Set[String] = Set(
-    "DATE",
-    "DURATION",
-    "LOCATION",
-    "MONEY",
-    "NUMBER",
-    "ORDINAL",
-    "ORGANIZATION",
-    "PERSON",
-    "PLACE",
-    "SET",
-    "TIME",
-    // Everything after TIME is new to this grounder
-    "NATIONALITY",
-    "COUNTRY",
-    "TITLE",
-    "STATE_OR_PROVINCE"
-  )
-
-  def hasNamedEntity(eidosMention: EidosMention): Boolean = {
-    // If entities is empty, be sure to return false.
-    eidosMention.odinMention.entities.exists(_.exists(STOP_NER.contains))
-  }
-}
-
 object SRLCompositionalGrounder extends Logging {
   // Semantic Roles
   val AGENT_ROLE = "A0"
