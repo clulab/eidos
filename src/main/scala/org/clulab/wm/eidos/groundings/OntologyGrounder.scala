@@ -38,6 +38,8 @@ case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
   def headOption: Option[IndividualGrounding] = grounding.headOption
   def headName: Option[String] = headOption.map(_.name)
+  // discard the top grounding, take the next
+  def dropFirst(): OntologyGrounding = OntologyGrounding(version, date, grounding.drop(1), branch)
 }
 
 trait OntologyGrounder {
