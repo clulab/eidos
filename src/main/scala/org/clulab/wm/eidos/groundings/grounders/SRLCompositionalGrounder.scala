@@ -2,7 +2,7 @@ package org.clulab.wm.eidos.groundings.grounders
 
 import org.clulab.odin.Mention
 import org.clulab.processors.Sentence
-import org.clulab.struct.{DirectedGraph, Interval}
+import org.clulab.struct.{DirectedGraph, Edge, GraphMap, Interval}
 import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAttachment}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
 import org.clulab.dynet.Utils
@@ -71,16 +71,16 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   // If we are "regrounding" from documents that were saved as jsonld and deserialized,
-  // then the sentence has the wrong kind of graph and the right kind must be recalculated.
-  // TODO: rectify this situation.
+  // and the original had no enhanced roles, then there is no record of the related graph.
+  // A new, edgeless directed graph is inserted in the sentence to make up for it.
+  // New roles are _not_ recalculated here, which might be necessary if we had deserialized
+  // an old JsonLD file in which the existing roles just hadn't been serialized.
   def ensureSRLs(sentence: Sentence): Sentence = {
-    if (sentence.enhancedSemanticRoles.isDefined)
-      sentence
-    else {
-      SRLCompositionalGrounder.logger.warn("A graph is being recalculated in order to reground a sentence.")
-      val document = proc.annotateFromSentences(Seq(sentence.getSentenceText))
-      document.sentences.head
+    if (sentence.enhancedSemanticRoles.isEmpty) {
+      val enhancedRoles = new DirectedGraph[String](List.empty[Edge[String]], Set.empty[Int], Some(sentence.words.length))
+      sentence.graphs += GraphMap.ENHANCED_SEMANTIC_ROLES -> enhancedRoles
     }
+    sentence
   }
 
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
@@ -148,8 +148,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   ): Seq[OntologyGrounding] = {
 
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
-    val srlGrounding = sentenceHelper.validPredicates match {
-
+    val validPredicates = sentenceHelper.validPredicates.sorted
+    val srlGrounding = validPredicates match {
       case Seq() =>
         // No predicates
         // check for properties, if there we'll attach to the pseudo-theme
@@ -161,20 +161,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
         Seq(PredicateGrounding(predicateTuple))
 
-      case preds =>
-        val groundings = new ArrayBuffer[PredicateGrounding]
-        var seen = Set[Int]()
-        for (p <- preds) {
-          if (!seen.contains(p)) {
-            val predicateTuples = packagePredicate(p, sentenceHelper, topN, threshold)
-            for (tuple <- predicateTuples) {
-              // Create a grounding from the package and add it to the list
-              groundings.append(PredicateGrounding(tuple))
-              // Add all the predicates covered here
-              seen ++= tuple.predicates
-            }
-          }
-        }
+      case predicates =>
+        val groundings = for {
+          p <- predicates
+          predicateTuple <- packagePredicate(p, sentenceHelper, topN, threshold)
+        } yield PredicateGrounding(predicateTuple)
 
         // Sort them highest first and take the top N if applicable
         val sortedSliced = groundings.sortBy(-_.score)
@@ -573,21 +564,3 @@ object SRLCompositionalGrounder extends Logging {
 //  val verbConfidenceThreshold: Float = 0.7f
   val propertyConfidenceThreshold: Float = 0.85f
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
