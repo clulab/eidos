@@ -24,7 +24,8 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
   val pauseDuration: Int = config.getInt("rest.producer.duration.pause")
   val username: String = config.getString("rest.producer.username")
   val password: String = config.getString("rest.producer.password")
-  val version: String = config.getString("rest.producer.version")
+  val eidosVersion: String = config.getString("rest.producer.eidosVersion")
+  val ontologyVersion: String = config.getString("rest.producer.ontologyVersion")
 
   val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
 
@@ -46,7 +47,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
     override def runSafely(): Unit = {
       val restProducer =
-          if (useReal) new RealRestProducer(service, username, password, version)
+          if (useReal) new RealRestProducer(service, username, password, eidosVersion)
           else new MockRestProducer()
 
       // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
