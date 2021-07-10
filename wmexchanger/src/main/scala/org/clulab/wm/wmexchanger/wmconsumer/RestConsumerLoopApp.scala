@@ -4,7 +4,6 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.eidoscommon.utils.Sinker
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
@@ -13,7 +12,6 @@ import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 
 import java.io.File
-import java.util.Properties
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/

@@ -4,7 +4,6 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LockUtils
@@ -12,7 +11,6 @@ import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 
 import java.io.File
-import java.util.Properties
 
 class RestProducerLoopApp(inputDir: String, doneDir: String) {
   var useReal: Boolean = RestProducerLoopApp.useReal
