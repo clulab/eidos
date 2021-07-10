@@ -15,7 +15,7 @@ export EIDOS_BASE_DIR="${EIDOS_BASE_DIR:-$default_base_dir}"
 export EIDOS_INPUT_SUBDIR="${EIDOS_INPUT_SUBDIR:-input}"
 export EIDOS_OUTPUT_SUBDIR="${EIDOS_OUTPUT_SUBDIR:-output}"
 export DONE_SUBDIR="${DONE_SUBDIR:-done}"
-export KAFKA_SUBDIR="${DONE_SUBDIR:-kafka}"
+export KAFKA_SUBDIR="${KAFKA_SUBDIR:-kafka}"
 
 # Set up the pipeline.
 
