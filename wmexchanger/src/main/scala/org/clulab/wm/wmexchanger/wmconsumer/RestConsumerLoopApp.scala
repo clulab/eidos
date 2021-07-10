@@ -37,12 +37,11 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
         val cdr = restConsumer.download(file)
         val outputFile = FileEditor(file).setDir(outputDir).get
 
-        Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
-          printWriter.print(cdr)
+        LockUtils.withLock(outputFile, Extensions.lock) {
+          Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
+            printWriter.print(cdr)
+          }
         }
-
-        val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
-        lockFile.createNewFile()
 
         val doneFile = FileEditor(file).setDir(doneDir).get
         FileUtils.rename(file, doneFile)
@@ -64,8 +63,6 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
       }
 
       while (!isInterrupted) {
-        LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.json)
-
         val files = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock).par
 
         if (files.nonEmpty) {
