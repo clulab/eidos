@@ -179,7 +179,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     pred: Int,
     s: SentenceHelper,
     topN: Option[Int],
-    threshold: Option[Float],
+    threshold: Option[Float]
   ): Seq[PredicateTuple] = {
 
     // make theme paths, i.e., the path through the SRL graph from the predicate to the theme leaf
