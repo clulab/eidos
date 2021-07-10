@@ -7,6 +7,6 @@ export EIDOS_VERSION=julyEmbed
 export ONTOLOGY_VERSION=2.1
 
 export EIDOS_USERNAME=eidos
-export EIDOS_PASSWORD=
+# export EIDOS_PASSWORD=
 
 export EIDOS_BASE_DIR=../corpora/julyEmbed
