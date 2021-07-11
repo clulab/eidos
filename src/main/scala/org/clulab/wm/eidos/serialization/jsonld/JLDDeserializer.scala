@@ -245,9 +245,9 @@ class JLDDeserializer {
         }
         val typeMap = typesAndDependencies.groupBy(_._1).mapValues(_.map(_._2))
         val graphs = typeMap.map { case (key, dependencies) =>
-          val sourceRoots = dependencies.map(_.source).toSet
-          val destinationRoots = dependencies.map(_.destination).toSet
-          val roots = sourceRoots ++ destinationRoots
+          val sources = dependencies.map(_.source).toSet
+          val destinations = dependencies.map(_.destination).toSet
+          val roots = sources -- destinations
           val graph = DirectedGraph[String](dependencies, roots)
 
           key -> graph
