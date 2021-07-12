@@ -28,12 +28,12 @@ trait LoopApp extends Logging {
     if (args.isEmpty) {
       val envOpt = Option(System.getenv(name))
 
-      envOpt.getOrElse(throw new RuntimeException("There is no arg($index) or environment variable '$name'."))
+      envOpt.getOrElse(throw new RuntimeException(s"There is no arg($index) or environment variable '$name'."))
     }
     else {
       val argOpt = args.lift(index)
 
-      argOpt.getOrElse(throw new RuntimeException("There are args but no arg($index)."))
+      argOpt.getOrElse(throw new RuntimeException(s"There are args but no arg($index)."))
     }
   }
 }
