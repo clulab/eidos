@@ -61,7 +61,7 @@ class HypothesisHandler(hintsFile: String) {
     if (mention matches EidosParameters.RELATION_LABEL) {
 
       // Get the dependencies of the sentence
-      val dependencies = mention.sentenceObj.dependencies.getOrElse(new DirectedGraph[String](Nil, Set[Int]()))
+      val dependencies = mention.sentenceObj.dependencies.getOrElse(new DirectedGraph[String](List.empty))
 
       val eventInterval: Seq[Int] = mention.tokenInterval
 

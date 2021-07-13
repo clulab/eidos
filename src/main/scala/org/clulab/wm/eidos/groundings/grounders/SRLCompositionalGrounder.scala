@@ -77,7 +77,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   // an old JsonLD file in which the existing roles just hadn't been serialized.
   def ensureSRLs(sentence: Sentence): Sentence = {
     if (sentence.enhancedSemanticRoles.isEmpty) {
-      val enhancedRoles = new DirectedGraph[String](List.empty[Edge[String]], Set.empty[Int], Some(sentence.words.length))
+      val enhancedRoles = new DirectedGraph[String](List.empty, Some(sentence.words.length))
       sentence.graphs += GraphMap.ENHANCED_SEMANTIC_ROLES -> enhancedRoles
     }
     sentence
