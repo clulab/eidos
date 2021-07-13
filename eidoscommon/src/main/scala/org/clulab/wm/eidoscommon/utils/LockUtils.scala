@@ -1,11 +1,6 @@
-package org.clulab.wm.wmexchanger.utils
-
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Sourcer
+package org.clulab.wm.eidoscommon.utils
 
 import java.io.File
-import java.io.FilenameFilter
 
 object LockUtils {
 
@@ -21,7 +16,7 @@ object LockUtils {
 
   // Remove any lock files have become extraneous in that there is no
   // corresponding data file, probably because it has been processed.
-  def cleanupLocks34(dir: String, lockExt: String, dataExt: String): Unit = {
+  def cleanupLocks(dir: String, lockExt: String, dataExt: String): Unit = {
     val lockFiles = FileUtils.findFiles(dir, lockExt)
 
     lockFiles.foreach { lockFile =>

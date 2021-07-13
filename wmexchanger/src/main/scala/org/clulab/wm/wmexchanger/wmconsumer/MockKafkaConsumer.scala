@@ -1,9 +1,7 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils}
 import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
 
 import java.io.File
 

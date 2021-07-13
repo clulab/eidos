@@ -2,8 +2,8 @@ package org.clulab.wm.wmexchanger.wmconsumer
 
 import org.apache.kafka.clients.consumer.{KafkaConsumer => ApacheKafkaConsumer}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Logging}
-import org.clulab.wm.wmexchanger.utils.{Extensions, LockUtils}
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, Logging}
+import org.clulab.wm.wmexchanger.utils.Extensions
 import org.json4s._
 
 import java.io.File
