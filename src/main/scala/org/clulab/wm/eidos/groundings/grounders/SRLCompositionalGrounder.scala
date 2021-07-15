@@ -280,10 +280,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     val found = getArguments(predicate, SRLCompositionalGrounder.THEME_ROLE, s)
     if (found.isEmpty && backoff) {
       // Handle "just in case" infinite loop -- seemed to happen earlier, but the algorithm was diff then...
-      s.outgoingOfType(predicate, Seq("compound")).filterNot(i => (i == predicate) || (!alreadySeen.contains(i)))
+      s.outgoingOfType(predicate, Seq("compound")).filterNot(i => (i == predicate) || (alreadySeen.contains(i)))
     } else {
       // prevent infinite loops in edge cases
-      found.filterNot(i => (i == predicate) || (!alreadySeen.contains(i)))
+      found.filterNot(i => (i == predicate) || (alreadySeen.contains(i)))
     }
   }
 
