@@ -6,12 +6,9 @@ import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.utils.meta.CdrText
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, StringUtils}
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 
@@ -49,12 +46,11 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
         }
       val outputFile = FileEditor(file).setDir(outputDir).setExt(Extensions.jsonld).get
 
-      FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
-        new JLDCorpus(annotatedDocument).serialize(printWriter)
+      LockUtils.withLock(outputFile, Extensions.lock) {
+        FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
+          new JLDCorpus(annotatedDocument).serialize(printWriter)
+        }
       }
-
-      val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
-      lockFile.createNewFile()
 
       EidosLoopApp.synchronized {
         val doneFile = FileEditor(file).setDir(doneDir).get
@@ -78,8 +74,6 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
 
     override def runSafely(): Unit = {
       while (!isInterrupted) {
-        LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.jsonld)
-
         val files = EidosLoopApp.synchronized {
           val allFiles = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock)
           val newFiles = allFiles.filter { file => !filesBeingProcessed.contains(file.getAbsolutePath) }

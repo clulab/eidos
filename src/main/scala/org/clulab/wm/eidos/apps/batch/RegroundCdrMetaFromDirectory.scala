@@ -4,7 +4,7 @@ import org.clulab.utils.ThreadUtils
 import org.clulab.wm.eidos.{EidosOptions, EidosSystem}
 import org.clulab.wm.eidos.serialization.jsonld.{JLDCorpus, JLDDeserializer}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Logging, Timer}
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, Logging, Timer}
 
 object RegroundCdrMetaFromDirectory extends App with Logging {
 
@@ -47,8 +47,13 @@ object RegroundCdrMetaFromDirectory extends App with Logging {
             }
             // 3. Write to output file
             val path = FileEditor(file).setDir(outputDir).setExt("jsonld").get
-            FileUtils.printWriterFromFile(path).autoClose { printWriter =>
-              new JLDCorpus(annotatedDocument).serialize(printWriter)
+
+            // Lock the output file to prevent other processes that are aware of the
+            // protocol from reading the output file until it is complete.
+            LockUtils.withLock(path, "lock") {
+              FileUtils.printWriterFromFile(path).autoClose { printWriter =>
+                new JLDCorpus(annotatedDocument).serialize(printWriter)
+              }
             }
             // Now move the file to directory done
             val newFile = FileEditor(file).setDir(doneDir).get

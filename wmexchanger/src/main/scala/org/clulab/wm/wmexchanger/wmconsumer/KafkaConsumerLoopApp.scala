@@ -25,7 +25,7 @@ class KafkaConsumerLoopApp(args: Array[String]) {
       // This is kept open the entire time, so time between pings is extra important.
       val consumer =
           if (useReal)
-            new KafkaConsumer(appProperties, kafkaProperties, lock = true)
+            new KafkaConsumer(appProperties, kafkaProperties)
           else {
             // In some tests with useReal = false, the outputDir is passed in args.
             val mockOutputDir = LoopApp
