@@ -121,9 +121,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       // Do nothing to non-groundable mentions
       Seq(newOntologyGrounding())
     else {
+      println(s"Now grounding mention: ${mention.odinMention.text}")
       // or else ground them.
       val sentenceObj = ensureSRLs(mention.odinMention.sentenceObj)
-      groundSentenceSpan(
+      val out = groundSentenceSpan(
         sentenceObj,
         mention.odinMention.start,
         mention.odinMention.end,
@@ -131,6 +132,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         topN,
         threshold
       )
+      println(s"-> finished grounding mention: ${mention.odinMention.text}")
+      out
     }
   }
 
@@ -398,6 +401,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
 // Helper class to hold a bunch of things that are needed throughout the process for grounding
 case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: Set[String]) {
+  println(s"** constructed sentencehelper for: ${sentence.getSentenceText}")
   val chunks: Array[String] = sentence.chunks.get
   val chunkIntervals: Seq[Interval] = chunkSpans
   val words: Array[String] = sentence.words
