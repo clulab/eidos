@@ -121,7 +121,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       // Do nothing to non-groundable mentions
       Seq(newOntologyGrounding())
     else {
-      println(s"Now grounding mention: ${mention.odinMention.text}")
       // or else ground them.
       val sentenceObj = ensureSRLs(mention.odinMention.sentenceObj)
       val out = groundSentenceSpan(
@@ -132,7 +131,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         topN,
         threshold
       )
-      println(s"-> finished grounding mention: ${mention.odinMention.text}")
       out
     }
   }
@@ -186,7 +184,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   ): Seq[PredicateTuple] = {
 
     // make theme paths, i.e., the path through the SRL graph from the predicate to the theme leaf
-    val graphNode = GraphNode(pred, s, backoff = true, topN, threshold)
+    val graphNode = GraphNode(pred, s, backoff = true, topN, threshold, Set())
     val themePaths: List[List[GraphNode]] = enumeratePaths(graphNode.children, List(List(graphNode)))
     themePaths.map(path => createPredicateTupleFromPath(path)).sortBy(-_.score)
   }
@@ -278,14 +276,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   // Get the themes of the predicate
-  private def getThemes(predicate: Int, s: SentenceHelper, backoff: Boolean): Array[Int] = {
+  private def getThemes(predicate: Int, s: SentenceHelper, backoff: Boolean, alreadySeen: Set[Int]): Array[Int] = {
     val found = getArguments(predicate, SRLCompositionalGrounder.THEME_ROLE, s)
     if (found.isEmpty && backoff) {
       // Handle "just in case" infinite loop -- seemed to happen earlier, but the algorithm was diff then...
-      s.outgoingOfType(predicate, Seq("compound")).filterNot(_ == predicate)
+      s.outgoingOfType(predicate, Seq("compound")).filterNot(i => (i == predicate) || (!alreadySeen.contains(i)))
     } else {
       // prevent infinite loops in edge cases
-      found.filterNot(_ == predicate)
+      found.filterNot(i => (i == predicate) || (!alreadySeen.contains(i)))
     }
   }
 
@@ -353,11 +351,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   def emptyPredicateTuple: PredicateTuple = PredicateTuple(newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), Set.empty)
 
-  case class GraphNode(idx: Int, s: SentenceHelper, backoff: Boolean, topN: Option[Int], threshold: Option[Float]) {
+  case class GraphNode(idx: Int, s: SentenceHelper, backoff: Boolean, topN: Option[Int], threshold: Option[Float], ancestors: Set[Int]) {
     lazy val groundedSpan: GroundedSpan = groundToken(idx, s, topN, threshold)
     lazy val isProperty: Boolean = groundedSpan.isProperty
     def grounding: OntologyGrounding = groundedSpan.grounding
-    val children: Array[GraphNode] = getThemes(idx, s, backoff).map(GraphNode(_, s, backoff, topN, threshold))
+    val children: Array[GraphNode] = getThemes(idx, s, backoff, ancestors).map(GraphNode(_, s, backoff, topN, threshold, ancestors ++ Set(idx)))
     private var _property: Option[GraphNode] = None
 
     def property: Option[GraphNode] = _property
@@ -373,7 +371,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   // lookup table [Int, Grounding]
   def enumeratePaths(children: Array[GraphNode], traversed: List[List[GraphNode]]): List[List[GraphNode]] = {
-    println(s"children: ${children.map(_.idx).mkString(", ")}")
     children match {
       case Array() =>
         // add the curr to the end of each list
@@ -388,14 +385,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         } yield {
           // break loops
           if (!t.contains(c)) {
-            println(s"!t.contains(c) ==> " +
-              s"  c: ${c.idx}" +
-              s"  t: ${t.map(_.idx).mkString(", ")}")
             enumeratePaths(c.children, traversed.map(_ :+ c))
           } else {
-            println(s" YES t.contains(c) ==> " +
-              s"  c: ${c.idx}" +
-              s"  t: ${t.map(_.idx).mkString(", ")}")
             enumeratePaths(Array.empty, traversed)
           }
         }
@@ -408,12 +399,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
 // Helper class to hold a bunch of things that are needed throughout the process for grounding
 case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: Set[String]) {
-  println(s"** constructed sentencehelper for: ${sentence.getSentenceText}")
   val chunks: Array[String] = sentence.chunks.get
   val chunkIntervals: Seq[Interval] = chunkSpans
   val words: Array[String] = sentence.words
   val srls: DirectedGraph[String] = sentence.enhancedSemanticRoles.get
-  println(s"SRLs: ${srls.toString()}")
   val dependencies: DirectedGraph[String] = sentence.dependencies.get
   // The roots of the SRL graph that are within the concept being grounded and aren't part of
   // an something we're ignoring (e.g., increase/decrease/quantification)
@@ -482,9 +471,7 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
 
   def chunkAvoidingSRLs(chunkSpan: Interval, tok: Int): Interval = {
     assert(allTokensInvolvedInPredicates.contains(tok))
-    val currTokenIdx = allTokensInvolvedInPredicates.indexOf(tok)
-//    println(s"Trimming: (tok=$tok, idx=${currTokenIdx})")
-//    println(allTokensInvolvedInPredicates.mkString(", "))
+    // val currTokenIdx = allTokensInvolvedInPredicates.indexOf(tok)
 
     // If the tok starts the chunk
     val start = findStart(chunkSpan, tok)
@@ -531,14 +518,12 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   def wordsSliceString(span: Interval): String = wordsSlice(span).mkString(" ")
   def tokenOrObjOfPreposition(tok: Int): Seq[Int] = {
     if (sentence.tags.get(tok) == "IN") {
-      println(s"It's a preposition... (tok=$tok)")
       // if it's a preposition, follow the outgoing `case` dependency edge
       val out = dependencies
         // Get the next tokens that this token links to
         .incomingEdges(tok)
         // Get the subset that corresponds to the `case` dependency
         .collect{ case e if Seq("case", "mark").contains(e._2) => e._1 }
-      println(s"Followed to: ${out.map(words(_)).mkString(", ")}")
       out
     } else {
       Seq(tok)
