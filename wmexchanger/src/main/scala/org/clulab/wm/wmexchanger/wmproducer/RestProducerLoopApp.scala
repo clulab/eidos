@@ -2,17 +2,13 @@ package org.clulab.wm.wmexchanger.wmproducer
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils}
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 
 import java.io.File
-import java.util.Properties
 
 class RestProducerLoopApp(inputDir: String, doneDir: String) {
   var useReal: Boolean = RestProducerLoopApp.useReal
@@ -24,7 +20,8 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
   val pauseDuration: Int = config.getInt("rest.producer.duration.pause")
   val username: String = config.getString("rest.producer.username")
   val password: String = config.getString("rest.producer.password")
-  val version: String = config.getString("rest.producer.version")
+  val eidosVersion: String = config.getString("rest.producer.eidosVersion")
+  val ontologyVersion: String = config.getString("rest.producer.ontologyVersion")
 
   val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
 
@@ -46,7 +43,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
     override def runSafely(): Unit = {
       val restProducer =
-          if (useReal) new RealRestProducer(service, username, password, version)
+          if (useReal) new RealRestProducer(service, username, password, eidosVersion, ontologyVersion)
           else new MockRestProducer()
 
       // autoClose isn't executed if the thread is shot down, so this hook is included just in case.

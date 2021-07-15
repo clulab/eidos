@@ -1059,9 +1059,35 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
             else
               if (leftOdinMention.foundBy != rightOdinMention.foundBy)
                 leftOdinMention.foundBy < rightOdinMention.foundBy
-              else
-                true // Tie goes in favor of the left just because it came first.
-        }
+              else {
+                def mkAttachmentPositions(odinMention: Mention): List[Int] = odinMention.attachments.toList
+                  .map { attachment: Attachment =>
+                    attachment match {
+                      case triggeredAttachment: TriggeredAttachment =>
+                        triggeredAttachment.triggerProvenance.map(_.interval.start).getOrElse(-1)
+                      case _ => -2
+                    }
+                  }.sorted
+                def compare(lefts: List[Int], rights: List[Int]): Int = {
+                  if (lefts.length != rights.length)
+                    lefts.length - rights.length
+                  else {
+                    lefts.zip(rights).foldLeft(0) { case (result, (left, right)) =>
+                      if (result != 0) result
+                      else left - right
+                    }
+                  }
+                }
+                val leftAttachmentPositions = mkAttachmentPositions(leftOdinMention)
+                val rightAttachmentPositions = mkAttachmentPositions(rightOdinMention)
+                val comparison = compare(leftAttachmentPositions, rightAttachmentPositions)
+
+                if (comparison != 0)
+                  comparison < 0
+                else
+                  true // Tie goes in favor of the left just because it came first.
+              }
+          }
       }
     }
 
