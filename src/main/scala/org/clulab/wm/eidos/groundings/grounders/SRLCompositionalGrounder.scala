@@ -373,6 +373,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   // lookup table [Int, Grounding]
   def enumeratePaths(children: Array[GraphNode], traversed: List[List[GraphNode]]): List[List[GraphNode]] = {
+    println(s"children: ${children.map(_.idx).mkString(", ")}")
     children match {
       case Array() =>
         // add the curr to the end of each list
@@ -387,8 +388,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         } yield {
           // break loops
           if (!t.contains(c)) {
+            println(s"!t.contains(c) ==> " +
+              s"  c: ${c.idx}" +
+              s"  t: ${t.map(_.idx).mkString(", ")}")
             enumeratePaths(c.children, traversed.map(_ :+ c))
           } else {
+            println(s" YES t.contains(c) ==> " +
+              s"  c: ${c.idx}" +
+              s"  t: ${t.map(_.idx).mkString(", ")}")
             enumeratePaths(Array.empty, traversed)
           }
         }
@@ -406,6 +413,7 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   val chunkIntervals: Seq[Interval] = chunkSpans
   val words: Array[String] = sentence.words
   val srls: DirectedGraph[String] = sentence.enhancedSemanticRoles.get
+  println(s"SRLs: ${srls.toString()}")
   val dependencies: DirectedGraph[String] = sentence.dependencies.get
   // The roots of the SRL graph that are within the concept being grounded and aren't part of
   // an something we're ignoring (e.g., increase/decrease/quantification)
