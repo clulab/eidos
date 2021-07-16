@@ -407,7 +407,9 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   // The roots of the SRL graph that are within the concept being grounded and aren't part of
   // an something we're ignoring (e.g., increase/decrease/quantification)
   val validPredicates: Seq[Int] = {
-    val original = srls.roots.toSeq
+    // don't use the roots as here we're only interested in outgoing "sources" for predicates,
+    // and the roots also contain the unreachable nodes etc.
+    val original = srls.edges.map(edge => edge.source)
       // keep only predicates that are within the mention
       .filter(tokenInterval.contains)
       // remove the predicates which correspond to our increase/decrease/quantifiers
