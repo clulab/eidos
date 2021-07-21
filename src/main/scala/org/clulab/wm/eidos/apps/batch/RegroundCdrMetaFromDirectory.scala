@@ -58,8 +58,6 @@ object RegroundCdrMetaFromDirectory extends App with Logging {
             // Now move the file to directory done
             val newFile = FileEditor(file).setDir(doneDir).get
             file.renameTo(newFile)
-
-            annotatedDocument.document.text.get.length
           }
           this.synchronized {
             timePrintWriter.println(file.getName + "\t" + size + "\t" + timer.elapsedTime.get)
