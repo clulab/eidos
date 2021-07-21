@@ -6,7 +6,7 @@ export REST_CONSUMER_SERVICE=https://wm-ingest-pipeline-rest-1.prod.dart.worldmo
 #export REST_PRODUCER_SERVICE=https://uat-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/readers/upload
 export REST_PRODUCER_SERVICE=https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/readers/upload
 
-export EIDOS_VERSION=julyEmbed
+export EIDOS_VERSION=julyEmbed1
 export ONTOLOGY_VERSION=2.3
 
 export EIDOS_USERNAME=eidos
