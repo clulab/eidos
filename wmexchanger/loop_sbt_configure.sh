@@ -1,5 +1,9 @@
 default_base_dir="../corpora/loop"
 
+# Coordinate servers
+export REST_CONSUMER_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/cdrs
+export REST_PRODUCER_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/readers/upload
+
 # Coordinate credentials.
 export REST_CONSUMER_USERNAME="${EIDOS_USERNAME}"
 export REST_CONSUMER_PASSWORD="${EIDOS_PASSWORD}"

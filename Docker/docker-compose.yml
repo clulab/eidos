@@ -1,0 +1,39 @@
+version: '3.4'
+
+services:
+  eidos:
+    container_name: eidos
+    hostname: eidos
+    image: docker.causeex.com/dart/eidos:latest
+    environment:
+      EIDOS_MEMORY: -Xmx20g
+      REST_CONSUMER_SERVICE: https://${REST_HOSTNAME:-localhost}/dart/api/v1/cdrs
+      REST_CONSUMER_USERNAME: ${REST_USERNAME:-eidos}
+      REST_CONSUMER_PASSWORD: ${REST_PASSWORD:-eidos_pass}
+      REST_PRODUCER_SERVICE: https://${REST_HOSTNAME:-localhost}/dart/api/v1/readers/upload
+      REST_PRODUCER_USERNAME: ${REST_USERNAME:-eidos}
+      REST_PRODUCER_PASSWORD: ${REST_PASSWORD:-eidos_pass}
+      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: ${STREAMING_HOSTNAME:-localhost}:9093
+      KAFKA_APP_TOPIC: dart.cdr.streaming.updates
+      KAFKA_APP_OUTPUT_DIR: /opt/app/data/input/kafka
+      KAFKA_CONSUMER_SASL_JAAS_CONFIG: ${KAFKA_CONSUMER_SASL_JAAS_CONFIG}
+      KAFKA_CONSUMER_SECURITY_PROTOCOL: ${KAFKA_CONSUMER_SECURITY_PROTOCOL:-SASL_SSL}
+      KAFKA_CONSUMER_AUTO_OFFSET_RESET: latest
+      KAFKA_CONSUMER_ENABLE_AUTO_COMMIT: "true"
+    networks:
+      - readers-net
+  sofia:
+    container_name: sofia
+    hostname: sofia
+    image: spilioeve/wm-src-sofia
+    environment:
+      KAFKA_BROKER: ${STREAMING_INTERNAL_IP}:19092
+      UPLOAD_API_URL: http://${REST_INTERNAL_IP}:13337/dart/api/v1/readers/upload
+      CDR_API_URL: http://${REST_INTERNAL_IP}:8090/dart/api/v1/cdrs
+      KAFKA_AUTO_OFFSET_RESET: latest
+    restart: unless-stopped
+    networks:
+      - readers-net
+
+networks:
+  readers-net:
