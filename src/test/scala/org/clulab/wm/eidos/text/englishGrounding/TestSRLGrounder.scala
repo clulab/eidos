@@ -16,7 +16,7 @@ class TestSRLGrounder extends EnglishGroundingTest {
     val groundings  = mentions.map(_.grounding("wm_compositional").grounding).flatMap {
       multipleOntologyGrounding => multipleOntologyGrounding.map(_.name)
     }
-    groundings.exists(gr => gr.contains("THEME: wm/concept/health/nutrition/")) shouldBe (true)
+    groundings.exists(gr => gr.contains("THEME: wm/concept/health/nutrition")) shouldBe (true)
     groundings.exists(gr =>
       gr.contains("THEME: wm/concept/goods/food") &&
       gr.contains("Theme properties: wm/property/security") &&

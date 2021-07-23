@@ -211,7 +211,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/hostility")
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/armed_conflict")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       tester.groundingShouldContain(effectMentions.head, "wm/concept/infrastructure/education_facilities")
@@ -253,9 +253,10 @@ class TestGrounding extends EnglishGroundingTest {
     passingTest should "process \"" + text + "\" cause3 correctly" taggedAs Somebody in {
       // FIXME:  'access' not grounding properly; the others work fine
       // TODO: It seems like the second one is the problem.  It has been commented out for regression testing.
-      tester.groundingShouldContain(causeMentions(2), "wm/concept/economy/commercial_enterprise", topN = Option(50), threshold = Option(0.0f))
+      tester.groundingShouldContain(causeMentions(2), "wm/concept/safety_net", topN = Option(50), threshold = Option(0.0f))
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
+    failingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
+      // fixme: this isn't really what it should ground to
       tester.groundingShouldContain(effectMentions.head, "wm/concept/health/life")
     }
   }
