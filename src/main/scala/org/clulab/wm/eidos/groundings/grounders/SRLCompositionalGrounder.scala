@@ -196,7 +196,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     // remove them from the list.
     // As a result, the only things left in squeezed should _not_ be properties
     // unless there were only properties, etc.)
-    val squeezed = squeezeNodeList(path.reverse, List.empty)
+    val squeezed = squeezeNodeList(path.reverse.filter(_.grounding.nonEmpty), List.empty)
     // Now that properties have been "attached", we can operate on the remaining
     // elements of the path more straightforwardly
     squeezed match {
@@ -230,7 +230,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       case theme :: process :: _ if theme.grounding.headName == process.grounding.headName =>
         val themeScore = theme.grounding.headOption.map(_.score).getOrElse(-100f)
         val processScore = process.grounding.headOption.map(_.score).getOrElse(-100f)
-        if (themeScore >= processScore) {
+        if (themeScore >= processScore || theme.grounding.grounding.length == 1) {
           PredicateTuple(
             theme.grounding,
             theme.propertyGroundingOrNone,
