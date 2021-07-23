@@ -1,4 +1,5 @@
 # Changes
++ **1.3.0** - Use srl_ner and processors 8.4.3
 + **1.2.1** - Update to processors 8.3.2
 + **1.2.0** - Update to processors 8.3.1, break into subprojects
 + **1.1.0** - Update to processors 8.2.6
