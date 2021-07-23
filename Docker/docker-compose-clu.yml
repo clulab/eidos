@@ -1,0 +1,41 @@
+version: '3.4'
+
+services:
+  eidos:
+    container_name: eidos
+    hostname: eidos
+    image: docker.causeex.com/dart/eidos:latest
+    environment:
+      # Run export.sh before using this.
+      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: ${KAFKA_CONSUMER_BOOTSTRAP_SERVERS}
+      KAFKA_APP_TOPIC: ${KAFKA_APP_TOPIC}
+
+      REST_HOSTNAME: ${REST_HOSTNAME}
+
+      EIDOS_USERNAME: ${EIDOS_USERNAME}
+      EIDOS_PASSWORD: ${EIDOS_PASSWORD}
+
+      EIDOS_BASE_DIR: /opt/app/data
+
+      EIDOS_MEMORY: -Xmx20g
+      EIDOS_THREADS: 6
+
+      # Another possibility is earliest.  Use latest for OIAD (Ontology In A Day).
+      KAFKA_CONSUMER_AUTO_OFFSET_RESET: latest
+    networks:
+      - readers-net
+  sofia:
+    container_name: sofia
+    hostname: sofia
+    image: spilioeve/wm-src-sofia
+    environment:
+      KAFKA_BROKER: ${STREAMING_INTERNAL_IP}:19092
+      UPLOAD_API_URL: http://${REST_INTERNAL_IP}:13337/dart/api/v1/readers/upload
+      CDR_API_URL: http://${REST_INTERNAL_IP}:8090/dart/api/v1/cdrs
+      KAFKA_AUTO_OFFSET_RESET: latest
+    restart: unless-stopped
+    networks:
+      - readers-net
+
+networks:
+  readers-net:
