@@ -12,7 +12,7 @@ services:
       REST_CONSUMER_PASSWORD: ${REST_PASSWORD:-eidos_pass}
       REST_PRODUCER_SERVICE: https://${REST_HOSTNAME:-localhost}/dart/api/v1/readers/upload
       REST_PRODUCER_USERNAME: ${REST_USERNAME:-eidos}
-      REST_PRODUCER_PASSWORD: ${REST_PASSWORD:-edos_pass}
+      REST_PRODUCER_PASSWORD: ${REST_PASSWORD:-eidos_pass}
       KAFKA_CONSUMER_BOOTSTRAP_SERVERS: ${STREAMING_HOSTNAME:-localhost}:9093
       KAFKA_APP_TOPIC: dart.cdr.streaming.updates
       KAFKA_APP_OUTPUT_DIR: /opt/app/data/input/kafka
