@@ -112,7 +112,23 @@ class StopwordManager(stopwordsPath: String, transparentPath: String, tagSet: Ta
 object StopwordManager {
   // maybe use this to get missed Locations/Dates/etc?; not sure if necessary anymore?
   //  val STOP_NER: Set[String] = Set("DURATION", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERCENT", "SET")
-  val STOPWORD_NER: Set[String] = Set("DATE", "DURATION", "LOCATION", "MISC", "MONEY", "NUMBER", "ORDINAL", "ORGANIZATION", "PERSON", "PLACE", "SET", "TIME")
+  val STOPWORD_NER: Set[String] = Set(
+    "COUNTRY",
+    "DATE",
+    "DURATION",
+    "LOCATION",
+    "MONEY",
+    "NATIONALITY",
+    "NUMBER",
+    "ORDINAL",
+    "ORGANIZATION",
+    "PERSON",
+    "PLACE",
+    "SET",
+    "STATE_OR_PROVINCE",
+    "TIME",
+    "TITLE"
+  )
 
   def apply(stopwordsPath: String, transparentPath: String, tagSet: TagSet) =
       new StopwordManager(stopwordsPath, transparentPath, tagSet)
