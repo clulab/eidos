@@ -35,7 +35,7 @@ A different set of Dockerfiles is used to create the image for the wmexchanger s
 * DockerfileBaseDependencies - This version copies files from the local build and then also runs `sbt update` in the image to produce a base image
 * DockerfileLoopMultiStage - This copies the files again to pick up any changes and further runs `sbt dist` in the image to generate the programs that need to run
 
-`DockerfileLoop` is meant to be build relative to the `Docker` directory so that it doesn't need to index all the files in the main directory that won't be transferred to the image.  The build command is therefore something like
+`DockerfileLoop` is meant to be built relative to the `Docker` directory so that it doesn't need to index all the files in the main directory that won't be transferred to the image.  The build command is therefore something like
 ```shell
 docker build -f ./Docker/DockerfileLoop ./Docker -t clulab/eidos-loop
 ```
