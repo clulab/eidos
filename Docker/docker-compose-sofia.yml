@@ -4,12 +4,14 @@ services:
   sofia:
     container_name: sofia
     hostname: sofia
-    image: spilioeve/wm-src-sofia
+    image: sofia:latest
     environment:
       KAFKA_BROKER: wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com:9093
       UPLOAD_API_URL: https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/readers/upload
       CDR_API_URL: https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/cdrs
       KAFKA_AUTO_OFFSET_RESET: latest
+      SOFIA_USER: sofia
+      SOFIA_PASS: ${SOFIA_PASS}
     restart: unless-stopped
     networks:
       - readers-net
