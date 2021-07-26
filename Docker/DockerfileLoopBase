@@ -17,7 +17,8 @@ RUN apt-get install -y \
     software-properties-common \
     dialog \
     git \
-    curl
+    curl \
+    nano
 
 # Install Java
 RUN add-apt-repository -y ppa:openjdk-r/ppa
@@ -43,8 +44,5 @@ WORKDIR /eidos
 
 # Downloading Eidos dependencies and make sure it works.
 RUN sbt wmexchanger/update
-RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
 
-# Run wmexchanger applications
 ENTRYPOINT ["/bin/bash"]
-# CMD ["/loop_sbt_all.sh"]
