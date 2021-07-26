@@ -24,18 +24,6 @@ services:
       KAFKA_CONSUMER_AUTO_OFFSET_RESET: latest
     networks:
       - readers-net
-  sofia:
-    container_name: sofia
-    hostname: sofia
-    image: spilioeve/wm-src-sofia
-    environment:
-      KAFKA_BROKER: ${STREAMING_INTERNAL_IP}:19092
-      UPLOAD_API_URL: http://${REST_INTERNAL_IP}:13337/dart/api/v1/readers/upload
-      CDR_API_URL: http://${REST_INTERNAL_IP}:8090/dart/api/v1/cdrs
-      KAFKA_AUTO_OFFSET_RESET: latest
-    restart: unless-stopped
-    networks:
-      - readers-net
 
 networks:
   readers-net:

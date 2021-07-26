@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  sofia:
+    container_name: sofia
+    hostname: sofia
+    image: spilioeve/wm-src-sofia
+    environment:
+      KAFKA_BROKER: dart.prod.dart.worldmodelers.com:9093
+      UPLOAD_API_URL: http://https://dart.prod.dart.worldmodelers.com/dart/api/v1/readers/upload
+      CDR_API_URL: http://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/cdrs
+      KAFKA_AUTO_OFFSET_RESET: latest
+    restart: unless-stopped
+    networks:
+      - readers-net
+
+networks:
+  readers-net:
