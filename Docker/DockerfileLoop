@@ -56,4 +56,4 @@ RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
 
 # Run wmexchanger applications
 ENTRYPOINT ["/bin/bash"]
-CMD ["loop_sbt_all.sh"]
+# CMD ["loop_sbt_all.sh"]
