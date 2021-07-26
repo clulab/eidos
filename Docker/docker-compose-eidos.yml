@@ -18,7 +18,7 @@ services:
       EIDOS_BASE_DIR: /eidos
 
       EIDOS_MEMORY: -Xmx20g
-      EIDOS_THREADS: 6
+      EIDOS_THREADS: 4
 
       # Another possibility is earliest.  Use latest for OIAD (Ontology In A Day).
       KAFKA_CONSUMER_AUTO_OFFSET_RESET: latest
