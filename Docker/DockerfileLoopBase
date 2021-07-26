@@ -46,8 +46,9 @@ RUN apt-get update && apt-get install sbt -y
 ADD . /eidos
 WORKDIR /eidos
 
-# Downloading Eidos dependencies
-RUN sbt update
+# Downloading Eidos dependencies and make sure it works.
+RUN sbt wmexchanger/update
+RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
 
 # Run wmexchanger applications
 ENTRYPOINT ["/bin/bash"]

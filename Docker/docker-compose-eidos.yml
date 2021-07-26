@@ -15,7 +15,7 @@ services:
       EIDOS_USERNAME: ${EIDOS_USERNAME}
       EIDOS_PASSWORD: ${EIDOS_PASSWORD}
 
-      EIDOS_BASE_DIR: /opt/app/data
+      EIDOS_BASE_DIR: /eidos
 
       EIDOS_MEMORY: -Xmx20g
       EIDOS_THREADS: 6
