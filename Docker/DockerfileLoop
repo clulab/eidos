@@ -46,7 +46,7 @@ RUN apt-get update && apt-get install sbt -y
 RUN git clone https://github.com/clulab/eidos.git
 WORKDIR /eidos
 # Checkout this branch until we've merged changes into the main branch.
-RUN git checkout kwalcock/stream
+RUN git checkout kwalcock/aws
 RUN chmod 751 ./wmexchanger/*.sh
 # Move this file to .., outside of sbt and git realm.
 RUN cp ./wmexchanger/loop_sbt_all.sh ..
