@@ -53,7 +53,7 @@ RUN cp ./wmexchanger/loop_sbt_all.sh ..
 RUN mkdir ../corpora
 RUN mkdir ../credentials
 RUN chmod 700 ../credentials
-COPY ../credentials/login.properties ../credentials
+COPY ./login.properties ../credentials
 RUN chmod 600 ../credentials/login.properties
 # Force the packaging of all dependencies of the subproject after all changes have been made.
 RUN sbt "wmexchanger/runMain org.clulab.wm.wmexchanger.utils.HelloWorld"
