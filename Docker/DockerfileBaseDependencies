@@ -35,6 +35,5 @@ WORKDIR /opt/app/eidos
 # Downloading Eidos dependencies
 RUN sbt update
 
-# Run Web Service
-
+# Run wmexchanger applications
 ENTRYPOINT ["/bin/bash"]
