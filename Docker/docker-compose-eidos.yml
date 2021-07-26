@@ -4,7 +4,7 @@ services:
   eidos:
     container_name: eidos
     hostname: eidos
-    image: docker.causeex.com/dart/eidos:latest
+    image: clulab/eidos-loop
     environment:
       # Run export.sh before using this.
       KAFKA_CONSUMER_BOOTSTRAP_SERVERS: ${KAFKA_CONSUMER_BOOTSTRAP_SERVERS}
