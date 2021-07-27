@@ -1,5 +1,3 @@
-./loop_sbt_configure.sh
-
 KAFKA_APP_TOPIC="${KAFKA_APP_TOPIC:-dart.cdr.streaming.updates}"
 KAFKA_APP_OUTPUT_DIR="${KAFKA_APP_OUTPUT_DIR:-$KAFKA_CONSUMER_OUTPUT_DIR}"
 
