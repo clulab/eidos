@@ -4,6 +4,9 @@
 
 FROM clulab/eidos-base:latest as builder
 
+RUN apt-get update
+RUN apt-get install -y unzip
+
 # These are just enough to get it compiled.
 ENV SBT_OPTS "-Xms5G -Xmx8G -XX:+UseConcMarkSweepGC $GLOBAL_JAVA_OPTS"
 
