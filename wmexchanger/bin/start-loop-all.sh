@@ -59,8 +59,8 @@ sleep 5
 export _JAVA_OPTIONS=-Xmx512m ; ./bin/kafka-consumer-loop-app &
 sleep 5
 
-export _JAVA_OPTIONS=${DEFAULT_EIDOS_MEMORY}
-export JAVA_OPTS=${DEFAULT_EIDOS_MEMORY}
+export _JAVA_OPTIONS=${EIDOS_MEMORY}
+export JAVA_OPTS=${EIDOS_MEMORY}
 
 # The container ends when eidos stops running.
 while ! ./bin/eidos-loop-app "${EIDOS_INPUT_DIR}" "${EIDOS_OUTPUT_DIR}" "${EIDOS_DONE_DIR}" "${THREADS}"
