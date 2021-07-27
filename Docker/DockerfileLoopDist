@@ -10,13 +10,8 @@ RUN apt-get install -y unzip
 RUN mkdir /eidos
 WORKDIR /eidos
 
-COPY ./wmexchanger/target/universal/wmexchanger*.zip .
-RUN export ZIPFILE=`ls *.zip`
-RUN unzip ${ZIPFILE}
-RUN mv ${ZIPFILE}/bin .
-RUN mv ${ZIPFILE}/lib .
-RUN rm ${ZIPFILE}
-
+COPY ./wmexchanger/target/universal/bin .
+COPY ./wmexchanger/target/universal/lib .
 COPY ./wmexchanger/bin/start-loop-all.sh .
 RUN chmod +x *.sh
 
