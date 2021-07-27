@@ -13,4 +13,4 @@ COPY ./bin/start-loop-all.sh .
 RUN chmod +x *.sh
 
 #ENTRYPOINT ["/bin/bash"]
-ENTRYPOINT ["./loop_sbt_loop_all.sh"]
+ENTRYPOINT ["./start-loop-all.sh"]
