@@ -13,8 +13,8 @@ export REST_HOSTNAME=wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com
 # This one is for testing.
 # export REST_HOSTNAME=uat-ingest-pipeline-rest-1.prod.dart.worldmodelers.com
 
-export EIDOS_VERSION=julyEmbed1
-export ONTOLOGY_VERSION=2.3
+export EIDOS_VERSION=julyEmbed2
+export ONTOLOGY_VERSION=3.0
 
 export EIDOS_USERNAME=eidos
 # Add this elsewhere.
