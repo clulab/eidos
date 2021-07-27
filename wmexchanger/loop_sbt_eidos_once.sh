@@ -1,5 +1,3 @@
-./loop_sbt_configure.sh
-
 default_threads=4
 default_memory=-Xmx20g
 
