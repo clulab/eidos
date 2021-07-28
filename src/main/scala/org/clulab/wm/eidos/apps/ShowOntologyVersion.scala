@@ -6,9 +6,20 @@ import org.clulab.wm.eidos.groundings.DomainHandler
 
 object ShowOntologyVersion extends App {
   val config = EidosSystem.defaultConfig
-  val wmCompositional = config[String]("ontologies.wm_compositional")
-  val (versionOpt, _) = DomainHandler.getVersionOpt(wmCompositional)
-  val version = versionOpt.getOrElse("unavailable")
 
-  println(s"Version: $version")
+  {
+    val ontologyPath = config[String]("ontologies.wm_compositional")
+    val (versionOpt, _) = DomainHandler.getVersionOpt(ontologyPath)
+    val version = versionOpt.getOrElse("unavailable")
+    
+    println(s"Compositional version: $version")
+  }
+
+  {
+    val ontologyPath = config[String]("ontologies.wm_flattened")
+    val (versionOpt, _) = DomainHandler.getVersionOpt(ontologyPath)
+    val version = versionOpt.getOrElse("unavailable")
+
+    println(s"    Flattened version: $version")
+  }
 }
