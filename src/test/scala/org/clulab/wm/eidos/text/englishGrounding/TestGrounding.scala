@@ -163,7 +163,7 @@ class TestGrounding extends EnglishGroundingTest {
       tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/fuel")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/process/conflict/demonstrate")
+      tester.groundingShouldContain(effectMentions.head, "wm/process/conflict/insurgency")
     }
   }
 
@@ -211,7 +211,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
 
     passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/armed_conflict")
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/hostility")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
       tester.groundingShouldContain(effectMentions.head, "wm/concept/infrastructure/education_facilities")
@@ -231,7 +231,7 @@ class TestGrounding extends EnglishGroundingTest {
       tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/food")
     }
     passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "")
+      tester.groundingShouldContain(effectMentions.head, "wm/concept/entity/drone")
     }
   }
 
