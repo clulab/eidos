@@ -5,8 +5,6 @@ import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileUtils, Logging, Sinker, StringUtils}
 
 object CurlProducerApp extends App with Logging {
-  val version = "0.2.3"
-
   val inputDir = args(0)
   val outputFile = args(1)
 
@@ -15,6 +13,8 @@ object CurlProducerApp extends App with Logging {
   val login = config.getString("curl.producer.login")
   val username: String = config.getString("curl.producer.username")
   val password: String = config.getString("curl.producer.password")
+  val eidosVersion: String = config.getString("curl.producer.eidosVersion")
+  val ontologyVersion: String = config.getString("curl.producer.ontologyVersion")
 
   val files = FileUtils.findFiles(inputDir, "jsonld")
 
@@ -29,7 +29,7 @@ object CurlProducerApp extends App with Logging {
             |-X POST "$service"
             |-H "accept: application/json"
             |-H "Content-Type: multipart/form-data"
-            |-F 'metadata={ "identity": "eidos", "version": "$version", "document_id": "$docId" }'
+            |-F 'metadata={ "identity": "eidos", "version": "$eidosVersion", "document_id": "$docId", "output_version": "$ontologyVersion" }'
             |-F "file=@${file.getName}"
             |""".stripMargin.replace('\r', ' ').replace('\n', ' ')
 
