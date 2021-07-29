@@ -23,14 +23,9 @@ FROM openjdk:8
 RUN mkdir /eidos
 WORKDIR /eidos
 COPY --from=builder /tmp/wmexchanger* .
-
-# Move them up one directory and independent of version.
-RUN mv wmexchanger*/bin wmexchanger*/lib .
-RUN rmdir wmexchanger*
-
 COPY --from=builder /eidos/wmexchanger/bin/start-loop-all.sh .
 
 RUN chmod +x *.sh
 
-ENTRYPOINT ["/bin/bash"]
-#ENTRYPOINT ["./loop_sbt_loop_all.sh"]
+#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["./loop_sbt_loop_all.sh"]
