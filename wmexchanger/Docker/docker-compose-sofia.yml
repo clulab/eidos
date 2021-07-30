@@ -12,6 +12,7 @@ services:
       KAFKA_AUTO_OFFSET_RESET: latest
       SOFIA_USER: sofia
       SOFIA_PASS: ${SOFIA_PASS}
+      ONTOLOGY: ${ONTOLOGY}
     restart: unless-stopped
     networks:
       - readers-net
