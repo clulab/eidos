@@ -18,7 +18,7 @@ services:
       EIDOS_USERNAME: ${EIDOS_USERNAME}
       EIDOS_PASSWORD: ${EIDOS_PASSWORD}
 
-      EIDOS_BASE_DIR: ../corpora/julyEmbed
+      EIDOS_BASE_DIR: ../corpora/julyEmbedBYOD
 
       EIDOS_MEMORY: -Xmx20g
       EIDOS_THREADS: 4

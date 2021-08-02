@@ -1,7 +1,7 @@
 name := "wmexchanger"
 
-// This is actually for the native packager.
-maintainer := "msurdeanu@email.arizona.edu"
+// This is actually for the native packager, but it breaks things.
+// dist / maintainer := "msurdeanu@email.arizona.edu"
 
 resolvers ++= Seq(
   ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release").withAllowInsecureProtocol(true), // processors-models
