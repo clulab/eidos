@@ -2,7 +2,7 @@
 
 This package contains numerous collections of files which are all executable in that they include an object that inherits from App or otherwise provides a static main() method so that they can be run.  The package is slated for conversion into a subproject.  The collections are briefly described here but each should have its own README.md file describing the individual apps.
 
-* batch - Files here are involved with batch processing of large document collections, usually the kinds related to Two Six's DART system and its CDR files.
+* [batch](./batch) - Files here are involved with batch processing of large document collections, usually the kinds related to Two Six's DART system and its CDR files.
 * cache - Some kinds of resources can be preprocessed and then cached so that Eidos components can be loaded more quickly, and the programs to do that are located here.
 * eval - Various components of Eidos need to be evaluated occasionally and these program do that.
 * examples - Files are placed here because they are used in the documentation and should not be changed without coordination with that documentation.
