@@ -1,12 +1,9 @@
-package org.clulab.wm.eidos.apps.groundings
+package org.clulab.wm.eidos.groundings
 
 import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.DefaultWordSanitizer
 import org.clulab.wm.eidos.EidosConfigured
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.ConceptEmbedding
-import org.clulab.wm.eidos.groundings.EidosWordToVec
-import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
 import org.clulab.wm.eidoscommon.Canonicalizer
@@ -21,13 +18,6 @@ import scala.collection.mutable.ArrayBuffer
 
 object OntologyMapper extends EidosConfigured {
   val sanitizer: DefaultWordSanitizer = EidosWordToVec.sanitizer
-
-  // All of this and the call to mapIndicators is usually arranged in CacheOntologies.
-  def main(args: Array[String]): Unit = {
-    val reader = new EidosSystem()
-
-    mapIndicators(reader)
-  }
 
   def loadOtherOntology(file: String, w2v: EidosWordToVec): Seq[ConceptEmbedding] = {
     val ces = Sourcer.sourceFromFile(file).autoClose { source =>

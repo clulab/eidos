@@ -1,16 +1,15 @@
-package org.clulab.wm.eidos.utils
+package org.clulab.wm.eidos.groundings
 
 import org.clulab.embeddings.{WordEmbeddingMap => Word2Vec}
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.apps.OntologyMapper.{mostSimilar, mostSimilarIndicators}
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, OntologyHandler}
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.PassThruNamer
+import upickle.default.ReadWriter
 import upickle.default._
-import upickle.default.{ReadWriter, macroRW}
+import upickle.default.macroRW
 
-object MaaSUtils {
+object MaaSHandler {
   def mapOntology(reader: EidosSystem, ontologyName: String, ontologyString: String, topN: Int = 10): String = {
     val grounders: Seq[EidosOntologyGrounder] = reader.components.ontologyHandlerOpt.get.ontologyGrounders.collect{ case g: EidosOntologyGrounder => g }
     // For purposes of this app, it is assumed that the primary grounder exists.
@@ -36,7 +35,7 @@ object MaaSUtils {
     // Seq(Concept:String, Seq(Indicator: String, Score: Float))
     val mostSimilarSorted =
       for {
-        (conceptName, sortedIndicators)  <- mostSimilarIndicators(primaryConceptEmbeddings, concepts, topN, reader)
+        (conceptName, sortedIndicators)  <- OntologyMapper.mostSimilarIndicators(primaryConceptEmbeddings, concepts, topN, reader)
         matchedConcepts = sortedIndicators.map(indAndScore => ConceptMatch(indAndScore._1, indAndScore._2))
       } yield ConceptIndicators(conceptName, Alignments(matchedConcepts))
     write(mostSimilarSorted)
@@ -59,7 +58,7 @@ object MaaSUtils {
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
     val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings
-    val mostSimilarConcepts = mostSimilar(conceptEmbed, primaryConceptEmbeddings, topN, reader, 1.0f, 0.0f)
+    val mostSimilarConcepts = OntologyMapper.mostSimilar(conceptEmbed, primaryConceptEmbeddings, topN, reader, 1.0f, 0.0f)
 
     write(Alignments(mostSimilarConcepts.map(c => ConceptMatch(c._1, c._2))))
   }

@@ -1,5 +1,7 @@
-package org.clulab.wm.eidos.groundings
+package org.clulab.wm.eidos.utils
 
+import org.clulab.wm.eidos.groundings.OntologyAliases
+import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 
