@@ -19,7 +19,7 @@ import org.clulab.wm.eidoscommon.utils.FileUtils
   */
 object WMseed extends App with LazyLogging {
 
-  val config = ConfigFactory.load("wmseed")         // load the configuration file
+  val config = ConfigFactory.load("org/clulab/wm/eidos/apps/wmseed")         // load the configuration file
 
   val documentPath = config[String]("WMseed.documentPath")
   // print the parameters
