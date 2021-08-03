@@ -2,8 +2,10 @@ package org.clulab.wm.eidos.apps
 
 import ai.lum.common.ConfigUtils._
 import org.clulab.embeddings.DefaultWordSanitizer
+import org.clulab.wm.eidos.EidosConfigured
 import org.clulab.wm.eidoscommon.EidosProcessor
-import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Sourcer
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder

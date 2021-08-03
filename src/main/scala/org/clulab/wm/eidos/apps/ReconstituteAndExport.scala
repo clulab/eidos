@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.apps
 
+import org.clulab.wm.eidos.EidosApp
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.exporters.Exporter
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer

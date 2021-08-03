@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.apps
+package org.clulab.wm.eidos
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory

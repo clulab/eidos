@@ -4,6 +4,7 @@ import java.io.File
 import java.util.Calendar
 import org.clulab.struct.Counter
 import org.clulab.utils.ThreadUtils
+import org.clulab.wm.eidos.EidosApp
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.GroundingAnnotationExporter
