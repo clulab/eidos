@@ -21,7 +21,7 @@ object CacheOntologies extends App {
   val includeParents: Boolean = config[Boolean]("ontologies.includeParents")
   val cacheDir: String = config[String]("ontologies.cacheDir")
   // Not all operations require the reader, so hedge your bets.
-  lazy val reader = new EidosSystem(config)
+  lazy val reader = new EidosSystem()
 
   new File(cacheDir).mkdirs()
 
@@ -101,13 +101,6 @@ object CacheOntologies extends App {
     println(s"Finished serializing vectors.")
   }
 
-  def updateIndicatorMappings(): Unit = {
-    // Update the indicator mapping file
-    val outputFile = config[String]("apps.ontologymapper.outfile")
-    val topN = config[Int]("apps.groundTopN")
-    OntologyMapper.mapIndicators(reader, outputFile, topN)
-  }
-
   def safeCacheOntologies(): Unit = {
     // When not grounding, neither ontologies nor vectors should be loaded at all.  Require grounding, thus.
     assert(config[Boolean]("ontologies.useGrounding") == true, "To use CacheOntologies, you must set useGrounding = true")
@@ -124,5 +117,6 @@ object CacheOntologies extends App {
   replaceGeoNorms() // This should go first before EidosSystem is created.
   cacheWord2Vec()
   safeCacheOntologies()
-  updateIndicatorMappings()
+  // This this program separately now.
+  // updateIndicatorMappings()
 }

@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.apps
 
 import ai.lum.common.ConfigUtils._
-import com.typesafe.config.ConfigFactory
 import org.clulab.embeddings.DefaultWordSanitizer
 import org.clulab.wm.eidoscommon.EidosProcessor
 import org.clulab.wm.eidoscommon.utils.{FileUtils, Sourcer}
@@ -16,17 +15,14 @@ import org.clulab.wm.ontologies.DomainOntology
 
 import scala.collection.mutable.ArrayBuffer
 
-object OntologyMapper {
+object OntologyMapper extends EidosConfigured {
   val sanitizer: DefaultWordSanitizer = EidosWordToVec.sanitizer
 
   // All of this and the call to mapIndicators is usually arranged in CacheOntologies.
   def main(args: Array[String]): Unit = {
-    val config = EidosSystem.defaultConfig
-    val outputFile = config[String]("apps.ontologymapper.outfile")
-    val topN: Int = config[Int]("apps.groundTopN")
-    val reader = new EidosSystem(config)
+    val reader = new EidosSystem()
 
-    mapIndicators(reader, outputFile, topN)
+    mapIndicators(reader)
   }
 
   def loadOtherOntology(file: String, w2v: EidosWordToVec): Seq[ConceptEmbedding] = {
@@ -151,6 +147,13 @@ object OntologyMapper {
     reader.components.ontologyHandlerOpt.get.ontologyGrounders.collect{
       case e: FlatOntologyGrounder => e
     }
+  }
+
+  def mapIndicators(reader: EidosSystem): Unit = {
+    // Update the indicator mapping file
+    val outputFile = config[String]("apps.ontologymapper.outfile")
+    val topN = config[Int]("apps.groundTopN")
+    mapIndicators(reader, outputFile, topN)
   }
 
   // Mapping the primary ontology to the indicator ontologies

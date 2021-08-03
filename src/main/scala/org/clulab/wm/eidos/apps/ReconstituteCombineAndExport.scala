@@ -1,8 +1,5 @@
 package org.clulab.wm.eidos.apps
 
-import com.typesafe.config.Config
-
-import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.exporters.Exporter
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
@@ -14,10 +11,7 @@ import org.clulab.wm.eidoscommon.utils.FileUtils
   * tsv or serialized mentions).  The input directory nd output file as well as the desired export formats are specified
   * in eidos.conf (located in src/main/resources).
   */
-object ReconstituteCombineAndExport extends App with Configured {
-  val config = EidosSystem.defaultConfig
-  override def getConf: Config = config
-
+object ReconstituteCombineAndExport extends EidosApp {
   val inputDir = getArgString("apps.inputDirectory", None)
   val outputFile = getArgString("apps.outputFile", None)
   val inputExtension = ".jsonld"

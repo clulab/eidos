@@ -1,8 +1,5 @@
 package org.clulab.wm.eidos.apps
 
-
-import com.typesafe.config.{Config, ConfigFactory}
-import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.exporters.Exporter
 import org.clulab.wm.eidos.groundings.grounders.CompositionalGrounder
@@ -13,13 +10,7 @@ import org.clulab.wm.eidoscommon.utils.FileUtils
   * tsv or serialized mentions).  The input and output directories as well as the desired export formats are specified
   * in eidos.conf (located in src/main/resources).
   */
-object ExtractAndExport extends App with Configured {
-
-
-
-  val config = EidosSystem.defaultConfig
-  override def getConf: Config = config
-
+object ExtractAndExport extends EidosApp {
   val inputDir = getArgString("apps.inputDirectory", None)
   val outputDir = getArgString("apps.outputDirectory", None)
   val inputExtension = getArgString("apps.inputFileExtension", None)

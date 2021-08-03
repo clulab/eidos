@@ -1,12 +1,10 @@
 package org.clulab.wm.eidos.apps
 
 import ai.lum.common.StringUtils.StringWrapper
-import com.typesafe.config.{Config, ConfigFactory}
 import java.util.Calendar
 
 import org.clulab.odin.EventMention
 import org.clulab.struct.Counter
-import org.clulab.utils.Configured
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.exporters.EntityInfo
@@ -18,7 +16,7 @@ import org.clulab.wm.eidoscommon.utils.TsvWriter
 
 import scala.collection.Seq
 
-object AnnotationTSV extends App with Configured {
+object AnnotationTSV extends EidosApp {
 
   // Methods for Sheet 1
   val headers1: Seq[String] = Seq(
@@ -138,9 +136,6 @@ object AnnotationTSV extends App with Configured {
       percCurated
     )
   }
-
-  val config = EidosSystem.defaultConfig
-  override def getConf: Config = config
 
   val inputDir = getArgString("apps.inputDirectory", None)
   val outputDir = getArgString("apps.outputDirectory", None)
