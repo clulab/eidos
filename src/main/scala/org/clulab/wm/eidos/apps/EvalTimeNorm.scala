@@ -1,13 +1,12 @@
 package org.clulab.wm.eidos.apps
 
 import java.time.LocalDateTime
-
 import com.typesafe.config.ConfigValueFactory
 import org.clulab.timenorm.scate.{SimpleInterval, SimpleIntervals, TimeNormScorer, UnknownInterval}
 import org.clulab.timenorm.scate.TimeNormScorer.Timex
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.Time
-import org.clulab.wm.eidos.document.Metadata
+import org.clulab.wm.eidos.metadata.Metadata
 
 import scala.io.Source
 import collection.JavaConverters._

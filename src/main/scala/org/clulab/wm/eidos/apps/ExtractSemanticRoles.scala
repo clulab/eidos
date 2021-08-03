@@ -1,8 +1,8 @@
 package org.clulab.wm.eidos.apps
 
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
+import org.clulab.wm.eidos.metadata.CdrText
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidos.utils.meta.CdrText
 
 import scala.util.Random
 

@@ -1,8 +1,7 @@
-package org.clulab.wm.eidos.utils.meta
+package org.clulab.wm.eidos.metadata
 
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
-import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidoscommon.EidosException
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer

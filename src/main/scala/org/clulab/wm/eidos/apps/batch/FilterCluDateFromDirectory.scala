@@ -1,8 +1,8 @@
 package org.clulab.wm.eidos.apps.batch
 
+import org.clulab.wm.eidos.metadata.CluText
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidos.utils.meta.CluText
 
 object FilterCluDateFromDirectory extends App {
   val inputDir = args(0)

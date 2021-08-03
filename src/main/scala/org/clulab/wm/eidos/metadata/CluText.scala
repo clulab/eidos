@@ -1,18 +1,19 @@
-package org.clulab.wm.eidos.utils.meta
-
-import java.io.File
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+package org.clulab.wm.eidos.metadata
 
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.document.Metadata
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, StringUtils}
+import org.clulab.wm.eidoscommon.utils.FileEditor
+import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.json4s.DefaultFormats
 import org.json4s.JValue
 import org.json4s.JsonAST.JField
 import org.json4s.JsonAST.JObject
 import org.json4s.JsonAST.JString
 import org.json4s.jackson.JsonMethods
+
+import java.io.File
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class CluText(eidosSystem: EidosSystem, text: String, jValueOpt: Option[JValue]) extends EidosText {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats

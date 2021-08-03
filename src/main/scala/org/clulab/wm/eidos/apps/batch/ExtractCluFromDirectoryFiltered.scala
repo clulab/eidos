@@ -1,12 +1,11 @@
 package org.clulab.wm.eidos.apps.batch
 
 import java.io.File
-
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.metadata.CluText
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidos.utils.meta.CluText
 
 object ExtractCluFromDirectoryFiltered extends App {
   val inputDir = args(0)

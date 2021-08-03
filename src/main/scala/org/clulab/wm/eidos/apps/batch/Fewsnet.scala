@@ -1,9 +1,9 @@
 package org.clulab.wm.eidos.apps.batch
 
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.utils.meta.PdfInfoText
 import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.metadata.PdfInfoText
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils

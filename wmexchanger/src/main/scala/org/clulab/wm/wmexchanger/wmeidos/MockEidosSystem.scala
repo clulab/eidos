@@ -3,7 +3,7 @@ package org.clulab.wm.wmexchanger.wmeidos
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.document.Metadata
+import org.clulab.wm.eidos.metadata.Metadata
 
 class MockEidosSystem extends EidosSystemish {
 

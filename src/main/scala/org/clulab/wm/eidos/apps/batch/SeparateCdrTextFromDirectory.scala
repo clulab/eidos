@@ -1,12 +1,12 @@
 package org.clulab.wm.eidos.apps.batch
 
-import java.io.File
+import org.clulab.wm.eidos.metadata.CdrText
+import org.clulab.wm.eidos.metadata.CluText
 
+import java.io.File
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidos.utils.meta.CdrText
-import org.clulab.wm.eidos.utils.meta.CluText
 import org.json4s.DefaultFormats
 import org.json4s.JValue
 

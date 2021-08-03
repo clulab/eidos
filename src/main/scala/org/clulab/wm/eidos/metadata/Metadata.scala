@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.document
+package org.clulab.wm.eidos.metadata
 
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.context.DCT

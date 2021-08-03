@@ -1,20 +1,18 @@
-package org.clulab.wm.eidos.utils.meta
+package org.clulab.wm.eidos.metadata
 
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.TimeZone
 import org.clulab.timenorm.scate.SimpleInterval
 import org.clulab.wm.eidos.context.DCT
-import org.clulab.wm.eidos.document.Metadata
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.json4s.DefaultFormats
 import org.json4s.JObject
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.TimeZone
 
 class CdrText(cdr: JValue) extends EidosText {
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats

@@ -6,7 +6,7 @@ import org.clulab.serialization.json.stringify
 import org.clulab.utils.ThreadUtils
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.grounders.EidosAdjectiveGrounder
-import org.clulab.wm.eidos.utils.meta.CdrText
+import org.clulab.wm.eidos.metadata.CdrText
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
