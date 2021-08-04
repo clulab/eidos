@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.context
 
-import org.clulab.wm.eidos.apps.EvalSeasonNorm
+import org.clulab.wm.eidos.apps.eval.EvalSeasonNorm
 import org.clulab.wm.eidos.test.EidosTest
 
 class TestEvalSeasonNorm extends EidosTest {

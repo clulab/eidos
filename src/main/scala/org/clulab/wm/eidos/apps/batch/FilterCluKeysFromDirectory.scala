@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.apps.batch
 
+import org.clulab.wm.eidos.metadata.CluText
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidos.utils.meta.CluText
 import org.json4s.JsonAST.JField
 import org.json4s.JsonAST.JObject
 import org.json4s.JsonAST.JString

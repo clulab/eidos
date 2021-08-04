@@ -2,12 +2,14 @@ package controllers
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigRenderOptions
+
 import javax.inject._
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.groundings.MaaSHandler
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.serialization.web.BuildInfoObj
 import org.clulab.wm.eidos.serialization.web.WebSerializer
-import org.clulab.wm.eidos.utils.{DisplayUtils, MaaSUtils, PlayUtils}
+import org.clulab.wm.eidos.utils.{DisplayUtils, PlayUtils}
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.mvc.Action
@@ -69,14 +71,14 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val data = request.body.asJson.get.toString()
 
     // Note -- topN can be exposed to the API if needed
-    Ok(MaaSUtils.mapNodeToPrimaryConcepts(ieSystem, data, topN = 10)).as(JSON)
+    Ok(MaaSHandler.mapNodeToPrimaryConcepts(ieSystem, data, topN = 10)).as(JSON)
   }
 
   def mapOntology: Action[AnyContent] = Action { request =>
     val fileContents = request.body.asText.get
 
     // Note -- topN can be exposed to the API if needed
-    Ok(MaaSUtils.mapOntology(ieSystem, "MaaS", fileContents, topN = 10)).as(JSON)
+    Ok(MaaSHandler.mapOntology(ieSystem, "MaaS", fileContents, topN = 10)).as(JSON)
   }
 
   // Entry method

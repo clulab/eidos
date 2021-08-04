@@ -3,8 +3,8 @@ package org.clulab.wm.wmexchanger.wmeidos
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidos.EidosOptions
+import org.clulab.wm.eidos.metadata.CdrText
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.utils.meta.CdrText
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, StringUtils}
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
