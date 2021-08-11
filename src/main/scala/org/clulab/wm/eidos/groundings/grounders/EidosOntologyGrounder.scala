@@ -43,7 +43,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     }
 
   // For API to reground strings
-  def groundOntology(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
+  def groundText(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
     // Sieve-based approach
     if (isGroundableType) {
       newOntologyGrounding(groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptEmbeddings))
@@ -67,11 +67,6 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         }
         false
     }
-  }
-
-  // For API to reground strings
-  def groundText(text: String): OntologyGrounding = {
-    newOntologyGrounding(groundPatternsThenEmbeddings(text, conceptPatterns, conceptEmbeddings))
   }
 
   def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
