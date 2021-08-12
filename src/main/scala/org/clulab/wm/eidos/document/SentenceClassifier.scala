@@ -50,11 +50,14 @@ object SentenceClassifier {
   }
 
   def fromConfig(config: Config, language: String, ontologyHandler: OntologyHandler): Option[SentenceClassifier] = {
+    // make a way to disable in the config
+    if (!config.apply[Boolean]("enable")) return None
+
     val flatOntologyGrounders = ontologyHandler.ontologyGrounders.collect { case grounder: FlatOntologyGrounder => grounder }
 
     if (language == Language.ENGLISH && flatOntologyGrounders.nonEmpty) {
-      val classificationThreshold = config[Double]("classificationThreshold").toFloat
-      val idfWeightsFile = config[String]("tokenIDFWeights")
+      val classificationThreshold = config.apply[Double]("classificationThreshold").toFloat
+      val idfWeightsFile = config.apply[String]("tokenIDFWeights")
       val idfWeights = readFromText2Map(idfWeightsFile)
 
       Some(new SentenceClassifier(classificationThreshold, idfWeights, ontologyHandler, flatOntologyGrounders.head))
