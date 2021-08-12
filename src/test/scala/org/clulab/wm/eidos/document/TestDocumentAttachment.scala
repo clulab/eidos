@@ -154,6 +154,10 @@ class TestDocumentAttachment extends EidosTest {
         ConfigValueFactory.fromIterable(Iterable("wm_flattened").asJava
         )
       )
+      .withValue(
+        "sentenceClassifier.enable",
+        ConfigValueFactory.fromAnyRef(true)
+      )
     val eidosSystem = new EidosSystem(config)
     // This text is randomly selected.
     val docText = "As I wrote about before the conventions, " +
