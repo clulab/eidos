@@ -19,8 +19,11 @@ class TestSentenceClassifier extends EidosTest {
   val config: Config = ConfigFactory.load(EidosSystem.defaultConfig)
     .withValue(
       "ontologies.ontologies",
-      ConfigValueFactory.fromIterable(Iterable("wm_flattened").asJava
-      )
+      ConfigValueFactory.fromIterable(Iterable("wm_flattened").asJava)
+    )
+    .withValue(
+      "sentenceClassifier.enable",
+      ConfigValueFactory.fromAnyRef(true)
     )
   val eidosSystem = new EidosSystem(config)
   // Classification threshold can be set in the eidos.conf file.
