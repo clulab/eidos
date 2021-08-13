@@ -35,14 +35,16 @@ class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[Str
 object SentenceClassifier {
 
   def enable(config: Config = EidosSystem.defaultConfig): Config = {
+    // An enabled SentenceClassifier does need to have a flat ontology available.
+    // It will be made the only ontology with this code, so be careful.
     config
-      .withValue(
-        "ontologies.ontologies",
-        ConfigValueFactory.fromIterable(Iterable("wm_flattened").asJava)
-      )
       .withValue(
         "sentenceClassifier.enable",
         ConfigValueFactory.fromAnyRef(true)
+      )
+      .withValue(
+        "ontologies.ontologies",
+        ConfigValueFactory.fromIterable(Iterable("wm_flattened").asJava)
       )
   }
 
