@@ -43,12 +43,9 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     }
 
   // For API to reground strings
-  def groundText(isGroundableType: Boolean, mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
+  def groundText(mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
     // Sieve-based approach
-    if (isGroundableType) {
-      newOntologyGrounding(groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptEmbeddings))
-    }
-    else newOntologyGrounding()
+    newOntologyGrounding(groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptEmbeddings))
   }
 
   def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
