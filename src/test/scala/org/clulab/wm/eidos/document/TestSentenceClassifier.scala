@@ -116,7 +116,7 @@ class TestSentenceClassifier extends EidosTest {
 
   behavior of "SentenceClassifier on the 408 sample evaluation dataset"
 
-  it should "have an precision > 0.80 and recall > 0.17" in {
+  it should "have precision > 0.80 and recall > 0.17" in {
     if (true) {
       val sentenceClassifierEvaluationData = readEvaluationData408Sample()
       val preds = new ArrayBuffer[Int]()
