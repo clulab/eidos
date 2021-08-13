@@ -101,23 +101,19 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     throw new RuntimeException("The SRLCompositionalGrounder isn't designed to be used with canonical name parts only.")
   }
 
-  override def groundText(isGroundableType: Boolean, text: String, canonicalNameParts: Array[String]): OntologyGrounding = {
-    if (isGroundableType) {
-      val doc = proc.annotate(text)
-      val groundings = for {
-        s <- doc.sentences
-        // TODO (at some point) -- the empty sequence here is a placeholder for increase/decrease triggers
-        //  Currently we don't have "access" to those here, but that could be changed
-        //  Further, the Nones are for a topN and a threshold, which we don't have here
-        ontologyGrounding <- groundSentenceSpan(s, 0, s.words.length, Set(), None, None)
-        singleGrounding <- ontologyGrounding.grounding
-      } yield singleGrounding
+  override def groundText(text: String, canonicalNameParts: Array[String]): OntologyGrounding = {
+    val doc = proc.annotate(text)
+    val groundings = for {
+      s <- doc.sentences
+      // TODO (at some point) -- the empty sequence here is a placeholder for increase/decrease triggers
+      //  Currently we don't have "access" to those here, but that could be changed
+      //  Further, the Nones are for a topN and a threshold, which we don't have here
+      ontologyGrounding <- groundSentenceSpan(s, 0, s.words.length, Set(), None, None)
+      singleGrounding <- ontologyGrounding.grounding
+    } yield singleGrounding
 
-      val groundingResult = newOntologyGrounding(groundings.sortBy(- _.score))
-      groundingResult
-    } else {
-      newOntologyGrounding()
-    }
+    val groundingResult = newOntologyGrounding(groundings.sortBy(- _.score))
+    groundingResult
   }
 
   override def groundEidosMention(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
