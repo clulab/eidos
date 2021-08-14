@@ -187,7 +187,7 @@ class OntologyHandler(
               if (isAlreadyCanonicalized) text.split(' ')
               else recanonicalize(text).toArray // Attempt to regenerate them.
 
-          g.groundOntology(isGroundableType = true, mentionText, canonicalNameParts)
+          g.groundText(mentionText, canonicalNameParts)
       }
       case _ => throw new RuntimeException("Regrounding needs an EidosOntologyGrounder")
     }

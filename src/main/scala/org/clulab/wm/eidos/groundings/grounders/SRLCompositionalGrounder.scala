@@ -101,7 +101,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     throw new RuntimeException("The SRLCompositionalGrounder isn't designed to be used with canonical name parts only.")
   }
 
-  override def groundText(text: String): OntologyGrounding = {
+  override def groundText(text: String, canonicalNameParts: Array[String]): OntologyGrounding = {
     val doc = proc.annotate(text)
     val groundings = for {
       s <- doc.sentences

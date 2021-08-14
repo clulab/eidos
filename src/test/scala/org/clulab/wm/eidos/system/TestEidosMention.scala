@@ -9,8 +9,6 @@ import org.clulab.wm.eidos.text.english.cag.CAG._
 import org.clulab.wm.eidoscommon.utils.{EqualityBagger, IdentityBagger}
 
 class TestEidosMention extends ExtractionTest {
-  
-  def groundOntology(mention: EidosMention): Map[String, OntologyGrounding] = Map.empty
 
 //  object StopwordManager extends StopwordManaging {
 //    def containsStopword(stopword: String) = stopword == "policy"
