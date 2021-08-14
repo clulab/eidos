@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.document
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import com.typesafe.config.Config
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
@@ -10,18 +10,12 @@ import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
 
 import scala.collection.mutable.ArrayBuffer
-import collection.JavaConverters._
 
 // This isn't inheriting from EnglishTest because grounding is usually not enabled for tests.
 class TestSentenceClassifier extends EidosTest {
   // The sentence classifier enabled, relies on the flat ontology conceptEmbeddings.
   // Hence, here we ensure that they're enabled/available.
-  val config: Config = ConfigFactory.load(EidosSystem.defaultConfig)
-    .withValue(
-      "ontologies.ontologies",
-      ConfigValueFactory.fromIterable(Iterable("wm_flattened").asJava
-      )
-    )
+  val config: Config = SentenceClassifier.enable(EidosSystem.defaultConfig)
   val eidosSystem = new EidosSystem(config)
   // Classification threshold can be set in the eidos.conf file.
   val classificationThreshold = eidosSystem.components.eidosSentenceClassifierOpt.get.classificationThreshold
@@ -122,7 +116,7 @@ class TestSentenceClassifier extends EidosTest {
 
   behavior of "SentenceClassifier on the 408 sample evaluation dataset"
 
-  it should "have an precision > 0.80 and recall > 0.17" in {
+  it should "have precision > 0.80 and recall > 0.17" in {
     if (true) {
       val sentenceClassifierEvaluationData = readEvaluationData408Sample()
       val preds = new ArrayBuffer[Int]()

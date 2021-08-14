@@ -2,12 +2,17 @@ package org.clulab.wm.eidos.document
 
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigValueFactory
 import org.clulab.processors.Sentence
+import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, OntologyHandler, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
 import org.clulab.wm.eidoscommon.Language
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
+
+import scala.collection.JavaConverters._
 
 import java.io.FileNotFoundException
 
@@ -28,6 +33,20 @@ class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[Str
 }
 
 object SentenceClassifier {
+
+  def enable(config: Config = EidosSystem.defaultConfig): Config = {
+    // An enabled SentenceClassifier does need to have a flat ontology available.
+    // It will be made the only ontology with this code, so be careful.
+    config
+      .withValue(
+        "sentenceClassifier.enable",
+        ConfigValueFactory.fromAnyRef(true)
+      )
+      .withValue(
+        "ontologies.ontologies",
+        ConfigValueFactory.fromIterable(Iterable("wm_flattened").asJava)
+      )
+  }
 
   def newFileNotFoundException(path: String): FileNotFoundException = {
     val innerMessage =
@@ -50,11 +69,14 @@ object SentenceClassifier {
   }
 
   def fromConfig(config: Config, language: String, ontologyHandler: OntologyHandler): Option[SentenceClassifier] = {
+    // make a way to disable in the config
+    if (!config.apply[Boolean]("enable")) return None
+
     val flatOntologyGrounders = ontologyHandler.ontologyGrounders.collect { case grounder: FlatOntologyGrounder => grounder }
 
     if (language == Language.ENGLISH && flatOntologyGrounders.nonEmpty) {
-      val classificationThreshold = config[Double]("classificationThreshold").toFloat
-      val idfWeightsFile = config[String]("tokenIDFWeights")
+      val classificationThreshold = config.apply[Double]("classificationThreshold").toFloat
+      val idfWeightsFile = config.apply[String]("tokenIDFWeights")
       val idfWeights = readFromText2Map(idfWeightsFile)
 
       Some(new SentenceClassifier(classificationThreshold, idfWeights, ontologyHandler, flatOntologyGrounders.head))
