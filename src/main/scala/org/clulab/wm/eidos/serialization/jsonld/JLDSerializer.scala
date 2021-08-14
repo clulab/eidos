@@ -872,19 +872,21 @@ class JLDSentence(serializer: JLDSerializer, document: Document, sentence: Sente
   // use the version with the raw text because when the words are read back in, the conversion
   // is not performed again.
   protected def getSentenceFragmentText(sentence: Sentence, start: Int, end: Int): String = {
-    if (end - start == 1) return sentence.raw(start)
+    if (end - start == 1)
+      sentence.raw(start)
+    else {
+      val text = new mutable.StringBuilder()
+      for (i <- start until end) {
+        if (i > start) {
+          // add as many white spaces as recorded between tokens
+          val numberOfSpaces = math.max(1, sentence.startOffsets(i) - sentence.endOffsets(i - 1))
 
-    val text = new mutable.StringBuilder()
-    for (i <- start until end) {
-      if(i > start) {
-        // add as many white spaces as recorded between tokens
-        val numberOfSpaces = math.max(1, sentence.startOffsets(i) - sentence.endOffsets(i - 1))
-
-        0.until(numberOfSpaces).foreach { _ => text.append(" ") }
+          0.until(numberOfSpaces).foreach { _ => text.append(" ") }
+        }
+        text.append(sentence.words(i)) // Changed from raw
       }
-      text.append(sentence.words(i)) // Changed from raw
+      text.toString()
     }
-    text.toString()
   }
 
   override def toJObject: TidyJObject = {

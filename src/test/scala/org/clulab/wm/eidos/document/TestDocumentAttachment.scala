@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.document
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.time.LocalDateTime
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import com.typesafe.config.Config
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.DocumentSerializer
 import org.clulab.serialization.json.{JSONSerializer, _}
@@ -14,8 +14,6 @@ import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.attachments.{DctDocumentAttachment, RelevanceDocumentAttachment}
 import org.clulab.wm.eidos.test.EidosTest
 import org.json4s.jackson.{parseJson, prettyJson, renderJValue}
-
-import collection.JavaConverters._
 
 class TestDocumentAttachment extends EidosTest {
 
@@ -148,16 +146,7 @@ class TestDocumentAttachment extends EidosTest {
     // In order to have the document relevance available, the sentence classifier must be enabled,
     // which in turn relies on the flat ontology conceptEmbeddings.  Hence, here we ensure that they're
     // enabled/available.
-    val config: Config = ConfigFactory.load(EidosSystem.defaultConfig)
-      .withValue(
-        "ontologies.ontologies",
-        ConfigValueFactory.fromIterable(Iterable("wm_flattened").asJava
-        )
-      )
-      .withValue(
-        "sentenceClassifier.enable",
-        ConfigValueFactory.fromAnyRef(true)
-      )
+    val config: Config = SentenceClassifier.enable(EidosSystem.defaultConfig)
     val eidosSystem = new EidosSystem(config)
     // This text is randomly selected.
     val docText = "As I wrote about before the conventions, " +
