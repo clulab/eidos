@@ -5,13 +5,20 @@ pipeline {
     JAVA_TOOL_OPTIONS = "-Dfile.encoding=UTF-8"
   }
   stages {
-    stage('Test') {
+    stage('Test Scala') {
       steps {
         ansiColor('xterm') {
-          echo "Testing..."
+          echo "Testing Scala..."
           echo "_JAVA_OPTIONS is ${_JAVA_OPTIONS}"
           echo "JAVA_TOOL_OPTIONS is ${JAVA_TOOL_OPTIONS}"
-          sh "sbt +test"
+        }
+      }
+    }
+    stage('Test Python') {
+      steps {
+        ansiColor('xterm') {
+          echo "Testing Python..."
+          sh "sbt testPython"
         }
       }
     }

@@ -1,7 +1,6 @@
-import factorial
+from factorial import factorial
 
 class TestFactorial:
-
     def test_low(self):
         assert factorial(0) == 1
         assert factorial(5) == 120
