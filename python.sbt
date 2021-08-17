@@ -3,7 +3,7 @@
 import sbt.io.IO
 import scala.sys.process.Process
 
-val testPythonTask = TaskKey[Unit]("testPython", "Run python tests")
+val testPythonTask = TaskKey[Unit]("testPython", "Run Python tests")
 
 testPythonTask := {
   val taskStreams: TaskStreams = streams.value
