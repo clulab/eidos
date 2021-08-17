@@ -27,15 +27,20 @@ class TestGrounding extends EnglishGroundingTest {
     val active: Boolean
 
     def fakeAnnotatedDoc(text: String, causeIntervals: Seq[Interval], effectIntervals: Seq[Interval],
-        topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold):
-        (Seq[EidosMention], Seq[EidosMention])
+                         topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold):
+    (Seq[EidosMention], Seq[EidosMention])
 
-    def allGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[String]
+    def allGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[Seq[String]]
 
-    def groundingShouldContain(mention: EidosMention, value: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+    def groundingShouldContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       if (active) {
         val groundingNames = allGroundingNames(mention, topN, threshold)
-        groundingNames should contain(value)
+        slot match {
+          case "theme" => groundingNames.head.head should be(value)
+          case "themeProperty" => groundingNames.head(1) should be(value)
+          case "process" => groundingNames.head(2) should be(value)
+          case "processProperty" => groundingNames.head(3) should be(value)
+        }
       }
     }
   }
@@ -57,10 +62,10 @@ class TestGrounding extends EnglishGroundingTest {
     val active = false
 
     def fakeAnnotatedDoc(text: String, causeIntervals: Seq[Interval], effectIntervals: Seq[Interval],
-        topN: Option[Int], threshold: Option[Float]):
-        (Seq[EidosMention], Seq[EidosMention]) = (Seq.empty, Seq.empty)
+                         topN: Option[Int], threshold: Option[Float]):
+    (Seq[EidosMention], Seq[EidosMention]) = (Seq.empty, Seq.empty)
 
-    def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[String] = Seq.empty
+    def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[Seq[String]] = Seq(Seq.empty)
   }
 
   class RealCompositionalGroundingTextTester(name: String, ontologyGrounder: OntologyGrounder) extends CompositionalGroundingTextTester {
@@ -92,16 +97,25 @@ class TestGrounding extends EnglishGroundingTest {
 
     def topProcessGrounding(mention: EidosMention): Float = topGroundingValue(mention: EidosMention, "process")
 
-    def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[String] = {
+    def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[Seq[String]] = {
       val allGroundings = groundings(mention, topN, threshold)
       val names = allGroundings.values.flatMap { ontologyGrounding =>
         ontologyGrounding.grounding.map { grounding =>
           val predicateGrounding = grounding.asInstanceOf[PredicateGrounding]
           val predicateTuple = predicateGrounding.predicateTuple
           val theme = predicateTuple.theme
-          val name = theme.grounding.headOption.map(_.name).getOrElse("")
+          val theme_name = theme.grounding.headOption.map(_.name).getOrElse("")
+          val property = predicateTuple.themeProperties
+          val property_name = property.grounding.headOption.map(_.name).getOrElse("")
+          val process = predicateTuple.themeProcess
+          val process_name = process.grounding.headOption.map(_.name).getOrElse("")
+          val process_property = predicateTuple.themeProcessProperties
+          val process_property_name = process_property.grounding.headOption.map(_.name).getOrElse("")
           // fixme: (?) why are we returning only the theme?
-          name
+          val tuple = Seq(theme_name, property_name, process_name, process_property_name)
+          //          println("\nRETURNED TUPLE:")
+          //          println(tuple)
+          tuple
         }
       }
 
@@ -124,7 +138,7 @@ class TestGrounding extends EnglishGroundingTest {
       val doc = ieSystem.annotate(text)
       val causes = {
         val odinCauses = causeIntervals.map(x =>
-            new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
+          new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
         val annotatedDocument = AnnotatedDocument(doc, odinCauses)
         val eidosCauses = annotatedDocument.eidosMentions
 
@@ -135,7 +149,7 @@ class TestGrounding extends EnglishGroundingTest {
 
       val effects = {
         val odinEffects = effectIntervals.map(x =>
-            new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
+          new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
         val annotatedDocument = AnnotatedDocument(doc, odinEffects)
         val eidosEffects = annotatedDocument.eidosMentions
 
@@ -149,6 +163,11 @@ class TestGrounding extends EnglishGroundingTest {
     }
   }
 
+  val theme = "theme"
+  val themeProperty = "themeProperty"
+  val process = "process"
+  val processProperty = "processProperty"
+
   val tester: CompositionalGroundingTextTester = CompositionalGroundingTextTester("wm_compositional")
 
   {
@@ -159,11 +178,30 @@ class TestGrounding extends EnglishGroundingTest {
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/fuel")
+    passingTest should "process \"" + text + "\" cause theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/fuel", theme)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/process/conflict/insurgency")
+    passingTest should "process \"" + text + "\" cause theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/property/availability", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" cause process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" cause process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", processProperty)
+    }
+
+    passingTest should "process \"" + text + "\" effect theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/process/conflict/insurgency", theme)
+    }
+    passingTest should "process \"" + text + "\" effect theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" effect process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" effect process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", processProperty)
     }
   }
 
@@ -176,11 +214,30 @@ class TestGrounding extends EnglishGroundingTest {
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/fuel")
+    passingTest should "process \"" + text + "\" cause theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/fuel", theme)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/concept/crisis_or_disaster/conflict/")
+    passingTest should "process \"" + text + "\" cause theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/property/price_or_cost", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" cause process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" cause process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", processProperty)
+    }
+
+    passingTest should "process \"" + text + "\" effect theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/concept/crisis_or_disaster/conflict/", theme)
+    }
+    passingTest should "process \"" + text + "\" effect theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" effect process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" effect process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", processProperty)
     }
   }
 
@@ -193,11 +250,30 @@ class TestGrounding extends EnglishGroundingTest {
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head,"wm/concept/crisis_or_disaster/conflict/")
+    passingTest should "process \"" + text + "\" cause theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head,"wm/concept/crisis_or_disaster/conflict/", theme)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/concept/infrastructure/transportation/")
+    passingTest should "process \"" + text + "\" cause theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head,"", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" cause process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head,"", process)
+    }
+    passingTest should "process \"" + text + "\" cause process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head,"", processProperty)
+    }
+
+    passingTest should "process \"" + text + "\" effect theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/concept/goods/water/", theme)
+    }
+    passingTest should "process \"" + text + "\" effect theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" effect process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/process/transportation/", process)
+    }
+    passingTest should "process \"" + text + "\" effect process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/property/price_or_cost", processProperty)
     }
   }
 
@@ -210,11 +286,30 @@ class TestGrounding extends EnglishGroundingTest {
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/hostility")
+    passingTest should "process \"" + text + "\" cause theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/hostility", theme)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/concept/infrastructure/education_facilities")
+    passingTest should "process \"" + text + "\" cause theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" cause process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" cause process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", processProperty)
+    }
+
+    passingTest should "process \"" + text + "\" effect theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/concept/infrastructure/education_supplies", theme)
+    }
+    passingTest should "process \"" + text + "\" effect theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/property/availability", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" effect process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" effect process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", processProperty)
     }
   }
 
@@ -227,39 +322,58 @@ class TestGrounding extends EnglishGroundingTest {
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/food")
+    passingTest should "process \"" + text + "\" cause theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/food", theme)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/concept/entity/drone")
+    passingTest should "process \"" + text + "\" cause theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/property/security", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" cause process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" cause process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", processProperty)
+    }
+
+    passingTest should "process \"" + text + "\" effect theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/process/population/migrate/emigrate", theme)
+    }
+    passingTest should "process \"" + text + "\" effect theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" effect process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" effect process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", processProperty)
     }
   }
 
+  // TODO: update test for multiple causes
 
-  {
-    behavior of "Grounding 6"
-
-    val text = "The primary reasons for moving were insecurity, lack of food, and poor access to services such as healthcare and education."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(6, 7), Interval(8, 11), Interval(14, 22), Interval(4, 5)), Seq(Interval(4, 5)))
-    val causeMentions = eidosMentions._1
-    val effectMentions = eidosMentions._2
-
-    passingTest should "process \"" + text + "\" cause1 correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/property/insecurity")
-    }
-    passingTest should "process \"" + text + "\" cause2 correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions(1), "wm/concept/goods/food")
-    }
-    passingTest should "process \"" + text + "\" cause3 correctly" taggedAs Somebody in {
-      // FIXME:  'access' not grounding properly; the others work fine
-      // TODO: It seems like the second one is the problem.  It has been commented out for regression testing.
-      tester.groundingShouldContain(causeMentions(2), "wm/concept/safety_net", topN = Option(50), threshold = Option(0.0f))
-    }
-    failingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      // fixme: this isn't really what it should ground to
-      tester.groundingShouldContain(effectMentions.head, "wm/concept/health/life")
-    }
-  }
+  //  {
+  //    behavior of "Grounding 6"
+  //
+  //    val text = "The primary reasons for moving were insecurity, lack of food, and poor access to services such as healthcare and education."
+  //    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(6, 7), Interval(8, 11), Interval(14, 22), Interval(4, 5)), Seq(Interval(4, 5)))
+  //    val causeMentions = eidosMentions._1
+  //    val effectMentions = eidosMentions._2
+  //
+  //    passingTest should "process \"" + text + "\" cause1 correctly" taggedAs Somebody in {
+  //      tester.groundingShouldContain(causeMentions.head, "wm/property/insecurity")
+  //    }
+  //    passingTest should "process \"" + text + "\" cause2 correctly" taggedAs Somebody in {
+  //      tester.groundingShouldContain(causeMentions(1), "wm/concept/goods/food")
+  //    }
+  //    passingTest should "process \"" + text + "\" cause3 correctly" taggedAs Somebody in {
+  //      // FIXME:  'access' not grounding properly; the others work fine
+  //      // TODO: It seems like the second one is the problem.  It has been commented out for regression testing.
+  //      tester.groundingShouldContain(causeMentions(2), "wm/concept/economy/commercial_enterprise", topN = Option(50), threshold = Option(0.0f))
+  //    }
+  //    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
+  //      tester.groundingShouldContain(effectMentions.head, "wm/concept/health/life")
+  //    }
+  //  }
 
 
   {
@@ -270,11 +384,30 @@ class TestGrounding extends EnglishGroundingTest {
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/agriculture/crop/sorghum")
+    passingTest should "process \"" + text + "\" cause theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/agriculture/crop/sorghum", theme)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/concept/entity/people/migration/")
+    passingTest should "process \"" + text + "\" cause theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/property/availability", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" cause process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/process/access", process)
+    }
+    passingTest should "process \"" + text + "\" cause process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", processProperty)
+    }
+
+    passingTest should "process \"" + text + "\" effect theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/concept/entity/people/migration/", theme)
+    }
+    passingTest should "process \"" + text + "\" effect theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" effect process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" effect process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", processProperty)
     }
   }
 
@@ -284,14 +417,34 @@ class TestGrounding extends EnglishGroundingTest {
 
     val text = "sorghum shortage caused an increase in migration."
     val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0, 2)), Seq(Interval(6, 7)))
+    println(eidosMentions)
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/agriculture/crop/sorghum")
+    passingTest should "process \"" + text + "\" cause theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/agriculture/crop/sorghum", theme)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/concept/entity/people/migration/")
+    passingTest should "process \"" + text + "\" cause theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/property/unavailability", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" cause process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" cause process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", processProperty)
+    }
+
+    passingTest should "process \"" + text + "\" effect theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/concept/entity/people/migration/", theme)
+    }
+    passingTest should "process \"" + text + "\" effect theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" effect process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", process)
+    }
+    passingTest should "process \"" + text + "\" effect process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", processProperty)
     }
   }
 
@@ -304,39 +457,58 @@ class TestGrounding extends EnglishGroundingTest {
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
 
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/fuel")
+    passingTest should "process \"" + text + "\" cause theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/concept/goods/fuel", theme)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      tester.groundingShouldContain(effectMentions.head, "wm/concept/goods/water")
+    passingTest should "process \"" + text + "\" cause theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "wm/property/price_or_cost", themeProperty)
     }
-  }
-
-
-// template for compositional grounder tests
-// add test name, sentence text, and token intervals for cause and effect mentions
-// if you have multiple causes/effects, see "Grounding 6" test for how to include them
-/*
-  {
-    behavior of "test name"
-
-    val text = "Sentence goes here"
-    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,1)), Seq(Interval(1,2)))
-    val causeMentions = eidosMentions._1
-    val effectMentions = eidosMentions._2
-
-    passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(causeMentions.head) should contain("wm/???")
-      }
-      tester.groundingShouldContain(causeMentions.head, "wm/???")
+    passingTest should "process \"" + text + "\" cause process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", process)
     }
-    passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
-      if (tester.active) {
-        tester.allGroundingNames(effectMentions.head) should contain("wm/???")
-      }
-      tester.groundingShouldContain(effectMentions.head, "wm/???")
+    passingTest should "process \"" + text + "\" cause process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(causeMentions.head, "", processProperty)
+    }
+
+    passingTest should "process \"" + text + "\" effect theme correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/concept/goods/water", theme)
+    }
+    passingTest should "process \"" + text + "\" effect theme property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "", themeProperty)
+    }
+    passingTest should "process \"" + text + "\" effect process correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/process/transportation/", process)
+    }
+    passingTest should "process \"" + text + "\" effect process property correctly" taggedAs Somebody in {
+      tester.groundingShouldContain(effectMentions.head, "wm/property/price_or_cost", processProperty)
     }
   }
-*/
+
+
+  // template for compositional grounder tests
+  // add test name, sentence text, and token intervals for cause and effect mentions
+  // if you have multiple causes/effects, see "Grounding 6" test for how to include them
+  /*
+    {
+      behavior of "test name"
+
+      val text = "Sentence goes here"
+      val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,1)), Seq(Interval(1,2)))
+      val causeMentions = eidosMentions._1
+      val effectMentions = eidosMentions._2
+
+      passingTest should "process \"" + text + "\" cause correctly" taggedAs Somebody in {
+        if (tester.active) {
+          tester.allGroundingNames(causeMentions.head) should contain("wm/???")
+        }
+        tester.groundingShouldContain(causeMentions.head, "wm/???")
+      }
+      passingTest should "process \"" + text + "\" effect correctly" taggedAs Somebody in {
+        if (tester.active) {
+          tester.allGroundingNames(effectMentions.head) should contain("wm/???")
+        }
+        tester.groundingShouldContain(effectMentions.head, "wm/???")
+      }
+    }
+  */
 }
