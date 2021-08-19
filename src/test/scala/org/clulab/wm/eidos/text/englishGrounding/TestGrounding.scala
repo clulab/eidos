@@ -125,14 +125,10 @@ class TestGrounding extends EnglishGroundingTest {
           val process_name = process.grounding.headOption.map(_.name).getOrElse("")
           val process_property = predicateTuple.themeProcessProperties
           val process_property_name = process_property.grounding.headOption.map(_.name).getOrElse("")
-          // fixme: (?) why are we returning only the theme?
           val tuple = Seq(theme_name, property_name, process_name, process_property_name)
-          //          println("\nRETURNED TUPLE:")
-          //          println(tuple)
           tuple
         }
       }
-
       names
     }.toSeq
     // to get both name AND score of groundings
@@ -152,7 +148,7 @@ class TestGrounding extends EnglishGroundingTest {
       val doc = ieSystem.annotate(text)
       val causes = {
         val odinCauses = causeIntervals.map(x =>
-          new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
+            new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
         val annotatedDocument = AnnotatedDocument(doc, odinCauses)
         val eidosCauses = annotatedDocument.eidosMentions
 
@@ -163,7 +159,7 @@ class TestGrounding extends EnglishGroundingTest {
 
       val effects = {
         val odinEffects = effectIntervals.map(x =>
-          new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
+            new TextBoundMention(label = "Entity", x, 0, doc, true, "FakeRule"))
         val annotatedDocument = AnnotatedDocument(doc, odinEffects)
         val eidosEffects = annotatedDocument.eidosMentions
 
