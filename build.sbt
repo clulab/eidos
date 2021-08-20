@@ -53,13 +53,15 @@ libraryDependencies ++= {
   )
 }
 
-lazy val core = (project in file("."))
+lazy val core: Project = (project in file("."))
     .enablePlugins(BuildInfoPlugin)
     .disablePlugins(PlayScala, JavaAppPackaging, SbtNativePackager)
     .dependsOn(eidoscommon % "compile -> compile; test -> test", ontologies)
     .aggregate(eidoscommon, ontologies)
     .settings(
-      assembly / aggregate := false
+      assembly / aggregate := false,
+      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(elasticsearch, webapp, wmexchanger),
+      addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
     )
 
 lazy val eidoscommon = project

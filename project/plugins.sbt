@@ -17,6 +17,7 @@ addSbtPlugin("com.jsuereth"             % "sbt-pgp"              % "1.1.2-1")   
 addSbtPlugin("com.github.gseitz"        % "sbt-release"          % "1.0.13")    // up to 1.0.13
 addSbtPlugin("com.typesafe.sbt"         % "sbt-site"             % "1.4.1")     // up to 1.4.1 +
 addSbtPlugin("org.xerial.sbt"           % "sbt-sonatype"         % "2.3")       // up to 3.9.6 *
+addSbtPlugin("com.eed3si9n"             % "sbt-unidoc"           % "0.4.3")     // up to 0.4.3
 addSbtPlugin("com.typesafe.sbteclipse"  % "sbteclipse-plugin"    % "5.2.4")     // up to 5.2.4
 // ! Under Linux this complains with "[GFX1-]: glxtest: libEGL initialize failed".
 // + Upping this to 1.4.1 resulted in the error due to interference with the webapp requiring playVersion increment:
