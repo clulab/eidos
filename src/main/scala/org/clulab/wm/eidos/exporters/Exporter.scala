@@ -21,7 +21,6 @@ object Exporter {
       case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
       case "serialized" => SerializedExporter(filename)
       case "grounding" => new GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
-      case "reground" => new RegroundExporter(filename + ".jsonld", reader)
       case "ground" => new GroundExporter(filename, reader)
       case "debugGrounding" => new DebugGroundingExporter(filename, reader)
       case "groundingInsight" => new GroundingInsightExporter(filename, reader)

@@ -11,9 +11,10 @@ description := BuildUtils.singleLine("""
   |extract events from free text.
 """)
 
+// Last checked 2021-08-23
 val scala11 = "2.11.12" // up to 2.11.12
-val scala12 = "2.12.13" // up to 2.12.13
-val scala13 = "2.13.5"  // up to 2.13.5
+val scala12 = "2.12.14" // up to 2.12.14
+val scala13 = "2.13.6"  // up to 2.13.6
 
 // Processors is not available for scala13, so it is skipped here.
 ThisBuild / crossScalaVersions := Seq(scala12, scala11) // , scala13)
