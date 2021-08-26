@@ -725,7 +725,7 @@ class TestGrounding extends EnglishGroundingTest {
 
 
   {
-    behavior of "test slots 10"
+    behavior of "test slots 9"
 
     val text = "President Girma Woldegiorgis and Senior Ethiopian government officials sent messages of condolence to their Indian counterparts over the recent tragedy in Mumbai , India due to terrorist attacks ."
     val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(26,28)), Seq(Interval(0,22)))
@@ -734,6 +734,205 @@ class TestGrounding extends EnglishGroundingTest {
 
     val causeGroundings = Seq("wm/concept/crisis_or_disaster/conflict/crime", "", "wm/process/conflict/terrorism", "") //todo: need process as well?
     val effectGroundings = Seq("wm/concept/government/", "", "wm/process/communication/informing", "") //todo: needs better process, probably
+
+    // test cause slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+  }
+
+
+  {
+    behavior of "test slots 10"
+
+    val text = "As of the first quarter of 2011 the Djiboutian government remains genuinely worried that a potential Afar insurgency in the north could quickly spread to the south , especially in view of the fact that the Djiboutian National Army is weak and the population in Djibouti City is facing deteriorating economic conditions due to high unemployment and inflation , which surged to 3,8 per cent in 2010 ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(54,56)), Seq(Interval(49,52)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+
+    val causeGroundings = Seq("wm/concept/economy/unemployment", "", "", "")
+    val effectGroundings = Seq("wm/concept/economy/economy", "wm/property/condition", "", "")
+    //todo: need process for 'deteriorate' ?
+
+    // test cause slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+  }
+
+
+  {
+    behavior of "test slots 11"
+
+    val text = "Future work should focus on the implementation of control measures that mitigate the economic impact of the disease ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(6,10)), Seq(Interval(13,18)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+
+    // order is:  theme, theme property, process, process property
+    val causeGroundings = Seq("wm/concept/regulations", "", "", "")
+    val effectGroundings = Seq("wm/concept/economy/economy", "", "", "")
+
+    // test cause slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+  }
+
+
+  {
+    behavior of "test slots 12"
+
+    val text = "The brewing conflict had already had a serious impact in disrupting farming which had led to higher prices ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(11,12)), Seq(Interval(16,18)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+
+    // order is:  theme, theme property, process, process property
+    val causeGroundings = Seq("wm/concept/agriculture/", "", "", "")
+    val effectGroundings = Seq("", "wm/property/price_or_cost", "", "") //fixme: what about plain 'prices'? still need a theme?
+
+    // test cause slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+  }
+
+
+  {
+    behavior of "test slots 13"
+
+    val text = "Tensions run high between the two countries with a total of 200,000 troops from both sides facing off on either side of their border , threatening a fresh conflict ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,1)), Seq(Interval(27,29)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+
+    // order is:  theme, theme property, process, process property
+    val causeGroundings = Seq("wm/concept/crisis_or_disaster/conflict/tension", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
+
+    // test cause slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+  }
+
+
+  {
+    behavior of "test slots 14"
+
+    val text = "When the next drought comes , it will definitely have an impact on us because the cost of feeding our donkeys will go up , and people will no longer hire us to transport grasses , but that 's it , says Barni ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(16,24)), Seq(Interval(0,12)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    //fixme: bad causal extractions in general
+
+    // order is:  theme, theme property, process, process property
+    val causeGroundings = Seq("wm/concept/agriculture/livestock_nonpoultry", "", "", "wm/property/price_or_cost") //fixme: needs process for 'feeding'
+    val effectGroundings = Seq("", "", "", "") //todo: effect is really generic 'impact'
+
+    // test cause slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+        tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+  }
+
+
+  {
+    behavior of "test slots 15"
+
+    val text = "Hence , in circumstances where property rights and conflict management institutions are ineffective or illegitimate , efforts to mitigate or adapt to climate change that change the distribution of access to resources have the potential to create and aggravate conflict ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(16,24)), Seq(Interval(39,40)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+
+    // order is:  theme, theme property, process, process property
+    val causeGroundings = Seq("wm/concept/environment/climate_change", "", "wm/process/mitigation", "") //fixme: grounding currently just 'climate'
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
 
     // test cause slots
     for (i <- slots.indices) {
@@ -768,8 +967,9 @@ class TestGrounding extends EnglishGroundingTest {
       val causeMentions = eidosMentions._1
       val effectMentions = eidosMentions._2
 
-      val causeGroundings = Seq(theme, themeProperty, process, processProperty)
-      val effectGroundings = Seq(theme, themeProperty, process, processProperty)
+      // order is:  theme, theme property, process, process property
+      val causeGroundings = Seq("", "", "", "")
+      val effectGroundings = Seq("", "", "", "")
 
       // test cause slots
       for (i <- slots.indices) {
