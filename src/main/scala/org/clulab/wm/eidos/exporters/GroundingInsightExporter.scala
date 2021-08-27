@@ -13,10 +13,7 @@ import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntolog
 
 import scala.collection.mutable.ArrayBuffer
 
-class GroundingInsightExporter(filename: String, reader: EidosSystem) extends Exporter {
-
-  val config: Config = ConfigFactory.load()
-
+class GroundingInsightExporter(filename: String, reader: EidosSystem, config: Config) extends Exporter {
 
   private val currHandler = reader.components.ontologyHandlerOpt.get
   val currOntologyGrounder = currHandler.ontologyGrounders
@@ -26,9 +23,9 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem) extends Ex
   private val canonicalizer = currHandler.canonicalizer
   private val proc = reader.components.procOpt.get
   private val builder = new PosNegTreeDomainOntologyBuilder(proc, canonicalizer, filter = true)
-  private val ontology = builder.buildFromPath(config.getString("groundinginsight.ontologyPath"))
+  private val ontology = builder.buildFromPath(config.getString("apps.groundinginsight.ontologyPath"))
   private val nodes = ontology.ontologyNodes.map(n => (n.fullName, n)).toMap
-  private val k: Int = config.getInt("groundinginsight.topk")
+  private val k: Int = config.getInt("apps.groundinginsight.topk")
 
 
 
