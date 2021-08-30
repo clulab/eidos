@@ -13,10 +13,7 @@ import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntolog
 
 import scala.collection.mutable.ArrayBuffer
 
-class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem) extends Exporter {
-
-  val config: Config = ConfigFactory.load()
-
+class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem, config: Config) extends Exporter {
 
   private val currHandler = reader.components.ontologyHandlerOpt.get
   val currOntologyGrounder = currHandler.ontologyGrounders
