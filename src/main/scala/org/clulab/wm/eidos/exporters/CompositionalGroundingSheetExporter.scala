@@ -54,6 +54,7 @@ class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem)
         mentions.filter(_.odinMention matches "Causal").foreach { em =>
           val cause = em.eidosArguments("cause").headOption.getOrElse(throw new RuntimeException("no cause!"))
           val cText = cause.odinMention.text
+          val cInterval = cause.tokenIntervals
           val ctheme = mentionGroundingInfo(cause).head
           val cthemeS = mentionGroundingInfo(cause)(1)
           val cthemeProp = mentionGroundingInfo(cause)(2)
@@ -65,6 +66,7 @@ class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem)
 
           val effect = em.eidosArguments("effect").headOption.getOrElse(throw new RuntimeException("no effect!"))
           val eText = effect.odinMention.text
+          val eInterval = effect.tokenIntervals
           val etheme = mentionGroundingInfo(effect).head
           val ethemeS = mentionGroundingInfo(effect)(1)
           val ethemeProp = mentionGroundingInfo(effect)(2)
@@ -74,7 +76,7 @@ class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem)
           val ethemeProcProp = mentionGroundingInfo(effect)(6)
           val ethemeProcPropS = mentionGroundingInfo(effect)(7)
 
-          val line = sentence + "\t" + cText + "\t" + ctheme + "\t" + cthemeS + "\t" + cthemeProp + "\t" + cthemePropS + "\t" + cthemeProc + "\t" + cthemeProcS + "\t" + cthemeProcProp + "\t" + cthemeProcPropS + "\t" + eText + "\t" + etheme + "\t" + ethemeS + "\t" + ethemeProp + "\t" + ethemePropS + "\t" + ethemeProc + "\t" + ethemeProcS + "\t" + ethemeProcProp + "\t" + ethemeProcPropS
+          val line = sentence + "\t" + cText + "\t" + cInterval + "\t" + ctheme + "\t" + cthemeS + "\t" + cthemeProp + "\t" + cthemePropS + "\t" + cthemeProc + "\t" + cthemeProcS + "\t" + cthemeProcProp + "\t" + cthemeProcPropS + "\t" + eText + "\t" + eInterval + "\t" + etheme + "\t" + ethemeS + "\t" + ethemeProp + "\t" + ethemePropS + "\t" + ethemeProc + "\t" + ethemeProcS + "\t" + ethemeProcProp + "\t" + ethemeProcPropS
 
           pw.println(line)
 
