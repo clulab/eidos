@@ -32,7 +32,7 @@ object ReconstituteAndExport extends EidosApp {
     // 3. Export to all desired formats
     exportAs.foreach { format =>
       try {
-        Exporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN)
+        Exporter(format, s"$outputDir/${file.getName}", reader, groundAs, topN, config)
           .export(annotatedDocument)
       }
       catch {

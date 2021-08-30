@@ -25,7 +25,7 @@ object ReconstituteCombineAndExport extends EidosApp {
 
   FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
     val exporters = exportAs.map { format =>
-      Exporter(format, printWriter, reader, groundAs, topN)
+      Exporter(format, printWriter, reader, groundAs, topN, config)
     }
 
     // For each file in the input directory:
