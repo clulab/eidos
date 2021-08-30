@@ -44,6 +44,16 @@ class TestGrounding extends EnglishGroundingTest {
       }
     }
 
+    def groundingShouldNotContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+      val groundingNames = allGroundingNames(mention, topN, threshold)
+      slot match {
+        case "theme" => groundingNames.head.head should not be(value)
+        case "themeProperty" => groundingNames.head(1) should not be(value)
+        case "process" => groundingNames.head(2) should not be(value)
+        case "processProperty" => groundingNames.head(3) should not be(value)
+      }
+    }
+
     def testBranch(grounding: String, branch: String): Unit = {
       if (grounding.nonEmpty) grounding should startWith (branch) else grounding should startWith ("")
     }
