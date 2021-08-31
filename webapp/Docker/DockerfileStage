@@ -31,8 +31,8 @@ ENV _JAVA_OPTIONS=-Xmx10g
 WORKDIR /
 RUN apt-get remove scala-library scala
 RUN apt-get install wget
-RUN wget http://scala-lang.org/files/archive/scala-2.12.7.deb
-RUN dpkg -i scala-2.12.7.deb
+RUN wget http://scala-lang.org/files/archive/scala-2.12.14.deb
+RUN dpkg -i scala-2.12.14.deb
 RUN apt-get update && apt-get install scala
 RUN apt-get install apt-transport-https -y
 RUN echo "deb https://dl.bintray.com/sbt/debian /" |  tee -a /etc/apt/sources.list.d/sbt.list

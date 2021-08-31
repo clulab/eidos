@@ -39,7 +39,7 @@ object ExtractAndExport extends EidosApp {
     val annotatedDocument = reader.extractFromText(text, idOpt = Some(file.getName))
     // 4. Export to all desired formats
     exportAs.foreach { format =>
-      Exporter(format, s"$outputDir/${file.getName}", reader, groundedAs, topN).export(annotatedDocument)
+      Exporter(format, s"$outputDir/${file.getName}", reader, groundedAs, topN, config).export(annotatedDocument)
     }
   }
 }

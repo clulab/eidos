@@ -13,7 +13,7 @@ import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntolog
 
 import scala.collection.mutable.ArrayBuffer
 
-class GroundingInsightExporter(filename: String, reader: EidosSystem, config: Config) extends Exporter {
+class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem, config: Config) extends Exporter {
 
   private val currHandler = reader.components.ontologyHandlerOpt.get
   val currOntologyGrounder = currHandler.ontologyGrounders
@@ -23,16 +23,18 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem, config: Co
   private val canonicalizer = currHandler.canonicalizer
   private val proc = reader.components.procOpt.get
   private val builder = new PosNegTreeDomainOntologyBuilder(proc, canonicalizer, filter = true)
-  private val ontology = builder.buildFromPath(config.getString("apps.groundinginsight.ontologyPath"))
+  private val ontology = builder.buildFromPath(config.getString("groundinginsight.ontologyPath"))
   private val nodes = ontology.ontologyNodes.map(n => (n.fullName, n)).toMap
-  private val k: Int = config.getInt("apps.groundinginsight.topk")
+  private val k: Int = config.getInt("groundinginsight.topk")
 
 
 
 
   override def export(annotatedDocument: AnnotatedDocument): Unit = {
 
-    FileUtils.printWriterFromFile(filename + ".insight.txt").autoClose { pw =>
+    FileUtils.printWriterFromFile(filename + ".insight_sheet.tsv").autoClose { pw =>
+
+      pw.println("sentence\tcause\tc theme\tscore\tc prop\tscore\tc proc\tscore\tc proc prop\tscore\teffect\te theme\tscore\te prop\tscore\te proc\tscore\te proc prop")
 
       val doc = annotatedDocument.document
 
@@ -41,89 +43,72 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem, config: Co
       val sentIDs = mentionsPerSentence.keys.toSeq.sorted
 
       for (i <- sentIDs) {
-        pw.println("********************************************\n")
-        pw.println(s"Sentence $i:\t${doc.sentences(i).getSentenceText.trim()}\n\n")
-        pw.println("SRLs:")
-        pw.println(doc.sentences(i).enhancedSemanticRoles.getOrElse(None))
-        pw.println("\nDEPs:")
-        pw.println(doc.sentences(i).dependencies.get)
+        val sentence = doc.sentences(i).getSentenceText.trim()
+        val srls = doc.sentences(i).enhancedSemanticRoles.getOrElse(None)
+        val deps = doc.sentences(i).dependencies.get
         val mentions = mentionsPerSentence(i)
 
         mentions.filter(_.odinMention matches "Causal").foreach { em =>
           val cause = em.eidosArguments("cause").headOption.getOrElse(throw new RuntimeException("no cause!"))
-          pw.println("\nCAUSE:\n")
-          pw.println(mentionGroundingInfo(cause))
+          val cText = cause.odinMention.text
+          val cInterval = cause.tokenIntervals
+          val ctheme = mentionGroundingInfo(cause).head
+          val cthemeS = mentionGroundingInfo(cause)(1)
+          val cthemeProp = mentionGroundingInfo(cause)(2)
+          val cthemePropS = mentionGroundingInfo(cause)(3)
+          val cthemeProc = mentionGroundingInfo(cause)(4)
+          val cthemeProcS = mentionGroundingInfo(cause)(5)
+          val cthemeProcProp = mentionGroundingInfo(cause)(6)
+          val cthemeProcPropS = mentionGroundingInfo(cause)(7)
 
           val effect = em.eidosArguments("effect").headOption.getOrElse(throw new RuntimeException("no effect!"))
-          pw.println("\nEFFECT:\n")
-          pw.println(mentionGroundingInfo(effect))
+          val eText = effect.odinMention.text
+          val eInterval = effect.tokenIntervals
+          val etheme = mentionGroundingInfo(effect).head
+          val ethemeS = mentionGroundingInfo(effect)(1)
+          val ethemeProp = mentionGroundingInfo(effect)(2)
+          val ethemePropS = mentionGroundingInfo(effect)(3)
+          val ethemeProc = mentionGroundingInfo(effect)(4)
+          val ethemeProcS = mentionGroundingInfo(effect)(5)
+          val ethemeProcProp = mentionGroundingInfo(effect)(6)
+          val ethemeProcPropS = mentionGroundingInfo(effect)(7)
+
+          val line = sentence + "\t" + cText + "\t" + cInterval + "\t" + ctheme + "\t" + cthemeS + "\t" + cthemeProp + "\t" + cthemePropS + "\t" + cthemeProc + "\t" + cthemeProcS + "\t" + cthemeProcProp + "\t" + cthemeProcPropS + "\t" + eText + "\t" + eInterval + "\t" + etheme + "\t" + ethemeS + "\t" + ethemeProp + "\t" + ethemePropS + "\t" + ethemeProc + "\t" + ethemeProcS + "\t" + ethemeProcProp + "\t" + ethemeProcPropS
+
+          pw.println(line)
+
 
         }
       }
     }
   }
 
-  def mentionGroundingInfo(m: EidosMention): String = {
-    val lines = new ArrayBuffer[String]()
-    val text = m.odinMention.text
-    lines.append(s"mention text: ${text}\n")
-    lines.append(s"mention entities: ${m.odinMention.entities.get}\t")
+  def mentionGroundingInfo(m: EidosMention): ArrayBuffer[String] = {
 
-    val canonical = m.canonicalName
     val compGrounding = m.grounding.get("wm_compositional")
-    compGrounding.foreach{ grounding =>
-      lines.appendAll(groundingInfo(grounding, canonical))
-    }
-    lines.mkString("\n")
-  }
+    val firstCompGrounding = compGrounding.head.grounding.headOption.get
+    val pred_grounds = new ArrayBuffer[String]
 
-
-  def groundingInfo(grounding: OntologyGrounding, canonical: String): Seq[String] = {
-    grounding.grounding.map(groundingInfo(_, canonical))
-  }
-
-  def groundingInfo(grounding: IndividualGrounding, canonical: String): String = {
-    val lines = new ArrayBuffer[String]
-
-    grounding match {
-      case single: SingleOntologyNodeGrounding =>
-        val node = nodes(grounding.name)
-        lines.append("--------GROUNDING INFO----------")
-        lines.append(s"  NODE: ${single.name}")
-        lines.append("")
-        lines.append(s"     score: ${single.score}")
-        lines.append(s"     exact matches and regex:")
-        lines.appendAll(exactMatch(canonical))
-        lines.append("")
-        lines.append(s"     Positive examples:")
-        lines.appendAll(examplesDetail(canonical, node.getPosValues))
-        lines.append("")
-        val negExamples = node.getNegValues
-        if (negExamples.nonEmpty) {
-          lines.append(s"     Negative examples:")
-          lines.appendAll(examplesDetail(canonical, negExamples))
-          lines.append("")
-        }
-        lines.append("")
-        lines.mkString("\n")
+    firstCompGrounding match {
       case comp: PredicateGrounding =>
         val tuple = comp.predicateTuple
         // theme
-        lines.append("\n===== Theme =====")
-        lines.appendAll(groundingInfo(tuple.theme, canonical))
+        val theme = tuple.theme.headName.getOrElse("NONE")
+        val theme_score = if (tuple.theme.headOption.nonEmpty) tuple.theme.headOption.get.score else 0f
         // theme_properties
-        lines.append("===== Theme Properties =====")
-        lines.appendAll(groundingInfo(tuple.themeProperties, canonical))
+        val themeProp = tuple.themeProperties.headName.getOrElse("NONE")
+        val themeProp_score = if (tuple.themeProperties.headOption.nonEmpty) tuple.themeProperties.headOption.get.score else 0f
         // theme_process
-        lines.append("===== Theme Process =====")
-        lines.appendAll(groundingInfo(tuple.themeProcess, canonical))
+        val themeProc = tuple.themeProcess.headName.getOrElse("NONE")
+        val themeProc_score = if (tuple.themeProcess.headOption.nonEmpty) tuple.themeProcess.headOption.get.score else 0f
         // theme_process_props
-        lines.append("===== Theme Process Props =====")
-        lines.appendAll(groundingInfo(tuple.themeProcessProperties, canonical))
-        lines.mkString("\n")
-      case _ => ???
+        val themeProcProp = tuple.themeProcessProperties.headName.getOrElse("NONE")
+        val themeProcProp_score = if (tuple.themeProcessProperties.headOption.nonEmpty) tuple.themeProcessProperties.headOption.get.score else 0f
+        pred_grounds.append(theme, theme_score.toString, themeProp, themeProp_score.toString, themeProc, themeProc_score.toString, themeProcProp, themeProcProp_score.toString)
     }
+    println(pred_grounds)
 
+    pred_grounds
   }
 
   def exactMatch(text: String): Seq[String] = {
