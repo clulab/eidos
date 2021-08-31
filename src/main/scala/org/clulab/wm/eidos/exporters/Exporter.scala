@@ -25,6 +25,7 @@ object Exporter {
       case "ground" => new GroundExporter(filename, reader)
       case "debugGrounding" => new DebugGroundingExporter(filename, reader)
       case "groundingInsight" => new GroundingInsightExporter(filename, reader, config)
+      case "groundingSheet" => new CompositionalGroundingSheetExporter(filename, reader, config)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }
