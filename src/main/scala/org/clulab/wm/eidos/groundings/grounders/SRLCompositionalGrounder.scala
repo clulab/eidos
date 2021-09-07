@@ -7,7 +7,6 @@ import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAt
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
-import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
 import org.clulab.wm.eidos.groundings.grounders.SRLCompositionalGrounder.propertyConfidenceThreshold
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils
@@ -31,11 +30,6 @@ case class PredicateTuple(
   def nameAndScore(gr: IndividualGrounding): String = {
     s"${gr.name} (${gr.score})"
   }
-
-//  val themeFiltered: MultipleOntologyGrounding = theme.filter("theme")
-//  val themePropertiesFiltered: MultipleOntologyGrounding = themeProperties.filter("property")
-//  val themeProcessFiltered: MultipleOntologyGrounding = themeProcess.filter("process")
-//  val themeProcessPropertiesFiltered: MultipleOntologyGrounding = themeProcessProperties.filter("property")
 
   val name: String = {
     if (theme.nonEmpty) {
