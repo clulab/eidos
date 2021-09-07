@@ -1362,6 +1362,1167 @@ class TestGrounding extends EnglishGroundingTest {
       tester.groundingShouldNotContain(effectMentions.head, "wm/concept/crisis_or_disaster/conflict/tension", "process")
     }
   }
+  
+    {
+    behavior of "aug13_785"
+    val text = "Minimal Although COVID-19 restrictions are reducing access to veterinary drugs , conflict and disease are having a more significant impact on livestock production ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(2,4)), Seq(Interval(6,14)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/health/disease/COVID", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "wm/process/access", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/regulations", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_761"
+    val text = "A team from the establishment headed to Addis Ababa and the refugee camps on the Somali-Ethiopian borders to get first-hand information about the humanitarian disaster affecting thousands of Somali families who are suffering famine as a result of drought and conflict ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(38,39)), Seq(Interval(28,34)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/crisis_or_disaster/environmental/drought", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/famine", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/health/life", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_753"
+    val text = "It might also be linked to various problems such as soil erosion , which reduces yield , or population pressure , which increases demand for food ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(15,16)), Seq(Interval(23,26)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/process/production", "", "", "")
+    val effectGroundings = Seq("wm/concept/goods/food", "", "wm/process/demand", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_705"
+    val text = "But the plight of Eritrea 's people was causing growing concern this week as UNICEF , the U.N. Children 's Fund , reported that apart from those displaced by the war , another 300,000 Eritreans have been suffering from hunger and illness because of a severe drought in the Horn of Africa region ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(2,7)), Seq(Interval(9,11)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/entity/people/", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/tension", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/entity/people/migration/migrant", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_676"
+    val text = "The U.N. Food and Agriculture Organization appealed today for $ 32.6 million in aid for farmers in the four Horn of Africa nations and Kenya , saying millions of people there are suffering from hunger because of drought and the Eritrean-Ethiopian war ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(37,38)), Seq(Interval(30,35)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/crisis_or_disaster/environmental/drought", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/famine", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/health/life", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_672"
+    val text = "In Mauritania , drought is already causing serious hardship and is spreading to five neighbouring countries , affecting up to 1.5 million people ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(3,4)), Seq(Interval(7,9)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/crisis_or_disaster/environmental/drought", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/tension", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_660"
+    val text = "Natural population growth also aggravates population pressure ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,3)), Seq(Interval(5,7)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/process/population/", "", "", "")
+    val effectGroundings = Seq("wm/process/population/", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/population_demographics/population_density/population_growth", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/environment/higher_temperatures", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_636"
+    val text = "Limited cereal supplies and the lingering impact of conflict on trade and agricultural activities contributed to sorghum , maize and wheat prices being 45-90 percent higher in December 2019 than 2018 in Juba ( FAO & WFP , 2020 ) ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(5,14)), Seq(Interval(16,17)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/goods/agricultural/", "", "", "")
+    val effectGroundings = Seq("wm/concept/agriculture/crop/sorghum", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/process/training/training", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_613"
+    val text = "Poor economic and security conditions compounded by climate shocks and the longterm impact of natural disasters worsened acute food insecurity ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,16)), Seq(Interval(17,20)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/environment/climate", "", "", "")
+    val effectGroundings = Seq("wm/concept/goods/food", "wm/property/insecurity", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/crisis_or_disaster/shocks", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_586"
+    val text = "The surprise and the ease with which Ethiopia attacked was sure to increase what would likely be a substantial impact to the country 's economy and morale ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(1,2)), Seq(Interval(13,27)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/process/communication/informing", "", "", "")
+    val effectGroundings = Seq("", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("wm/concept/entity/locations/neighboring_country", "", "wm/concept/economy/economy", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_572"
+    val text = "On the other hand , prices of livestock , even for cattle , have remained stable in most parts of the Region , except in Segen and lowlands of Gamo Gofa , where the impact of abnormally dry conditions weakened livestock body conditions due to the severe shortage of pasture and browse , which has led to a decline in livestock market values ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(46,50)), Seq(Interval(32,43)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("", "", "", "")
+    val effectGroundings = Seq("wm/concept/agriculture/disease/livestock_disease", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("wm/concept/agriculture/disease/livestock_disease", "", "", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/health/weight_gain", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_562"
+    val text = "The former dispute among the two nations surfaced not only because of the famous border dispute but rather due to political and economic disagreement and tensions , according to Medhane ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(13,16)), Seq(Interval(1,3)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/entity/border", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/crisis_or_disaster/conflict/", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_541"
+    val text = "The military strike which was Ethiopia 's first military incursion since the two countries ended the 1998-2000 border war , increased fears of a return to a full scale war ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(1,3)), Seq(Interval(21,30)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/process/conflict/attack", "", "", "")
+    val effectGroundings = Seq("", "", "wm/process/conflict/war", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("wm/concept/health/malnutrition", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_529"
+    val text = "What type of paradigms and actions in terms of leadership , people 's participation , resource mobilisation and our implementation , monitoring and evaluation strategies are required to ensure impact and rapid implementation ?"
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(15,17)), Seq(Interval(31,33)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/environment/natural_resources/", "", "", "")
+    val effectGroundings = Seq("wm/concept/intervention", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/crisis_or_disaster/conflict/hostility", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_513"
+    val text = "As for the latest updates in the region and their impact in Somalia , Abdulmineim Abu Edress said the war led by Eritrea and Ethiopia on Somali soil will stop now , creating a more peaceful and secure atmosphere in the country ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(19,28)), Seq(Interval(32,42)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("", "", "", "")
+    val effectGroundings = Seq("", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("wm/concept/entity/muslim_communities", "", "wm/concept/environment/natural_resources/soil", "")
+    val notEffectGroundings = Seq("wm/process/training/humanitarian_training/emergency_preparedness_training", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_501"
+    val text = "The negative impact of the conflict on the economy further exacerbates the already desperate living conditions of millions of vulnerable South Sudanese ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(1,9)), Seq(Interval(12,22)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/economy/economy", "", "", "")
+    val effectGroundings = Seq("wm/concept/health/life", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/environment/climate_change", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/environment/higher_temperatures", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_474"
+    val text = "APA - Addis Ababa ( Ethiopia ) The African Union has called on both Ethiopia and Eritrea to exercise restraint and prevent their mutual animosity to degenerate into open conflict ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(8,20)), Seq(Interval(23,25)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/discontent", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("wm/process/conflict/torture", "", "wm/concept/health/weight_gain", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_467"
+    val text = "It is not possible to test whether this large impact of FFD on growth in food consumption reflects persistence of food aid received immediately after the drought because the data on FFD receipts are reported over the entire period rather than on a monthly basis ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(29,45)), Seq(Interval(18,22)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/entity/field_reports", "", "", "")
+    val effectGroundings = Seq("wm/concept/goods/food", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/health/case_volume", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/humanitarian_assistance/humanitarian_assistance", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_454"
+    val text = "For Belg rain dependent areas , the food security situation for farmers and agro-pastoralists will likely deteriorate as household food stocks start depleting , while the rain will improve the pasture and water conditions ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(26,27)), Seq(Interval(30,34)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/environment/meteorology/precipitation", "", "", "")
+    val effectGroundings = Seq("wm/concept/environment/natural_resources/pasture", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/environment/higher_temperatures", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_433"
+    val text = "These conflicts resulted in deaths from conflict and impact of terrorism , increasing by five and 13 per cent respectively , with a major proportion of the increase being due to the conflicts in Syria , Iraq , and Afghanistan ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(1,2)), Seq(Interval(4,11)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_421"
+    val text = "Last year , the Gambia ' s cropping season was marked by the late onset of rains and long dry spells , which resulted in a 50 percent drop in crop production compared with the five-year average ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(13,21)), Seq(Interval(26,32)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/environment/meteorology/precipitation", "", "", "")
+    val effectGroundings = Seq("wm/concept/agriculture/crop/", "", "wm/process/production", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/concept/agriculture/disease/", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_415"
+    val text = "Minimal / Moderate Overall 2020 cereal production was not notably affected by factors attributed to COVID-19 , though drought led to poor production ; 2021 production falls outside of the projection period but based on the most likely assumptions , COVID-19 is expected to have minimal to moderate impacts ., COVID - related effects will exacerbate pre-existing poor economic conditions which in 19 turn impact the capacity to invest in agricultural production ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(18,19)), Seq(Interval(21,23)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/crisis_or_disaster/environmental/drought", "", "", "")
+    val effectGroundings = Seq("wm/concept/poverty", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_399"
+    val text = "Predicting threats will allow timelier implementation of preventive and control measures , and thus will reduce their impact and limit their geographic spread ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,2)), Seq(Interval(4,11)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/process/conflict/threat", "", "wm/process/prediction", "")
+    val effectGroundings = Seq("wm/concept/health/treatment/preventative_treatment", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/intervention", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_393"
+    val text = "As conflict continues to be a primary driver of poverty and suffering 5 , donors and implementers alike need to continue investing in research and evaluations that test the impact that conflict management has on economic activity and wellbeing outcomes ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(1,2)), Seq(Interval(9,10)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
+    val effectGroundings = Seq("wm/concept/poverty", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_381"
+    val text = "The brewing conflict had already had a serious impact in disrupting farming which had led to higher prices ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(13,14)), Seq(Interval(18,20)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/agriculture/", "", "", "")
+    val effectGroundings = Seq("wm/property/price_or_cost", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "", "")
+    val notEffectGroundings = Seq("", "", "", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_370"
+    val text = "The underlying push was that creating a window for the aggrieved to release some fume of anger would invariably reduce the concentration of conflict ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(7,11)), Seq(Interval(12,17)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("", "", "", "")
+    val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/discontent", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("wm/concept/crisis_or_disaster/conflict/discontent", "", "wm/concept/infrastructure/housing", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/environment/emissions", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
+
+  {
+    behavior of "aug13_367"
+    val text = "Large scale aerial and ground control operations mitigated the impact on pastures and crops , despite the logistical and operational constraints caused by COVID 19 related restrictive measures ."
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,7)), Seq(Interval(9,14)))
+    val causeMentions = eidosMentions._1
+    val effectMentions = eidosMentions._2
+    val causeGroundings = Seq("wm/concept/entity/drone", "", "", "")
+    val effectGroundings = Seq("wm/concept/agriculture/crop/crops", "", "", "")
+    // grounding you want it NOT to find
+    val notCauseGroundings = Seq("", "", "wm/process/training/agriculture_training", "")
+    val notEffectGroundings = Seq("", "", "wm/concept/economy/economy", "")
+    // test cause slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(causeMentions.head, slots(i))
+      }
+    }
+    // test effect slots
+    for (i <- slots.indices) {
+      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+        tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
+      }
+      failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
+      tester.properBranchForSlot(effectMentions.head, slots(i))
+      }
+    }
+    // test not cause slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
+      }
+    }
+    // test not effect slots
+    for (i <- slots.indices) {
+      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
+        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
+      }
+    }
+  }
 
   // template for compositional grounder tests
   // add test name, sentence text, and token intervals for cause and effect mentions
