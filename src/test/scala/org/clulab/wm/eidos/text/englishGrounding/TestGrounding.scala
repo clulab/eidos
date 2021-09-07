@@ -1362,7 +1362,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.groundingShouldNotContain(effectMentions.head, "wm/concept/crisis_or_disaster/conflict/tension", "process")
     }
   }
-  
+
+
     {
     behavior of "aug13_785"
     val text = "Minimal Although COVID-19 restrictions are reducing access to veterinary drugs , conflict and disease are having a more significant impact on livestock production ."
@@ -2398,7 +2399,7 @@ class TestGrounding extends EnglishGroundingTest {
   {
     behavior of "aug13_381"
     val text = "The brewing conflict had already had a serious impact in disrupting farming which had led to higher prices ."
-    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(13,14)), Seq(Interval(18,20)))
+    val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(11,12)), Seq(Interval(16,18)))
     val causeMentions = eidosMentions._1
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/agriculture/", "", "", "")
