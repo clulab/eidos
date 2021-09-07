@@ -20,12 +20,19 @@ import scala.collection.mutable.ArrayBuffer
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
 case class PredicateTuple(
-  theme: OntologyGrounding,
-  themeProperties: OntologyGrounding,
-  themeProcess: OntologyGrounding,
-  themeProcessProperties: OntologyGrounding,
+  var theme: OntologyGrounding,
+  var themeProperties: OntologyGrounding,
+  var themeProcess: OntologyGrounding,
+  var themeProcessProperties: OntologyGrounding,
   predicates: Set[Int]
   ) {
+
+  // accepts only groundings from the correct branch for each slot
+  theme = theme.filterSlots(SRLCompositionalGrounder.CONCEPT)
+  themeProperties = themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY)
+  themeProcess = themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS)
+  themeProcessProperties = themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY)
+
   def nameAndScore(gr: OntologyGrounding): String = nameAndScore(gr.headOption.get)
   def nameAndScore(gr: IndividualGrounding): String = {
     s"${gr.name} (${gr.score})"
@@ -36,7 +43,7 @@ case class PredicateTuple(
       val sb = new ArrayBuffer[String]()
       sb.append(s"THEME: ${nameAndScore(theme)}")
       if (themeProperties.nonEmpty) {
-       sb.append(s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
+        sb.append(s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
       }
       if (themeProcess.nonEmpty) {
         sb.append(s"; THEME PROCESS: ${nameAndScore(themeProcess)}")
@@ -159,7 +166,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         // make a pseudo theme
         // fixme: should we ground the pseudo theme to the process AND concept branches
         val pseudoTheme = groundToBranches(SRLCompositionalGrounder.pseudoThemeBranches, tokenInterval, s, topN, threshold)
-        val predicateTuple = PredicateTuple(pseudoTheme.filterSlots("concept"), themeProperty.filterSlots("property)"), newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
+        val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
         Seq(PredicateGrounding(predicateTuple))
 
       case predicates =>
@@ -207,9 +214,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       // so we promote it.
       case List(onlyPredicate) =>
         PredicateTuple(
-          newOntologyGrounding(), //fixme: don't promote theme-less predicates?
-          onlyPredicate.grounding.filterSlots("property"),
-//          onlyPredicate.propertyGroundingOrNone,
+          onlyPredicate.grounding,
+          onlyPredicate.propertyGroundingOrNone,
           newOntologyGrounding(),
           newOntologyGrounding(),
           Set(onlyPredicate.idx)
@@ -220,10 +226,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       // since we can't handle more than 2 with the 4-tuple representation
       case theme :: process :: _  if theme.grounding.headName != process.grounding.headName =>
         PredicateTuple(
-          theme.grounding.filterSlots("concept"),
-          theme.propertyGroundingOrNone.filterSlots("property"),
-          process.grounding.filterSlots("process"),
-          process.propertyGroundingOrNone.filterSlots("property"),
+          theme.grounding,
+          theme.propertyGroundingOrNone,
+          process.grounding,
+          process.propertyGroundingOrNone,
           Set(theme.idx, process.idx)
         )
 
@@ -233,20 +239,20 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val processScore = process.grounding.headOption.map(_.score).getOrElse(-100f)
         if (themeScore >= processScore || theme.grounding.grounding.length == 1) {
           PredicateTuple(
-            theme.grounding.filterSlots("concept"),
-            theme.propertyGroundingOrNone.filterSlots("property"),
+            theme.grounding,
+            theme.propertyGroundingOrNone,
             // drop the top grounding of the process
-            process.grounding.dropFirst().filterSlots("process)"),
-            process.propertyGroundingOrNone.filterSlots("property"),
+            process.grounding.dropFirst(),
+            process.propertyGroundingOrNone,
             Set(theme.idx, process.idx)
           )
         } else {
           PredicateTuple(
             // drop the top grounding of the process
-            theme.grounding.dropFirst().filterSlots("concept"),
-            theme.propertyGroundingOrNone.filterSlots("property"),
-            process.grounding.filterSlots("process"),
-            process.propertyGroundingOrNone.filterSlots("property"),
+            theme.grounding.dropFirst(),
+            theme.propertyGroundingOrNone,
+            process.grounding,
+            process.propertyGroundingOrNone,
             Set(theme.idx, process.idx)
           )
         }
