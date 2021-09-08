@@ -1393,18 +1393,7 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
-    }
+    
   }
 
   {
@@ -1415,9 +1404,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/crisis_or_disaster/environmental/drought", "", "", "")
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/famine", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/health/life", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1436,17 +1422,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/health/life", "process")
     }
   }
 
@@ -1458,9 +1435,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/process/production", "", "", "")
     val effectGroundings = Seq("wm/concept/goods/food", "", "wm/process/demand", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1477,18 +1451,6 @@ class TestGrounding extends EnglishGroundingTest {
       }
       failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
       tester.properBranchForSlot(effectMentions.head, slots(i))
-      }
-    }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
       }
     }
   }
@@ -1501,9 +1463,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/entity/people/", "", "", "")
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/tension", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/concept/entity/people/migration/migrant", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1522,17 +1481,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/entity/people/migration/migrant", "process")
     }
   }
 
@@ -1544,9 +1494,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/crisis_or_disaster/environmental/drought", "", "", "")
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/famine", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/health/life", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1565,17 +1512,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/health/life", "process")
     }
   }
 
@@ -1587,9 +1525,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/crisis_or_disaster/environmental/drought", "", "", "")
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/tension", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1606,18 +1541,6 @@ class TestGrounding extends EnglishGroundingTest {
       }
       failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
       tester.properBranchForSlot(effectMentions.head, slots(i))
-      }
-    }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
       }
     }
   }
@@ -1630,9 +1553,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/process/population/", "", "", "")
     val effectGroundings = Seq("wm/process/population/", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/concept/population_demographics/population_density/population_growth", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/environment/higher_temperatures", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1651,17 +1571,11 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/population_demographics/population_density/population_growth", "process")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/environment/higher_temperatures", "process")
     }
   }
 
@@ -1673,9 +1587,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/goods/agricultural/", "", "", "")
     val effectGroundings = Seq("wm/concept/agriculture/crop/sorghum", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/process/training/training", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1694,17 +1605,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/process/training/training", "process")
     }
   }
 
@@ -1716,9 +1618,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/environment/climate", "", "", "")
     val effectGroundings = Seq("wm/concept/goods/food", "wm/property/insecurity", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/concept/crisis_or_disaster/shocks", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1737,17 +1636,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/crisis_or_disaster/shocks", "process")
     }
   }
 
@@ -1759,9 +1649,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/process/communication/informing", "", "", "")
     val effectGroundings = Seq("", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("wm/concept/entity/locations/neighboring_country", "", "wm/concept/economy/economy", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1780,17 +1667,11 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/entity/locations/neighboring_country", "theme")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/economy/economy", "process")
     }
   }
 
@@ -1802,9 +1683,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("", "", "", "")
     val effectGroundings = Seq("wm/concept/agriculture/disease/livestock_disease", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("wm/concept/agriculture/disease/livestock_disease", "", "", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/health/weight_gain", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1823,17 +1701,11 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/agriculture/disease/livestock_disease", "theme")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/health/weight_gain", "process")
     }
   }
 
@@ -1845,9 +1717,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/entity/border", "", "", "")
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/concept/crisis_or_disaster/conflict/", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1866,17 +1735,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/", "process")
     }
   }
 
@@ -1888,9 +1748,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/process/conflict/attack", "", "", "")
     val effectGroundings = Seq("", "", "wm/process/conflict/war", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("wm/concept/health/malnutrition", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1909,17 +1766,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/health/malnutrition", "theme")
     }
   }
 
@@ -1931,9 +1779,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/environment/natural_resources/", "", "", "")
     val effectGroundings = Seq("wm/concept/intervention", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/concept/crisis_or_disaster/conflict/hostility", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1952,17 +1797,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/hostility", "process")
     }
   }
 
@@ -1974,9 +1810,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("", "", "", "")
     val effectGroundings = Seq("", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("wm/concept/entity/muslim_communities", "", "wm/concept/environment/natural_resources/soil", "")
-    val notEffectGroundings = Seq("wm/process/training/humanitarian_training/emergency_preparedness_training", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -1995,17 +1828,14 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/entity/muslim_communities", "theme")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/environment/natural_resources/soil", "process")
+    }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/process/training/humanitarian_training/emergency_preparedness_training", "theme")
     }
   }
 
@@ -2017,9 +1847,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/economy/economy", "", "", "")
     val effectGroundings = Seq("wm/concept/health/life", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/concept/environment/climate_change", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/environment/higher_temperatures", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2038,17 +1865,11 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/environment/climate_change", "process")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/environment/higher_temperatures", "process")
     }
   }
 
@@ -2060,9 +1881,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("", "", "", "")
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/discontent", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("wm/process/conflict/torture", "", "wm/concept/health/weight_gain", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2081,17 +1899,11 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/process/conflict/torture", "theme")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/health/weight_gain", "process")
     }
   }
 
@@ -2103,9 +1915,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/entity/field_reports", "", "", "")
     val effectGroundings = Seq("wm/concept/goods/food", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/concept/health/case_volume", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/humanitarian_assistance/humanitarian_assistance", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2124,17 +1933,11 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/health/case_volume", "process")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/humanitarian_assistance/humanitarian_assistance", "process")
     }
   }
 
@@ -2146,9 +1949,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/environment/meteorology/precipitation", "", "", "")
     val effectGroundings = Seq("wm/concept/environment/natural_resources/pasture", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/environment/higher_temperatures", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2167,17 +1967,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/environment/higher_temperatures", "process")
     }
   }
 
@@ -2189,9 +1980,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2208,18 +1996,6 @@ class TestGrounding extends EnglishGroundingTest {
       }
       failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
       tester.properBranchForSlot(effectMentions.head, slots(i))
-      }
-    }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
       }
     }
   }
@@ -2232,9 +2008,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/environment/meteorology/precipitation", "", "", "")
     val effectGroundings = Seq("wm/concept/agriculture/crop/", "", "wm/process/production", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/concept/agriculture/disease/", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2253,17 +2026,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/agriculture/disease/", "process")
     }
   }
 
@@ -2275,9 +2039,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/crisis_or_disaster/environmental/drought", "", "", "")
     val effectGroundings = Seq("wm/concept/poverty", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2294,18 +2055,6 @@ class TestGrounding extends EnglishGroundingTest {
       }
       failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
       tester.properBranchForSlot(effectMentions.head, slots(i))
-      }
-    }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
       }
     }
   }
@@ -2318,9 +2067,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/process/conflict/threat", "", "wm/process/prediction", "")
     val effectGroundings = Seq("wm/concept/health/treatment/preventative_treatment", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/intervention", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2339,17 +2085,8 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/intervention", "process")
     }
   }
 
@@ -2361,9 +2098,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
     val effectGroundings = Seq("wm/concept/poverty", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2380,18 +2114,6 @@ class TestGrounding extends EnglishGroundingTest {
       }
       failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
       tester.properBranchForSlot(effectMentions.head, slots(i))
-      }
-    }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
       }
     }
   }
@@ -2404,9 +2126,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/agriculture/", "", "", "")
     val effectGroundings = Seq("wm/property/price_or_cost", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "", "")
-    val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2423,18 +2142,6 @@ class TestGrounding extends EnglishGroundingTest {
       }
       failingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
       tester.properBranchForSlot(effectMentions.head, slots(i))
-      }
-    }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
-    }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
       }
     }
   }
@@ -2447,9 +2154,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("", "", "", "")
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/discontent", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("wm/concept/crisis_or_disaster/conflict/discontent", "", "wm/concept/infrastructure/housing", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/environment/emissions", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2468,17 +2172,14 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/discontent", "theme")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/concept/infrastructure/housing", "process")
+    }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/environment/emissions", "process")
     }
   }
 
@@ -2490,9 +2191,6 @@ class TestGrounding extends EnglishGroundingTest {
     val effectMentions = eidosMentions._2
     val causeGroundings = Seq("wm/concept/entity/drone", "", "", "")
     val effectGroundings = Seq("wm/concept/agriculture/crop/crops", "", "", "")
-    // grounding you want it NOT to find
-    val notCauseGroundings = Seq("", "", "wm/process/training/agriculture_training", "")
-    val notEffectGroundings = Seq("", "", "wm/concept/economy/economy", "")
     // test cause slots
     for (i <- slots.indices) {
       failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
@@ -2511,17 +2209,11 @@ class TestGrounding extends EnglishGroundingTest {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    // test not cause slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" cause " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(causeMentions.head, notCauseGroundings(i), slots(i))
-      }
+    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(causeMentions.head, "wm/process/training/agriculture_training", "process")
     }
-    // test not effect slots
-    for (i <- slots.indices) {
-      failingTest should "NOT process \"" + text + "\" effect " + slots(i) + " incorrectly" taggedAs Somebody in {
-        tester.groundingShouldNotContain(effectMentions.head, notEffectGroundings(i), slots(i))
-      }
+    failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
+      tester.groundingShouldNotContain(effectMentions.head, "wm/concept/economy/economy", "process")
     }
   }
 
