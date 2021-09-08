@@ -40,7 +40,7 @@ case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime
   def headName: Option[String] = headOption.map(_.name)
   // discard the top grounding, take the next
   def dropFirst(): OntologyGrounding = OntologyGrounding(version, date, grounding.drop(1), branch)
-  def filterSlots(slot: String): OntologyGrounding = OntologyGrounding(version, date, grounding.filter(_.name.contains(slot)))
+  def filterSlots(slot: String): OntologyGrounding = OntologyGrounding(version, date, grounding.filter(_.name.contains("/"+slot+"/")))
 }
 
 trait OntologyGrounder {

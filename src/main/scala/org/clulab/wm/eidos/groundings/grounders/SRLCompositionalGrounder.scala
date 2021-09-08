@@ -20,18 +20,12 @@ import scala.collection.mutable.ArrayBuffer
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
 case class PredicateTuple(
-  var theme: OntologyGrounding,
-  var themeProperties: OntologyGrounding,
-  var themeProcess: OntologyGrounding,
-  var themeProcessProperties: OntologyGrounding,
+  theme: OntologyGrounding,
+  themeProperties: OntologyGrounding,
+  themeProcess: OntologyGrounding,
+  themeProcessProperties: OntologyGrounding,
   predicates: Set[Int]
   ) {
-
-  // accepts only groundings from the correct branch for each slot
-  theme = theme.filterSlots(SRLCompositionalGrounder.CONCEPT)
-  themeProperties = themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY)
-  themeProcess = themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS)
-  themeProcessProperties = themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY)
 
   def nameAndScore(gr: OntologyGrounding): String = nameAndScore(gr.headOption.get)
   def nameAndScore(gr: IndividualGrounding): String = {
@@ -546,6 +540,22 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
       // return the dsts
       .map(_._1)
   }
+}
+
+object PredicateTuple {
+  def apply(
+    theme: OntologyGrounding,
+    themeProperties: OntologyGrounding,
+    themeProcess: OntologyGrounding,
+    themeProcessProperties: OntologyGrounding,
+    predicates: Set[Int]
+  ): PredicateTuple = new PredicateTuple(
+    theme.filterSlots(SRLCompositionalGrounder.CONCEPT),
+    themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
+    themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS),
+    themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
+    predicates
+  )
 }
 
 object SRLCompositionalGrounder extends Logging {
