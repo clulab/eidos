@@ -19,13 +19,15 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
-case class PredicateTuple(
-  theme: OntologyGrounding,
-  themeProperties: OntologyGrounding,
-  themeProcess: OntologyGrounding,
-  themeProcessProperties: OntologyGrounding,
-  predicates: Set[Int]
-  ) {
+
+class PredicateTuple protected (
+  val theme: OntologyGrounding,
+  val themeProperties: OntologyGrounding,
+  val themeProcess: OntologyGrounding,
+  val themeProcessProperties: OntologyGrounding,
+  val predicates: Set[Int]
+) {
+
   def nameAndScore(gr: OntologyGrounding): String = nameAndScore(gr.headOption.get)
   def nameAndScore(gr: IndividualGrounding): String = {
     s"${gr.name} (${gr.score})"
@@ -36,7 +38,7 @@ case class PredicateTuple(
       val sb = new ArrayBuffer[String]()
       sb.append(s"THEME: ${nameAndScore(theme)}")
       if (themeProperties.nonEmpty) {
-       sb.append(s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
+        sb.append(s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
       }
       if (themeProcess.nonEmpty) {
         sb.append(s"; THEME PROCESS: ${nameAndScore(themeProcess)}")
@@ -57,6 +59,22 @@ case class PredicateTuple(
 //    else (allScores.toSeq.sum / allScores.toSeq.length)
     else GroundingUtils.noisyOr(allScores)
   }
+}
+
+object PredicateTuple {
+  def apply(
+    theme: OntologyGrounding,
+    themeProperties: OntologyGrounding,
+    themeProcess: OntologyGrounding,
+    themeProcessProperties: OntologyGrounding,
+    predicates: Set[Int]
+  ): PredicateTuple = new PredicateTuple(
+    theme.filterSlots(SRLCompositionalGrounder.CONCEPT),
+    themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
+    themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS),
+    themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
+    predicates
+  )
 }
 
 class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer)
