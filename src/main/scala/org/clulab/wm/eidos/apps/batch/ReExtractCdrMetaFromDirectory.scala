@@ -73,7 +73,6 @@ object ReExtractCdrMetaFromDirectory extends App with Logging {
 
             if (jsonld1 != jsonld2) {
               println("Regrounding is not stable!")
-              println("Why not?")
             }
 
             text.length

@@ -6,6 +6,8 @@ import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounder
 import org.clulab.wm.eidos.utils.FoundBy
+import org.clulab.wm.eidos.utils.Unordered
+import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.{IdentityBagger, IdentityMapper}
@@ -165,19 +167,13 @@ object EidosMention extends Logging {
     * to get the tokens that will make it into the canonicalName.
     */
   def canonicalNameParts(canonicalizer: Canonicalizer, eidosMention: EidosMention, excludedWords: Set[String]): Array[String] = {
-    // Sentence has been added to account for cross sentence mentions.
-    def lessThan(left: Mention, right: Mention): Boolean =
-      if (left.sentence != right.sentence)
-        left.sentence < right.sentence
-      else if (left.start != right.start)
-        left.start < right.start
-      // This one shouldn't really be necessary.
-      else if (left.end != right.end)
-        left.end < right.end
-      else
-        false // False is needed to preserve order on tie.
+    implicit val ordering = Unordered[Mention]
+        .orElseBy(_.sentence)
+        .orElseBy(_.start)
+        .orElseBy(_.end)
+        .orElseBy(_.hashCode)
 
-    eidosMention.canonicalMentions.sortWith(lessThan).flatMap(canonicalTokensSimple(canonicalizer, _, excludedWords)).toArray
+    eidosMention.canonicalMentions.sorted.flatMap(canonicalTokensSimple(canonicalizer, _, excludedWords)).toArray
   }
 
   def canonicalize(canonicalizer: Canonicalizer, eidosMention: EidosMention, excludedWords: Set[String]): String = canonicalNameParts(canonicalizer, eidosMention, excludedWords).mkString(" ")
