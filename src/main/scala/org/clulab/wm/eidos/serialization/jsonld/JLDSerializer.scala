@@ -4,7 +4,6 @@ import java.io.PrintWriter
 import java.time.LocalDateTime
 import java.util.{IdentityHashMap => JIdentityHashMap}
 import java.util.{Set => JavaSet}
-
 import org.clulab.odin.Attachment
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
@@ -12,7 +11,6 @@ import org.clulab.processors.Document
 import org.clulab.processors.Sentence
 import org.clulab.serialization.json.stringify
 import org.clulab.struct.DirectedGraph
-import org.clulab.struct.GraphMap
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.DCT
@@ -29,30 +27,43 @@ import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
 import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceEventMention, EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
+import org.clulab.wm.eidos.utils.Unordered
+import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import scala.collection.mutable
+import scala.math.Ordering.Implicits._ // enable list ordering
+
+trait Regrounding {
+  def reToJObject: TidyJObject = toJObject(true)
+  def toJObject: TidyJObject = toJObject(false)
+  def toJObject(regrounding: Boolean): TidyJObject
+}
 
 // This is an object than when asked to convert itself a JSON object or value, converts
 // itself in a way that conforms to the JSON-LD standard as well.
 abstract class JLDObject(val serializer: JLDSerializer, val typename: String, val value: Any = new Object()) {
   serializer.register(this)
 
-  def serialize(printWriter: PrintWriter, pretty: Boolean = true): Unit = {
-    val jValue = serialize()
+  def serialize(printWriter: PrintWriter, pretty: Boolean = true, regrounding: Boolean = false): Unit = {
+    val jValue = serialize(regrounding)
 
-    printWriter.println(stringify(jValue, pretty = true))
+    printWriter.println(stringify(jValue, pretty))
   }
 
-  def serialize(): JValue = serializer.serialize(this)
-  
+  def serialize(regrounding: Boolean): JValue = serializer.serialize(this, regrounding)
+
+  def serialize(): JValue = serializer.serialize(this, false)
+
   def toJsonStr: String =
       pretty(render(serialize()))
 
   def toJObject: TidyJObject
-  
+
+  def reToJObject: TidyJObject = toJObject
+
   def newJLDExtraction(mention: EidosMention): JLDExtraction = mention match {
 //    case mention: EidosCrossSentenceEventMention => JLDRelation.newJLDRelation(serializer, mention, countAttachmentMap)
     case mention: EidosEventMention => JLDRelation.newJLDRelation(serializer, mention)
@@ -115,7 +126,7 @@ class JLDSerializer {
     "@type" -> typename
   }
 
-  def reorder(jldExtractions: Seq[JLDExtraction]): Unit = {
+  def reidentify(jldExtractions: Seq[JLDExtraction]): Unit = {
     if (jldExtractions.nonEmpty) {
       val idsByIdentity = idsByTypenameByIdentity(jldExtractions.head.typename)
 
@@ -127,12 +138,16 @@ class JLDSerializer {
 
   def mkType(jldObject: JLDObject): JField = mkType(jldObject.typename)
 
-  def mkContext(): TidyJObject = {
+  def mkContext(regrounding: Boolean): TidyJObject = {
     // The wiki turns <a id="Document"> into <a id="user-content-document">
     // but w3id.org is not set up to lowercase the document, so it is done here in code.
     def mkContext(name: String): JField = new JField(name, JLDSerializer.base + name.toLowerCase())
 
-    val types: List[JField] = typenames.toList.sorted.map(mkContext)
+    val types: List[JField] = typenames
+      .toList
+      .filter { typename => !regrounding || JLDSerializer.regroundingTypenames.contains(typename) }
+      .sorted
+      .map(mkContext)
 
     TidyJObject(types)
   }
@@ -147,18 +162,27 @@ class JLDSerializer {
     TidyJObject(List(field))
   }
 
-  def serialize(jldObjectProvider: JLDObject): JValue = {
-    // This must be done first in order to collect the context entries
-    val jObject: TidyJObject = jldObjectProvider.toJObject
+  def serialize(jldObjectProvider: JLDObject, regrounding: Boolean = false): JValue = {
+    val jObject: TidyJObject =
+        if (regrounding) jldObjectProvider.reToJObject
+        else jldObjectProvider.toJObject
 
     TidyJObject(List(
-      "@context" -> mkContext
+      "@context" -> mkContext(regrounding)
     )) + jObject
   }
 }
 
 object JLDSerializer {
   val base = "https://w3id.org/wm/cag/"
+
+  val regroundingTypenames = Seq(
+    JLDCorpus.typename,
+    JLDExtraction.typename,
+    JLDOntologyGroundings.typename,
+    JLDOntologyGrounding.typename,
+    JLDOntologyPredicateGrounding.typename
+  )
 }
 
 class JLDArgument(serializer: JLDSerializer, typeString: String, mention: EidosMention)
@@ -405,8 +429,50 @@ object JLDTrigger {
   val typename = "Trigger"
 }
 
+class JLDExtractionComparator(protected val jldExtraction: JLDExtraction) {
+  lazy val provenance: Provenance = Provenance(jldExtraction.eidosMention.odinMention)
+  lazy val provenances = jldExtraction.getMentions.map { eidosMention => Provenance(eidosMention.odinMention) }.sorted
+  lazy val subtypeOrdering: Int = JLDCorpus.subtypeOrdering.indexOf(jldExtraction.subtypeString)
+  lazy val isEventMention = subtypeOrdering == 1 || subtypeOrdering == 2
+  lazy val triggerProvenanceOpt =
+      if (isEventMention) Some(Provenance(jldExtraction.eidosMention.odinMention.asInstanceOf[EventMention].trigger))
+      else None
+  lazy val canonicalName: String = jldExtraction.eidosMention.canonicalName
+  lazy val label: String = jldExtraction.eidosMention.odinMention.label
+  lazy val attachmentsSize: Int = jldExtraction.eidosMention.odinMention.attachments.size
+  lazy val attachments = jldExtraction.eidosMention.odinMention.attachments.toSeq
+  lazy val attachmentNames = attachments.map(_.getClass.getName).sorted
+  lazy val foundBy: String = jldExtraction.eidosMention.odinMention.foundBy
+  lazy val attachmentPositions = attachments
+      .map { attachment: Attachment =>
+        attachment match {
+          case triggeredAttachment: TriggeredAttachment =>
+            triggeredAttachment.triggerProvenance.map(_.interval.start).getOrElse(-1)
+          case _ => -2
+        }
+      }
+      .sorted
+  lazy val hash: Int = jldExtraction.eidosMention.odinMention.hashCode
+}
+
+object JLDExtractionComparator {
+  val ordering = Unordered[JLDExtractionComparator]
+      .orElseBy(_.provenance)
+      .orElseBy(_.provenances)
+      .orElseBy(_.subtypeOrdering)
+      .orElseBy(_.triggerProvenanceOpt)
+      .orElseBy(_.canonicalName)
+      .orElseBy(_.label)
+      .orElseBy(_.attachmentsSize)
+      .orElseBy(_.attachmentNames)
+      .orElseBy(_.foundBy)
+      .orElseBy(_.attachmentPositions)
+      .orElseBy(_.hash)
+}
+
 abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val subtypeString: String, val eidosMention: EidosMention)
-    extends JLDObject(serializer, JLDExtraction.typename, eidosMention) {
+    extends JLDObject(serializer, JLDExtraction.typename, eidosMention) with Regrounding {
+  protected val extractionComparator = new JLDExtractionComparator(this)
 
   def getMentions: Seq[EidosMention] =  Seq.empty
   // This isn't necessary because attachments only show provenance, not reference to a different extraction
@@ -414,7 +480,11 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
 
   protected def provenance(): Seq[JValue] = Seq(new JLDProvenance(serializer, eidosMention).toJObject)
 
-  override def toJObject: TidyJObject = {
+  // Copy these from Regrounding to avoid "inherits conflicting members".
+  override def reToJObject: TidyJObject = toJObject(true)
+  override def toJObject: TidyJObject = toJObject(false)
+
+  override def toJObject(regrounding: Boolean): TidyJObject = {
     // Important: Since the attachments come from the odinMention and those mentions have not been
     // deduplicated like the eidosMentions have been, the attachments themselves can be duplicates.
     // However, in serialization of the attachments, like everything else, identity is used to make
@@ -424,19 +494,19 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     val attachments = eidosMention.odinMention.attachments.toSeq
     val jldAttachments = attachments
         .collect{ case a: TriggeredAttachment => a }
-        .sortWith(TriggeredAttachment.lessThan)
+        .sorted(TriggeredAttachment.alphaOrdering)
         .map(attachment => newJLDAttachment(attachment))
     val jldTimeAttachments = attachments
         .collect{ case a: Time => a }
-        .sortWith(Time.lessThan)
+        .sorted
         .map(attachment => newJLDAttachment(attachment))
     val jldLocationAttachments = attachments
         .collect{ case a: Location => a }
-        .sortWith(Location.lessThan)
+        .sorted
         .map(attachment => newJLDAttachment(attachment))
     val jldDctAttachments = attachments
         .collect{ case a: DCTime => a }
-        .sortWith(DCTime.lessThan)
+        .sorted
         .map(attachment => newJLDAttachment(attachment))
 
     // This might be used to test some groundings when they aren't configured to be produced.
@@ -456,24 +526,33 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
         jldDctAttachments)
         .map(_.toJObject)
 
-    TidyJObject(List(
-      serializer.mkType(this),
-      serializer.mkId(this),
-      "type" -> typeString,
-      "subtype" -> subtypeString,
-      "labels" -> eidosMention.odinMention.labels,
-      "text" -> eidosMention.odinMention.text,
-      "rule" -> eidosMention.odinMention.foundBy,
-      "canonicalName" -> eidosMention.canonicalName,
-      "relevance" -> eidosMention.classificationOpt,
-      "groundings" -> jldGroundings,
-      JLDProvenance.singular -> provenance(),
-      JLDAttachment.plural -> jldAllAttachments
-    ))
+    if (regrounding)
+      TidyJObject(List(
+        serializer.mkType(this),
+        serializer.mkId(this),
+        "groundings" -> jldGroundings
+      ))
+    else
+      TidyJObject(List(
+        serializer.mkType(this),
+        serializer.mkId(this),
+        "type" -> typeString,
+        "subtype" -> subtypeString,
+        "labels" -> eidosMention.odinMention.labels,
+        "text" -> eidosMention.odinMention.text,
+        "rule" -> eidosMention.odinMention.foundBy,
+        "canonicalName" -> eidosMention.canonicalName,
+        "relevance" -> eidosMention.classificationOpt,
+        "groundings" -> jldGroundings,
+        JLDProvenance.singular -> provenance(),
+        JLDAttachment.plural -> jldAllAttachments
+      ))
   }
 }
 
 object JLDExtraction {
+  implicit val ordering: Ordering[JLDExtraction] = JLDExtractionComparator.ordering.on(_.extractionComparator)
+
   val typename = "Extraction"
   val singular = "extraction"
   val plural = "extractions"
@@ -583,7 +662,7 @@ class JLDRelationPositiveAffect(serializer: JLDSerializer, mention: EidosEventMe
     val sources = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationPositiveAffect.effect, Seq.empty).filter(isExtractable)
     val jldArguments =
-      sources.map(new JLDArgument(serializer, "source", _).toJObject) ++
+        sources.map(new JLDArgument(serializer, "source", _).toJObject) ++
         targets.map(new JLDArgument(serializer, "destination", _).toJObject)
 
     super.toJObject + TidyJObject(List(
@@ -616,7 +695,7 @@ class JLDRelationNegativeAffect(serializer: JLDSerializer, mention: EidosEventMe
     val sources = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.cause, Seq.empty).filter(isExtractable)
     val targets = mention.eidosArguments.getOrElse(JLDRelationNegativeAffect.effect, Seq.empty).filter(isExtractable)
     val jldArguments =
-      sources.map(new JLDArgument(serializer, "source", _).toJObject) ++
+        sources.map(new JLDArgument(serializer, "source", _).toJObject) ++
         targets.map(new JLDArgument(serializer, "destination", _).toJObject)
 
     super.toJObject + TidyJObject(List(
@@ -772,7 +851,7 @@ object JLDWord {
 class JLDTimeInterval(serializer:JLDSerializer, val start: LocalDateTime, val end: LocalDateTime)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimeInterval.typename) {
-  
+
   override def toJObject: TidyJObject = {
     val startDateTime = start.toString
     val endDateTime = end.toString
@@ -796,7 +875,7 @@ object JLDTimeInterval {
 class JLDTimex(serializer:JLDSerializer, val timex: TimEx)
     // The document, sentence, index above will be used to recognized words.
     extends JLDObject(serializer, JLDTimex.typename, timex) {
-  
+
   override def toJObject: TidyJObject = {
     val jldIntervals = timex.intervals.map(interval => new JLDTimeInterval(serializer, interval.startDate, interval.endDate).toJObject)
 
@@ -964,7 +1043,8 @@ object JLDDocument {
   val typename = "Document"
 }
 
-class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JLDObject(serializer, JLDCorpus.typename, corpus) {
+class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JLDObject(serializer, JLDCorpus.typename, corpus)
+    with Regrounding {
 
   def this(corpus: Corpus) = this(new JLDSerializer, corpus)
 
@@ -1001,154 +1081,31 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
   case class SortRecord(document: Document, documentIndex: Int, jldExtraction: JLDExtraction, mention: Mention)
 
-  protected def compare(leftProvenances: Seq[Provenance], rightProvenances: Seq[Provenance]): Int = {
-    if (leftProvenances.isEmpty != rightProvenances.isEmpty)
-      if (leftProvenances.isEmpty) -1
-      else +1
-    else {
-      if (leftProvenances.isEmpty) 0 // They both are.
-      else {
-        val leftProvenance = leftProvenances.head
-        val rightProvenance = rightProvenances.head
-        val provenanceComparison = leftProvenance.compareTo(rightProvenance)
-
-        if (provenanceComparison != 0)
-          provenanceComparison
-        else
-          compare(leftProvenances.tail, rightProvenances.tail)
-      }
-    }
-  }
-
-  def lessThan(mapOfDocuments: JIdentityHashMap[Document, Int])(left: JLDExtraction, right: JLDExtraction): Boolean = {
-    val ordering = Array(
-      JLDConceptEntity.subtypeString,
-      JLDRelationCausation.subtypeString,
-      JLDRelationCorrelation.subtypeString,
-      JLDRelationCoreference.subtypeString
-    )
-    val leftOdinMention = left.eidosMention.odinMention
-    val rightOdinMention = right.eidosMention.odinMention
-    val leftDocumentIndex = mapOfDocuments.get(leftOdinMention.document)
-    val rightDocumentIndex = mapOfDocuments.get(rightOdinMention.document)
-
-    def breakTie(): Boolean = {
-      // Really this should visit anything in Mention.equals, but many aren't obvious to the jsonld reader.
-      // Instead, check the canonical text, which might differ because of rule differences and then
-      // the label, which should also be different.  Don't go so far as to check the arguments just yet.
-      val leftCanonicalName = left.eidosMention.canonicalName
-      val rightCanonicalName = right.eidosMention.canonicalName
-
-      if (leftCanonicalName != rightCanonicalName)
-        leftCanonicalName < rightCanonicalName
-      else {
-        val leftLabel = leftOdinMention.label
-        val rightLabel = rightOdinMention.label
-
-        if (leftLabel != rightLabel)
-          leftLabel < rightLabel
-        else
-          if (leftOdinMention.attachments.size != rightOdinMention.attachments.size)
-            leftOdinMention.attachments.size < rightOdinMention.attachments.size
-          else {
-            def mkAttachmentNames(odinMention: Mention) = odinMention.attachments.toList
-                .map(_.getClass.getName).sorted.mkString(" ")
-            val leftAttachmentNames = mkAttachmentNames(leftOdinMention)
-            val rightAttachmentNames = mkAttachmentNames(rightOdinMention)
-
-            if (leftAttachmentNames != rightAttachmentNames)
-              leftAttachmentNames < rightAttachmentNames
-            else
-              if (leftOdinMention.foundBy != rightOdinMention.foundBy)
-                leftOdinMention.foundBy < rightOdinMention.foundBy
-              else {
-                def mkAttachmentPositions(odinMention: Mention): List[Int] = odinMention.attachments.toList
-                  .map { attachment: Attachment =>
-                    attachment match {
-                      case triggeredAttachment: TriggeredAttachment =>
-                        triggeredAttachment.triggerProvenance.map(_.interval.start).getOrElse(-1)
-                      case _ => -2
-                    }
-                  }.sorted
-                def compare(lefts: List[Int], rights: List[Int]): Int = {
-                  if (lefts.length != rights.length)
-                    lefts.length - rights.length
-                  else {
-                    lefts.zip(rights).foldLeft(0) { case (result, (left, right)) =>
-                      if (result != 0) result
-                      else left - right
-                    }
-                  }
-                }
-                val leftAttachmentPositions = mkAttachmentPositions(leftOdinMention)
-                val rightAttachmentPositions = mkAttachmentPositions(rightOdinMention)
-                val comparison = compare(leftAttachmentPositions, rightAttachmentPositions)
-
-                if (comparison != 0)
-                  comparison < 0
-                else
-                  true // Tie goes in favor of the left just because it came first.
-              }
-          }
-      }
-    }
-
-    if (leftDocumentIndex != rightDocumentIndex)
-      leftDocumentIndex < rightDocumentIndex
-    else {
-      val provenanceComparison = Provenance(leftOdinMention).compareTo(Provenance(rightOdinMention))
-
-      if (provenanceComparison != 0)
-        provenanceComparison < 0
-      else {
-        val leftProvenances = left.getMentions.map { eidosMention => Provenance(eidosMention.odinMention) }.sorted
-        val rightProvenances = right.getMentions.map { eidosMention => Provenance(eidosMention.odinMention) }.sorted
-        val provenanceComparison = compare(leftProvenances, rightProvenances)
-
-        if (provenanceComparison != 0)
-          provenanceComparison < 0
-        else {
-          val leftOrdering = ordering.indexOf(left.subtypeString)
-          val rightOrdering = ordering.indexOf(right.subtypeString)
-
-          if (leftOrdering != rightOrdering)
-            leftOrdering < rightOrdering
-          else {
-            if ((leftOrdering == 1 && rightOrdering == 1) || (leftOrdering == 2 && rightOrdering == 2)) {
-              val leftTrigger = leftOdinMention.asInstanceOf[EventMention].trigger
-              val rightTrigger = rightOdinMention.asInstanceOf[EventMention].trigger
-              val leftProvenance = Provenance(leftTrigger)
-              val rightProvenance = Provenance(rightTrigger)
-              val provenanceComparison = leftProvenance.compareTo(rightProvenance)
-
-              if (provenanceComparison != 0)
-                provenanceComparison < 0
-              else
-                breakTie()
-            }
-            else
-              breakTie()
-          }
-        }
-      }
-    }
-  }
-
   protected def sortJldExtractions(jldExtractions: Seq[JLDExtraction], corpus: Corpus): Seq[JLDExtraction] = {
-    val mapOfDocuments = new JIdentityHashMap[Document, Int]()
-    corpus.foreach { annotatedDocument =>
-      mapOfDocuments.put(annotatedDocument.document, mapOfDocuments.size() + 1)
+    val mapOfDocuments = {
+      val mapOfDocuments = new JIdentityHashMap[Document, Int]()
+      corpus.foreach { annotatedDocument =>
+        mapOfDocuments.put(annotatedDocument.document, mapOfDocuments.size() + 1)
+      }
+      mapOfDocuments
+    }
+    val sortedJldExtractions = jldExtractions.sorted {
+      Unordered[JLDExtraction]
+        .orElseBy { extraction => mapOfDocuments.get(extraction.eidosMention.odinMention.document) }
+        .orElseBy { extraction => extraction }
     }
 
-    val sortedJldExtractions = jldExtractions.sortWith(lessThan(mapOfDocuments))
-
-    // This is definitely the hack!  Make so that extractions are numbered nicely 1..n,
+    // Ensure that extractions are named/numbered nicely 1..n,
     // even though they have been discovered in a different order.
-    serializer.reorder(sortedJldExtractions)
+    serializer.reidentify(sortedJldExtractions)
     sortedJldExtractions
   }
 
-  override def toJObject: TidyJObject = {
+  // Copy these from Regrounding to avoid "inherits conflicting members".
+  override def reToJObject: TidyJObject = toJObject(true)
+  override def toJObject: TidyJObject = toJObject(false)
+
+  override def toJObject(regrounding: Boolean): TidyJObject = {
     // These are then on a per document basis.
     // TODO: Some of this seems to assume a single document, especially if attributes are compared by equals.
     val jldDocuments = corpus.map { annotatedDocument => new JLDDocument(serializer, annotatedDocument) }
@@ -1156,7 +1113,10 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
     val exposedEidosMentions = corpus.flatMap(_.eidosMentions)
     val allJldExtractions = collectMentions(exposedEidosMentions)
     val sortedJldExtractions = sortJldExtractions(allJldExtractions, corpus)
-    val tidiedJldExtractions = sortedJldExtractions.map(_.toJObject)
+    val tidiedJldExtractions = sortedJldExtractions.map { jldExtraction =>
+      if (regrounding) jldExtraction.toJObject(regrounding)
+      else jldExtraction.toJObject
+    }
 
 //    val index1 = 0.until(mentions.size).find(i => mentions(i).matches("DirectedRelation"))
 //    if (index1.isDefined) {
@@ -1170,11 +1130,17 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 //      }
 //    }
 
-    TidyJObject(List(
-      serializer.mkType(this),
-      JLDDocument.plural -> jldDocumentObjects,
-      JLDExtraction.plural -> tidiedJldExtractions
-    ))
+    if (regrounding)
+      TidyJObject(List(
+        serializer.mkType(this),
+        JLDExtraction.plural -> tidiedJldExtractions
+      ))
+    else
+      TidyJObject(List(
+        serializer.mkType(this),
+        JLDDocument.plural -> jldDocumentObjects,
+        JLDExtraction.plural -> tidiedJldExtractions
+      ))
   }
 }
 
@@ -1182,4 +1148,11 @@ object JLDCorpus {
   val singular = "corpus"
   val plural = "corpora"
   val typename = "Corpus"
+
+  val subtypeOrdering: Array[String] = Array(
+    JLDConceptEntity.subtypeString,
+    JLDRelationCausation.subtypeString,
+    JLDRelationCorrelation.subtypeString,
+    JLDRelationCoreference.subtypeString
+  )
 }
