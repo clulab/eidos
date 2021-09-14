@@ -137,7 +137,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   override def groundEidosMention(mention: EidosMention, topN: Option[Int] = None, threshold: Option[Float] = None): Seq[OntologyGrounding] = {
     if (!EidosOntologyGrounder.groundableType(mention))
       // Do nothing to non-groundable mentions
-      Seq(newOntologyGrounding())
+      Seq(emptyOntologyGrounding)
     else {
       // or else ground them.
       val sentenceObj = ensureSRLs(mention.odinMention.sentenceObj)
@@ -173,11 +173,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         // No predicates
         // check for properties, if there we'll attach to the pseudo-theme
         val propertyOpt = maybeProperty(tokenInterval, sentenceHelper)
-        val themeProperty = propertyOpt.getOrElse(newOntologyGrounding())
+        val themeProperty = propertyOpt.getOrElse(emptyOntologyGrounding)
         // make a pseudo theme
         // fixme: should we ground the pseudo theme to the process AND concept branches
         val pseudoTheme = groundToBranches(SRLCompositionalGrounder.pseudoThemeBranches, tokenInterval, s, topN, threshold)
-        val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, newOntologyGrounding(), newOntologyGrounding(), tokenInterval.toSet)
+        val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
         Seq(PredicateGrounding(predicateTuple))
 
       case predicates =>
@@ -227,8 +227,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         PredicateTuple(
           onlyPredicate.grounding,
           onlyPredicate.propertyGroundingOrNone,
-          newOntologyGrounding(),
-          newOntologyGrounding(),
+          emptyOntologyGrounding,
+          emptyOntologyGrounding,
           Set(onlyPredicate.idx)
         )
 
@@ -367,7 +367,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     newOntologyGrounding(filtered)
   }
 
-  def emptyPredicateTuple: PredicateTuple = PredicateTuple(newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), newOntologyGrounding(), Set.empty)
+  def emptyPredicateTuple: PredicateTuple = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set.empty)
 
   case class GraphNode(idx: Int, s: SentenceHelper, backoff: Boolean, topN: Option[Int], threshold: Option[Float], ancestors: Set[Int]) {
     lazy val groundedSpan: GroundedSpan = groundToken(idx, s, topN, threshold)
@@ -381,9 +381,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     def propertyGroundingOrNone: OntologyGrounding = {
       if (_property.isDefined) {
         _property.get.grounding
-      } else {
-        newOntologyGrounding()
       }
+      else
+        emptyOntologyGrounding
     }
   }
 

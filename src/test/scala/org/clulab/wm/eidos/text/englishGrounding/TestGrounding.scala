@@ -100,7 +100,7 @@ class TestGrounding extends EnglishGroundingTest {
     def groundings(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): OntologyGroundings = {
       val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundEidosMention(mention, topN = groundTopN, threshold = threshold)
       val groundings = ontologyGroundings.map { ontologyGrounding =>
-        val newName = name + ontologyGrounding.branch.map { branch => "/" + branch }.getOrElse("")
+        val newName = name + ontologyGrounding.branchOpt.map { branch => "/" + branch }.getOrElse("")
 
         newName -> ontologyGrounding
       }.toMap
@@ -1831,7 +1831,7 @@ class TestGrounding extends EnglishGroundingTest {
     failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
       tester.groundingShouldNotContain(causeMentions.head, "wm/concept/entity/muslim_communities", "theme")
     }
-    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+    failingTest should "NOT process cause theme incorrectly 2" taggedAs Somebody in {
       tester.groundingShouldNotContain(causeMentions.head, "wm/concept/environment/natural_resources/soil", "process")
     }
     failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
@@ -2175,7 +2175,7 @@ class TestGrounding extends EnglishGroundingTest {
     failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
       tester.groundingShouldNotContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/discontent", "theme")
     }
-    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+    failingTest should "NOT process cause theme incorrectly 2" taggedAs Somebody in {
       tester.groundingShouldNotContain(causeMentions.head, "wm/concept/infrastructure/housing", "process")
     }
     failingTest should "NOT process effect process incorrectly" taggedAs Somebody in {
