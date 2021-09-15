@@ -40,7 +40,7 @@ class OntologyHandler(
       val name: String = ontologyGrounder.name
       val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundEidosMention(eidosMention, topN, threshold)
       val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
-        OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
+        OntologyHandler.mkBranchName(name, ontologyGrounding.branchOpt) -> ontologyGrounding
       }
 
       nameAndOntologyGroundings
