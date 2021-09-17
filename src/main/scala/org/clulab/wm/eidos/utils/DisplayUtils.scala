@@ -12,6 +12,10 @@ import org.clulab.wm.eidos.context.TimeNormFinder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 
+trait GroundingInfoSupplier {
+  def supplyGroundingInfo(m: EidosMention): String
+}
+
 object DisplayUtils {
   protected val nl = "\n"
   protected val tab = "\t"
@@ -19,7 +23,8 @@ object DisplayUtils {
   def eidosMentionsToDisplayString(
     eidosMentions: Seq[EidosMention],
     doc: Document,
-    printDeps: Boolean = false
+    printDeps: Boolean = false,
+    groundingInfoSupplierOpt: Option[GroundingInfoSupplier] = None
   ): String = {
     val mentions = eidosMentions.map(_.odinMention)
     val sb = new StringBuffer()
@@ -44,11 +49,11 @@ object DisplayUtils {
       val (eidosTbs, eidosRels) = eidosEntities.partition(_.odinMention.isInstanceOf[TextBoundMention])
       val sortedEidosEntities = eidosTbs ++ eidosRels.sortBy(_.odinMention.label)
       sb.append(s"entities: $nl")
-      sortedEidosEntities.foreach(e => sb.append(s"${eidosMentionToDisplayString(e)} $nl"))
+      sortedEidosEntities.foreach(e => sb.append(s"${eidosMentionToDisplayString(e, groundingInfoSupplierOpt)} $nl"))
 
       sb.append(nl)
       sb.append(s"events: $nl")
-      eidosEvents.foreach(e => sb.append(s"${eidosMentionToDisplayString(e)} $nl"))
+      eidosEvents.foreach(e => sb.append(s"${eidosMentionToDisplayString(e, groundingInfoSupplierOpt)} $nl"))
       sb.append(s"${"=" * 50} $nl")
     }
     sb.toString
@@ -127,10 +132,20 @@ object DisplayUtils {
     sb.toString
   }
 
-  def eidosMentionToDisplayString(eidosMention: EidosMention): String = {
+  def eidosMentionToDisplayString(eidosMention: EidosMention, groundingInfoSupplierOpt: Option[GroundingInfoSupplier] = None): String = {
     val sb = new StringBuffer()
-    val mention = eidosMention.odinMention
     val boundary = s"$tab${"-" * 30} $nl"
+
+    def formatSection(section: String): Unit = {
+      val lines = section.split('\n')
+
+      sb.append(boundary)
+      lines.foreach { line =>
+        sb.append(s"${tab}$line $nl")
+      }
+    }
+
+    val mention = eidosMention.odinMention
     sb.append(s"${mention.labels} => ${mention.text} $nl")
     sb.append(boundary)
     sb.append(s"${tab}Rule => ${mention.foundBy} $nl")
@@ -164,13 +179,12 @@ object DisplayUtils {
     groundingsStringOpt.foreach { groundingsString =>
       // There can be a grounding that is empty, maybe because the slots aren't right.
       //if (groundingsString.nonEmpty) {
-        val groundingStrings = groundingsString.split('\n')
-
-        sb.append(boundary)
-        groundingStrings.foreach { groundingString =>
-          sb.append(s"${tab}$groundingString $nl")
-        }
+        formatSection(groundingsString)
       //}
+    }
+    groundingInfoSupplierOpt.foreach { groundingInfoSupplier =>
+      val groundingInfo = groundingInfoSupplier.supplyGroundingInfo(eidosMention)
+      formatSection(groundingInfo)
     }
     sb.append(s"$boundary $nl")
     sb.toString
@@ -238,8 +252,9 @@ object DisplayUtils {
     println(mentionsToDisplayString(mentions, doc, printDeps))
   }
 
-  def displayEidosMentions(eidosMentions: Seq[EidosMention], doc: Document, printDeps: Boolean = false): Unit = {
-    println(eidosMentionsToDisplayString(eidosMentions, doc, printDeps))
+  def displayEidosMentions(eidosMentions: Seq[EidosMention], doc: Document, printDeps: Boolean = false,
+      groundingInfoSupplierOpt: Option[GroundingInfoSupplier] = None): Unit = {
+    println(eidosMentionsToDisplayString(eidosMentions, doc, printDeps, groundingInfoSupplierOpt))
   }
 
   def displayMention(mention: Mention): Unit = println(mentionToDisplayString(mention))
