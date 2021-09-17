@@ -17,7 +17,7 @@ object GroundFromText extends EidosApp {
   }
 
   val groundingInsights = false
-  val cagRelevantOnly = false
+  val cagRelevantOnly = true
   val text = "Water trucking has decreased due to the cost of fuel."
   val reader = new EidosSystem()
   val annotatedDocument = reader.extractFromText(text, cagRelevantOnly)
