@@ -66,9 +66,9 @@ class GroundedObj(groundedEntities: Seq[GroundedEntity], mentions: Seq[EidosMent
         objectToReturn += s"${DisplayUtils.webAppMention(entity.odinMention)}"
         // If the primary groundings are available, let's print them too...
         val groundingStringOpt = GroundingUtils.getGroundingsStringOpt(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
-        if (groundingStringOpt.isDefined) {
+        groundingStringOpt.foreach { groundingString =>
           objectToReturn += s"${DisplayUtils.htmlTab}OntologyLinkings:<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}"
-          objectToReturn +=  groundingStringOpt
+          objectToReturn += groundingString
           objectToReturn += "<br><br>"
         }
       }

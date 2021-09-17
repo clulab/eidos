@@ -10,7 +10,7 @@ import org.clulab.utils.MainMenuItem
 import org.clulab.utils.Menu
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.web.WebSerializer
-import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
+import org.clulab.wm.eidos.utils.DisplayUtils
 
 /**
   * Interactive shell for demonstrating Eidos
@@ -24,11 +24,14 @@ object EidosShell extends App {
   def extractFromText(text: String): Unit = {
     val annotatedDocument = ieSystem.extractFromText(text)
     val doc = annotatedDocument.document
-    val mentions = annotatedDocument.odinMentions
-    val sortedMentions = mentions.sortBy(m => (m.sentence, m.getClass.getSimpleName))
+    val eidosMentions = annotatedDocument.eidosMentions
+    val sortedMentions = eidosMentions.sortBy { eidosMention =>
+      val m = eidosMention.odinMention
+      (m.sentence, m.getClass.getSimpleName)
+    }
 
     webSerializer.serialize(annotatedDocument, cagRelevantOnly = true, "eidosshell.html")
-    displayMentions(sortedMentions, doc, true)
+    DisplayUtils.displayEidosMentions(sortedMentions, doc, true)
   }
 
   def extractFromMenu(menu: Menu, text: String): Boolean = {

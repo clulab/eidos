@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.utils
 
 import java.io.PrintWriter
-
 import org.clulab.odin._
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.wm.eidos.context.GeoNormFinder
@@ -10,15 +9,55 @@ import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.mentions.EidosMention
 
 object DisplayUtils {
   protected val nl = "\n"
   protected val tab = "\t"
 
+  def eidosMentionsToDisplayString(
+    eidosMentions: Seq[EidosMention],
+    doc: Document,
+    printDeps: Boolean = false
+  ): String = {
+    val mentions = eidosMentions.map(_.odinMention)
+    val sb = new StringBuffer()
+    val times = TimeNormFinder.getTimExs(mentions, doc.sentences)
+    val locations = GeoNormFinder.getGeoPhraseIDs(mentions, doc.sentences)
+    val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
+    val eidosMentionsBySentence = eidosMentions groupBy (_.odinMention.sentence) mapValues (_.sortBy(_.odinMention.start)) withDefaultValue Nil
+    for ((s, i) <- doc.sentences.zipWithIndex) {
+      sb.append(s"sentence #$i $nl")
+      sb.append(s.getSentenceText + nl)
+      sb.append("Tokens: " + (s.words.indices, s.words, s.tags.get).zipped.mkString(", ") + nl)
+      if (printDeps) sb.append(syntacticDependenciesToString(s) + nl)
+      sb.append(nl)
+
+      if (times(i).nonEmpty)
+        sb.append("timeExpressions:" + nl + displayTimeExpressions(times(i)) + nl)
+      if (locations(i).nonEmpty)
+        sb.append("locationExpressions:" + nl + displayLocationExpressions(locations(i)) + nl)
+
+      val sortedEidosMentions = eidosMentionsBySentence(i).sortBy(_.odinMention.label)
+      val (eidosEvents, eidosEntities) = sortedEidosMentions.partition(_.odinMention matches "Event")
+      val (eidosTbs, eidosRels) = eidosEntities.partition(_.odinMention.isInstanceOf[TextBoundMention])
+      val sortedEidosEntities = eidosTbs ++ eidosRels.sortBy(_.odinMention.label)
+      sb.append(s"entities: $nl")
+      sortedEidosEntities.foreach(e => sb.append(s"${eidosMentionToDisplayString(e)} $nl"))
+
+      sb.append(nl)
+      sb.append(s"events: $nl")
+      eidosEvents.foreach(e => sb.append(s"${eidosMentionToDisplayString(e)} $nl"))
+      sb.append(s"${"=" * 50} $nl")
+    }
+    sb.toString
+  }
+
   def mentionsToDisplayString(
     mentions: Seq[Mention],
     doc: Document,
-    printDeps: Boolean = false): String = {
+    printDeps: Boolean = false
+  ): String = {
 
     val sb = new StringBuffer()
     val times = TimeNormFinder.getTimExs(mentions, doc.sentences)
@@ -87,6 +126,46 @@ object DisplayUtils {
     sb.toString
   }
 
+  def eidosMentionToDisplayString(eidosMention: EidosMention): String = {
+    val sb = new StringBuffer()
+    val mention = eidosMention.odinMention
+    val boundary = s"$tab ${"-" * 30} $nl"
+    sb.append(s"${mention.labels} => ${mention.text} $nl")
+    sb.append(boundary)
+    sb.append(s"$tab Rule => ${mention.foundBy} $nl")
+    val mentionType = mention.getClass.toString.split("""\.""").last
+    sb.append(s"$tab Type => $mentionType $nl")
+    sb.append(boundary)
+    mention match {
+      case tb: TextBoundMention =>
+        sb.append(s"$tab ${tb.labels.mkString(", ")} => ${tb.text} $nl")
+        if (tb.attachments.nonEmpty) sb.append(s"$tab  * Attachments: ${attachmentsString(tb.attachments)} $nl")
+      case em: EventMention =>
+        sb.append(s"$tab trigger => ${em.trigger.text} $nl")
+        if (em.trigger.attachments.nonEmpty) sb.append(s"$tab  * Attachments: ${attachmentsString(em.trigger.attachments)} $nl")
+        sb.append(argumentsToString(em, nl, tab) + nl)
+        if (em.attachments.nonEmpty) {
+          sb.append(s"$tab Event Attachments: ${attachmentsString(em.attachments)} $nl")
+        }
+      case rel: RelationMention =>
+        sb.append(argumentsToString(rel, nl, tab) + nl)
+        if (rel.attachments.nonEmpty) {
+          sb.append(s"$tab Relation Attachments: ${attachmentsString(rel.attachments)} $nl")
+        }
+      case cs: CrossSentenceMention =>
+        sb.append(argumentsToString(cs, nl, tab) + nl)
+        if (cs.attachments.nonEmpty) {
+          sb.append(s"$tab CrossSentence Attachments: ${attachmentsString(cs.attachments)} $nl")
+        }
+      case _ => ()
+    }
+    sb.append(s"$boundary $nl")
+    val groundingsString = GroundingUtils.getGroundingsStringOpt(eidosMention)
+    // maniuplate it in some way
+    sb.append(groundingsString)
+    sb.toString
+  }
+
   def mentionToDisplayString(mention: Mention): String = {
     val sb = new StringBuffer()
     val boundary = s"$tab ${"-" * 30} $nl"
@@ -147,6 +226,10 @@ object DisplayUtils {
   /* Wrappers for displaying the mention string */
   def displayMentions(mentions: Seq[Mention], doc: Document, printDeps: Boolean = false): Unit = {
     println(mentionsToDisplayString(mentions, doc, printDeps))
+  }
+
+  def displayEidosMentions(eidosMentions: Seq[EidosMention], doc: Document, printDeps: Boolean = false): Unit = {
+    println(eidosMentionsToDisplayString(eidosMentions, doc, printDeps))
   }
 
   def displayMention(mention: Mention): Unit = println(mentionToDisplayString(mention))
