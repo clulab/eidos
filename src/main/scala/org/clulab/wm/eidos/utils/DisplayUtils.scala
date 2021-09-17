@@ -160,7 +160,7 @@ object DisplayUtils {
         }
       case _ => ()
     }
-    val groundingsStringOpt = GroundingUtils.getGroundingsStringOpt(eidosMention, EidosOntologyGrounder.PRIMARY_NAMESPACE)
+    val groundingsStringOpt = GroundingUtils.getGroundingsStringOpt(eidosMention, EidosOntologyGrounder.PRIMARY_NAMESPACE, delim = nl + nl)
     groundingsStringOpt.foreach { groundingsString =>
       // There can be a grounding that is empty, maybe because the slots aren't right.
       //if (groundingsString.nonEmpty) {
@@ -266,6 +266,11 @@ object DisplayUtils {
       xml.Utility.escape(mentionToDisplayString(mention))
           .replaceAll(nl, "<br>")
           .replaceAll(tab, htmlTab)
+
+  def webAppEidosMention(eidosMention: EidosMention): String =
+    xml.Utility.escape(eidosMentionToDisplayString(eidosMention))
+      .replaceAll(nl, "<br>")
+      .replaceAll(tab, htmlTab)
 
   def htmlTab: String = "&nbsp;&nbsp;&nbsp;&nbsp;"
 
