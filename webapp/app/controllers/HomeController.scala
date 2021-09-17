@@ -88,16 +88,19 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly)
     val doc = annotatedDocument.document
-    val mentions = annotatedDocument.odinMentions
-    val sortedMentions = mentions.sortBy(m => (m.sentence, m.getClass.getSimpleName))
+    val eidosMentions = annotatedDocument.eidosMentions
+    val sortedEidosMentions = eidosMentions.sortBy { eidosMention =>
+      val m = eidosMention.odinMention
+      (m.sentence, m.getClass.getSimpleName)
+    }
 
     println(s"Tokenized sentence: ${doc.sentences.head.getSentenceText}")
     println()
     println("Mention texts:")
-    sortedMentions.foreach(odinMention => println(odinMention.text))
+    sortedEidosMentions.foreach(eidosMention => println(eidosMention.odinMention.text))
     println()
     println("Mention details:")
-    sortedMentions.foreach(odinMention => DisplayUtils.displayMention(odinMention))
+    sortedEidosMentions.foreach(eidosMention => DisplayUtils.displayEidosMention(eidosMention))
     println()
 
     val json = webSerializer.processAnnotatedDocument(text, annotatedDocument)

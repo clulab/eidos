@@ -9,6 +9,7 @@ import scala.runtime.ZippedTraversable3.zippedTraversable3ToTraversable
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
+import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 
 object DisplayUtils {
@@ -129,40 +130,49 @@ object DisplayUtils {
   def eidosMentionToDisplayString(eidosMention: EidosMention): String = {
     val sb = new StringBuffer()
     val mention = eidosMention.odinMention
-    val boundary = s"$tab ${"-" * 30} $nl"
+    val boundary = s"$tab${"-" * 30} $nl"
     sb.append(s"${mention.labels} => ${mention.text} $nl")
     sb.append(boundary)
-    sb.append(s"$tab Rule => ${mention.foundBy} $nl")
+    sb.append(s"${tab}Rule => ${mention.foundBy} $nl")
     val mentionType = mention.getClass.toString.split("""\.""").last
-    sb.append(s"$tab Type => $mentionType $nl")
+    sb.append(s"${tab}Type => $mentionType $nl")
     sb.append(boundary)
     mention match {
       case tb: TextBoundMention =>
-        sb.append(s"$tab ${tb.labels.mkString(", ")} => ${tb.text} $nl")
-        if (tb.attachments.nonEmpty) sb.append(s"$tab  * Attachments: ${attachmentsString(tb.attachments)} $nl")
+        sb.append(s"${tab}${tb.labels.mkString(", ")} => ${tb.text} $nl")
+        if (tb.attachments.nonEmpty) sb.append(s"${tab} * Attachments: ${attachmentsString(tb.attachments)} $nl")
       case em: EventMention =>
-        sb.append(s"$tab trigger => ${em.trigger.text} $nl")
-        if (em.trigger.attachments.nonEmpty) sb.append(s"$tab  * Attachments: ${attachmentsString(em.trigger.attachments)} $nl")
-        sb.append(argumentsToString(em, nl, tab) + nl)
+        sb.append(s"${tab}trigger => ${em.trigger.text} $nl")
+        if (em.trigger.attachments.nonEmpty) sb.append(s"${tab} * Attachments: ${attachmentsString(em.trigger.attachments)} $nl")
+        sb.append(argumentsToString(em, nl, tab))
         if (em.attachments.nonEmpty) {
-          sb.append(s"$tab Event Attachments: ${attachmentsString(em.attachments)} $nl")
+          sb.append(s"${tab}Event Attachments: ${attachmentsString(em.attachments)} $nl")
         }
       case rel: RelationMention =>
-        sb.append(argumentsToString(rel, nl, tab) + nl)
+        sb.append(argumentsToString(rel, nl, tab))
         if (rel.attachments.nonEmpty) {
-          sb.append(s"$tab Relation Attachments: ${attachmentsString(rel.attachments)} $nl")
+          sb.append(s"${tab}Relation Attachments: ${attachmentsString(rel.attachments)} $nl")
         }
       case cs: CrossSentenceMention =>
-        sb.append(argumentsToString(cs, nl, tab) + nl)
+        sb.append(argumentsToString(cs, nl, tab))
         if (cs.attachments.nonEmpty) {
-          sb.append(s"$tab CrossSentence Attachments: ${attachmentsString(cs.attachments)} $nl")
+          sb.append(s"${tab}CrossSentence Attachments: ${attachmentsString(cs.attachments)} $nl")
         }
       case _ => ()
     }
+    val groundingsStringOpt = GroundingUtils.getGroundingsStringOpt(eidosMention, EidosOntologyGrounder.PRIMARY_NAMESPACE)
+    groundingsStringOpt.foreach { groundingsString =>
+      // There can be a grounding that is empty, maybe because the slots aren't right.
+      //if (groundingsString.nonEmpty) {
+        val groundingStrings = groundingsString.split('\n')
+
+        sb.append(boundary)
+        groundingStrings.foreach { groundingString =>
+          sb.append(s"${tab}$groundingString $nl")
+        }
+      //}
+    }
     sb.append(s"$boundary $nl")
-    val groundingsString = GroundingUtils.getGroundingsStringOpt(eidosMention)
-    // maniuplate it in some way
-    sb.append(groundingsString)
     sb.toString
   }
 
@@ -207,7 +217,7 @@ object DisplayUtils {
     b.arguments foreach {
       case (argName, ms) =>
         ms foreach { v =>
-          sb.append(s"$tab $argName ${v.labels.mkString("(", ", ", ")")} => ${v.text} $nl")
+          sb.append(s"${tab}$argName ${v.labels.mkString("(", ", ", ")")} => ${v.text} $nl")
           if (v.attachments.nonEmpty) sb.append(s"$tab  * Attachments: ${attachmentsString(v.attachments)} $nl")
         }
     }
@@ -233,6 +243,8 @@ object DisplayUtils {
   }
 
   def displayMention(mention: Mention): Unit = println(mentionToDisplayString(mention))
+
+  def displayEidosMention(eidosMention: EidosMention): Unit = println(eidosMentionToDisplayString(eidosMention))
 
   def shortDisplay(m: Mention): Unit = {
     println(s"${m.label}: [${m.text}] + ${m.attachments.mkString(",")}")
