@@ -30,7 +30,7 @@ object DisplayUtils {
     val sb = new StringBuffer()
     val times = TimeNormFinder.getTimExs(mentions, doc.sentences)
     val locations = GeoNormFinder.getGeoPhraseIDs(mentions, doc.sentences)
-    val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
+    // val mentionsBySentence = mentions groupBy (_.sentence) mapValues (_.sortBy(_.start)) withDefaultValue Nil
     val eidosMentionsBySentence = eidosMentions groupBy (_.odinMention.sentence) mapValues (_.sortBy(_.odinMention.start)) withDefaultValue Nil
     for ((s, i) <- doc.sentences.zipWithIndex) {
       sb.append(s"sentence #$i $nl")
