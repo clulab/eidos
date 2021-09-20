@@ -1,1 +1,1 @@
-sbt "runMain org.clulab.wm.eidos.apps.EidosShell"
+sbt "runMain org.clulab.wm.eidos.apps.shell.EidosShell"
