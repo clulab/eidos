@@ -30,6 +30,7 @@ object SingleOntologyNodeGrounding {
 case class PredicateGrounding(predicateTuple: PredicateTuple) extends IndividualGrounding {
   def name: String = predicateTuple.name
   def score: Float = predicateTuple.score
+  override def toString(): String = predicateTuple.toString()
 }
 
 

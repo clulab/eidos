@@ -9,9 +9,11 @@ import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.attachments.{Decrease, Increase, NegChange, PosChange, Quantification}
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
+import org.clulab.wm.eidos.mentions.EidosMention
 import play.api.libs.json.Json
 
-class EidosObj(sentenceText: String, sent: Sentence, mentions: Seq[Mention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]) {
+class EidosObj(sentenceText: String, sent: Sentence, eidosMentions: Seq[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]) {
+  val mentions = eidosMentions.map(_.odinMention)
 
   def mkJson: Json.JsValueWrapper = {
     val topLevelTBM = mentions.collect { case m: TextBoundMention => m }

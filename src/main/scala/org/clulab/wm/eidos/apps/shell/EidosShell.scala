@@ -8,27 +8,45 @@ import org.clulab.utils.HelpMenuItem
 import org.clulab.utils.IdeReader
 import org.clulab.utils.MainMenuItem
 import org.clulab.utils.Menu
+import org.clulab.wm.eidos.EidosApp
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.exporters.GroundingInsightExporter
+import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.serialization.web.WebSerializer
-import org.clulab.wm.eidos.utils.DisplayUtils.displayMentions
+import org.clulab.wm.eidos.utils.DisplayUtils
+import org.clulab.wm.eidos.utils.GroundingInfoSupplier
 
 /**
   * Interactive shell for demonstrating Eidos
   */
 
-object EidosShell extends App {
+object EidosShell extends EidosApp {
+
+  class EidosGroundingInsight(eidosSystem: EidosSystem, config: Config) extends GroundingInfoSupplier {
+    protected val groundingInsightExporter = new GroundingInsightExporter("", eidosSystem, config)
+
+    def supplyGroundingInfo(m: EidosMention): String = groundingInsightExporter.mentionGroundingInfo(m)
+  }
+
+  val groundingInsights = false
   val eidosConfig: Config = EidosSystem.defaultConfig
   var ieSystem = new EidosSystem(eidosConfig)
   val webSerializer = new WebSerializer(ieSystem, eidosConfig)
+  val eidosGroundingInsightOpt =
+      if (groundingInsights) Some(new EidosGroundingInsight(ieSystem, config))
+      else None
 
   def extractFromText(text: String): Unit = {
     val annotatedDocument = ieSystem.extractFromText(text)
     val doc = annotatedDocument.document
-    val mentions = annotatedDocument.odinMentions
-    val sortedMentions = mentions.sortBy(m => (m.sentence, m.getClass.getSimpleName))
+    val eidosMentions = annotatedDocument.eidosMentions
+    val sortedMentions = eidosMentions.sortBy { eidosMention =>
+      val m = eidosMention.odinMention
+      (m.sentence, m.getClass.getSimpleName)
+    }
 
     webSerializer.serialize(annotatedDocument, cagRelevantOnly = true, "eidosshell.html")
-    displayMentions(sortedMentions, doc, true)
+    DisplayUtils.displayEidosMentions(sortedMentions, doc, true, eidosGroundingInsightOpt)
   }
 
   def extractFromMenu(menu: Menu, text: String): Boolean = {

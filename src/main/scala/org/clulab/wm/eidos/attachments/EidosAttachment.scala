@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.attachments
 
 import java.time.LocalDateTime
-
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
@@ -18,12 +17,14 @@ import org.clulab.wm.eidos.serialization.jsonld.JLDContextAttachment
 import org.clulab.wm.eidos.serialization.jsonld.JLDScoredAttachment
 import org.clulab.wm.eidos.serialization.jsonld.JLDSerializer
 import org.clulab.wm.eidos.serialization.jsonld.JLDTriggeredAttachment
+import org.clulab.wm.eidos.utils.Unordered
+import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
 import org.clulab.wm.eidoscommon.utils.QuicklyEqualable
 import org.json4s.JsonDSL._
 import org.json4s._
 
-import scala.annotation.tailrec
 import scala.beans.BeanProperty
+import scala.math.Ordering.Implicits._ // enable list ordering
 import scala.util.hashing.MurmurHash3.mix
 
 @SerialVersionUID(1L)
@@ -118,43 +119,26 @@ case class AttachmentInfo(triggerText: String, quantifierTexts: Option[Seq[Strin
     triggerProvenance: Option[Provenance] = None, quantifierProvenances: Option[Seq[Provenance]] = None)
 
 
-case class Provenance(document: Document, sentence: Int, interval: Interval) extends Comparable[Provenance] {
-  override def compareTo(other: Provenance): Int = Provenance.compare(this, other)
-}
+case class Provenance(document: Document, sentence: Int, interval: Interval)
 
 object Provenance {
+  implicit val ordering: Ordering[Provenance] =
+      new Ordering[Provenance]() {
+        def compare(x: Provenance, y: Provenance): Int =  {
+          require(x.document.eq(y.document))
+          0
+        }
+      }
+      .orElseBy(_.sentence)
+      .orElseBy(_.interval.start)
+      .orElseBy(_.interval.end)
+
   def apply(mention: Mention): Provenance = {
     val document: Document = mention.document
     val sentence: Int = mention.sentence
     val interval: Interval = mention.tokenInterval
 
     Provenance(document, sentence, interval)
-  }
-
-  def compare(left: Provenance, right: Provenance): Int = {
-    require(left.document.eq(right.document))
-
-    val leftSentence = left.sentence
-    val rightSentence = right.sentence
-
-    if (leftSentence != rightSentence)
-      leftSentence - rightSentence
-    else {
-      val leftStart = left.interval.start
-      val rightStart = right.interval.start
-
-      if (leftStart != rightStart)
-        leftStart - rightStart
-      else {
-        val leftEnd = left.interval.end
-        val rightEnd = right.interval.end
-
-        if (leftEnd != rightEnd)
-          leftEnd - rightEnd
-        else
-          0
-      }
-    }
   }
 }
 
@@ -218,58 +202,20 @@ abstract class TriggeredAttachment(@BeanProperty val trigger: String, @BeanPrope
 }
 
 object TriggeredAttachment {
+  implicit val defaultOrdering = Unordered[TriggeredAttachment]
+      .orElseBy(_.trigger.length)
+      .orElseBy(_.argumentSize)
+      .orElseBy(_.trigger)
+      // They could be of different classes and then the first picked would depend on order.
+      // This would result in a different mention being picked as best.  It happens!
+      .orElseBy(_.getClass.getName)
+      .orElseBy(_.sortedQuantifiers)
 
   // For output, arrange first by class to match gold output.
-  def lessThan(left: TriggeredAttachment, right: TriggeredAttachment): Boolean = {
-    if (left.getClass.getName != right.getClass.getName)
-      left.getClass.getName.compareTo(right.getClass.getName) < 0
-    else
-      compare(left, right) < 0
-  }
-
-  @tailrec
-  final def recCompareTo(left: Seq[String], right: Seq[String]): Int =
-    if (left.isEmpty || right.isEmpty)
-      0
-    else {
-      val headDiff = left.head.compareTo(right.head)
-
-      if (headDiff != 0) headDiff
-      else recCompareTo(left.tail, right.tail)
-    }
-
-  def compare(left: TriggeredAttachment, right: TriggeredAttachment): Int = {
-    val triggerDiff = left.trigger.length - right.trigger.length
-
-    if (triggerDiff != 0)
-      triggerDiff
-    else {
-      val argumentsDiff = left.argumentSize - right.argumentSize
-
-      if (argumentsDiff != 0)
-        argumentsDiff
-      else {
-        val triggerDiff2 = left.trigger.compareTo(right.trigger)
-
-        if (triggerDiff2 != 0)
-          triggerDiff2
-        else {
-          // They could be of different classes and then the first picked would depend on order.
-          // This would result in a different mention being picked as best.  It happens!
-          val classDiff = left.getClass.getName.compareTo(right.getClass.getName)
-
-          if (classDiff != 0)
-            classDiff
-          else
-            recCompareTo(left.sortedQuantifiers, right.sortedQuantifiers)
-        }
-      }
-    }
-  }
-
-  implicit def ordering[T <: TriggeredAttachment]: Ordering[T] = new Ordering[T] {
-    def compare(left: T, right: T): Int = TriggeredAttachment.compare(left, right)
-  }
+  val alphaOrdering = Unordered[TriggeredAttachment]
+    .orElseBy(_.getClass.getName)
+    // Let it be handled by the implicit version.
+    .orElseBy { triggeredAttachment => triggeredAttachment }
 
   def getAttachmentInfo(mention: Mention, key: String): AttachmentInfo = {
     val triggerMention: TextBoundMention = mention.asInstanceOf[EventMention].trigger
@@ -496,12 +442,6 @@ abstract class ContextAttachment(val text: String, val value: Object) extends Ei
   override protected def calculateHashCode: Int = text.##
 }
 
-object ContextAttachment {
-
-  def compare(left: ContextAttachment, right: ContextAttachment): Int =
-      left.getClass.getName.compareTo(right.getClass.getName)
-}
-
 @SerialVersionUID(1L)
 class Time(val interval: TimEx) extends ContextAttachment(interval.text, interval) {
 
@@ -558,31 +498,14 @@ object Time {
       timeStep
     }
     val span = Interval(startOffset, endOffset)
-    val timEx = new TimEx(span, intervals, text)
+    val timEx = TimEx(span, intervals, text)
 
     new Time(timEx)
   }
 
-  def lessThan(left: Time, right: Time): Boolean =
-    compare(left, right) < 0
-
-  def compare(left: Time, right: Time): Int = {
-    val superDiff = ContextAttachment.compare(left, right)
-
-    if (superDiff != 0)
-      superDiff
-    else {
-      val startDiff = left.interval.span.start - right.interval.span.start
-
-      if (startDiff != 0)
-        startDiff
-      else {
-        val endDiff = left.interval.span.end - right.interval.span.end
-
-        endDiff
-      }
-    }
-  }
+  implicit val ordering = Unordered[Time]
+      .orElseBy(_.interval.span.start)
+      .orElseBy(_.interval.span.end)
 }
 
 @SerialVersionUID(1L)
@@ -627,26 +550,9 @@ object Location {
     new Location(geoPhraseID)
   }
 
-  def lessThan(left: Location, right: Location): Boolean =
-    compare(left, right) < 0
-
-  def compare(left: Location, right: Location): Int = {
-    val superDiff = ContextAttachment.compare(left, right)
-
-    if (superDiff != 0)
-      superDiff
-    else {
-      val startDiff = left.geoPhraseID.startOffset - right.geoPhraseID.startOffset
-
-      if (startDiff != 0)
-        startDiff
-      else {
-        val endDiff = left.geoPhraseID.endOffset - right.geoPhraseID.endOffset
-
-        endDiff
-      }
-    }
-  }
+  implicit val ordering = Unordered[Location]
+      .orElseBy(_.geoPhraseID.startOffset)
+      .orElseBy(_.geoPhraseID.endOffset)
 }
 
 @SerialVersionUID(1L)
@@ -676,22 +582,13 @@ object DCTime {
     val startDateTime = LocalDateTime.parse(startTime)
     val endDateTime = LocalDateTime.parse(endTime)
     val interval = SimpleInterval(startDateTime, endDateTime)
-    val dct = new DCT(interval, text)
+    val dct = DCT(interval, text)
 
     new DCTime(dct)
   }
 
-  def lessThan(left: DCTime, right: DCTime): Boolean =
-    compare(left, right) < 0
-
-  def compare(left: DCTime, right: DCTime): Int = {
-    val superDiff = ContextAttachment.compare(left, right)
-
-    if (superDiff != 0)
-      superDiff
-    else
-      left.text.compareTo(right.text)
-  }
+  implicit val ordering = Unordered[DCTime]
+      .orElseBy(_.text)
 }
 
 @SerialVersionUID(1L)

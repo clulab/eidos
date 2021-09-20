@@ -6,7 +6,10 @@ import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounder
 import org.clulab.wm.eidos.utils.FoundBy
+import org.clulab.wm.eidos.utils.Unordered
+import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
 import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.{IdentityBagger, IdentityMapper}
 
@@ -131,12 +134,18 @@ object EidosMention extends Logging {
       //  println("It changed!")
       newKeyOdinMention -> valueOdinMentions
     }
+    // This will map each odin mention back to the representative mention by identity.
     val odinMentionMapper = new IdentityMapper[Mention, Mention]()
     regroupedOdinMentions.foreach { case (keyOdinMention, valueOdinMentions) =>
       valueOdinMentions.foreach { valueOdinMention =>
         odinMentionMapper.put(valueOdinMention, keyOdinMention)
       }
     }
+    // Check to make sure there are no concepts that aren't referred to by a relation.
+    // If keepStatefulConcepts is true, there may be orphans but otherwise not.
+    // This test is fairly expensive and has been run in advance across may documents.
+    // A stray orphan would not be catastrophic, so the test is being skipped for now,
+    // hasOrphanedConcepts(regroupedOdinMentions, odinMentionMapper)
 
     val eidosMentionMapper = new EidosMentionMapper()
     val eidosMentions = asEidosMentions(distinctOdinMentions, odinMentionMapper, eidosMentionMapper)
@@ -145,7 +154,29 @@ object EidosMention extends Logging {
 
     val allEidosMentions = eidosMentionMapper.getValues
     (eidosMentions, allEidosMentions)
+  }
 
+  def hasOrphanedConcepts(keyMentionMap: Map[Mention, Seq[Mention]], mentionMapper: IdentityMapper[Mention, Mention]): Boolean = {
+    val (concepts, relations) = keyMentionMap.keys.partition(_ matches EidosParameters.CONCEPT_LABEL)
+    val parentedConcepts = {
+      val parentedConcepts = new IdentityMapper[Mention, Boolean]()
+      concepts.foreach(concept => parentedConcepts.put(concept, false))
+      parentedConcepts
+    }
+
+    relations.foreach { relation =>
+      val children = OdinMention.getNeighbors(relation)
+      val keyChildren = children.map(neighbor => mentionMapper.get(neighbor))
+      keyChildren
+        .filter(_ matches EidosParameters.CONCEPT_LABEL)
+        .foreach(keyConcept => parentedConcepts.put(keyConcept, true))
+    }
+
+    // Exists would be faster but less informative.  This is for debugging, so choose informative.
+    val orphanedConcepts = concepts.filter(concept => !parentedConcepts.get(concept))
+    if (orphanedConcepts.nonEmpty)
+      println("There is an orphan!") // Set a breakpoint here.
+    orphanedConcepts.nonEmpty
   }
 
   def findAllByIdentity(surfaceMentions: Seq[EidosMention]): Seq[EidosMention] = {
@@ -165,19 +196,13 @@ object EidosMention extends Logging {
     * to get the tokens that will make it into the canonicalName.
     */
   def canonicalNameParts(canonicalizer: Canonicalizer, eidosMention: EidosMention, excludedWords: Set[String]): Array[String] = {
-    // Sentence has been added to account for cross sentence mentions.
-    def lessThan(left: Mention, right: Mention): Boolean =
-      if (left.sentence != right.sentence)
-        left.sentence < right.sentence
-      else if (left.start != right.start)
-        left.start < right.start
-      // This one shouldn't really be necessary.
-      else if (left.end != right.end)
-        left.end < right.end
-      else
-        false // False is needed to preserve order on tie.
+    implicit val ordering = Unordered[Mention]
+        .orElseBy(_.sentence)
+        .orElseBy(_.start)
+        .orElseBy(_.end)
+        .orElseBy(_.hashCode)
 
-    eidosMention.canonicalMentions.sortWith(lessThan).flatMap(canonicalTokensSimple(canonicalizer, _, excludedWords)).toArray
+    eidosMention.canonicalMentions.sorted.flatMap(canonicalTokensSimple(canonicalizer, _, excludedWords)).toArray
   }
 
   def canonicalize(canonicalizer: Canonicalizer, eidosMention: EidosMention, excludedWords: Set[String]): String = canonicalNameParts(canonicalizer, eidosMention, excludedWords).mkString(" ")

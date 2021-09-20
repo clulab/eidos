@@ -7,6 +7,7 @@ import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAt
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
+import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
 import org.clulab.wm.eidos.groundings.grounders.SRLCompositionalGrounder.propertyConfidenceThreshold
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils
@@ -33,23 +34,37 @@ class PredicateTuple protected (
     s"${gr.name} (${gr.score})"
   }
 
+  override def toString(): String = {
+    val sb = new ArrayBuffer[String]()
+
+    def append(grounding: OntologyGrounding, label: String): Unit = {
+      val single = grounding.grounding.take(1)
+
+      if (single.nonEmpty)
+        sb.append(label + nameAndScore(single.head))
+    }
+
+    append(theme, "THEME: ")
+    append(themeProperties, "Theme properties: ")
+    append(themeProcess, "THEME PROCESS: ")
+    append(themeProcessProperties, "Process properties: ")
+    sb.mkString("\n")
+  }
+
   val name: String = {
     if (theme.nonEmpty) {
       val sb = new ArrayBuffer[String]()
-      sb.append(s"THEME: ${nameAndScore(theme)}")
-      if (themeProperties.nonEmpty) {
-        sb.append(s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
-      }
-      if (themeProcess.nonEmpty) {
-        sb.append(s"; THEME PROCESS: ${nameAndScore(themeProcess)}")
-      }
-      if (themeProcessProperties.nonEmpty) {
-        sb.append(s", Process properties: ${themeProcessProperties.take(5).map(nameAndScore).mkString(", ")}")
-      }
+
+      def appendIf(condition: Boolean, f: => String): Unit = if (condition) sb.append(f)
+
+      appendIf(true, s"THEME: ${nameAndScore(theme)}")
+      appendIf(themeProperties.nonEmpty, s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
+      appendIf(themeProcess.nonEmpty, s"; THEME PROCESS: ${nameAndScore(themeProcess)}")
+      appendIf(themeProcessProperties.nonEmpty, s", Process properties: ${themeProcessProperties.take(5).map(nameAndScore).mkString(", ")}")
       sb.mkString("")
-    } else {
-      "Empty Compositional Grounding"
     }
+    else
+      "Empty Compositional Grounding"
   }
   val score: Float = {
     val themeScore = theme.grounding.headOption.map(_.score)
