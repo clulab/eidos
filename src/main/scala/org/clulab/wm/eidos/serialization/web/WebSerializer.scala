@@ -52,7 +52,7 @@ class WebSerializer(eidosSystem: EidosSystem, eidosConfig: Config) {
     val sent = doc.sentences.head
 
     val syntaxJson = new SyntaxObj(doc, text).mkJson
-    val eidosJson = new EidosObj(text, sent, odinMentions, timExs, geoPhraseIDs).mkJson
+    val eidosJson = new EidosObj(text, sent, eidosMentions, timExs, geoPhraseIDs).mkJson
     val groundedHtml = new GroundedObj(groundedEntities, eidosMentions, timExs, geoPhraseIDs).mkHtml
     val parseHtml = new ParseObj(doc).mkHtml
 
