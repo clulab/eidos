@@ -191,8 +191,15 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val themeProperty = propertyOpt.getOrElse(emptyOntologyGrounding)
         // make a pseudo theme
         // fixme: should we ground the pseudo theme to the process AND concept branches
-        val pseudoTheme = groundToBranches(SRLCompositionalGrounder.pseudoThemeBranches, tokenInterval, s, topN, threshold)
-        val predicateTuple = PredicateTuple(pseudoTheme, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
+        val pseudoTheme = groundToBranches(SRLCompositionalGrounder.processOrConceptBranches, tokenInterval, s, topN, threshold)
+        val predicateTuple = pseudoTheme.grounding.head.branchOpt match {
+
+          case Some(SRLCompositionalGrounder.CONCEPT) => PredicateTuple(pseudoTheme, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
+
+          case Some(SRLCompositionalGrounder.PROCESS) => PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, pseudoTheme, themeProperty, tokenInterval.toSet)
+
+          case None => PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
+        }
         Seq(PredicateGrounding(predicateTuple))
 
       case predicates =>
