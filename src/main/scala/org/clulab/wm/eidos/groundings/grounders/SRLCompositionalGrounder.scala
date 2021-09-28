@@ -7,6 +7,7 @@ import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAt
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
+import org.clulab.wm.eidos.groundings.ConceptExamples
 import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
 import org.clulab.wm.eidos.groundings.grounders.SRLCompositionalGrounder.propertyConfidenceThreshold
 import org.clulab.wm.eidos.mentions.EidosMention
@@ -109,6 +110,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
     CompositionalGrounder.branches.map { branch =>
       (branch, conceptPatterns.filter { _.namer.branch.contains(branch) })
+    }.toMap
+
+  protected lazy val conceptExamplesSeq: Map[String, Seq[ConceptExamples]] =
+    CompositionalGrounder.branches.map { branch =>
+      (branch, conceptExamples.filter { _.namer.branch.contains(branch) })
     }.toMap
 
   // primarily used for passing in the canonical name parts
@@ -357,6 +363,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   private def groundToBranches(branches: Seq[String], span: Interval, s: Sentence, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
     val patterns = branches.flatMap(conceptPatternsSeq(_))
+    val examples = branches.flatMap(conceptExamplesSeq(_))
     val embeddings = branches.flatMap(conceptEmbeddingsSeq(_))
     val contentWords = canonicalizer.canonicalWordsFromSentence(s, span).toArray
     val initialGroundings = groundPatternsThenEmbeddings(contentWords, patterns, embeddings)

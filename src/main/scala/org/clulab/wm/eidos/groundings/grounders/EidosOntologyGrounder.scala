@@ -1,6 +1,7 @@
 package org.clulab.wm.eidos.groundings.grounders
 
 import org.clulab.wm.eidos.groundings.ConceptEmbedding
+import org.clulab.wm.eidos.groundings.ConceptExamples
 import org.clulab.wm.eidos.groundings.ConceptPatterns
 import org.clulab.wm.eidos.groundings.EidosWordToVec
 import org.clulab.wm.eidos.groundings.IndividualGrounding
@@ -42,6 +43,11 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
       ConceptPatterns(domainOntology.getNamer(n), domainOntology.getPatterns(n))
     }
 
+  val conceptExamples: Seq[ConceptExamples] =
+    domainOntology.indices.map { n =>
+      ConceptExamples(domainOntology.getNamer(n), domainOntology.getExamples(n))
+    }
+
   // For API to reground strings
   def groundText(mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
     // Sieve-based approach
@@ -66,12 +72,18 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     }
   }
 
+  def groundExamplesThenEmbeddings(text: String, examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+    ???
+  }
+
   def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     groundPatternsThenEmbeddings(text, text.split(" +"), patterns, embeddings)
   }
+
   def groundPatternsThenEmbeddings(splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, embeddings)
   }
+
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     val lowerText = text.toLowerCase
     val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name, '/', true) == lowerText)
