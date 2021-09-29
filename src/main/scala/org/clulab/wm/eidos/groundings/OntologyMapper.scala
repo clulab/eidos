@@ -145,7 +145,7 @@ object OntologyMapper extends EidosConfigured {
 
   def mapIndicators(reader: EidosSystem): Unit = {
     // Update the indicator mapping file
-    val outputFile = config[String]("apps.ontologymapper.outfile")
+    val outputFile = config[String]("apps.ontologyMapper.outfile")
     val topN = config[Int]("apps.groundTopN")
     mapIndicators(reader, outputFile, topN)
   }

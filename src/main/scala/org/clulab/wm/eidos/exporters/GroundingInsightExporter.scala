@@ -23,9 +23,9 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem, config: Co
   private val canonicalizer = currHandler.canonicalizer
   private val proc = reader.components.procOpt.get
   private val builder = new PosNegTreeDomainOntologyBuilder(proc, canonicalizer, filter = true)
-  private val ontology = builder.buildFromPath(config.getString("apps.groundinginsight.ontologyPath"))
+  private val ontology = builder.buildFromPath(config.getString("apps.groundingInsight.ontologyPath"))
   private val nodes = ontology.ontologyNodes.map(n => (n.fullName, n)).toMap
-  private val k: Int = config.getInt("apps.groundinginsight.topk")
+  private val k: Int = config.getInt("apps.groundingInsight.topk")
 
 
 
