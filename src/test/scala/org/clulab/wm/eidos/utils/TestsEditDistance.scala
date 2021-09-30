@@ -2,12 +2,13 @@ package org.clulab.wm.eidos.utils
 
 import org.clulab.wm.eidoscommon.utils.Test
 
-// These versions are already "included" in eidos.
+// These implementations are already "included" in eidos.
 // The one to pick might depend on the license.
-import org.apache.commons.text.similarity.{LevenshteinDistance => ApacheEditDistance}
+
 // This one caches results in a weak map, unfortunately.
 import com.sun.xml.bind.v2.util.{EditDistance => SunEditDistance}
 import edu.stanford.nlp.util.{EditDistance => StanfordEditDistance}
+import org.apache.commons.text.similarity.{LevenshteinDistance => ApacheEditDistance}
 
 class TestsEditDistance extends Test {
 
