@@ -176,7 +176,7 @@ object YamlNode {
       // Without the map, null turns into 0.
       Option(node.get(name)).map(_.asInstanceOf[Integer])
 
-  def parse(anyRef: AnyRef): YamlNode = {
+  def parse(anyRef: Any): YamlNode = {
     val node = YamlNode.getNode(anyRef)
     val name = YamlNode.getString(node, NAME)
     val descriptionsOpt = YamlNode.getStringsOpt(node, DESCRIPTIONS)
@@ -189,7 +189,7 @@ object YamlNode {
       .map(_.asScala)
       .map { children =>
         children.map { child =>
-          parse(child.asInstanceOf[AnyRef])
+          parse(child)
         }.toArray
       }
 
