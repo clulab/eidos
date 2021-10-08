@@ -4,7 +4,6 @@ import java.io.PrintStream
 import scala.annotation.tailrec
 
 case class Edit(
-  typ: Int,
   sourceString: String, targetString: String,
   prevSourceIndex: Int, prevTargetIndex: Int,
   nextSourceIndex: Int, nextTargetIndex: Int
@@ -50,7 +49,7 @@ object Edit {
 
 // The source character and target character match.
 class Confirmation(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(Editor.CONFIRMATION, sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
+    extends Edit(sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
 
   override def print(printStream: PrintStream): Unit =
       Edit.printRow(
@@ -63,7 +62,7 @@ class Confirmation(sourceString: String, targetString: String, nextSourceIndex: 
 }
 
 class Insertion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(Editor.INSERTION, sourceString, targetString, nextSourceIndex, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
+    extends Edit(sourceString, targetString, nextSourceIndex, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
 
   override def print(printStream: PrintStream): Unit =
       Edit.printRow(
@@ -75,7 +74,7 @@ class Insertion(sourceString: String, targetString: String, nextSourceIndex: Int
 
 // The source character has been misinterpreted as the target character.
 class Substitution(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(Editor.SUBSTITUTION, sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
+    extends Edit(sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
 
   override def print(printStream: PrintStream): Unit =
       Edit.printRow(
@@ -86,7 +85,7 @@ class Substitution(sourceString: String, targetString: String, nextSourceIndex: 
 }
 
 class Deletion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(Editor.DELETION, sourceString, targetString, nextSourceIndex - 1, nextTargetIndex, nextSourceIndex, nextTargetIndex) {
+    extends Edit(sourceString, targetString, nextSourceIndex - 1, nextTargetIndex, nextSourceIndex, nextTargetIndex) {
 
   override def print(printStream: PrintStream): Unit =
       Edit.printRow(
@@ -96,21 +95,12 @@ class Deletion(sourceString: String, targetString: String, nextSourceIndex: Int,
       )
 }
 
-abstract class Editor(typ: Int, sourceString: String, targetString: String) {
+abstract class Editor(sourceString: String, targetString: String) {
   def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int
   def getEdit(sourceIndex: Int, targetIndex: Int): Edit
 }
 
-object Editor {
-  // These are recorded now in the order of preference for tie breaking where we want
-  // deletions to win when the target text is shorter than the source.
-  val DELETION = 0
-  val CONFIRMATION = 1
-  val INSERTION = 2
-  val SUBSTITUTION = 3
-}
-
-class Confirmer(sourceString: String, targetString: String) extends Editor(Editor.CONFIRMATION, sourceString, targetString) {
+class Confirmer(sourceString: String, targetString: String) extends Editor(sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
       if (sourceChar == targetChar) 0 else Integer.MAX_VALUE
@@ -130,7 +120,7 @@ class Confirmer(sourceString: String, targetString: String) extends Editor(Edito
       new Confirmation(sourceString, targetString, sourceIndex, targetIndex)
 }
 
-class Inserter(sourceString: String, targetString: String) extends Editor(Editor.INSERTION, sourceString, targetString) {
+class Inserter(sourceString: String, targetString: String) extends Editor(sourceString, targetString) {
 
   def getCost(targetChar: Char): Int = 1
 
@@ -149,7 +139,7 @@ class Inserter(sourceString: String, targetString: String) extends Editor(Editor
 
 }
 
-class Deleter(sourceString: String, targetString: String) extends Editor(Editor.DELETION, sourceString, targetString) {
+class Deleter(sourceString: String, targetString: String) extends Editor(sourceString, targetString) {
 
   def getCost(sourceChar: Char): Int = 1
 
@@ -167,7 +157,7 @@ class Deleter(sourceString: String, targetString: String) extends Editor(Editor.
       new Deletion(sourceString, targetString, sourceIndex, targetIndex)
 }
 
-class Substituter(sourceString: String, targetString: String) extends Editor(Editor.SUBSTITUTION, sourceString, targetString) {
+class Substituter(sourceString: String, targetString: String) extends Editor(sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
       if (sourceChar != targetChar) 2 else Integer.MAX_VALUE
