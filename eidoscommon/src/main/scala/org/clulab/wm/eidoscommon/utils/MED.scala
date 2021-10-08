@@ -18,6 +18,8 @@ case class Edit(
 
   // This Char may not exist for deletion.
   def getTargetChar: Char = targetString.charAt(prevTargetIndex)
+
+  def isError: Boolean = true
 }
 
 object Edit {
@@ -56,6 +58,8 @@ class Confirmation(sourceString: String, targetString: String, nextSourceIndex: 
         Some(prevSourceIndex), Some(getSourceChar),
         Some(prevTargetIndex), Some(getTargetChar)
       )
+
+  override def isError: Boolean = false
 }
 
 class Insertion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
@@ -195,40 +199,41 @@ object Escaper {
 }
 
 class MED(sourceString: String, targetString: String) {
+  // These are recorded now in the order of preference for tie breaking where we want
+  // deletions to win when the target text is shorter than the source.
   protected val editors: Array[Editor] = Array(
-    // Keep these in the same order as Editor values.
     new Deleter(sourceString, targetString),
     new Confirmer(sourceString, targetString),
     new Inserter(sourceString, targetString),
     new Substituter(sourceString, targetString)
   )
   protected val distances: Array[Array[Int]] = Array.ofDim[Int](targetString.length + 1, sourceString.length + 1)
-  // This keeps track of the type of edit needed at each position.
-  protected val minIndexes: Array[Array[Int]] = Array.ofDim[Int](targetString.length + 1, sourceString.length + 1)
+  // This keeps track of the index of the editor used at each position.
+  protected val editorIndexes: Array[Array[Int]] = Array.ofDim[Int](targetString.length + 1, sourceString.length + 1)
   protected val distance: Int = measure()
   protected lazy val edits: Array[Edit] = mkEdits()
 
   def getDistance: Int = distance
 
   protected def measure(): Int = {
-    val costs = new Array[Int](4)
+    val costs = new Array[Int](editors.length)
 
     Range(0, targetString.length + 1).foreach { targetIndex =>
       Range(0, sourceString.length + 1).foreach { sourceIndex =>
         editors.zipWithIndex.foreach { case (editor, index) =>
           costs(index) = editor.calcCost(distances, sourceIndex, targetIndex)
-
-          val minCost = costs.min
-          val minIndex = costs.indexOf(minCost)
-
-          distances(targetIndex)(sourceIndex) = minCost
-          minIndexes(targetIndex)(sourceIndex) = minIndex
         }
+
+        val minCost = costs.min
+        val editorIndex = costs.indexOf(minCost)
+
+        distances(targetIndex)(sourceIndex) = minCost
+        editorIndexes(targetIndex)(sourceIndex) = editorIndex
       }
     }
     distances(targetString.length)(sourceString.length)
   }
-  
+
   def printDistancesOn(printStream: PrintStream): Unit = {
     printStream.print("\t")
     Range(0, sourceString.length + 1).foreach { sourceIndex =>
@@ -258,7 +263,7 @@ class MED(sourceString: String, targetString: String) {
     def recMkEdits(edits: List[Edit], sourceIndex: Int, targetIndex: Int): List[Edit] = {
       if (sourceIndex == 0 && targetIndex == 0) edits
       else {
-        val edit = editors(minIndexes(targetIndex)(sourceIndex)).getEdit(sourceIndex, targetIndex)
+        val edit = editors(editorIndexes(targetIndex)(sourceIndex)).getEdit(sourceIndex, targetIndex)
 
         recMkEdits(edit :: edits, edit.prevSourceIndex, edit.prevTargetIndex)
       }
@@ -272,7 +277,7 @@ class MED(sourceString: String, targetString: String) {
   def printEditsOn(printStream: PrintStream, onlyErrors: Boolean): Unit = {
     Edit.printHeader(printStream)
     edits.foreach { edit =>
-      if (!(onlyErrors && edit.typ == Editor.CONFIRMATION))
+      if (!onlyErrors || !edit.isError)
         edit.print(printStream)
     }
   }
