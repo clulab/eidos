@@ -283,8 +283,13 @@ class MED(sourceString: String, targetString: String) {
   }
 }
 
+object MED {
+
+  def apply(sourceString: String, targetString: String): MED = new MED(sourceString, targetString)
+}
+
 object MEDApp extends App {
-  val med = new MED("Sunday", "Saturday")
+  val med = MED("Sunday", "Saturday")
 
   println(med.getDistance)
   med.printDistancesOn(System.out)
