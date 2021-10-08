@@ -17,8 +17,6 @@ case class Edit(
 
   // This Char may not exist for deletion.
   def getTargetChar: Char = targetString.charAt(prevTargetIndex)
-
-  def isError: Boolean = true
 }
 
 object Edit {
@@ -57,8 +55,6 @@ class Confirmation(sourceString: String, targetString: String, nextSourceIndex: 
         Some(prevSourceIndex), Some(getSourceChar),
         Some(prevTargetIndex), Some(getTargetChar)
       )
-
-  override def isError: Boolean = false
 }
 
 class Insertion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
@@ -95,12 +91,12 @@ class Deletion(sourceString: String, targetString: String, nextSourceIndex: Int,
       )
 }
 
-abstract class Editor(sourceString: String, targetString: String) {
+abstract class Editor(val editClass: Class[_], sourceString: String, targetString: String) {
   def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int
   def getEdit(sourceIndex: Int, targetIndex: Int): Edit
 }
 
-class Confirmer(sourceString: String, targetString: String) extends Editor(sourceString, targetString) {
+class Confirmer(sourceString: String, targetString: String) extends Editor(classOf[Confirmation], sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
       if (sourceChar == targetChar) 0 else Integer.MAX_VALUE
@@ -112,7 +108,7 @@ class Confirmer(sourceString: String, targetString: String) extends Editor(sourc
       val cost = getCost(sourceString.charAt(sourceIndex - 1), targetString.charAt(targetIndex - 1))
 
       if (cost == Integer.MAX_VALUE) cost
-      else distances(targetIndex - 1)(sourceIndex - 1) + cost
+      else distances(sourceIndex - 1)(targetIndex - 1) + cost
     }
   }
 
@@ -120,7 +116,7 @@ class Confirmer(sourceString: String, targetString: String) extends Editor(sourc
       new Confirmation(sourceString, targetString, sourceIndex, targetIndex)
 }
 
-class Inserter(sourceString: String, targetString: String) extends Editor(sourceString, targetString) {
+class Inserter(sourceString: String, targetString: String) extends Editor(classOf[Insertion], sourceString, targetString) {
 
   def getCost(targetChar: Char): Int = 1
 
@@ -130,7 +126,7 @@ class Inserter(sourceString: String, targetString: String) extends Editor(source
       val cost = getCost(targetString.charAt(targetIndex - 1))
 
       if (cost == Integer.MAX_VALUE) cost
-      else distances(targetIndex - 1)(sourceIndex) + cost
+      else distances(sourceIndex)(targetIndex - 1) + cost
     }
   }
 
@@ -139,7 +135,7 @@ class Inserter(sourceString: String, targetString: String) extends Editor(source
 
 }
 
-class Deleter(sourceString: String, targetString: String) extends Editor(sourceString, targetString) {
+class Deleter(sourceString: String, targetString: String) extends Editor(classOf[Deletion], sourceString, targetString) {
 
   def getCost(sourceChar: Char): Int = 1
 
@@ -149,7 +145,7 @@ class Deleter(sourceString: String, targetString: String) extends Editor(sourceS
       val cost = getCost(sourceString.charAt(sourceIndex - 1))
 
       if (cost == Integer.MAX_VALUE) cost
-      else distances(targetIndex)(sourceIndex - 1) + cost
+      else distances(sourceIndex - 1)(targetIndex) + cost
     }
   }
 
@@ -157,7 +153,7 @@ class Deleter(sourceString: String, targetString: String) extends Editor(sourceS
       new Deletion(sourceString, targetString, sourceIndex, targetIndex)
 }
 
-class Substituter(sourceString: String, targetString: String) extends Editor(sourceString, targetString) {
+class Substituter(sourceString: String, targetString: String) extends Editor(classOf[Substitution], sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
       if (sourceChar != targetChar) 2 else Integer.MAX_VALUE
@@ -169,7 +165,7 @@ class Substituter(sourceString: String, targetString: String) extends Editor(sou
       val cost = getCost(sourceString.charAt(sourceIndex - 1), targetString.charAt(targetIndex - 1))
 
       if (cost == Integer.MAX_VALUE) cost
-      else distances(targetIndex - 1)(sourceIndex - 1) + cost
+      else distances(sourceIndex - 1)(targetIndex - 1) + cost
     }
   }
 
@@ -197,9 +193,9 @@ class MED(sourceString: String, targetString: String) {
     new Inserter(sourceString, targetString),
     new Substituter(sourceString, targetString)
   )
-  protected val distances: Array[Array[Int]] = Array.ofDim[Int](targetString.length + 1, sourceString.length + 1)
+  protected val distances: Array[Array[Int]] = Array.ofDim[Int](sourceString.length + 1, targetString.length + 1)
   // This keeps track of the index of the editor used at each position.
-  protected val editorIndexes: Array[Array[Int]] = Array.ofDim[Int](targetString.length + 1, sourceString.length + 1)
+  protected val editorIndexes: Array[Array[Int]] = Array.ofDim[Int](sourceString.length + 1, targetString.length + 1)
   protected val distance: Int = measure()
   protected lazy val edits: Array[Edit] = mkEdits()
 
@@ -208,8 +204,8 @@ class MED(sourceString: String, targetString: String) {
   protected def measure(): Int = {
     val costs = new Array[Int](editors.length)
 
-    Range(0, targetString.length + 1).foreach { targetIndex =>
-      Range(0, sourceString.length + 1).foreach { sourceIndex =>
+    Range(0, sourceString.length + 1).foreach { sourceIndex =>
+      Range(0, targetString.length + 1).foreach { targetIndex =>
         editors.zipWithIndex.foreach { case (editor, index) =>
           costs(index) = editor.calcCost(distances, sourceIndex, targetIndex)
         }
@@ -217,11 +213,11 @@ class MED(sourceString: String, targetString: String) {
         val minCost = costs.min
         val editorIndex = costs.indexOf(minCost)
 
-        distances(targetIndex)(sourceIndex) = minCost
-        editorIndexes(targetIndex)(sourceIndex) = editorIndex
+        distances(sourceIndex)(targetIndex) = minCost
+        editorIndexes(sourceIndex)(targetIndex) = editorIndex
       }
     }
-    distances(targetString.length)(sourceString.length)
+    distances(sourceString.length)(targetString.length)
   }
 
   def printDistancesOn(printStream: PrintStream): Unit = {
@@ -240,7 +236,7 @@ class MED(sourceString: String, targetString: String) {
             printStream.print(targetString.charAt(targetIndex - 1))
           printStream.print("\t")
         }
-        printStream.print(distances(targetIndex)(sourceIndex))
+        printStream.print(distances(sourceIndex)(targetIndex))
         printStream.print("\t")
       }
       printStream.println()
@@ -253,7 +249,7 @@ class MED(sourceString: String, targetString: String) {
     def recMkEdits(edits: List[Edit], sourceIndex: Int, targetIndex: Int): List[Edit] = {
       if (sourceIndex == 0 && targetIndex == 0) edits
       else {
-        val edit = editors(editorIndexes(targetIndex)(sourceIndex)).getEdit(sourceIndex, targetIndex)
+        val edit = editors(editorIndexes(sourceIndex)(targetIndex)).getEdit(sourceIndex, targetIndex)
 
         recMkEdits(edit :: edits, edit.prevSourceIndex, edit.prevTargetIndex)
       }
@@ -264,24 +260,22 @@ class MED(sourceString: String, targetString: String) {
     edits.toArray
   }
   
-  def printEditsOn(printStream: PrintStream, onlyErrors: Boolean): Unit = {
+  def printEditsOn(printStream: PrintStream): Unit = {
     Edit.printHeader(printStream)
-    edits.foreach { edit =>
-      if (!onlyErrors || !edit.isError)
-        edit.print(printStream)
-    }
+    edits.foreach(_.print(printStream))
   }
 
   def printSummaryOn(printStream: PrintStream): Unit = {
+    val keys = editors
+        .map(_.editClass.getName)
     val counts = edits
         .groupBy(_.getClass.getName)
         .mapValues(_.length)
-    val keys = counts.keys.toSeq.sorted
     val headers = keys
         .map { key => key.substring(key.lastIndexOf('.') + 1) }
         .mkString("\t")
     val values = keys
-        .map(counts)
+        .map { key => counts.getOrElse(key, 0) }
         .mkString("\t")
 
     printStream.println(headers)
@@ -294,6 +288,6 @@ object MEDApp extends App {
 
   println(med.getDistance)
   med.printDistancesOn(System.out)
-  med.printEditsOn(System.out, onlyErrors = false)
+  med.printEditsOn(System.out)
   med.printSummaryOn(System.out)
 }
