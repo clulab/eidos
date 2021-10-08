@@ -156,7 +156,7 @@ class Deleter(sourceString: String, targetString: String) extends Editor(classOf
 class Substituter(sourceString: String, targetString: String) extends Editor(classOf[Substitution], sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
-      if (sourceChar != targetChar) 2 else Integer.MAX_VALUE
+      if (sourceChar != targetChar) 1 else Integer.MAX_VALUE
 
   def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int = {
     if (targetIndex == 0 && sourceIndex == 0) 0
