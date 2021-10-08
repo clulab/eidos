@@ -1,14 +1,22 @@
 package org.clulab.wm.eidoscommon.utils
 
 import java.io.PrintStream
+import scala.annotation.tailrec
 
-case class Edit(typ: Int, prevSourceIndex: Int, prevTargetIndex: Int, nextSourceIndex: Int, nextTargetIndex: Int) {
+case class Edit(
+  typ: Int,
+  sourceString: String, targetString: String,
+  prevSourceIndex: Int, prevTargetIndex: Int,
+  nextSourceIndex: Int, nextTargetIndex: Int
+) {
 
   def print(printStream: PrintStream, sourceString: String, targetString: String): Unit = printStream.println()
 
-  def getSourceChar(sourceString: String): Char = sourceString.charAt(prevSourceIndex)
+  // This Char may not exist for insertion.
+  def getSourceChar: Char = sourceString.charAt(prevSourceIndex)
 
-  def getTargetChar(targetString: String): Char = targetString.charAt(prevTargetIndex)
+  // This Char may not exist for deletion.
+  def getTargetChar: Char = targetString.charAt(prevTargetIndex)
 }
 
 object Edit {
@@ -38,47 +46,47 @@ object Edit {
 }
 
 // The source character and target character match.
-class Confirmation(nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(MED.CONFIRMATION, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
+class Confirmation(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
+    extends Edit(MED.CONFIRMATION, sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
 
   override def print(printStream: PrintStream, sourceString: String, targetString: String): Unit =
       Edit.printRow(
         printStream, "Confirmation",
-        Some(prevSourceIndex), Some(getSourceChar(sourceString)),
-        Some(prevTargetIndex), Some(getTargetChar(targetString))
+        Some(prevSourceIndex), Some(getSourceChar),
+        Some(prevTargetIndex), Some(getTargetChar)
       )
 }
 
-class Insertion(nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(MED.INSERTION, nextSourceIndex, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
+class Insertion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
+    extends Edit(MED.INSERTION, sourceString, targetString, nextSourceIndex, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
 
   override def print(printStream: PrintStream, sourceString: String, targetString: String): Unit =
       Edit.printRow(
         printStream, "Insertion",
         None, None,
-        Some(prevTargetIndex), Some(getTargetChar(targetString))
+        Some(prevTargetIndex), Some(getTargetChar)
       )
 }
 
 // The source character has been misinterpreted as the target character.
-class Substitution(nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(MED.SUBSTITUTION, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
+class Substitution(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
+    extends Edit(MED.SUBSTITUTION, sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
 
   override def print(printStream: PrintStream, sourceString: String, targetString: String): Unit =
       Edit.printRow(
         printStream, "Substitution",
-        Some(prevSourceIndex), Some(getSourceChar(sourceString)),
-        Some(prevTargetIndex), Some(getTargetChar(targetString))
+        Some(prevSourceIndex), Some(getSourceChar),
+        Some(prevTargetIndex), Some(getTargetChar)
       )
 }
 
-class Deletion(nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(MED.DELETION, nextSourceIndex - 1, nextTargetIndex, nextSourceIndex, nextTargetIndex) {
+class Deletion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
+    extends Edit(MED.DELETION, sourceString, targetString, nextSourceIndex - 1, nextTargetIndex, nextSourceIndex, nextTargetIndex) {
 
   override def print(printStream: PrintStream, sourceString: String, targetString: String): Unit =
       Edit.printRow(
         printStream, "Deletion",
-        Some(prevSourceIndex), Some(getSourceChar(sourceString)),
+        Some(prevSourceIndex), Some(getSourceChar),
         None, None
       )
 }
@@ -98,6 +106,8 @@ class MED(sourceString: String, targetString: String) {
   protected val distances: Array[Array[Int]] = Array.ofDim[Int](targetString.length + 1, sourceString.length + 1)
   // This keeps track of the type of edit needed at each position.
   protected val minIndexes: Array[Array[Int]] = Array.ofDim[Int](targetString.length + 1, sourceString.length + 1)
+  protected val distance: Int = measure()
+  protected lazy val edits: Array[Edit] = mkEdits()
 
   protected def getConfirmationCost(sourceChar: Char, targetChar: Char): Int =
       if (sourceChar == targetChar) 0 else Integer.MAX_VALUE
@@ -150,9 +160,11 @@ class MED(sourceString: String, targetString: String) {
       else distances(targetIndex)(sourceIndex - 1) + cost
     }
   }
-  
-  def measure(): Int = {
-    val costs = Array(4)
+
+  def getDistance: Int = distance
+
+  protected def measure(): Int = {
+    val costs = new Array[Int](4)
 
     Range(0, targetString.length + 1).foreach { targetIndex =>
       Range(0, sourceString.length + 1).foreach { sourceIndex =>
@@ -196,31 +208,32 @@ class MED(sourceString: String, targetString: String) {
   
   protected def getEdit(sourceIndex: Int, targetIndex: Int): Edit = {
     minIndexes(targetIndex)(sourceIndex) match {
-      case MED.CONFIRMATION => new Confirmation(sourceIndex, targetIndex)
-      case MED.INSERTION => new Insertion(sourceIndex, targetIndex)
-      case MED.SUBSTITUTION => new Substitution(sourceIndex, targetIndex)
-      case MED.DELETION => new Deletion(sourceIndex, targetIndex)
+      case MED.CONFIRMATION => new Confirmation(sourceString, targetString, sourceIndex, targetIndex)
+      case MED.INSERTION => new Insertion(sourceString, targetString, sourceIndex, targetIndex)
+      case MED.SUBSTITUTION => new Substitution(sourceString, targetString, sourceIndex, targetIndex)
+      case MED.DELETION => new Deletion(sourceString, targetString, sourceIndex, targetIndex)
       case _ => throw new RuntimeException("Unknown edit type")
     }
   }
   
-  def getEdits(): Array[Edit] = {
-    var edits = List.empty[Edit]
-    var sourceIndex = sourceString.length
-    var targetIndex = targetString.length
+  protected def mkEdits(): Array[Edit] = {
 
-    // do recursion, no vars
-    while (!(sourceIndex == 0 && targetIndex == 0)) {
-      val edit = getEdit(sourceIndex, targetIndex)
+    @tailrec
+    def recMkEdits(edits: List[Edit], sourceIndex: Int, targetIndex: Int): List[Edit] = {
+      if (sourceIndex == 0 && targetIndex == 0) edits
+      else {
+        val edit = getEdit(sourceIndex, targetIndex)
 
-      sourceIndex = edit.prevSourceIndex
-      targetIndex = edit.prevTargetIndex
-      edits = edit :: edits
+        recMkEdits(edit :: edits, edit.prevSourceIndex, edit.prevTargetIndex)
+      }
     }
+
+    val edits = recMkEdits(Nil, sourceString.length, targetString.length)
+
     edits.toArray
   }
   
-  def printEditsOn(printStream: PrintStream, edits: Array[Edit], onlyErrors: Boolean): Unit = {
+  def printEditsOn(printStream: PrintStream, onlyErrors: Boolean): Unit = {
     Edit.printHeader(printStream)
     edits.foreach { edit =>
       if (!(onlyErrors && edit.typ == MED.CONFIRMATION))
@@ -228,7 +241,7 @@ class MED(sourceString: String, targetString: String) {
     }
   }
 
-  def printSummaryOn(printStream: PrintStream, edits: Array[Edit]): Unit = {
+  def printSummaryOn(printStream: PrintStream): Unit = {
     val counts = edits
         .groupBy(_.getClass.getName)
         .mapValues(_.length)
@@ -243,10 +256,6 @@ class MED(sourceString: String, targetString: String) {
     printStream.println(headers)
     printStream.println(values)
   }
-// put string into edit?  Then everything is already there
-  def getSourceChar(edit: Edit): Char = edit.getSourceChar(sourceString)
-  
-  def getTargetChar(edit: Edit): Char = edit.getTargetChar(targetString)
 }
 
 object MED {
@@ -260,11 +269,9 @@ object MED {
 
 object MEDApp extends App {
   val med = new MED("Sunday", "Saturday")
-  val edits = med.getEdits()
 
-  println(med.measure())
+  println(med.getDistance)
   med.printDistancesOn(System.out)
-  med.printEditsOn(System.out, edits, false)
-  med.printSummaryOn(System.out, edits)
-  println()
+  med.printEditsOn(System.out, onlyErrors = false)
+  med.printSummaryOn(System.out)
 }
