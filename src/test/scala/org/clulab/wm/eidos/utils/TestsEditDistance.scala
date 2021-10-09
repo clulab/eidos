@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.utils
 
+import org.clulab.wm.eidoscommon.utils.MED
 import org.clulab.wm.eidoscommon.utils.Test
 
 // These implementations are already "included" in eidos.
@@ -97,5 +98,32 @@ class TestsEditDistance extends Test {
     val med = new StanfordEditDistance(true).score("ab", "ba")
 
     med should be (1)
+  }
+
+  behavior of "MED"
+
+  it should "insert correctly" in {
+    val med = MED("ac", "abc").getDistance
+
+    med should be (1)
+  }
+
+  it should "delete correctly" in {
+    val med = MED("abc", "ac").getDistance
+
+    med should be (1)
+  }
+
+  it should "substitute correctly" in {
+    val med = MED("abc", "adc").getDistance
+
+    med should be (1)
+  }
+
+  it should "transpose correctly" in {
+    val med = MED("ab", "ba").getDistance
+
+    // This might not be optimal.
+    med should be (2)
   }
 }
