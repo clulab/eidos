@@ -173,6 +173,12 @@ class Substituter(sourceString: String, targetString: String) extends Editor(cla
       new Substitution(sourceString, targetString, sourceIndex, targetIndex)
 }
 
+class Transposer(sourceString: String, targetString: String) extends Editor(classOf[Substitution], sourceString, targetString) {
+  override def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int = ???
+
+  override def getEdit(sourceIndex: Int, targetIndex: Int): Edit = ???
+}
+
 object Escaper {
 
   def escape(c: Char): String = c match {
@@ -184,15 +190,22 @@ object Escaper {
   }
 }
 
-class MED(sourceString: String, targetString: String) {
+class MED(sourceString: String, targetString: String, allowSubstitute: Boolean = true, allowTranspose: Boolean = false) {
   // These are recorded now in the order of preference for tie breaking where we want
   // deletions to win when the target text is shorter than the source.
-  protected val editors: Array[Editor] = Array(
-    new Deleter(sourceString, targetString),
-    new Confirmer(sourceString, targetString),
-    new Inserter(sourceString, targetString),
-    new Substituter(sourceString, targetString)
-  )
+  protected val editors: Array[Editor] =
+      Array(
+        new Deleter(sourceString, targetString),
+        new Confirmer(sourceString, targetString),
+        new Inserter(sourceString, targetString)
+      ) ++ {
+        if (allowSubstitute) Array(new Substituter(sourceString, targetString))
+        else Array.empty[Editor]
+      } ++ {
+        if (allowTranspose) Array(new Transposer(sourceString, targetString))
+        else Array.empty[Editor]
+      }
+
   protected val distances: Array[Array[Int]] = Array.ofDim[Int](sourceString.length + 1, targetString.length + 1)
   // This keeps track of the index of the editor used at each position.
   protected val editorIndexes: Array[Array[Int]] = Array.ofDim[Int](sourceString.length + 1, targetString.length + 1)
@@ -203,9 +216,11 @@ class MED(sourceString: String, targetString: String) {
 
   protected def measure(): Int = {
     val costs = new Array[Int](editors.length)
+    val sourceRange = Range(0, sourceString.length + 1)
+    val targetRange = Range(0, targetString.length + 1)
 
-    Range(0, sourceString.length + 1).foreach { sourceIndex =>
-      Range(0, targetString.length + 1).foreach { targetIndex =>
+    sourceRange.foreach { sourceIndex =>
+      targetRange.foreach { targetIndex =>
         editors.zipWithIndex.foreach { case (editor, index) =>
           costs(index) = editor.calcCost(distances, sourceIndex, targetIndex)
         }
@@ -221,16 +236,19 @@ class MED(sourceString: String, targetString: String) {
   }
 
   def printDistancesOn(printStream: PrintStream): Unit = {
+    val sourceRange = Range(0, sourceString.length + 1)
+    val targetRange = Range(0, targetString.length + 1)
+
     printStream.print("\t")
-    Range(0, sourceString.length + 1).foreach { sourceIndex =>
+    sourceRange.foreach { sourceIndex =>
       if (sourceIndex > 0)
         printStream.print(sourceString.charAt(sourceIndex - 1))
       printStream.print("\t")
     }
     printStream.println()
 
-    Range(0, targetString.length + 1).foreach { targetIndex =>
-      Range(0, sourceString.length + 1).foreach { sourceIndex =>
+    targetRange.foreach { targetIndex =>
+      sourceRange.foreach { sourceIndex =>
         if (sourceIndex == 0) {
           if (targetIndex > 0)
             printStream.print(targetString.charAt(targetIndex - 1))
@@ -285,7 +303,8 @@ class MED(sourceString: String, targetString: String) {
 
 object MED {
 
-  def apply(sourceString: String, targetString: String): MED = new MED(sourceString, targetString)
+  def apply(sourceString: String, targetString: String, allowSubstitute: Boolean = true, allowTranspose: Boolean = false): MED =
+      new MED(sourceString, targetString, allowSubstitute, allowTranspose)
 }
 
 object MEDApp extends App {
