@@ -18,18 +18,16 @@ abstract class EditDist(source: String, target: String) {
   def substitutes: Boolean = true
 }
 
-class ClulabEditDist(source: String, target: String) extends EditDist(source, target) {
-  def measure(): Int = ClulabEditDistance(source, target).getDistance
+class ClulabEditDist(source: String, target: String, override val substitutes: Boolean = true) extends EditDist(source, target) {
+  def measure(): Int = ClulabEditDistance(source, target, allowSubstitute = substitutes).getDistance
 }
 
 class SunEditDist(source: String, target: String) extends EditDist(source, target) {
   def measure(): Int = SunEditDistance.editDistance(source, target)
 }
 
-class StanfordEditDist(source: String, target: String, transpose: Boolean = false) extends EditDist(source, target) {
-  override val transposes: Boolean = transpose
-
-  def measure(): Int = new StanfordEditDistance(/*allowTranspose =*/ transpose).score(source, target).toInt
+class StanfordEditDist(source: String, target: String, override val transposes: Boolean = false) extends EditDist(source, target) {
+  def measure(): Int = new StanfordEditDistance(/*allowTranspose =*/ transposes).score(source, target).toInt
 }
 
 class ApacheEditDist(source: String, target: String) extends EditDist(source, target) {
@@ -56,9 +54,9 @@ class TestsEditDistance extends Test {
 
     it should "substitute correctly" in {
       val med = constructor("abc", "adc")
+      val expected = if (med.substitutes) 1 else 2
 
-      // then check if can do without substitution
-      med.measure should be (1)
+      med.measure should be (expected)
     }
 
     it should "transpose correctly" in {
@@ -71,7 +69,8 @@ class TestsEditDistance extends Test {
 
   test("SunEditDistance", (source: String, target: String) => new SunEditDist(source, target))
   test("ApacheEditDistance", (source: String, target: String) => new ApacheEditDist(source, target))
-  test("StanfordEditDistance, non-transposing", (source: String, target: String) => new StanfordEditDist(source, target, transpose = false))
-  test("StanfordEditDistance, transposing", (source: String, target: String) => new StanfordEditDist(source, target, transpose = true))
-  test ("ClulabEditDistance", (source: String, target: String) => new ClulabEditDist(source, target))
+  test("StanfordEditDistance, non-transposing", (source: String, target: String) => new StanfordEditDist(source, target, transposes = false))
+  test("StanfordEditDistance, transposing", (source: String, target: String) => new StanfordEditDist(source, target, transposes = true))
+  test ("ClulabEditDistance, non-substituting", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = false))
+  test ("ClulabEditDistance, substituting", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = true))
 }
