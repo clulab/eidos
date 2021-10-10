@@ -27,7 +27,7 @@ class SunEditDist(source: String, target: String) extends EditDist(source, targe
 }
 
 class StanfordEditDist(source: String, target: String, transpose: Boolean = false) extends EditDist(source, target) {
-  override val transposes = transpose
+  override val transposes: Boolean = transpose
 
   def measure(): Int = new StanfordEditDistance(/*allowTranspose =*/ transpose).score(source, target).toInt
 }
