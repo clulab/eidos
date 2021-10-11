@@ -4,6 +4,8 @@ package org.clulab.wm.eidos.utils
 import org.clulab.wm.eidoscommon.utils.{MED => ClulabEditDistance}
 import org.clulab.wm.eidoscommon.utils.Test
 
+import scala.util.Random
+
 // These implementations are already "included" in eidos.
 // The one to pick might depend on the license.
 
@@ -97,7 +99,26 @@ class TestsEditDistance extends Test {
   test ("ClulabEditDistance, substituting, non-transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = true, transposes = false))
   test ("ClulabEditDistance, substituting, transposing",(source: String, target: String) => new ClulabEditDist(source, target, substitutes = true, transposes = true))
 
-  // TODO, run a bunch of them and make sure gets the same answer
+  behavior of "transposing"
 
+  it should "be consistent" in {
+    val sourcesAndTargets = {
+      val random = new Random(0)
+      val alphanumeric = random.alphanumeric
+      Range(0, 100).map { _ =>
+        val source: String = alphanumeric.take(10).mkString("")
+        val target: String = random.shuffle(source.toSeq).mkString
 
+        val stanfordEditDist = new StanfordEditDist(source, target, transposes = true)
+        // If transposes is set to false for clulabEditDist, the test should fail and it does.
+        val clulabEditDist = new ClulabEditDist(source, target, transposes = true)
+
+        val stanfordDistance = stanfordEditDist.measure
+        val clulabDistance = clulabEditDist.measure()
+        println(s"$source\t$target\t$stanfordDistance\t$clulabDistance")
+
+        stanfordDistance should be (clulabDistance)
+      }
+    }
+  }
 }
