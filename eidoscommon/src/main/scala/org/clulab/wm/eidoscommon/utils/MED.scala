@@ -51,29 +51,16 @@ object Edit {
       )
 }
 
-// The source character and target character match.
-class Confirmation(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit("Confirmation", sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
-
-class Insertion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit("Insertion", sourceString, targetString, nextSourceIndex, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
-
-// The source character has been misinterpreted as the target character.
-class Substitution(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit("Substitution", sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
-
-class Deletion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit("Deletion", sourceString, targetString, nextSourceIndex - 1, nextTargetIndex, nextSourceIndex, nextTargetIndex)
-
-class Transposition(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-  extends Edit("Transposition", sourceString, targetString, nextSourceIndex - 2, nextTargetIndex - 2, nextSourceIndex, nextTargetIndex)
-
-abstract class Editor(val editClass: Class[_], sourceString: String, targetString: String) {
+abstract class Editor(val name: String, sourceString: String, targetString: String) {
   def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int
   def getEdit(sourceIndex: Int, targetIndex: Int): Edit
+
+  def newEdit(prevSourceIndex: Int, prevTargetIndex: Int, nextSourceIndex: Int, nextTargetIndex: Int): Edit =
+      new Edit(name, sourceString, targetString, prevSourceIndex, prevTargetIndex, nextSourceIndex, nextTargetIndex)
 }
 
-class Confirmer(sourceString: String, targetString: String) extends Editor(classOf[Confirmation], sourceString, targetString) {
+// The source character and target character match.
+class Confirmer(sourceString: String, targetString: String) extends Editor("Confirmation", sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
       if (sourceChar == targetChar) 0 else Integer.MAX_VALUE
@@ -90,10 +77,10 @@ class Confirmer(sourceString: String, targetString: String) extends Editor(class
   }
 
   def getEdit(sourceIndex: Int, targetIndex: Int): Edit =
-      new Confirmation(sourceString, targetString, sourceIndex, targetIndex)
+      newEdit(sourceIndex - 1, targetIndex - 1, sourceIndex, targetIndex)
 }
 
-class Inserter(sourceString: String, targetString: String) extends Editor(classOf[Insertion], sourceString, targetString) {
+class Inserter(sourceString: String, targetString: String) extends Editor("Insertion", sourceString, targetString) {
 
   def getCost(targetChar: Char): Int = 1
 
@@ -108,11 +95,10 @@ class Inserter(sourceString: String, targetString: String) extends Editor(classO
   }
 
   def getEdit(sourceIndex: Int, targetIndex: Int): Edit =
-      new Insertion(sourceString, targetString, sourceIndex, targetIndex)
-
+      newEdit(sourceIndex, targetIndex - 1, sourceIndex, targetIndex)
 }
 
-class Deleter(sourceString: String, targetString: String) extends Editor(classOf[Deletion], sourceString, targetString) {
+class Deleter(sourceString: String, targetString: String) extends Editor("Deletion", sourceString, targetString) {
 
   def getCost(sourceChar: Char): Int = 1
 
@@ -127,10 +113,11 @@ class Deleter(sourceString: String, targetString: String) extends Editor(classOf
   }
 
   def getEdit(sourceIndex: Int, targetIndex: Int): Edit =
-      new Deletion(sourceString, targetString, sourceIndex, targetIndex)
+      newEdit(sourceIndex - 1, targetIndex, sourceIndex, targetIndex)
 }
 
-class Substituter(sourceString: String, targetString: String) extends Editor(classOf[Substitution], sourceString, targetString) {
+// The source character has been misinterpreted as the target character.
+class Substituter(sourceString: String, targetString: String) extends Editor("Substitution", sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
       if (sourceChar != targetChar) 2 else Integer.MAX_VALUE
@@ -147,10 +134,10 @@ class Substituter(sourceString: String, targetString: String) extends Editor(cla
   }
 
   def getEdit(sourceIndex: Int, targetIndex: Int): Edit  =
-      new Substitution(sourceString, targetString, sourceIndex, targetIndex)
+      newEdit(sourceIndex - 1, targetIndex - 1, sourceIndex, targetIndex)
 }
 
-class Transposer(sourceString: String, targetString: String) extends Editor(classOf[Substitution], sourceString, targetString) {
+class Transposer(sourceString: String, targetString: String) extends Editor("Transposition", sourceString, targetString) {
 
   def getCost(prevSourceChar: Char, prevTargetChar: Char, nextSourceChar: Char, nextTargetChar: Char): Int =
     if (prevSourceChar == nextTargetChar && nextSourceChar == prevTargetChar) 1 else Integer.MAX_VALUE
@@ -170,7 +157,7 @@ class Transposer(sourceString: String, targetString: String) extends Editor(clas
   }
 
   override def getEdit(sourceIndex: Int, targetIndex: Int): Edit =
-      new Transposition(sourceString, targetString, sourceIndex, targetIndex)
+      newEdit(sourceIndex - 2, targetIndex - 2, sourceIndex, targetIndex)
 }
 
 object Escaper {
@@ -279,12 +266,11 @@ class MED(sourceString: String, targetString: String, allowSubstitute: Boolean =
 
   def printSummaryOn(printStream: PrintStream): Unit = {
     val keys = editors
-        .map(_.editClass.getName)
+        .map(_.name)
     val counts = edits
-        .groupBy(_.getClass.getName)
+        .groupBy(_.name)
         .mapValues(_.length)
     val headers = keys
-        .map { key => key.substring(key.lastIndexOf('.') + 1) }
         .mkString("\t")
     val values = keys
         .map { key => counts.getOrElse(key, 0) }
