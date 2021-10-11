@@ -10,41 +10,38 @@ case class Edit(
   nextSourceIndex: Int, nextTargetIndex: Int
 ) {
 
-  def getSourceChars: String = sourceString.substring(prevSourceIndex, nextSourceIndex)
+  def getIndexes(prevIndex: Int, nextIndex: Int): String = {
+    val length = nextIndex - prevIndex
 
-  def getTargetChars: String = targetString.substring(prevTargetIndex, nextTargetIndex)
-
-  def print(printStream: PrintStream): Unit = {
-    val sourceChars = getSourceChars
-    val targetChars = getTargetChars
-
-    Edit.printRow(printStream, name,
-      if (sourceChars.nonEmpty) Some(prevSourceIndex) else None, getSourceChars,
-      if (targetChars.nonEmpty) Some(prevTargetIndex) else None, getTargetChars
-    )
+    length match {
+      case 0 => "-"
+      case 1 => prevIndex.toString
+      case _ => s"$prevIndex-${nextIndex - 1}"
+    }
   }
+
+  def getSourceIndexes: String = getIndexes(prevSourceIndex, nextSourceIndex)
+
+  def getTargetIndexes: String = getIndexes(prevTargetIndex, nextTargetIndex)
+
+  def getChars(string: String, prevIndex: Int, nextIndex: Int): String = {
+    val substring = string.substring(prevIndex, nextIndex)
+
+    if (substring.isEmpty) "_" else substring.flatMap(Escaper.escape)
+  }
+
+  def getSourceChars: String = getChars(sourceString, prevSourceIndex, nextSourceIndex)
+
+  def getTargetChars: String = getChars(targetString, prevTargetIndex, nextTargetIndex)
+
+  def print(printStream: PrintStream): Unit =
+      Edit.printRow(printStream, name, getSourceIndexes, getSourceChars, getTargetIndexes, getTargetChars)
 }
 
 object Edit {
 
   def printRow(printStream: PrintStream, col1: String, col2: String, col3: String, col4: String, col5: String): Unit =
       printStream.println(s"$col1\t$col2\t$col3\t$col4\t$col5")
-
-  def intToString(intOpt: Option[Int]): String = intOpt.map(_.toString).getOrElse("-")
-
-  def charsToString(chars: String): String = if (chars.isEmpty) "_" else chars.flatMap(Escaper.escape)
-
-  // Need prevSourceIndex, nextSourceIndex
-  // Need prevTargetIndex, nextTargetIndex
-
-  def printRow(printStream: PrintStream, typ: String, sourceIndexOpt: Option[Int], sourceChars: String,
-      targetIndexOpt: Option[Int], targetChars: String): Unit = {
-    printRow(
-      printStream, typ,
-      intToString(sourceIndexOpt), charsToString(sourceChars),
-      intToString(targetIndexOpt), charsToString(targetChars)
-    )
-  }
 
   def printHeader(printStream: PrintStream): Unit =
       printRow(
@@ -141,14 +138,14 @@ class Substituter(sourceString: String, targetString: String) extends Editor("Su
 
 class Transposer(sourceString: String, targetString: String) extends Editor("Transposition", sourceString, targetString) {
 
-  def getCost(prevSourceChar: Char, prevTargetChar: Char, nextSourceChar: Char, nextTargetChar: Char): Int =
-    if (prevSourceChar == nextTargetChar && nextSourceChar == prevTargetChar) 1 else Integer.MAX_VALUE
+  def getCost(leftSourceChar: Char, leftTargetChar: Char, rightSourceChar: Char, rightTargetChar: Char): Int =
+      if (leftSourceChar == rightTargetChar && rightSourceChar == leftTargetChar) 1 else Integer.MAX_VALUE
 
   override def calcCost(distances: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
     if (nextTargetIndex < 2 || nextSourceIndex < 2) Integer.MAX_VALUE
     else {
       val cost = getCost(
-        sourceString.charAt(nextSourceIndex - 2), targetString.charAt(nextSourceIndex - 2),
+        sourceString.charAt(nextSourceIndex - 2), targetString.charAt(nextTargetIndex - 2),
         sourceString.charAt(nextSourceIndex - 1), targetString.charAt(nextTargetIndex - 1)
       )
 
@@ -191,6 +188,8 @@ class MED(sourceString: String, targetString: String, allowSubstitute: Boolean =
   protected val distances: Array[Array[Int]] = Array.ofDim[Int](sourceString.length + 1, targetString.length + 1)
   // This keeps track of the index of the editor used at each position.
   protected val editorIndexes: Array[Array[Int]] = Array.ofDim[Int](sourceString.length + 1, targetString.length + 1)
+  protected val sourceRange = Range(0, sourceString.length + 1)
+  protected val targetRange = Range(0, targetString.length + 1)
   protected val distance: Int = measure()
   protected lazy val edits: Array[Edit] = mkEdits()
 
@@ -198,8 +197,6 @@ class MED(sourceString: String, targetString: String, allowSubstitute: Boolean =
 
   protected def measure(): Int = {
     val costs = new Array[Int](editors.length)
-    val sourceRange = Range(0, sourceString.length + 1)
-    val targetRange = Range(0, targetString.length + 1)
 
     sourceRange.foreach { sourceIndex =>
       targetRange.foreach { targetIndex =>
@@ -218,9 +215,6 @@ class MED(sourceString: String, targetString: String, allowSubstitute: Boolean =
   }
 
   def printDistancesOn(printStream: PrintStream): Unit = {
-    val sourceRange = Range(0, sourceString.length + 1)
-    val targetRange = Range(0, targetString.length + 1)
-
     printStream.print("\t")
     sourceRange.foreach { sourceIndex =>
       if (sourceIndex > 0)
@@ -289,7 +283,7 @@ object MED {
 }
 
 object MEDApp extends App {
-  val med = MED("Sunday", "Saturday")
+  val med = MED("Sunday", "Saturady", allowSubstitute = true, allowTranspose = true)
 
   println(med.getDistance)
   med.printDistancesOn(System.out)
