@@ -102,23 +102,21 @@ class TestsEditDistance extends Test {
   behavior of "transposing"
 
   it should "be consistent" in {
-    val sourcesAndTargets = {
-      val random = new Random(0)
-      val alphanumeric = random.alphanumeric
-      Range(0, 100).map { _ =>
-        val source: String = alphanumeric.take(10).mkString("")
-        val target: String = random.shuffle(source.toSeq).mkString
+    val random = new Random(0)
+    val alphanumeric = random.alphanumeric
+    Range(0, 100).map { _ =>
+      val source: String = alphanumeric.take(10).mkString
+      val target: String = random.shuffle(source.toSeq).mkString
 
-        val stanfordEditDist = new StanfordEditDist(source, target, transposes = true)
-        // If transposes is set to false for clulabEditDist, the test should fail and it does.
-        val clulabEditDist = new ClulabEditDist(source, target, transposes = true)
+      val stanfordEditDist = new StanfordEditDist(source, target, transposes = true)
+      // If transposes is set to false for clulabEditDist, the test should fail and it does.
+      val clulabEditDist = new ClulabEditDist(source, target, transposes = true)
 
-        val stanfordDistance = stanfordEditDist.measure
-        val clulabDistance = clulabEditDist.measure()
-        println(s"$source\t$target\t$stanfordDistance\t$clulabDistance")
+      val stanfordDistance = stanfordEditDist.measure
+      val clulabDistance = clulabEditDist.measure()
+      println(s"$source\t$target\t$stanfordDistance\t$clulabDistance")
 
-        stanfordDistance should be (clulabDistance)
-      }
+      stanfordDistance should be (clulabDistance)
     }
   }
 }
