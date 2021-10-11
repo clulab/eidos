@@ -120,7 +120,7 @@ class Deleter(sourceString: String, targetString: String) extends Editor("Deleti
 class Substituter(sourceString: String, targetString: String) extends Editor("Substitution", sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
-      if (sourceChar != targetChar) 2 else Integer.MAX_VALUE
+      if (sourceChar != targetChar) 1 else Integer.MAX_VALUE
 
   def calcCost(distances: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
     if (nextSourceIndex < 1 || nextTargetIndex < 1) Integer.MAX_VALUE
@@ -283,7 +283,8 @@ object MED {
 }
 
 object MEDApp extends App {
-  val med = MED("Sunday", "Saturady", allowSubstitute = true, allowTranspose = true)
+//  val med = MED("Sunday", "Saturady", allowSubstitute = true, allowTranspose = true)
+  val med = MED("cat", "cars", allowSubstitute = true, allowTranspose = false)
 
   println(med.getDistance)
   med.printDistancesOn(System.out)

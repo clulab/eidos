@@ -18,8 +18,8 @@ abstract class EditDist(source: String, target: String) {
   def substitutes: Boolean = true
 }
 
-class ClulabEditDist(source: String, target: String, override val substitutes: Boolean = true) extends EditDist(source, target) {
-  def measure(): Int = ClulabEditDistance(source, target, allowSubstitute = substitutes).getDistance
+class ClulabEditDist(source: String, target: String, override val substitutes: Boolean = true, override val transposes: Boolean = false) extends EditDist(source, target) {
+  def measure(): Int = ClulabEditDistance(source, target, allowSubstitute = substitutes, allowTranspose = transposes).getDistance
 }
 
 class SunEditDist(source: String, target: String) extends EditDist(source, target) {
@@ -41,27 +41,48 @@ class TestsEditDistance extends Test {
 
     it should "insert correctly" in {
       val med = constructor("ac", "abc")
+      val expected = (med.substitutes, med.transposes) match {
+        case (false, false) => 1
+        case (false, true) => 1
+        case (true, false) => 1
+        case (true, true) => 1
+      }
 
-      // depends on if can substitute and transpose
-      med.measure should be (1)
+      med.measure should be (expected)
     }
 
     it should "delete correctly" in {
       val med = constructor("abc", "ac")
+      val expected = (med.substitutes, med.transposes) match {
+        case (false, false) => 1
+        case (false, true) => 1
+        case (true, false) => 1
+        case (true, true) => 1
+      }
 
-      med.measure should be (1)
+      med.measure should be (expected)
     }
 
     it should "substitute correctly" in {
       val med = constructor("abc", "adc")
-      val expected = if (med.substitutes) 1 else 2
+      val expected = (med.substitutes, med.transposes) match {
+        case (false, false) => 2
+        case (false, true) => 2
+        case (true, false) => 1
+        case (true, true) => 1
+      }
 
       med.measure should be (expected)
     }
 
     it should "transpose correctly" in {
-      val med = constructor("ab", "ba")
-      val expected = if (med.transposes) 1 else 2
+      val med = constructor("AabB", "AbaB")
+      val expected = (med.substitutes, med.transposes) match {
+        case (false, false) => 2
+        case (false, true) => 1
+        case (true, false) => 2
+        case (true, true) => 1
+      }
 
       med.measure should be (expected)
     }
@@ -71,6 +92,12 @@ class TestsEditDistance extends Test {
   test("ApacheEditDistance", (source: String, target: String) => new ApacheEditDist(source, target))
   test("StanfordEditDistance, non-transposing", (source: String, target: String) => new StanfordEditDist(source, target, transposes = false))
   test("StanfordEditDistance, transposing", (source: String, target: String) => new StanfordEditDist(source, target, transposes = true))
-  test ("ClulabEditDistance, non-substituting", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = false))
-  test ("ClulabEditDistance, substituting", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = true))
+  test ("ClulabEditDistance, non-substituting, non-transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = false, transposes = false))
+  test ("ClulabEditDistance, non-substituting, transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = false, transposes = true))
+  test ("ClulabEditDistance, substituting, non-transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = true, transposes = false))
+  test ("ClulabEditDistance, substituting, transposing",(source: String, target: String) => new ClulabEditDist(source, target, substitutes = true, transposes = true))
+
+  // TODO, run a bunch of them and make sure gets the same answer
+
+
 }
