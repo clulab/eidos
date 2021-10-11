@@ -4,19 +4,25 @@ import java.io.PrintStream
 import scala.annotation.tailrec
 
 case class Edit(
+  name: String,
   sourceString: String, targetString: String,
   prevSourceIndex: Int, prevTargetIndex: Int,
   nextSourceIndex: Int, nextTargetIndex: Int
 ) {
 
-  // Do sourceCharOpt and targetCharOpt
-  def print(printStream: PrintStream): Unit = printStream.println()
+  def getSourceChars: String = sourceString.substring(prevSourceIndex, nextSourceIndex)
 
-  // This Char may not exist for insertion.
-  def getSourceChar: Char = sourceString.charAt(prevSourceIndex)
+  def getTargetChars: String = targetString.substring(prevTargetIndex, nextTargetIndex)
 
-  // This Char may not exist for deletion.
-  def getTargetChar: Char = targetString.charAt(prevTargetIndex)
+  def print(printStream: PrintStream): Unit = {
+    val sourceChars = getSourceChars
+    val targetChars = getTargetChars
+
+    Edit.printRow(printStream, name,
+      if (sourceChars.nonEmpty) Some(prevSourceIndex) else None, getSourceChars,
+      if (targetChars.nonEmpty) Some(prevTargetIndex) else None, getTargetChars
+    )
+  }
 }
 
 object Edit {
@@ -26,14 +32,14 @@ object Edit {
 
   def intToString(intOpt: Option[Int]): String = intOpt.map(_.toString).getOrElse("-")
 
-  def charToString(charOpt: Option[Char]): String = charOpt.map(Escaper.escape).getOrElse("_")
+  def charsToString(chars: String): String = if (chars.isEmpty) "_" else chars.flatMap(Escaper.escape)
 
-  def printRow(printStream: PrintStream, typ: String, sourceIndexOpt: Option[Int], sourceCharOpt: Option[Char],
-      targetIndexOpt: Option[Int], targetCharOpt: Option[Char]): Unit = {
+  def printRow(printStream: PrintStream, typ: String, sourceIndexOpt: Option[Int], sourceChars: String,
+      targetIndexOpt: Option[Int], targetChars: String): Unit = {
     printRow(
       printStream, typ,
-      intToString(sourceIndexOpt), charToString(sourceCharOpt),
-      intToString(targetIndexOpt), charToString(targetCharOpt)
+      intToString(sourceIndexOpt), charsToString(sourceChars),
+      intToString(targetIndexOpt), charsToString(targetChars)
     )
   }
 
@@ -47,49 +53,20 @@ object Edit {
 
 // The source character and target character match.
 class Confirmation(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
-
-  override def print(printStream: PrintStream): Unit =
-      Edit.printRow(
-        printStream, "Confirmation",
-        Some(prevSourceIndex), Some(getSourceChar),
-        Some(prevTargetIndex), Some(getTargetChar)
-      )
-}
+    extends Edit("Confirmation", sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
 
 class Insertion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(sourceString, targetString, nextSourceIndex, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
-
-  override def print(printStream: PrintStream): Unit =
-      Edit.printRow(
-        printStream, "Insertion",
-        None, None,
-        Some(prevTargetIndex), Some(getTargetChar)
-      )
-}
+    extends Edit("Insertion", sourceString, targetString, nextSourceIndex, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
 
 // The source character has been misinterpreted as the target character.
 class Substitution(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex) {
-
-  override def print(printStream: PrintStream): Unit =
-      Edit.printRow(
-        printStream, "Substitution",
-        Some(prevSourceIndex), Some(getSourceChar),
-        Some(prevTargetIndex), Some(getTargetChar)
-      )
-}
+    extends Edit("Substitution", sourceString, targetString, nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
 
 class Deletion(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
-    extends Edit(sourceString, targetString, nextSourceIndex - 1, nextTargetIndex, nextSourceIndex, nextTargetIndex) {
+    extends Edit("Deletion", sourceString, targetString, nextSourceIndex - 1, nextTargetIndex, nextSourceIndex, nextTargetIndex)
 
-  override def print(printStream: PrintStream): Unit =
-      Edit.printRow(
-        printStream, "Deletion",
-        Some(prevSourceIndex), Some(getSourceChar),
-        None, None
-      )
-}
+class Transposition(sourceString: String, targetString: String, nextSourceIndex: Int, nextTargetIndex: Int)
+  extends Edit("Transposition", sourceString, targetString, nextSourceIndex - 2, nextTargetIndex - 2, nextSourceIndex, nextTargetIndex)
 
 abstract class Editor(val editClass: Class[_], sourceString: String, targetString: String) {
   def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int
@@ -102,8 +79,8 @@ class Confirmer(sourceString: String, targetString: String) extends Editor(class
       if (sourceChar == targetChar) 0 else Integer.MAX_VALUE
 
   def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int = {
-    if (targetIndex == 0 && sourceIndex == 0) 0
-    else if (targetIndex == 0 || sourceIndex == 0) Integer.MAX_VALUE
+    if (sourceIndex == 0 && targetIndex == 0) 0
+    else if (sourceIndex == 0 || targetIndex == 0) Integer.MAX_VALUE
     else {
       val cost = getCost(sourceString.charAt(sourceIndex - 1), targetString.charAt(targetIndex - 1))
 
@@ -156,11 +133,11 @@ class Deleter(sourceString: String, targetString: String) extends Editor(classOf
 class Substituter(sourceString: String, targetString: String) extends Editor(classOf[Substitution], sourceString, targetString) {
 
   def getCost(sourceChar: Char, targetChar: Char): Int =
-      if (sourceChar != targetChar) 1 else Integer.MAX_VALUE
+      if (sourceChar != targetChar) 2 else Integer.MAX_VALUE
 
   def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int = {
-    if (targetIndex == 0 && sourceIndex == 0) 0
-    else if (targetIndex == 0 || sourceIndex == 0) Integer.MAX_VALUE
+    if (sourceIndex == 0 && targetIndex == 0) 0
+    else if (sourceIndex == 0 || targetIndex == 0) Integer.MAX_VALUE
     else {
       val cost = getCost(sourceString.charAt(sourceIndex - 1), targetString.charAt(targetIndex - 1))
 
@@ -174,9 +151,26 @@ class Substituter(sourceString: String, targetString: String) extends Editor(cla
 }
 
 class Transposer(sourceString: String, targetString: String) extends Editor(classOf[Substitution], sourceString, targetString) {
-  override def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int = ???
 
-  override def getEdit(sourceIndex: Int, targetIndex: Int): Edit = ???
+  def getCost(prevSourceChar: Char, prevTargetChar: Char, nextSourceChar: Char, nextTargetChar: Char): Int =
+    if (prevSourceChar == nextTargetChar && nextSourceChar == prevTargetChar) 1 else Integer.MAX_VALUE
+
+  override def calcCost(distances: Array[Array[Int]], sourceIndex: Int, targetIndex: Int): Int = {
+    if (targetIndex == 0 && sourceIndex == 0) 0
+    else if (targetIndex == 0 || sourceIndex == 0) Integer.MAX_VALUE
+    else {
+      val cost = getCost(
+        sourceString.charAt(sourceIndex - 2), targetString.charAt(sourceIndex - 2),
+        sourceString.charAt(sourceIndex - 1), targetString.charAt(targetIndex - 1)
+      )
+
+      if (cost == Integer.MAX_VALUE) cost
+      else distances(sourceIndex - 2)(targetIndex - 2) + cost
+    }
+  }
+
+  override def getEdit(sourceIndex: Int, targetIndex: Int): Edit =
+      new Transposition(sourceString, targetString, sourceIndex, targetIndex)
 }
 
 object Escaper {
