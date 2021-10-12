@@ -112,10 +112,11 @@ class FullOntologyLeafNode(
   val parent: FullOntologyParentNode,
   polarity: Float,
   /*names: Seq[String],*/
-  examples: Option[Array[String]] = None,
+  examples: Option[Array[String]] = None, // These have been filtered.
   descriptions: Option[Array[String]] = None,
-  override val patterns: Option[Array[Regex]] = None
-) extends FullOntologyNode(nodeName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patterns, examples) with Namer {
+  override val patterns: Option[Array[Regex]] = None,
+  rawExamplesOpt: Option[Array[String]] = None
+) extends FullOntologyNode(nodeName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patterns, rawExamplesOpt) with Namer {
 
   override def fullName: String = parentOpt.get.fullName + escaped
 
@@ -266,7 +267,7 @@ object FullTreeDomainOntology {
 
 //      println("Adding new node")
       // Note: leaf nodes are created here
-      new FullOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
+      new FullOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns, examples)
     }
 
     protected def parseOntology(parent: FullOntologyParentNode, yamlNodes: Seq[Any], level: Int = 0): Unit = {
