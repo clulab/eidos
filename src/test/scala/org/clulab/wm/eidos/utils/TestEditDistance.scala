@@ -36,7 +36,7 @@ class ApacheEditDist(source: String, target: String) extends EditDist(source, ta
   def measure(): Int = new ApacheEditDistance().apply(source, target)
 }
 
-class TestsEditDistance extends Test {
+class TestEditDistance extends Test {
 
   def test(name: String, constructor: (String, String) => EditDist): Unit = {
     behavior of name
@@ -94,10 +94,10 @@ class TestsEditDistance extends Test {
   test("ApacheEditDistance", (source: String, target: String) => new ApacheEditDist(source, target))
   test("StanfordEditDistance, non-transposing", (source: String, target: String) => new StanfordEditDist(source, target, transposes = false))
   test("StanfordEditDistance, transposing", (source: String, target: String) => new StanfordEditDist(source, target, transposes = true))
-  test ("ClulabEditDistance, non-substituting, non-transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = false, transposes = false))
-  test ("ClulabEditDistance, non-substituting, transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = false, transposes = true))
-  test ("ClulabEditDistance, substituting, non-transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = true, transposes = false))
-  test ("ClulabEditDistance, substituting, transposing",(source: String, target: String) => new ClulabEditDist(source, target, substitutes = true, transposes = true))
+  test("ClulabEditDistance, non-substituting, non-transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = false, transposes = false))
+  test("ClulabEditDistance, non-substituting, transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = false, transposes = true))
+  test("ClulabEditDistance, substituting, non-transposing", (source: String, target: String) => new ClulabEditDist(source, target, substitutes = true, transposes = false))
+  test("ClulabEditDistance, substituting, transposing",(source: String, target: String) => new ClulabEditDist(source, target, substitutes = true, transposes = true))
 
   behavior of "transposing"
 
