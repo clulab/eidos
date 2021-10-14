@@ -52,110 +52,165 @@ object Edit {
 }
 
 abstract class Editor(val name: String, sourceString: String, targetString: String) {
-  def calcCost(distances: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int
+  def calcCost(costs: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int
   def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit
 
   def newEdit(prevSourceIndex: Int, prevTargetIndex: Int, nextSourceIndex: Int, nextTargetIndex: Int): Edit =
       new Edit(name, sourceString, targetString, prevSourceIndex, prevTargetIndex, nextSourceIndex, nextTargetIndex)
+
+  // Integer.MAX_VALUE means that the Editor is not applicable.
+  def getCost(condition: Boolean, cost: Int): Int = if (condition) cost else Integer.MAX_VALUE
+
+  def calcCost(disqualifier: Boolean, cost: => Int, oldCost: => Int): Int =
+      if (disqualifier || cost == Integer.MAX_VALUE) Integer.MAX_VALUE
+      else oldCost + cost
 }
 
 // The source character and target character match.
 class Confirmer(sourceString: String, targetString: String) extends Editor("Confirmation", sourceString, targetString) {
 
-  def getCost(sourceChar: Char, targetChar: Char): Int =
-      if (sourceChar == targetChar) 0 else Integer.MAX_VALUE
+  def getCost(sourceChar: Char, targetChar: Char): Int = getCost(sourceChar == targetChar, 0)
 
-  def calcCost(distances: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
+  def calcCost(costs: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
     if (nextSourceIndex == 0 && nextTargetIndex == 0) 0 // This placeholder edit will be ignored.
-    else if (nextSourceIndex < 1 || nextTargetIndex < 1) Integer.MAX_VALUE
     else {
-      val cost = getCost(sourceString.charAt(nextSourceIndex - 1), targetString.charAt(nextTargetIndex - 1))
+      val prevSourceIndex = nextSourceIndex - 1
+      val prevTargetIndex = nextTargetIndex - 1
 
-      if (cost == Integer.MAX_VALUE) cost
-      else distances(nextSourceIndex - 1)(nextTargetIndex - 1) + cost
+      calcCost(
+        prevSourceIndex < 0 || prevTargetIndex < 0,
+        getCost(sourceString.charAt(prevSourceIndex), targetString.charAt(prevTargetIndex)),
+        costs(prevSourceIndex)(prevTargetIndex)
+      )
     }
   }
 
-  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit =
-      newEdit(nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
+  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit = {
+    val prevSourceIndex = nextSourceIndex - 1
+    val prevTargetIndex = nextTargetIndex - 1
+
+    newEdit(prevSourceIndex, prevTargetIndex, nextSourceIndex, nextTargetIndex)
+  }
 }
 
 class Inserter(sourceString: String, targetString: String) extends Editor("Insertion", sourceString, targetString) {
 
-  def getCost(targetChar: Char): Int = 1
+  def getCost(targetChar: Char): Int = getCost(true, 1)
 
-  def calcCost(distances: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
-    if (nextTargetIndex < 1) Integer.MAX_VALUE
-    else {
-      val cost = getCost(targetString.charAt(nextTargetIndex - 1))
+  def calcCost(costs: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
+    val prevTargetIndex = nextTargetIndex - 1
 
-      if (cost == Integer.MAX_VALUE) cost
-      else distances(nextSourceIndex)(nextTargetIndex - 1) + cost
-    }
+    calcCost(
+      prevTargetIndex < 0,
+      getCost(targetString.charAt(prevTargetIndex)),
+      costs(nextSourceIndex)(prevTargetIndex)
+    )
   }
 
-  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit =
-      newEdit(nextSourceIndex, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
+  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit = {
+    val prevTargetIndex = nextTargetIndex - 1
+
+    newEdit(nextSourceIndex, prevTargetIndex, nextSourceIndex, nextTargetIndex)
+  }
 }
 
 class Deleter(sourceString: String, targetString: String) extends Editor("Deletion", sourceString, targetString) {
 
-  def getCost(sourceChar: Char): Int = 1
+  def getCost(sourceChar: Char): Int = getCost(true, 1)
 
-  def calcCost(distances: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
-    if (nextSourceIndex < 1) Integer.MAX_VALUE
-    else {
-      val cost = getCost(sourceString.charAt(nextSourceIndex - 1))
+  def calcCost(costs: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
+    val prevSourceIndex = nextSourceIndex - 1
 
-      if (cost == Integer.MAX_VALUE) cost
-      else distances(nextSourceIndex - 1)(nextTargetIndex) + cost
-    }
+    calcCost(
+      prevSourceIndex < 0,
+      getCost(sourceString.charAt(prevSourceIndex)),
+      costs(prevSourceIndex)(nextTargetIndex)
+    )
   }
 
-  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit =
-      newEdit(nextSourceIndex - 1, nextTargetIndex, nextSourceIndex, nextTargetIndex)
+  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit = {
+    val prevSourceIndex = nextSourceIndex - 1
+
+    newEdit(prevSourceIndex, nextTargetIndex, nextSourceIndex, nextTargetIndex)
+  }
 }
 
 // The source character has been misinterpreted as the target character.
 class Substituter(sourceString: String, targetString: String) extends Editor("Substitution", sourceString, targetString) {
 
-  def getCost(sourceChar: Char, targetChar: Char): Int =
-      if (sourceChar != targetChar) 1 else Integer.MAX_VALUE
+  def getCost(sourceChar: Char, targetChar: Char): Int = getCost(sourceChar != targetChar, 1)
 
-  def calcCost(distances: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
-    if (nextSourceIndex < 1 || nextTargetIndex < 1) Integer.MAX_VALUE
-    else {
-      val cost = getCost(sourceString.charAt(nextSourceIndex - 1), targetString.charAt(nextTargetIndex - 1))
+  def calcCost(costs: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
+    val prevSourceIndex = nextSourceIndex - 1
+    val prevTargetIndex = nextTargetIndex - 1
 
-      if (cost == Integer.MAX_VALUE) cost
-      else distances(nextSourceIndex - 1)(nextTargetIndex - 1) + cost
-    }
+    calcCost(
+      prevSourceIndex < 0 || prevTargetIndex < 0,
+      getCost(sourceString.charAt(prevSourceIndex), targetString.charAt(prevTargetIndex)),
+      costs(prevSourceIndex)(prevTargetIndex)
+    )
   }
 
-  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit  =
-      newEdit(nextSourceIndex - 1, nextTargetIndex - 1, nextSourceIndex, nextTargetIndex)
+  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit = {
+    val prevSourceIndex = nextSourceIndex - 1
+    val prevTargetIndex = nextTargetIndex - 1
+
+    newEdit(prevSourceIndex, prevTargetIndex, nextSourceIndex, nextTargetIndex)
+  }
 }
 
 class Transposer(sourceString: String, targetString: String) extends Editor("Transposition", sourceString, targetString) {
 
   def getCost(leftSourceChar: Char, leftTargetChar: Char, rightSourceChar: Char, rightTargetChar: Char): Int =
-      if (leftSourceChar == rightTargetChar && rightSourceChar == leftTargetChar) 1 else Integer.MAX_VALUE
+      getCost(leftSourceChar == rightTargetChar && rightSourceChar == leftTargetChar, 1)
 
-  override def calcCost(distances: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
-    if (nextTargetIndex < 2 || nextSourceIndex < 2) Integer.MAX_VALUE
-    else {
-      val cost = getCost(
-        sourceString.charAt(nextSourceIndex - 2), targetString.charAt(nextTargetIndex - 2),
-        sourceString.charAt(nextSourceIndex - 1), targetString.charAt(nextTargetIndex - 1)
-      )
+  override def calcCost(costs: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
+    val rightSourceIndex = nextSourceIndex - 1
+    val rightTargetIndex = nextTargetIndex - 1
+    val leftSourceIndex = nextSourceIndex - 2
+    val leftTargetIndex = nextTargetIndex - 2
 
-      if (cost == Integer.MAX_VALUE) cost
-      else distances(nextSourceIndex - 2)(nextTargetIndex - 2) + cost
-    }
+    calcCost(
+      leftSourceIndex < 0 || leftTargetIndex < 0,
+      getCost(
+        sourceString.charAt(leftSourceIndex), targetString.charAt(leftTargetIndex),
+        sourceString.charAt(rightSourceIndex), targetString.charAt(rightTargetIndex)
+      ),
+      costs(leftSourceIndex)(leftTargetIndex)
+    )
   }
 
-  override def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit =
-      newEdit(nextSourceIndex - 2, nextTargetIndex - 2, nextSourceIndex, nextTargetIndex)
+  override def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit = {
+    val leftSourceIndex = nextSourceIndex - 2
+    val leftTargetIndex = nextTargetIndex - 2
+
+    newEdit(leftSourceIndex, leftTargetIndex, nextSourceIndex, nextTargetIndex)
+  }
+}
+
+// The source and target characters differ by case at a cost of 0, resulting in case-insensitive matches.
+class Capitalizer(sourceString: String, targetString: String) extends Editor("Capitalization", sourceString, targetString) {
+
+  def getCost(sourceChar: Char, targetChar: Char): Int =
+      getCost(sourceChar != targetChar && sourceChar.toLower == targetChar.toLower, 0)
+
+  def calcCost(costs: Array[Array[Int]], nextSourceIndex: Int, nextTargetIndex: Int): Int = {
+    val prevSourceIndex = nextSourceIndex - 1
+    val prevTargetIndex = nextTargetIndex - 1
+
+    calcCost(
+      prevSourceIndex < 0 || prevTargetIndex < 0,
+      getCost(sourceString.charAt(prevSourceIndex), targetString.charAt(prevTargetIndex)),
+      costs(prevSourceIndex)(prevTargetIndex)
+    )
+  }
+
+  def getEdit(nextSourceIndex: Int, nextTargetIndex: Int): Edit = {
+    val prevSourceIndex = nextSourceIndex - 1
+    val prevTargetIndex = nextTargetIndex - 1
+
+    newEdit(prevSourceIndex, prevTargetIndex, nextSourceIndex, nextTargetIndex)
+  }
 }
 
 object Escaper {
@@ -169,7 +224,8 @@ object Escaper {
   }
 }
 
-class MED(sourceString: String, targetString: String, allowSubstitute: Boolean = true, allowTranspose: Boolean = false) {
+class MED(sourceString: String, targetString: String, allowSubstitute: Boolean = true,
+    allowTranspose: Boolean = false, allowCapitalize: Boolean = false) {
   // These are recorded now in the order of preference for tie breaking where we want
   // deletions to win when the target text is shorter than the source.
   protected val editors: Array[Editor] =
@@ -182,6 +238,9 @@ class MED(sourceString: String, targetString: String, allowSubstitute: Boolean =
         else Array.empty[Editor]
       } ++ {
         if (allowTranspose) Array(new Transposer(sourceString, targetString))
+        else Array.empty[Editor]
+      } ++ {
+        if (allowCapitalize) Array(new Capitalizer(sourceString, targetString))
         else Array.empty[Editor]
       }
 
@@ -278,13 +337,13 @@ class MED(sourceString: String, targetString: String, allowSubstitute: Boolean =
 
 object MED {
 
-  def apply(sourceString: String, targetString: String, allowSubstitute: Boolean = true, allowTranspose: Boolean = false): MED =
-      new MED(sourceString, targetString, allowSubstitute, allowTranspose)
+  def apply(sourceString: String, targetString: String, allowSubstitute: Boolean = true,
+      allowTranspose: Boolean = false, allowCapitalize: Boolean = false): MED =
+      new MED(sourceString, targetString, allowSubstitute, allowTranspose, allowCapitalize)
 }
 
 object MEDApp extends App {
-//  val med = MED("Sunday", "Saturady", allowSubstitute = true, allowTranspose = true)
-  val med = MED("cat", "cars", allowSubstitute = true, allowTranspose = false)
+  val med = MED("Sunday?", "saturady", allowSubstitute = true, allowTranspose = true, allowCapitalize = true)
 
   println(med.getDistance)
   med.printDistancesOn(System.out)
