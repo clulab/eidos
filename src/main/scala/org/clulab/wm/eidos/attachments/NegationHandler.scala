@@ -178,10 +178,12 @@ class NegationHandler(val language: String) {
     // Check for single-token negative verbs
     for {
       (ix, lemma) <- leftContext ++ rightContext
-      if !argumentIntervals.exists(_.contains(ix))
-      // make sure ix+1 is not the end of the sentence (to avoid ix+1 error at end of sent)
-      if rightContext.isEmpty || (rightContext.nonEmpty && rightContext.last._1 < sentenceWords.lastIndexOf(sentenceWords.last))
-      if (NegationHandler.failNot contains lemma) && !(previouslyFound contains ix) && event.sentenceObj.words(ix+1) != "only"
+      // These are ordered roughly from fastest and most effective to slowest and least.
+      if NegationHandler.failNot contains lemma     // lemma is either "fail" or "not", and
+      if !(previouslyFound contains ix)             // ix is not a duplicate, and
+      if !argumentIntervals.exists(_.contains(ix))  // ix is not part of any argument interval, and
+      if !sentenceWords.indices.contains(ix + 1) || // either there is no next word at all or
+        sentenceWords(ix + 1) != "only"           // there is one and the next word is not "only"
     } yield new TextBoundMention(
       Seq("Negation_trigger"),
       Interval(ix),
