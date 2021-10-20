@@ -5,7 +5,6 @@ import org.clulab.wm.eidos.EidosSystem
 
 import scala.collection.mutable.ArrayBuffer
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.attachments.NegationHandler.failNot
 import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.Language
 
@@ -175,11 +174,14 @@ class NegationHandler(val language: String) {
 
     // Get the token interval of the event, but exclude the intervals of the arguments
     val argumentIntervals = event.arguments.values.flatten.map(_.tokenInterval)
+    val sentenceWords = event.sentenceObj.words
     // Check for single-token negative verbs
     for {
       (ix, lemma) <- leftContext ++ rightContext
       if !argumentIntervals.exists(_.contains(ix))
-      if (failNot contains lemma) && !(previouslyFound contains ix) && event.sentenceObj.words(ix+1) != "only"
+      // make sure ix+1 is not the end of the sentence (to avoid ix+1 error at end of sent)
+      if rightContext.isEmpty || (rightContext.nonEmpty && rightContext.last._1 < sentenceWords.lastIndexOf(sentenceWords.last))
+      if (NegationHandler.failNot contains lemma) && !(previouslyFound contains ix) && event.sentenceObj.words(ix+1) != "only"
     } yield new TextBoundMention(
       Seq("Negation_trigger"),
       Interval(ix),
