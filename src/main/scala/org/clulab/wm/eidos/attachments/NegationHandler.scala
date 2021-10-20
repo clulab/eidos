@@ -150,7 +150,7 @@ class NegationHandler(val language: String) {
       if !argumentIntervals.exists(_.contains(tok))
       out <- outgoing.lift(tok)
       (ix, label) <- out
-      if label == "neg"
+      if label == "neg" && !(event.sentenceObj.words(tok) == "only")
     } negations.append(
       new TextBoundMention(
         Seq("Negation_trigger"),
@@ -178,7 +178,7 @@ class NegationHandler(val language: String) {
     for {
       (ix, lemma) <- leftContext ++ rightContext
       if !argumentIntervals.exists(_.contains(ix))
-      if (Seq("fail", "not") contains lemma) && !(previouslyFound contains ix)
+      if (Seq("fail", "not") contains lemma) && !(previouslyFound contains ix) && !(event.sentenceObj.words(ix+1) == "only")
     } yield new TextBoundMention(
       Seq("Negation_trigger"),
       Interval(ix),
