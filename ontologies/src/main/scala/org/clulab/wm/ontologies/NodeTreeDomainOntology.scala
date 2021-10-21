@@ -32,7 +32,7 @@ class NodeTreeDomainOntology(val ontologyNodes: Array[OntologyNode], override va
 
   def isLeaf(n: Integer): Boolean = ontologyNodes(n).isLeaf
 
-//  def getExamples(n: Integer): Option[Array[String]] = ontologyNodes(n).getExamples
+  def getExamples(n: Integer): Option[Array[String]] = Some(ontologyNodes(n).getExamples)
 
   def getPatterns(n: Integer): Option[Array[Regex]] = ontologyNodes(n).getPatterns
 
@@ -65,10 +65,10 @@ class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canon
     val yamlNode = YamlNode.parse(headNode)
 
     val ontologyNode = new OntologyNode(yamlNode, None, 0, sentenceExtractor, canonicalizer, filter)
-    val ontologyNodes = ontologyNode.flatten
+    val ontologyNodes = ontologyNode.flatten.tail // Skip the top one.
 
     ontologyNodes.foreach { ontologyNode =>
-      println(ontologyNode.name)
+      println(s"${ontologyNode.name} ${ontologyNode.getValues.mkString(", ")}")
     }
 
     new NodeTreeDomainOntology(ontologyNodes, versionOpt, dateOpt)
@@ -78,12 +78,12 @@ class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canon
 class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], depth: Int,
     sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: String => Array[String]) extends Namer {
   val (name: String, branch: Option[String]) = {
-    val parentName = parentOpt.map(_.name).getOrElse("/")
+    val parentName = parentOpt.map(_.name).getOrElse("")
     val tail = if (isBranch) "/" else ""
-    val name = parentName + yamlNode.name + tail
+    val name = parentName + escaped(yamlNode.name) + tail
     val branchOpt = depth match {
       case 0 => None
-      case 1 => Some(name)
+      case 1 => Some(yamlNode.name)
       case _ => parentOpt.get.branch
     }
 
@@ -97,13 +97,22 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
     }.getOrElse(Array.empty)
   }
   // These are the values that will eventually be used to calculate the vector.
-  val values: Array[String] = {
-    val filteredName = filter(yamlNode.name.replace('_', ' '))
-    val filteredExamples = yamlNode.examplesOpt.getOrElse(Array.empty).flatMap(filter(_))
-    val filteredDescriptions = yamlNode.descriptionsOpt.getOrElse(Array.empty).flatMap(filter(_))
+  protected val values: Array[String] = {
+    if (isBranch)
+      filter(yamlNode.name.replace('_', ' '))
+    else {
+      val filteredExamples = yamlNode.examplesOpt.getOrElse(Array.empty).flatMap(filter(_))
+      val filteredDescriptions = yamlNode.descriptionsOpt.getOrElse(Array.empty).flatMap(filter(_))
 
-    filteredName ++ filteredExamples ++ filteredDescriptions
+      filteredExamples ++ filteredDescriptions
+    }
   }
+
+  // There can already be a / in any of the stages of the route that must be escaped.
+  // First, double up any existing backslashes, then escape the forward slashes with backslashes.
+  def escaped(name: String): String = name
+      .replace(DomainOntology.ESCAPE, DomainOntology.ESCAPED_ESCAPE)
+      .replace(DomainOntology.SEPARATOR, DomainOntology.ESCAPED_SEPARATOR)
 
   def getValues: Array[String] = values
 
@@ -111,7 +120,7 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
 
   def isBranch: Boolean = !isLeaf
 
-  def isRoot: Boolean = parentOpt.isDefined
+  def isRoot: Boolean = parentOpt.isEmpty
 
   def getExamples: Array[String] = yamlNode.examplesOpt.getOrElse(Array.empty)
 
@@ -216,6 +225,6 @@ object NodeTreeDomainOntologyApp extends App {
   val canonicalizer = new Canonicalizer(stopwordManager, tagSet)
   val builder = new NodeTreeDomainOntologyBuilder(sentenceExtractor, canonicalizer, filtered = false)
 
-  val flat = builder.buildFromPath("/org/clulab/wm/eidos/english/ontologies/wm_flat_metadata.new.yml")
-  val comp = builder.buildFromPath("/org/clulab/wm/eidos/english/ontologies/CompositionalOntology_metadata.new.yml")
+  val flat = builder.buildFromPath("/org/clulab/wm/eidos/english/ontologies/wm_flat_metadata.yml")
+  val comp = builder.buildFromPath("/org/clulab/wm/eidos/english/ontologies/CompositionalOntology_metadata.yml")
 }

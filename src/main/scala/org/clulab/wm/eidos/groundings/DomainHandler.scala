@@ -5,6 +5,7 @@ import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
+import org.clulab.wm.ontologies.NodeTreeDomainOntologyBuilder
 
 import java.io.File
 //import com.github.worldModelers.ontologies.{Versions => AwayVersions}
@@ -55,7 +56,7 @@ object DomainHandler extends Logging {
 
   def apply(ontologyPath: String, serializedPath: String, sentencesExtractor: SentencesExtractor,
       canonicalizer: Canonicalizer, filter: Boolean = true, useCacheForOntologies: Boolean = false,
-      includeParents: Boolean = false): DomainOntology = {
+      includeParents: Boolean = false, fmt2: Boolean = true): DomainOntology = {
 
     // As coded below, when parents are included, the FullTreeDomainOntology is being used.
     // The faster loading version is the FastDomainOntology.
@@ -71,8 +72,12 @@ object DomainHandler extends Logging {
         val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
         if (PosNegTreeDomainOntology.isPosNegPath(ontologyPath))
           new PosNegTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
-        else
-          new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+        else {
+          if (fmt2)
+            new NodeTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+          else
+            new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+        }
       }
     }
     else {

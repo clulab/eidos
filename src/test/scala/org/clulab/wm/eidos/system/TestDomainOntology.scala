@@ -96,7 +96,7 @@ class TestDomainOntology extends EidosTest {
 
     it should "load and not have duplicates" in {
       val newOntology = Timer.time(s"Load $name without cache") {
-        DomainHandler(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies = false, includeParents)
+        DomainHandler(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies = false, includeParents, fmt2 = false)
       }
       hasDuplicates(name, newOntology) should be (false)
 

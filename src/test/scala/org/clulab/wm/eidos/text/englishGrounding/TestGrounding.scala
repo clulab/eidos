@@ -32,6 +32,8 @@ class TestGrounding extends EnglishGroundingTest {
 
     def allGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[Seq[String]]
 
+    // TODO: Map form theme to index and branch name
+
     def groundingShouldContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       if (active) {
         val groundingNames = allGroundingNames(mention, topN, threshold)
