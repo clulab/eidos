@@ -61,7 +61,9 @@ class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canon
   def buildFromStream(inputStream: InputStream, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None):
       NodeTreeDomainOntology = {
     val loadedYaml = new Yaml().load(inputStream)
-    val yamlNode = YamlNode.parse(loadedYaml)
+    val headNode = YamlNode.getHeadNode(loadedYaml)
+    val yamlNode = YamlNode.parse(headNode)
+
     val ontologyNode = new OntologyNode(yamlNode, None, 0, sentenceExtractor, canonicalizer, filter)
     val ontologyNodes = ontologyNode.flatten
 
@@ -161,6 +163,11 @@ object YamlNode {
   def getNode(any: Any): JLinkedHashMap[String, Any] = any
       .asInstanceOf[JLinkedHashMap[String, Any]]
       .get(YamlNode.NODE)
+      .asInstanceOf[JLinkedHashMap[String, Any]]
+
+  def getHeadNode(any: Any): JLinkedHashMap[String, Any] = any
+      .asInstanceOf[JArrayList[Any]]
+      .get(0)
       .asInstanceOf[JLinkedHashMap[String, Any]]
 
   def getString(node: JLinkedHashMap[String, Any], name: String): String =
