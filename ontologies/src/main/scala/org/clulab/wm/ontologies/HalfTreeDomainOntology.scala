@@ -20,21 +20,14 @@ import scala.collection.mutable
 import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
-abstract class HalfOntologyNode extends Serializable {
+abstract class HalfOntologyNode extends DomainOntologyNode with Namer with Serializable {
   // Much of the extra code here is to avoid the root node having a parent of null.
-
-  // There can already be a / in any of the stages of the route that must be escaped.
-  // First, double up any existing backslashes, then escape the forward slashes with backslashes.
-  def escaped(nodeName: String): String =
-      nodeName
-          .replace(DomainOntology.ESCAPE, DomainOntology.ESCAPED_ESCAPE)
-          .replace(DomainOntology.SEPARATOR, DomainOntology.ESCAPED_SEPARATOR)
 
   def parents(parent: HalfOntologyParentNode): Seq[HalfOntologyParentNode] = parent +: parent.parents
 
+  def nodeName: String
   def fullName: String
   def parents: Seq[HalfOntologyParentNode]
-  def escaped: String
 
   override def toString: String = fullName
 
@@ -43,6 +36,14 @@ abstract class HalfOntologyNode extends Serializable {
   def isRoot: Boolean = false
 
   def isLeaf: Boolean = false
+
+  val name: String = fullName
+
+  def getNamer: Namer = this
+
+  def getValues: Array[String] = Array.empty
+
+  def getPatterns: Option[Array[Regex]] = None
 }
 
 @SerialVersionUID(1000L)
@@ -53,27 +54,27 @@ abstract class HalfOntologyParentNode extends HalfOntologyNode {
 @SerialVersionUID(1000L)
 class HalfOntologyRootNode extends HalfOntologyParentNode {
 
-  override def fullName: String = ""
+  override val nodeName: String = ""
+
+  override def fullName: String = nodeName
 
   override def parents: Seq[HalfOntologyParentNode] = Seq.empty
-
-  override def escaped: String = ""
 
   def branch: Option[String] = None
 
   override def isRoot: Boolean = true
 
   def isParentRoot: Boolean = false
+
+  def getParent: Option[Option[HalfOntologyParentNode]] = Some(None)
 }
 
-class HalfOntologyBranchNode(val nodeName: String, val parent: HalfOntologyParentNode) extends HalfOntologyParentNode {
+class HalfOntologyBranchNode(override val nodeName: String, val parent: HalfOntologyParentNode) extends HalfOntologyParentNode {
 
-  override def fullName: String = parent.fullName + escaped+ DomainOntology.SEPARATOR
+  override def fullName: String = parent.fullName + DomainOntology.escaped(nodeName) + DomainOntology.SEPARATOR
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[HalfOntologyParentNode] = parents(parent)
-
-  override def escaped: String = escaped(nodeName)
 
   override def isRoot: Boolean = false
 
@@ -82,11 +83,13 @@ class HalfOntologyBranchNode(val nodeName: String, val parent: HalfOntologyParen
   def branch: Option[String] =
       if (parent.isParentRoot) Some(nodeName)
       else parent.branch
+
+  def getParent: Option[Option[HalfOntologyNode]] = Some(Some(parent))
 }
 
 @SerialVersionUID(1000L)
 class HalfOntologyLeafNode(
-  val nodeName: String,
+  override val nodeName: String,
   val parent: HalfOntologyParentNode,
   polarity: Float,
   /*names: Seq[String],*/
@@ -95,9 +98,7 @@ class HalfOntologyLeafNode(
   val patterns: Option[Array[Regex]] = None
 ) extends HalfOntologyNode with Namer {
 
-  def name: String = fullName
-
-  override def fullName: String = parent.fullName + escaped
+  override def fullName: String = parent.fullName + DomainOntology.escaped(nodeName)
 
   def branch: Option[String] = parent.branch
 
@@ -109,31 +110,20 @@ class HalfOntologyLeafNode(
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[HalfOntologyParentNode] = parents(parent)
 
-  override def escaped: String = escaped(nodeName)
-
   override def isLeaf: Boolean = true
+
+  def getParent: Option[Option[HalfOntologyNode]] = Some(Some(parent))
 }
 
 @SerialVersionUID(1000L)
-class HalfTreeDomainOntology(val ontologyNodes: Array[HalfOntologyLeafNode], override val version: Option[String], override val date: Option[ZonedDateTime]) extends DomainOntology with Serializable {
-
-  def size: Integer = ontologyNodes.length
-
-  def getNamer(n: Integer): Namer = ontologyNodes(n)
-
-  def getValues(n: Integer): Array[String] = ontologyNodes(n).values
-
-  def isLeaf(n: Integer): Boolean = ontologyNodes(n).isLeaf
-
-  def getPatterns(n: Integer): Option[Array[Regex]] = ontologyNodes(n).patterns
-
-  def getNode(n: Integer): HalfOntologyLeafNode = ontologyNodes(n)
+class HalfTreeDomainOntology(val ontologyNodes: Array[HalfOntologyLeafNode], version: Option[String], date: Option[ZonedDateTime])
+    extends VersionedDomainOntology(version, date) with Serializable {
 
   def getParents(n: Integer): Seq[HalfOntologyParentNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents
 
-  def save(filename: String): Unit = {
-    Serializer.save(this, filename)
-  }
+  def save(filename: String): Unit = Serializer.save(this, filename)
+
+  override def nodes: IndexedSeq[HalfOntologyNode] = ontologyNodes
 }
 
 object HalfTreeDomainOntology {
@@ -180,15 +170,9 @@ object HalfTreeDomainOntology {
     // Used to match against specific regular expressions for ontology nodes
     protected def yamlNodesToRegexes(yamlNodes: mutable.Map[String, JCollection[Any]], name: String): Option[Array[Regex]] = {
       yamlNodesToStrings(yamlNodes, name) match {
-        case Some(regexes) => Some(regexes.map(rx => s"(?i)$rx".r))
+        case Some(regexes) => Some(regexes.map(DomainOntology.toRegex))
         case None => None
       }
-    }
-
-    protected def unescape(name: String): String = {
-      // Sometimes the words in names are concatenated with _
-      // TODO: We should avoid this practice
-      name.replace('_', ' ')
     }
 
     protected def parseOntology(parent: HalfOntologyParentNode, yamlNodes: mutable.Map[String, JCollection[Any]]): HalfOntologyLeafNode = {

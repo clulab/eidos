@@ -80,12 +80,22 @@ class CompactNamer(protected val n: Int, data: CompactNamerData) extends Namer {
   * @param branchIndexes Parent offset, name offset, parent offset, name offset, ... for non-leaves only
   *                      Name offset is into nodeStrings, parent offset is back into branchIndexes.
   */
-class CompactDomainOntology(protected val leafStrings: Array[String], protected val leafStringIndexes: Array[Int], protected val leafStartIndexes: Array[Int],
-    patternStrings: Array[String], protected val patternStartIndexes: Array[Int], protected val nodeStrings: Array[String], protected val leafIndexes: Array[Int], protected val branchIndexes: Array[Int],
-    override val version: Option[String] = None, override val date: Option[ZonedDateTime]) extends DomainOntology {
+class CompactDomainOntology(
+  protected val leafStrings: Array[String],
+  protected val leafStringIndexes: Array[Int],
+  protected val leafStartIndexes: Array[Int],
 
-  def size: Integer = leafIndexes.length / CompactDomainOntology.leafIndexWidth
+  patternStrings: Array[String],
+  protected val patternStartIndexes: Array[Int],
 
+  protected val nodeStrings: Array[String],
+
+  protected val leafIndexes: Array[Int],
+  protected val branchIndexes: Array[Int],
+
+  override val version: Option[String] = None,
+  override val date: Option[ZonedDateTime]
+) extends DomainOntology with IndexedDomainOntology with IndexedSeq[IndexedDomainOntologyNode] {
   protected val namerData: CompactNamerData = new CompactNamerData(nodeStrings, leafIndexes, branchIndexes)
   protected val patternRegexes: Array[Regex] = patternStrings.map(_.r)
 
@@ -129,6 +139,14 @@ class CompactDomainOntology(protected val leafStrings: Array[String], protected 
       objectOutputStream.writeObject(branchIndexes)
     }
   }
+
+  override def nodes: IndexedSeq[IndexedDomainOntologyNode] = this
+
+  override def length: Int = leafIndexes.length / CompactDomainOntology.leafIndexWidth
+
+  override def apply(idx: Int): IndexedDomainOntologyNode = new IndexedDomainOntologyNode(this, idx)
+
+  override def getParent(n: Integer): Option[Option[DomainOntologyNode]] = None // unknown
 }
 
 object CompactDomainOntology {
@@ -138,26 +156,10 @@ object CompactDomainOntology {
   val parentOffset = 0
   val nameOffset = 1
 
-  // This is so that text can be abandoned at the end of the block, before the array is read.
-  protected def splitText(text: String): Array[String] = {
-    val arrayBuffer = new ArrayBuffer[String]()
-    val stringBuilder = new StringBuilder
-    
-    for (i <- 0 until text.length) {
-      val c = text(i)
-
-      if (c == '\n') {
-        arrayBuffer += stringBuilder.result()
-        stringBuilder.clear()
-      }
-      else
-        stringBuilder.append(c)
-    }
-    arrayBuffer += stringBuilder.result()
-    arrayBuffer.toArray
-  }
-
   def load(filename: String): CompactDomainOntology = {
+
+    def splitText(text: String): Array[String] = text.split('\n')
+
     FileUtils.newClassLoaderObjectInputStream(filename, this).autoClose { objectInputStream =>
       val (versionOpt: Option[String], dateOpt: Option[ZonedDateTime]) = {
         val firstLine = objectInputStream.readObject().asInstanceOf[String]
@@ -203,35 +205,35 @@ object CompactDomainOntology {
               myIndex
             }
           else
-            -1
+            -1 // This is important!
 
-      treeDomainOntology.indices.foreach { i =>
-        append(treeDomainOntology.getParents(i))
-      }
+      treeDomainOntology.nodes.foreach { node => append(node.parents) }
       parentMap
     }
 
     protected def mkLeafStringMap(): MutableHashMap[String, Int] = {
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
 
-      treeDomainOntology.indices.foreach { i =>
-        treeDomainOntology.getValues(i).foreach(append(stringMap, _))
+      treeDomainOntology.nodes.foreach { node =>
+        node.getValues.foreach(append(stringMap, _))
       }
       stringMap
     }
 
     protected def mkPatternStringAndStartIndexes(): (Array[String], Array[Int]) = {
       val stringBuffer = new ArrayBuffer[String]()
-      val startIndexBuffer = new Array[Int](treeDomainOntology.size + 1)
+      val nodes = treeDomainOntology.nodes
+      val size = nodes.size
+      val startIndexBuffer = new Array[Int](size + 1)
 
-      treeDomainOntology.indices.foreach { i =>
+      nodes.zipWithIndex.foreach { case (node, i) =>
         startIndexBuffer(i) = stringBuffer.size
 
-        val optionRegexes = treeDomainOntology.getPatterns(i)
+        val optionRegexes = node.getPatterns
         if (optionRegexes.isDefined)
               stringBuffer.appendAll(optionRegexes.get.map(_.toString))
       }
-      startIndexBuffer(treeDomainOntology.size) = stringBuffer.size // extra
+      startIndexBuffer(size) = stringBuffer.size // extra
       (stringBuffer.toArray, startIndexBuffer)
     }
 
@@ -246,10 +248,10 @@ object CompactDomainOntology {
           .sortBy(_._2)
 
       parentSeq.foreach { case (ontologyParentNode, _)  =>
-        append(stringMap, ontologyParentNode.escaped)
+        append(stringMap, DomainOntology.escaped(ontologyParentNode.name))
       }
-      treeDomainOntology.indices.foreach { i =>
-        append(stringMap, treeDomainOntology.getNode(i).escaped)
+      treeDomainOntology.nodes.foreach { node =>
+        append(stringMap, DomainOntology.escaped(node.nodeName))
       }
       stringMap
     }
@@ -258,9 +260,9 @@ object CompactDomainOntology {
       val stringIndexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new ArrayBuffer[Int]()
 
-      treeDomainOntology.indices.foreach { i =>
+      treeDomainOntology.nodes.foreach { node =>
         startIndexBuffer += stringIndexBuffer.size
-        treeDomainOntology.getValues(i).foreach { value =>
+        node.getValues.foreach { value =>
           stringIndexBuffer += leafStringMap(value)
         }
       }
@@ -271,11 +273,9 @@ object CompactDomainOntology {
     protected def mkLeafIndexes(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
 
-      treeDomainOntology.indices.foreach { i =>
-        val node: HalfOntologyLeafNode = treeDomainOntology.getNode(i)
-
-        indexBuffer += parentMap.get(node.parent)._1 // parentOffset
-        indexBuffer += stringMap(node.escaped) // nameOffset
+      treeDomainOntology.nodes.foreach { node =>
+        indexBuffer += parentMap.get(node.getParent.get.get)._1 // parentOffset
+        indexBuffer += stringMap(DomainOntology.escaped(node.nodeName)) // nameOffset
       }
       indexBuffer.toArray
     }
@@ -286,7 +286,7 @@ object CompactDomainOntology {
 
       keysAndValues.foreach { case (branchNode, (_, parentIndex)) =>
         indexBuffer += parentIndex // parentOffset
-        indexBuffer += stringMap(branchNode.escaped) // nameOffset
+        indexBuffer += stringMap(DomainOntology.escaped(branchNode.nodeName)) // nameOffset
       }
       indexBuffer.toArray
     }

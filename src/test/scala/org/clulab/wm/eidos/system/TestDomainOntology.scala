@@ -17,17 +17,11 @@ class TestDomainOntology extends EidosTest {
 
   def matches(left: DomainOntology, right: DomainOntology): Boolean = {
 
-    def getNames(domainOntology: DomainOntology): Seq[String] = {
-      domainOntology.indices.map { index =>
-        domainOntology.getNamer(index).name
-      }
-    }
+    def getNames(domainOntology: DomainOntology): Seq[String] =
+        domainOntology.nodes.map(_.getNamer.name)
 
-    def getValues(domainOntology: DomainOntology): Seq[Array[String]] = {
-      domainOntology.indices.map { index =>
-        domainOntology.getValues(index)
-      }
-    }
+    def getValues(domainOntology: DomainOntology): Seq[Array[String]] =
+        domainOntology.nodes.map(_.getValues)
 
     val leftNames = getNames(left)
     val rightNames = getNames(right)
@@ -39,11 +33,11 @@ class TestDomainOntology extends EidosTest {
   }
 
   def hasDuplicates(name: String, domainOntology: DomainOntology): Boolean = {
-    val pathSeq = 0.until(domainOntology.size).map { i => domainOntology.getNamer(i).name }
+    val pathSeq = domainOntology.nodes.map(_.getNamer.name)
 
-    domainOntology.indices.foreach { i =>
+    domainOntology.nodes.foreach { node =>
       // Just make sure this doesn't crash now.
-      val branch = domainOntology.getNamer(i).branch
+      val branch = node.getNamer.branch
 //      println(branch)
     }
 
@@ -75,9 +69,9 @@ class TestDomainOntology extends EidosTest {
   val filter = true
 
   def show1(ontology: DomainOntology): Unit = {
-    ontology.indices.foreach { i =>
-      println(ontology.getNamer(i).name + " = " + ontology.getValues(i).mkString(", "))
-      ontology.getPatterns(i).map(_.foreach(regex => println(regex.toString)))
+    ontology.nodes.foreach { node =>
+      println(node.getNamer.name + " = " + node.getValues.mkString(", "))
+      node.getPatterns.map(_.foreach(regex => println(regex.toString)))
     }
     println
   }

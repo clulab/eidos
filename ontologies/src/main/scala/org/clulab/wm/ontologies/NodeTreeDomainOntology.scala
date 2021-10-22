@@ -20,24 +20,14 @@ import java.time.ZonedDateTime
 import java.util.{ArrayList => JArrayList}
 import java.util.{LinkedHashMap => JLinkedHashMap}
 
-class NodeTreeDomainOntology(val ontologyNodes: Array[OntologyNode], override val version: Option[String],
-    override val date: Option[ZonedDateTime]) extends DomainOntology {
-
-  def size: Integer = ontologyNodes.length
-
-  def getNamer(n: Integer): Namer = ontologyNodes(n)
-
-  def getValues(n: Integer): Array[String] = ontologyNodes(n).getValues
-
-  def isLeaf(n: Integer): Boolean = ontologyNodes(n).isLeaf
-
-  def getExamples(n: Integer): Option[Array[String]] = Some(ontologyNodes(n).getExamples)
-
-  def getPatterns(n: Integer): Option[Array[Regex]] = ontologyNodes(n).getPatterns
-
-  def getNode(n: Integer): OntologyNode = ontologyNodes(n)
+class NodeTreeDomainOntology(
+  ontologyNodes: Array[NodeTreeDomainOntologyNode],
+  version: Option[String], date: Option[ZonedDateTime]
+) extends VersionedDomainOntology(version, date) {
 
   override def save(filename: String): Unit = ???
+
+  override def nodes: IndexedSeq[DomainOntologyNode] = ontologyNodes
 }
 
 class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filtered: Boolean) {
@@ -62,7 +52,7 @@ class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canon
     val loadedYaml = new Yaml().load(inputStream)
     val headNode = YamlNode.getHeadNode(loadedYaml)
     val yamlNode = YamlNode.parse(headNode)
-    val ontologyNode = new OntologyNode(yamlNode, None, 0, sentenceExtractor, canonicalizer, filter)
+    val ontologyNode = new NodeTreeDomainOntologyNode(yamlNode, None, 0, sentenceExtractor, canonicalizer, filter)
     val ontologyNodes = ontologyNode.flatten.tail // Skip the top one.
 
 //    ontologyNodes.foreach { ontologyNode =>
@@ -72,12 +62,14 @@ class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canon
   }
 }
 
-class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], depth: Int,
-    sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: String => Array[String]) extends Namer {
+class NodeTreeDomainOntologyNode(
+  val yamlNode: YamlNode, val parentOpt: Option[NodeTreeDomainOntologyNode], depth: Int,
+  sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: String => Array[String]
+) extends DomainOntologyNode with Namer {
   val (name: String, branch: Option[String]) = {
     val parentName = parentOpt.map(_.name).getOrElse("")
     val tail = if (isBranch) "/" else ""
-    val name = parentName + escaped(yamlNode.name) + tail
+    val name = parentName + DomainOntology.escaped(yamlNode.name) + tail
     val branchOpt = depth match {
       case 0 => None                 // The top level has no branch.
       case 1 => Some(yamlNode.name)  // The branch is determined by the first level
@@ -86,10 +78,10 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
 
     (name, branchOpt)
   }
-  val children: Array[OntologyNode] = {
+  val children: Array[NodeTreeDomainOntologyNode] = {
     yamlNode.childrenOpt.map {children =>
       children.map { child =>
-        new OntologyNode(child, Some(this), depth + 1, sentenceExtractor, canonicalizer, filter)
+        new NodeTreeDomainOntologyNode(child, Some(this), depth + 1, sentenceExtractor, canonicalizer, filter)
       }
     }.getOrElse(Array.empty)
   }
@@ -107,12 +99,6 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
     }
   }
 
-  // There can already be a / in any of the stages of the route that must be escaped.
-  // First, double up any existing backslashes, then escape the forward slashes with backslashes.
-  def escaped(name: String): String = name
-      .replace(DomainOntology.ESCAPE, DomainOntology.ESCAPED_ESCAPE)
-      .replace(DomainOntology.SEPARATOR, DomainOntology.ESCAPED_SEPARATOR)
-
   def getValues: Array[String] = values
 
   def isLeaf: Boolean = yamlNode.isLeaf
@@ -123,16 +109,16 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
 
   def getExamples: Array[String] = yamlNode.examplesOpt.getOrElse(Array.empty)
 
-  lazy val patterns: Option[Array[Regex]] = yamlNode.patternsOpt.map(_.map(_.r))
+  lazy val patterns: Option[Array[Regex]] = yamlNode.patternsOpt.map(_.map(DomainOntology.toRegex))
 
   def getPatterns: Option[Array[Regex]] = patterns
 
   def getNode: YamlNode = yamlNode
 
-  def flatten: Array[OntologyNode] = {
-    val ontologyNodes = new ArrayBuffer[OntologyNode]()
+  def flatten: Array[NodeTreeDomainOntologyNode] = {
+    val ontologyNodes = new ArrayBuffer[NodeTreeDomainOntologyNode]()
 
-    def recFlatten(ontologyNode: OntologyNode): Unit = {
+    def recFlatten(ontologyNode: NodeTreeDomainOntologyNode): Unit = {
       ontologyNodes += ontologyNode
       ontologyNode.children.foreach(recFlatten)
     }
@@ -140,6 +126,10 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
     recFlatten( this)
     ontologyNodes.toArray
   }
+
+  override def getNamer: Namer = this
+
+  def getParent: Option[Option[NodeTreeDomainOntologyNode]] = Some(parentOpt)
 }
 
 case class YamlNode(

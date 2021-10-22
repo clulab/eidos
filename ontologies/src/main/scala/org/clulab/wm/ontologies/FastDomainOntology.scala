@@ -65,7 +65,7 @@ class FastNamer(protected val n: Int, data: FastNamerData) extends Namer {
 
 class FastDomainOntology(
   names: Array[String],
-  parents: Array[Int],
+  val parents: Array[Int],
   leaves: Array[Boolean],
   wordIndexes: Array[Int],
   wordStartIndexes: Array[Int],
@@ -76,9 +76,7 @@ class FastDomainOntology(
   wordStringArr: Array[String],
   override val version: Option[String] = None,
   override val date: Option[ZonedDateTime]
-) extends DomainOntology {
-
-  def size: Integer = names.length
+) extends DomainOntology with IndexedDomainOntology with IndexedSeq[DomainOntologyNode] {
 
   protected val namerData: FastNamerData = new FastNamerData(names, parents, leaves)
   protected val patternRegexes: Array[Regex] = patterns.map(_.r)
@@ -92,6 +90,8 @@ class FastDomainOntology(
 
     start.until(stop).toArray.map(n => wordStringArr(wordIndexes(n)))
   }
+
+  def isLeaf(n: Integer): Boolean = leaves(n)
 
   def getPatterns(n: Integer): Option[Array[Regex]] = {
     val start = patternStartIndexes(n)
@@ -121,48 +121,55 @@ class FastDomainOntology(
     }
   }
 
-  def isLeaf(n: Integer): Boolean = leaves(n)
+  override def nodes: IndexedSeq[DomainOntologyNode] = this
+
+  override def length: Int = names.length
+
+  override def apply(idx: Int): DomainOntologyNode = new IndexedDomainOntologyNode(this, idx)
+
+  override def getParent(n: Integer): Option[Option[DomainOntologyNode]] =
+      Some(
+        if (n > 0) Some(new IndexedDomainOntologyNode(this, parents(n)))
+        else None
+      )
 }
 
 // This wraps the above FastDomainOntology and allows for offset nodes to be skipped.
 // For example, the top level wm node shouldn't be grounded to.  It's possible that
 // for the compositional grounding even the next level will be skipped.
-class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1) extends DomainOntology {
-  override def size: Integer = fastDomainOntology.size - offset
+class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1)
+    extends DomainOntology with IndexedDomainOntology with IndexedSeq[DomainOntologyNode] {
+  // TODO Doesn't this need to store the offset as well?
 
-  override def getNamer(n: Integer): Namer = fastDomainOntology.getNamer(n + offset)
+  def getNamer(n: Integer): Namer = fastDomainOntology.getNamer(n + offset)
 
-  override def getValues(n: Integer): Array[String] = fastDomainOntology.getValues(n + offset)
+  def getValues(n: Integer): Array[String] = fastDomainOntology.getValues(n + offset)
 
-  override def getPatterns(n: Integer): Option[Array[Regex]] = fastDomainOntology.getPatterns(n + offset)
+  def getPatterns(n: Integer): Option[Array[Regex]] = fastDomainOntology.getPatterns(n + offset)
 
-  override def isLeaf(n: Integer): Boolean = fastDomainOntology.isLeaf(n + offset)
+  def isLeaf(n: Integer): Boolean = fastDomainOntology.isLeaf(n + offset)
 
   override def save(filename: String): Unit = fastDomainOntology.save(filename)
+
+  override def nodes: IndexedSeq[DomainOntologyNode] = this
+
+  override def length: Int = fastDomainOntology.size - offset
+
+  override def apply(idx: Int): DomainOntologyNode = new IndexedDomainOntologyNode(this, idx)
+
+  override def getParent(n: Integer): Option[Option[DomainOntologyNode]] =
+    Some(
+      if (n > offset) Some(new IndexedDomainOntologyNode(this, fastDomainOntology.parents(n + offset)))
+      else None
+    )
 }
 
 object FastDomainOntology {
 
-  // This is so that text can be abandoned at the end of the block, before the array is read.
-  protected def splitText(text: String): Array[String] = {
-    val arrayBuffer = new ArrayBuffer[String]()
-    val stringBuilder = new StringBuilder
-
-    for (i <- 0 until text.length) {
-      val c = text(i)
-
-      if (c == '\n') {
-        arrayBuffer += stringBuilder.result()
-        stringBuilder.clear()
-      }
-      else
-        stringBuilder.append(c)
-    }
-    arrayBuffer += stringBuilder.result()
-    arrayBuffer.toArray
-  }
-
   protected def loadFast(filename: String): FastDomainOntology = {
+
+    def splitText(text: String): Array[String] = text.split('\n')
+
     FileUtils.newClassLoaderObjectInputStream(filename, this).autoClose { objectInputStream =>
       val (versionOpt: Option[String], dateOpt: Option[ZonedDateTime]) = {
         val firstLine = objectInputStream.readObject().asInstanceOf[String]
@@ -288,7 +295,7 @@ object FastDomainOntology {
 
     def buildFast(): FastDomainOntology = {
       // This stops at, for example, wm, not the implied root above.  It is not an OntologyRootNode.
-      val rootNode = treeDomainOntology.getNode(0).parents.last
+      val rootNode = treeDomainOntology.nodes.head.parents.last
       val nodeMap: util.IdentityHashMap[FullOntologyNode, Int] = mkNodeMap(rootNode)
       val nodeArr: Array[FullOntologyNode] = nodeMap
           .entrySet()
@@ -297,7 +304,7 @@ object FastDomainOntology {
           .sortBy(_.getValue)
           .map(_.getKey)
           .toArray
-      val names = nodeArr.map { node => node.escaped }
+      val names = nodeArr.map { node => DomainOntology.escaped(node.name) }
       val leaves = nodeArr.map { node => node.isLeaf }
       val parents = nodeArr.map { node =>
         Option(nodeMap.get(node.parentOpt.get)).getOrElse(-1)

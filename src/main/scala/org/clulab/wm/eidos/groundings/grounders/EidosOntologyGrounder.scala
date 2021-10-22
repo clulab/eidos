@@ -28,18 +28,18 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
-    domainOntology.indices.map { n =>
-      val negValues = domainOntology.getNegValues(n)
+    domainOntology.nodes.map { node =>
+      val negValues = node.getNegValues
       ConceptEmbedding(
-        domainOntology.getNamer(n),
-        wordToVec.makeCompositeVector(domainOntology.getValues(n)),
+        node.getNamer,
+        wordToVec.makeCompositeVector(node.getValues),
         if (negValues.nonEmpty) Some(wordToVec.makeCompositeVector(negValues)) else None
       )
     }
 
   val conceptPatterns: Seq[ConceptPatterns] =
-    domainOntology.indices.map { n =>
-      ConceptPatterns(domainOntology.getNamer(n), domainOntology.getPatterns(n))
+    domainOntology.nodes.map { node =>
+      ConceptPatterns(node.getNamer, node.getPatterns)
     }
 
   // For API to reground strings
