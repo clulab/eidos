@@ -15,7 +15,6 @@ import org.yaml.snakeyaml.Yaml
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
-
 import java.io.InputStream
 import java.time.ZonedDateTime
 import java.util.{ArrayList => JArrayList}
@@ -45,7 +44,7 @@ class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canon
   protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   protected def realFilter(text: String): Array[String] =
-    DomainOntology.canonicalWordsFromSentence(sentenceExtractor, canonicalizer, text).toArray
+      DomainOntology.canonicalWordsFromSentence(sentenceExtractor, canonicalizer, text).toArray
 
   protected def fakeFilter(text: String): Array[String] = text.split(" +")
 
@@ -63,14 +62,12 @@ class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canon
     val loadedYaml = new Yaml().load(inputStream)
     val headNode = YamlNode.getHeadNode(loadedYaml)
     val yamlNode = YamlNode.parse(headNode)
-
     val ontologyNode = new OntologyNode(yamlNode, None, 0, sentenceExtractor, canonicalizer, filter)
     val ontologyNodes = ontologyNode.flatten.tail // Skip the top one.
 
-    ontologyNodes.foreach { ontologyNode =>
-      println(s"${ontologyNode.name} ${ontologyNode.getValues.mkString(", ")}")
-    }
-
+//    ontologyNodes.foreach { ontologyNode =>
+//      println(s"${ontologyNode.name} ${ontologyNode.getValues.mkString(", ")}")
+//    }
     new NodeTreeDomainOntology(ontologyNodes, versionOpt, dateOpt)
   }
 }
@@ -82,9 +79,9 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
     val tail = if (isBranch) "/" else ""
     val name = parentName + escaped(yamlNode.name) + tail
     val branchOpt = depth match {
-      case 0 => None
-      case 1 => Some(yamlNode.name)
-      case _ => parentOpt.get.branch
+      case 0 => None                 // The top level has no branch.
+      case 1 => Some(yamlNode.name)  // The branch is determined by the first level
+      case _ => parentOpt.get.branch // and it applies to all lower levels.
     }
 
     (name, branchOpt)
@@ -98,8 +95,10 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
   }
   // These are the values that will eventually be used to calculate the vector.
   protected val values: Array[String] = {
-    if (isBranch)
+    if (isBranch) {
+      // When we finally get metadata on branches, this will need to change.
       filter(yamlNode.name.replace('_', ' '))
+    }
     else {
       val filteredExamples = yamlNode.examplesOpt.getOrElse(Array.empty).flatMap(filter(_))
       val filteredDescriptions = yamlNode.descriptionsOpt.getOrElse(Array.empty).flatMap(filter(_))
@@ -130,15 +129,15 @@ class OntologyNode(val yamlNode: YamlNode, val parentOpt: Option[OntologyNode], 
 
   def getNode: YamlNode = yamlNode
 
-  protected def flatten(ontologyNodes: ArrayBuffer[OntologyNode]): Unit = {
-    ontologyNodes += this
-    children.foreach(_.flatten(ontologyNodes))
-  }
-
   def flatten: Array[OntologyNode] = {
     val ontologyNodes = new ArrayBuffer[OntologyNode]()
 
-    flatten(ontologyNodes)
+    def recFlatten(ontologyNode: OntologyNode): Unit = {
+      ontologyNodes += ontologyNode
+      ontologyNode.children.foreach(recFlatten)
+    }
+
+    recFlatten( this)
     ontologyNodes.toArray
   }
 }
