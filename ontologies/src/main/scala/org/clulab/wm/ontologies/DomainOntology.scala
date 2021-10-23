@@ -5,7 +5,6 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.Namer
-import org.clulab.wm.eidoscommon.utils.StringUtils
 
 import scala.util.matching.Regex
 
@@ -26,18 +25,10 @@ trait DomainOntologyNode extends Namer {
   def getParent: Option[Option[DomainOntologyNode]]
   // This is the long name that looks like a path, but with no leading /.
   def getName: String
-  // This is the short, local name by analogy to this.getClass.getSimpleName.
-  def getSimpleName: String
 
-  def getBranch: Option[String] = {
-    val name = getName
-    val count = name.count( char => char == '/')
+  def getSimpleName: String = Namer.getSimpleName(getName)
 
-    if (count >= 2)
-      Some(StringUtils.beforeFirst(StringUtils.afterFirst(name, '/', all = false), '/', all = false))
-    else
-      None
-  }
+  def getBranch: Option[String] = Namer.getBranch(getName)
 }
 
 trait DomainOntology {

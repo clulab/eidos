@@ -8,9 +8,9 @@ trait Namer {
   override def toString: String = getName
 }
 
-class PassThruNamer(val name: String) extends Namer {
+object Namer {
 
-  def getBranch: Option[String] = {
+  def getBranch(name: String): Option[String] = {
     val count = name.count( char => char == '/')
 
     if (count >= 2)
@@ -19,7 +19,16 @@ class PassThruNamer(val name: String) extends Namer {
       None
   }
 
+  def getSimpleName(name: String): String = StringUtils.afterLast(name, '/', all = true)
+}
+
+// This is mostly for deserialization.  When we read back a serialization,
+// it may not be possible to match it back up to something with nodes.
+class PassThruNamer(val name: String) extends Namer {
+
+  def getBranch: Option[String] = Namer.getBranch(name)
+
   def getName: String = name
 
-  def getSimpleName: String = StringUtils.afterLast(name, '/', all = true)
+  def getSimpleName: String = Namer.getSimpleName(name)
 }
