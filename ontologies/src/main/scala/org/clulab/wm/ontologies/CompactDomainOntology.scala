@@ -5,73 +5,12 @@ import java.util
 
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.TsvReader
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.util.matching.Regex
-
-class CompactNamerData(val nodeStrings: Array[String], val leafIndexes: Array[Int], val branchIndexes: Array[Int])
-
-class CompactNamer(protected val n: Int, data: CompactNamerData) {
-
-  protected def branch(n: Int, prevNameOffset: Int): Option[String] = {
-    if (n > 0) {
-      val index = n * CompactDomainOntology.branchIndexWidth
-      val parentOffset = data.branchIndexes(index + CompactDomainOntology.parentOffset)
-
-      if (parentOffset == 0)
-        if (prevNameOffset >= 0) Some(data.nodeStrings(prevNameOffset))
-        else None
-      else {
-        val nameOffset = data.branchIndexes(index + CompactDomainOntology.nameOffset)
-
-        branch(parentOffset, nameOffset)
-      }
-    }
-    else None
-  }
-
-  def branch: Option[String] = {
-    // This will always be run on an n that corresponds to a leaf.
-    val index = n * CompactDomainOntology.leafIndexWidth
-    val parentOffset = data.leafIndexes(index + CompactDomainOntology.parentOffset)
-
-    branch(parentOffset, -1)
-  }
-
-  protected def parentName(n: Int, stringBuilder: StringBuilder): Unit = {
-    if (n > 0) {
-      val index = n * CompactDomainOntology.branchIndexWidth
-      val parentOffset = data.branchIndexes(index + CompactDomainOntology.parentOffset)
-      val nameOffset = data.branchIndexes(index + CompactDomainOntology.nameOffset)
-
-      parentName(parentOffset, stringBuilder)
-      stringBuilder.append(data.nodeStrings(nameOffset))
-      stringBuilder.append(DomainOntology.SEPARATOR)
-    }
-  }
-
-  def name: String = {
-    val stringBuilder = new StringBuilder()
-    val index = n * CompactDomainOntology.leafIndexWidth
-    val parentOffset = data.leafIndexes(index + CompactDomainOntology.parentOffset)
-    val nameOffset = data.leafIndexes(index + CompactDomainOntology.nameOffset)
-
-    parentName(parentOffset, stringBuilder)
-    stringBuilder.append(data.nodeStrings(nameOffset))
-    stringBuilder.result()
-  }
-
-  def simpleName: String = {
-    val index = n * CompactDomainOntology.leafIndexWidth
-    val nameOffset = data.leafIndexes(index + CompactDomainOntology.nameOffset)
-
-    data.nodeStrings(nameOffset)
-  }
-}
 
 /**
   * Provide a DomainOntology interface on top of the Arrays of String and Int values.
@@ -103,7 +42,6 @@ class CompactDomainOntology(
   override val version: Option[String] = None,
   override val date: Option[ZonedDateTime]
 ) extends DomainOntology with IndexedDomainOntology with IndexedSeq[IndexedDomainOntologyNode] {
-  protected val namerData: CompactNamerData = new CompactNamerData(nodeStrings, leafIndexes, branchIndexes)
   protected val patternRegexes: Array[Regex] = patternStrings.map(_.r)
 
   def getValues(n: Integer): Array[String] = {
@@ -152,9 +90,62 @@ class CompactDomainOntology(
 
   override def getParent(n: Integer): Option[Option[DomainOntologyNode]] = None // unknown
 
-  override def getName(n: Integer): String = new CompactNamer(n, namerData).name
+  override def getName(n: Integer): String = {
+    val stringBuilder = new StringBuilder()
 
-  override def getSimpleName(n: Integer): String = new CompactNamer(n, namerData).simpleName
+    def parentName(n: Int): Unit = {
+      if (n > 0) {
+        val index = n * CompactDomainOntology.branchIndexWidth
+        val parentOffset = branchIndexes(index + CompactDomainOntology.parentOffset)
+        val nameOffset = branchIndexes(index + CompactDomainOntology.nameOffset)
+
+        parentName(parentOffset)
+        stringBuilder.append(nodeStrings(nameOffset))
+        stringBuilder.append(DomainOntology.SEPARATOR)
+      }
+    }
+
+    val index = n * CompactDomainOntology.leafIndexWidth
+    val parentOffset = leafIndexes(index + CompactDomainOntology.parentOffset)
+    val nameOffset = leafIndexes(index + CompactDomainOntology.nameOffset)
+
+    parentName(parentOffset)
+    stringBuilder.append(nodeStrings(nameOffset))
+    stringBuilder.result()
+  }
+
+  override def getSimpleName(n: Integer): String = {
+    val index = n * CompactDomainOntology.leafIndexWidth
+    val nameOffset = leafIndexes(index + CompactDomainOntology.nameOffset)
+
+    nodeStrings(nameOffset)
+  }
+
+  override def getBranch(n: Integer): Option[String] = {
+
+    def branch(n: Int, prevNameOffset: Int): Option[String] = {
+      if (n > 0) {
+        val index = n * CompactDomainOntology.branchIndexWidth
+        val parentOffset = branchIndexes(index + CompactDomainOntology.parentOffset)
+
+        if (parentOffset == 0)
+          if (prevNameOffset >= 0) Some(nodeStrings(prevNameOffset))
+          else None
+        else {
+          val nameOffset = branchIndexes(index + CompactDomainOntology.nameOffset)
+
+          branch(parentOffset, nameOffset)
+        }
+      }
+      else None
+    }
+
+    // This will always be run on an n that corresponds to a leaf.
+    val index = n * CompactDomainOntology.leafIndexWidth
+    val parentOffset = leafIndexes(index + CompactDomainOntology.parentOffset)
+
+    branch(parentOffset, -1)
+  }
 }
 
 object CompactDomainOntology {

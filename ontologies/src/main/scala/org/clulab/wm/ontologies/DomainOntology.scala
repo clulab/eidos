@@ -79,6 +79,7 @@ trait IndexedDomainOntology {
   def getParent(n: Integer): Option[Option[DomainOntologyNode]]
   def getName(n: Integer): String
   def getSimpleName(n: Integer): String
+  def getBranch(n: Integer): Option[String]
 }
 
 class IndexedDomainOntologyNode(indexedDomainOntology: IndexedDomainOntology, index: Int) extends DomainOntologyNode {
@@ -94,4 +95,6 @@ class IndexedDomainOntologyNode(indexedDomainOntology: IndexedDomainOntology, in
   override def getName: String = indexedDomainOntology.getName(index)
 
   override def getSimpleName: String = indexedDomainOntology.getSimpleName(index)
+
+  override def getBranch: Option[String] = indexedDomainOntology.getBranch(index)
 }
