@@ -20,26 +20,21 @@ import scala.collection.mutable
 import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
-abstract class HalfOntologyNode extends DomainOntologyNode with Namer with Serializable {
+abstract class HalfOntologyNode extends DomainOntologyNode with Serializable {
   // Much of the extra code here is to avoid the root node having a parent of null.
 
   def parents(parent: HalfOntologyParentNode): Seq[HalfOntologyParentNode] = parent +: parent.parents
 
-  def nodeName: String
   def fullName: String
   def parents: Seq[HalfOntologyParentNode]
 
   override def toString: String = fullName
 
-  def branch: Option[String]
-
   def isRoot: Boolean = false
 
   def isLeaf: Boolean = false
 
-  val name: String = fullName
-
-  def getNamer: Namer = this
+  def getName: String = fullName
 
   def getValues: Array[String] = Array.empty
 
@@ -54,13 +49,13 @@ abstract class HalfOntologyParentNode extends HalfOntologyNode {
 @SerialVersionUID(1000L)
 class HalfOntologyRootNode extends HalfOntologyParentNode {
 
-  override val nodeName: String = ""
+  override def fullName: String = ""
 
-  override def fullName: String = nodeName
+  override def getSimpleName: String = ""
 
   override def parents: Seq[HalfOntologyParentNode] = Seq.empty
 
-  def branch: Option[String] = None
+  override def getBranch: Option[String] = None
 
   override def isRoot: Boolean = true
 
@@ -69,9 +64,9 @@ class HalfOntologyRootNode extends HalfOntologyParentNode {
   def getParent: Option[Option[HalfOntologyParentNode]] = Some(None)
 }
 
-class HalfOntologyBranchNode(override val nodeName: String, val parent: HalfOntologyParentNode) extends HalfOntologyParentNode {
+class HalfOntologyBranchNode(val simpleName: String, val parent: HalfOntologyParentNode) extends HalfOntologyParentNode {
 
-  override def fullName: String = parent.fullName + DomainOntology.escaped(nodeName) + DomainOntology.SEPARATOR
+  override def fullName: String = parent.fullName + DomainOntology.escaped(simpleName) + DomainOntology.SEPARATOR
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[HalfOntologyParentNode] = parents(parent)
@@ -80,27 +75,29 @@ class HalfOntologyBranchNode(override val nodeName: String, val parent: HalfOnto
 
   def isParentRoot: Boolean = parent.isRoot
 
-  def branch: Option[String] =
-      if (parent.isParentRoot) Some(nodeName)
-      else parent.branch
+  override def getBranch: Option[String] =
+      if (parent.isParentRoot) Some(simpleName)
+      else parent.getBranch
 
   def getParent: Option[Option[HalfOntologyNode]] = Some(Some(parent))
+
+  override def getSimpleName: String = simpleName
 }
 
 @SerialVersionUID(1000L)
 class HalfOntologyLeafNode(
-  override val nodeName: String,
+  val simpleName: String,
   val parent: HalfOntologyParentNode,
   polarity: Float,
   /*names: Seq[String],*/
   examples: Option[Array[String]] = None,
   descriptions: Option[Array[String]] = None,
   val patterns: Option[Array[Regex]] = None
-) extends HalfOntologyNode with Namer {
+) extends HalfOntologyNode {
 
-  override def fullName: String = parent.fullName + DomainOntology.escaped(nodeName)
+  override def fullName: String = parent.fullName + DomainOntology.escaped(simpleName)
 
-  def branch: Option[String] = parent.branch
+  override def getBranch: Option[String] = parent.getBranch
 
   // Right now it doesn't matter where these come from, so they can be combined.
   val values: Array[String] = /*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)
@@ -113,6 +110,8 @@ class HalfOntologyLeafNode(
   override def isLeaf: Boolean = true
 
   def getParent: Option[Option[HalfOntologyNode]] = Some(Some(parent))
+
+  override def getSimpleName: String = simpleName
 }
 
 @SerialVersionUID(1000L)

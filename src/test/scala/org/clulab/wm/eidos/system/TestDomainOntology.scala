@@ -18,7 +18,7 @@ class TestDomainOntology extends EidosTest {
   def matches(left: DomainOntology, right: DomainOntology): Boolean = {
 
     def getNames(domainOntology: DomainOntology): Seq[String] =
-        domainOntology.nodes.map(_.getNamer.name)
+        domainOntology.nodes.map(_.getName)
 
     def getValues(domainOntology: DomainOntology): Seq[Array[String]] =
         domainOntology.nodes.map(_.getValues)
@@ -33,11 +33,11 @@ class TestDomainOntology extends EidosTest {
   }
 
   def hasDuplicates(name: String, domainOntology: DomainOntology): Boolean = {
-    val pathSeq = domainOntology.nodes.map(_.getNamer.name)
+    val pathSeq = domainOntology.nodes.map(_.getName)
 
     domainOntology.nodes.foreach { node =>
       // Just make sure this doesn't crash now.
-      val branch = node.getNamer.branch
+      val branch = node.getBranch
 //      println(branch)
     }
 
@@ -70,7 +70,7 @@ class TestDomainOntology extends EidosTest {
 
   def show1(ontology: DomainOntology): Unit = {
     ontology.nodes.foreach { node =>
-      println(node.getNamer.name + " = " + node.getValues.mkString(", "))
+      println(node.getName + " = " + node.getValues.mkString(", "))
       node.getPatterns.map(_.foreach(regex => println(regex.toString)))
     }
     println

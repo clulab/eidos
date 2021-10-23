@@ -8,7 +8,6 @@ import org.clulab.utils.Serializer
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,9 +21,9 @@ import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
 abstract class FullOntologyNode(
-  val nodeName: String, var parentOpt: Option[FullOntologyParentNode], var childrenOpt: Option[Seq[FullOntologyNode]] = None,
-  val values: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None
-) extends DomainOntologyNode with Namer with Serializable {
+    val simpleName: String, var parentOpt: Option[FullOntologyParentNode], var childrenOpt: Option[Seq[FullOntologyNode]] = None,
+    val values: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None
+) extends DomainOntologyNode with Serializable {
   // At this level there is no distinction made between a parent node and child node.
   // Parent and children are var so that they can be assigned at different times and after object creation.
 
@@ -41,15 +40,15 @@ abstract class FullOntologyNode(
 
   def isLeaf: Boolean = false
 
-  val name: String = fullName
+  def getName: String = fullName
+
+  def getSimpleName: String = simpleName
 
   def getValues: Array[String] = values.getOrElse(Array.empty)
 
   def getPatterns: Option[Array[Regex]] = patterns
 
   def getChildren: Seq[FullOntologyNode] = childrenOpt.getOrElse(Seq.empty)
-
-  def getNamer: Namer = this
 
   def getParent: Option[Option[FullOntologyNode]] = Some(this.parentOpt)
 }
@@ -73,9 +72,10 @@ class FullOntologyRootNode extends FullOntologyParentNode("", None) {
   def isParentRoot: Boolean = false
 }
 
-class FullOntologyBranchNode(nodeName: String, parent: FullOntologyParentNode, filtered: String => Seq[String]) extends FullOntologyParentNode(nodeName, Some(parent)) {
+class FullOntologyBranchNode(simpleName: String, parent: FullOntologyParentNode, filtered: String => Seq[String])
+    extends FullOntologyParentNode(simpleName, Some(parent)) {
 
-  override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(nodeName) + DomainOntology.SEPARATOR
+  override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(simpleName) + DomainOntology.SEPARATOR
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[FullOntologyParentNode] = parents(parentOpt.get)
@@ -85,11 +85,11 @@ class FullOntologyBranchNode(nodeName: String, parent: FullOntologyParentNode, f
   def isParentRoot: Boolean = parent.isRoot
 
   def branch: Option[String] =
-      if (parent.isParentRoot) Some(nodeName)
+      if (parent.isParentRoot) Some(simpleName)
       else parent.branch
 
   override def getValues: Array[String] = {
-    val value = nodeName.replace('_', ' ')
+    val value = simpleName.replace('_', ' ')
     val values = filtered(value)
 
     values.toArray
@@ -98,16 +98,16 @@ class FullOntologyBranchNode(nodeName: String, parent: FullOntologyParentNode, f
 
 @SerialVersionUID(1000L)
 class FullOntologyLeafNode(
-  nodeName: String,
-  val parent: FullOntologyParentNode,
-  polarity: Float,
-  /*names: Seq[String],*/
-  examples: Option[Array[String]] = None,
-  descriptions: Option[Array[String]] = None,
-  override val patterns: Option[Array[Regex]] = None
-) extends FullOntologyNode(nodeName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patterns) with Namer {
+    simpleName: String,
+    val parent: FullOntologyParentNode,
+    polarity: Float,
+    /*names: Seq[String],*/
+    examples: Option[Array[String]] = None,
+    descriptions: Option[Array[String]] = None,
+    override val patterns: Option[Array[Regex]] = None
+) extends FullOntologyNode(simpleName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patterns) {
 
-  override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(nodeName)
+  override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(simpleName)
 
   def branch: Option[String] = parent.branch
 

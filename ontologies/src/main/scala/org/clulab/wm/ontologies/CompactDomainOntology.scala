@@ -15,7 +15,7 @@ import scala.util.matching.Regex
 
 class CompactNamerData(val nodeStrings: Array[String], val leafIndexes: Array[Int], val branchIndexes: Array[Int])
 
-class CompactNamer(protected val n: Int, data: CompactNamerData) extends Namer {
+class CompactNamer(protected val n: Int, data: CompactNamerData) {
 
   protected def branch(n: Int, prevNameOffset: Int): Option[String] = {
     if (n > 0) {
@@ -64,6 +64,13 @@ class CompactNamer(protected val n: Int, data: CompactNamerData) extends Namer {
     stringBuilder.append(data.nodeStrings(nameOffset))
     stringBuilder.result()
   }
+
+  def simpleName: String = {
+    val index = n * CompactDomainOntology.leafIndexWidth
+    val nameOffset = data.leafIndexes(index + CompactDomainOntology.nameOffset)
+
+    data.nodeStrings(nameOffset)
+  }
 }
 
 /**
@@ -98,9 +105,6 @@ class CompactDomainOntology(
 ) extends DomainOntology with IndexedDomainOntology with IndexedSeq[IndexedDomainOntologyNode] {
   protected val namerData: CompactNamerData = new CompactNamerData(nodeStrings, leafIndexes, branchIndexes)
   protected val patternRegexes: Array[Regex] = patternStrings.map(_.r)
-
-  // This is done so that other data can be thrown away
-  def getNamer(n: Integer): Namer = new CompactNamer(n, namerData)
 
   def getValues(n: Integer): Array[String] = {
     val start = leafStartIndexes(n)
@@ -147,6 +151,10 @@ class CompactDomainOntology(
   override def apply(idx: Int): IndexedDomainOntologyNode = new IndexedDomainOntologyNode(this, idx)
 
   override def getParent(n: Integer): Option[Option[DomainOntologyNode]] = None // unknown
+
+  override def getName(n: Integer): String = new CompactNamer(n, namerData).name
+
+  override def getSimpleName(n: Integer): String = new CompactNamer(n, namerData).simpleName
 }
 
 object CompactDomainOntology {
@@ -248,10 +256,10 @@ object CompactDomainOntology {
           .sortBy(_._2)
 
       parentSeq.foreach { case (ontologyParentNode, _)  =>
-        append(stringMap, DomainOntology.escaped(ontologyParentNode.name))
+        append(stringMap, DomainOntology.escaped(ontologyParentNode.getSimpleName))
       }
       treeDomainOntology.nodes.foreach { node =>
-        append(stringMap, DomainOntology.escaped(node.nodeName))
+        append(stringMap, DomainOntology.escaped(node.getSimpleName))
       }
       stringMap
     }
@@ -275,7 +283,7 @@ object CompactDomainOntology {
 
       treeDomainOntology.nodes.foreach { node =>
         indexBuffer += parentMap.get(node.getParent.get.get)._1 // parentOffset
-        indexBuffer += stringMap(DomainOntology.escaped(node.nodeName)) // nameOffset
+        indexBuffer += stringMap(DomainOntology.escaped(node.getSimpleName)) // nameOffset
       }
       indexBuffer.toArray
     }
@@ -286,7 +294,7 @@ object CompactDomainOntology {
 
       keysAndValues.foreach { case (branchNode, (_, parentIndex)) =>
         indexBuffer += parentIndex // parentOffset
-        indexBuffer += stringMap(DomainOntology.escaped(branchNode.nodeName)) // nameOffset
+        indexBuffer += stringMap(DomainOntology.escaped(branchNode.getSimpleName)) // nameOffset
       }
       indexBuffer.toArray
     }

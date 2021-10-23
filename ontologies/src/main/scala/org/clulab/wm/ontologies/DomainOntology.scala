@@ -1,16 +1,16 @@
 package org.clulab.wm.ontologies
 
 import java.time.ZonedDateTime
-
 import org.clulab.struct.Interval
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.Namer
+import org.clulab.wm.eidoscommon.utils.StringUtils
 
 import scala.util.matching.Regex
 
-trait DomainOntologyNode {
-  def getNamer: Namer // change to getName, getBranch
+trait DomainOntologyNode extends Namer {
+
   def getValues: Array[String]
 
   def getPosValues: Array[String] = getValues
@@ -24,6 +24,20 @@ trait DomainOntologyNode {
   // If the Node knows of its parents, but there isn't one, because it's the root, then Some(None).
   // If The Node knows of its parents and it is not the root, then Some(Some(DomainOntologyNode)).
   def getParent: Option[Option[DomainOntologyNode]]
+  // This is the long name that looks like a path, but with no leading /.
+  def getName: String
+  // This is the short, local name by analogy to this.getClass.getSimpleName.
+  def getSimpleName: String
+
+  def getBranch: Option[String] = {
+    val name = getName
+    val count = name.count( char => char == '/')
+
+    if (count >= 2)
+      Some(StringUtils.beforeFirst(StringUtils.afterFirst(name, '/', all = false), '/', all = false))
+    else
+      None
+  }
 }
 
 trait DomainOntology {
@@ -66,18 +80,17 @@ abstract class VersionedDomainOntology(
 ) extends DomainOntology
 
 trait IndexedDomainOntology {
-  def getNamer(n: Integer): Namer
   def getValues(n: Integer): Array[String]
   def getPosValues(n: Integer): Array[String] = getValues(n)
   def getNegValues(n: Integer): Array[String] = Array.empty
   def getPatterns(n: Integer): Option[Array[Regex]]
   def isLeaf(n: Integer): Boolean
   def getParent(n: Integer): Option[Option[DomainOntologyNode]]
+  def getName(n: Integer): String
+  def getSimpleName(n: Integer): String
 }
 
 class IndexedDomainOntologyNode(indexedDomainOntology: IndexedDomainOntology, index: Int) extends DomainOntologyNode {
-
-  override def getNamer: Namer = indexedDomainOntology.getNamer(index)
 
   override def getValues: Array[String] = indexedDomainOntology.getValues(index)
 
@@ -86,4 +99,8 @@ class IndexedDomainOntologyNode(indexedDomainOntology: IndexedDomainOntology, in
   override def isLeaf: Boolean = indexedDomainOntology.isLeaf(index)
 
   override def getParent: Option[Option[DomainOntologyNode]] = indexedDomainOntology.getParent(index)
+
+  override def getName: String = indexedDomainOntology.getName(index)
+
+  override def getSimpleName: String = indexedDomainOntology.getSimpleName(index)
 }

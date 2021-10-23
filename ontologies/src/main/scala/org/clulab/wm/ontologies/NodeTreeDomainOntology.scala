@@ -7,7 +7,6 @@ import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.StopwordManaging
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Namer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
@@ -65,7 +64,7 @@ class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canon
 class NodeTreeDomainOntologyNode(
   val yamlNode: YamlNode, val parentOpt: Option[NodeTreeDomainOntologyNode], depth: Int,
   sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: String => Array[String]
-) extends DomainOntologyNode with Namer {
+) extends DomainOntologyNode {
   val (name: String, branch: Option[String]) = {
     val parentName = parentOpt.map(_.name).getOrElse("")
     val tail = if (isBranch) "/" else ""
@@ -127,9 +126,11 @@ class NodeTreeDomainOntologyNode(
     ontologyNodes.toArray
   }
 
-  override def getNamer: Namer = this
-
   def getParent: Option[Option[NodeTreeDomainOntologyNode]] = Some(parentOpt)
+
+  override def getName: String = name
+
+  override def getSimpleName: String = yamlNode.name
 }
 
 case class YamlNode(

@@ -114,7 +114,7 @@ class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem,
   def exactMatch(text: String): Seq[String] = {
     val patterns: Seq[ConceptPatterns] = currOntologyGrounder.conceptPatterns
     val lowerText = text.toLowerCase
-    val exactMatches = patterns.filter(pattern => StringUtils.afterLast(pattern.namer.name, '/', true) == lowerText)
+    val exactMatches = patterns.filter(pattern => StringUtils.afterLast(pattern.namer.getName, '/', true) == lowerText)
     if (exactMatches.nonEmpty)
       exactMatches.map(exactMatch => s"         Exact Match: ${exactMatch.namer}\t(1.0f)")
     else {

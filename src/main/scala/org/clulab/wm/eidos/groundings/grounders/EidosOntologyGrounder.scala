@@ -31,7 +31,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     domainOntology.nodes.map { node =>
       val negValues = node.getNegValues
       ConceptEmbedding(
-        node.getNamer,
+        node,
         wordToVec.makeCompositeVector(node.getValues),
         if (negValues.nonEmpty) Some(wordToVec.makeCompositeVector(negValues)) else None
       )
@@ -39,7 +39,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   val conceptPatterns: Seq[ConceptPatterns] =
     domainOntology.nodes.map { node =>
-      ConceptPatterns(node.getNamer, node.getPatterns)
+      ConceptPatterns(node, node.getPatterns)
     }
 
   // For API to reground strings
@@ -74,7 +74,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   }
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     val lowerText = text.toLowerCase
-    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name, '/', true) == lowerText)
+    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.getName, '/', true) == lowerText)
     if (exactMatches.nonEmpty)
       exactMatches.map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f))
     else {

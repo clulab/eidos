@@ -99,16 +99,16 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
-    branches.exists(_.namer.name == s)
+    branches.exists(_.namer.getName == s)
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptEmbeddings.filter { _.namer.branch.contains(branch) })
+      (branch, conceptEmbeddings.filter { _.namer.getBranch.contains(branch) })
     }.toMap
 
   protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptPatterns.filter { _.namer.branch.contains(branch) })
+      (branch, conceptPatterns.filter { _.namer.getBranch.contains(branch) })
     }.toMap
 
   // primarily used for passing in the canonical name parts

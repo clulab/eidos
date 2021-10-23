@@ -15,7 +15,7 @@ import scala.util.matching.Regex
 
 class FastNamerData(val names: Array[String], val parents: Array[Int], val leaves: Array[Boolean])
 
-class FastNamer(protected val n: Int, data: FastNamerData) extends Namer {
+class FastNamer(protected val n: Int, data: FastNamerData) {
 
   protected def branch(n: Int, prevN: Int): Option[String] = {
     if (isTop(n)) Some(data.names(prevN))
@@ -45,6 +45,8 @@ class FastNamer(protected val n: Int, data: FastNamerData) extends Namer {
       stringBuilder.append(DomainOntology.SEPARATOR)
     stringBuilder.toString
   }
+
+  def simpleName: String = data.names(n)
 }
 
 /**
@@ -80,9 +82,6 @@ class FastDomainOntology(
 
   protected val namerData: FastNamerData = new FastNamerData(names, parents, leaves)
   protected val patternRegexes: Array[Regex] = patterns.map(_.r)
-
-  // This is done so that other data can be thrown away
-  def getNamer(n: Integer): Namer = new FastNamer(n, namerData)
 
   def getValues(n: Integer): Array[String] = {
     val start = wordStartIndexes(n)
@@ -132,6 +131,10 @@ class FastDomainOntology(
         if (n > 0) Some(new IndexedDomainOntologyNode(this, parents(n)))
         else None
       )
+
+  override def getName(n: Integer): String = new FastNamer(n, namerData).name
+
+  override def getSimpleName(n: Integer): String = new FastNamer(n, namerData).simpleName
 }
 
 // This wraps the above FastDomainOntology and allows for offset nodes to be skipped.
@@ -140,8 +143,6 @@ class FastDomainOntology(
 class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1)
     extends DomainOntology with IndexedDomainOntology with IndexedSeq[DomainOntologyNode] {
   // TODO Doesn't this need to store the offset as well?
-
-  def getNamer(n: Integer): Namer = fastDomainOntology.getNamer(n + offset)
 
   def getValues(n: Integer): Array[String] = fastDomainOntology.getValues(n + offset)
 
@@ -162,6 +163,10 @@ class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1
       if (n > offset) Some(new IndexedDomainOntologyNode(this, fastDomainOntology.parents(n + offset)))
       else None
     )
+
+  override def getName(n: Integer): String = fastDomainOntology.getName(n + offset)
+
+  override def getSimpleName(n: Integer): String = fastDomainOntology.getSimpleName(n + offset)
 }
 
 object FastDomainOntology {
@@ -304,7 +309,7 @@ object FastDomainOntology {
           .sortBy(_.getValue)
           .map(_.getKey)
           .toArray
-      val names = nodeArr.map { node => DomainOntology.escaped(node.name) }
+      val names = nodeArr.map { node => DomainOntology.escaped(node.getSimpleName) }
       val leaves = nodeArr.map { node => node.isLeaf }
       val parents = nodeArr.map { node =>
         Option(nodeMap.get(node.parentOpt.get)).getOrElse(-1)

@@ -4,7 +4,6 @@ import org.clulab.utils.Serializer
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -21,9 +20,9 @@ import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
 abstract class PosNegOntologyNode(
-  val nodeName: String, var parentOpt: Option[PosNegOntologyParentNode], var childrenOpt: Option[Seq[PosNegOntologyNode]] = None,
+  val simpleName: String, var parentOpt: Option[PosNegOntologyParentNode], var childrenOpt: Option[Seq[PosNegOntologyNode]] = None,
   val posValues: Option[Array[String]] = None, val negValues: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None
-) extends DomainOntologyNode with Namer with Serializable {
+) extends DomainOntologyNode with Serializable {
   // At this level there is no distinction made between a parent node and child node.
   // Parent and children are var so that they can be assigned at different times and after object creation.
 
@@ -34,13 +33,11 @@ abstract class PosNegOntologyNode(
 
   override def toString: String = fullName
 
-  def branch: Option[String]
-
   def isRoot: Boolean = false
 
   def isLeaf: Boolean = false
 
-  def name: String = fullName
+  def getName: String = fullName
 
   override def getPosValues: Array[String] = posValues.getOrElse(Array.empty)
 
@@ -52,9 +49,9 @@ abstract class PosNegOntologyNode(
 
   def getChildren: Seq[PosNegOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 
-  def getNamer: Namer = this
-
   def getParent: Option[Option[PosNegOntologyNode]] = Some(parentOpt)
+
+  def getSimpleName: String = simpleName
 }
 
 @SerialVersionUID(1000L)
@@ -72,7 +69,7 @@ class PosNegOntologyRootNode extends PosNegOntologyParentNode("", None) {
 
   override def parents: Seq[PosNegOntologyParentNode] = Seq.empty
 
-  def branch: Option[String] = None
+  override def getBranch: Option[String] = None
 
   override def isRoot: Boolean = true
 
@@ -93,9 +90,9 @@ class PosNegOntologyBranchNode(nodeName: String, parent: PosNegOntologyParentNod
 
   def isParentRoot: Boolean = parent.isRoot
 
-  def branch: Option[String] =
+  override def getBranch: Option[String] =
       if (parent.isParentRoot) Some(nodeName)
-      else parent.branch
+      else parent.getBranch
 }
 
 object PosNegOntologyBranchNode {
@@ -126,11 +123,11 @@ class PosNegOntologyLeafNode(
   negExamples: Option[Array[String]] = None,
   descriptions: Option[Array[String]] = None,
   override val patterns: Option[Array[Regex]] = None
-) extends PosNegOntologyNode(nodeName, Some(parent), None, Some(/*names ++*/ posExamples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), negExamples, patterns) with Namer {
+) extends PosNegOntologyNode(nodeName, Some(parent), None, Some(/*names ++*/ posExamples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), negExamples, patterns) {
 
   override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(nodeName)
 
-  def branch: Option[String] = parent.branch
+  override def getBranch: Option[String] = parent.getBranch
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[PosNegOntologyParentNode] = parents(parentOpt.get)
@@ -333,7 +330,7 @@ object PosNegTreeDomainOntology {
     val ontology = builder.buildFromPath("/org/clulab/wm/eidos/english/ontologies/wm_posneg_metadata.yml")
 
     ontology.nodes.foreach { node =>
-      val name = node.getNamer.name
+      val name = node.getName
       val negValues = node.getNegValues
 
       if (negValues.nonEmpty)

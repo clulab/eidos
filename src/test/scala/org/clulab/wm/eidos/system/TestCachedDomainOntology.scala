@@ -43,7 +43,7 @@ class TestCachedDomainOntology extends EidosTest {
   protected def extract(domainOntology: DomainOntology): Seq[OntologyEntry]= {
     domainOntology.nodes.map { node =>
       OntologyEntry(
-        node.getNamer.name,
+        node.getName,
         node.getValues.sorted,
         node.getPatterns.getOrElse(Array.empty).map(_.toString).sorted
       )

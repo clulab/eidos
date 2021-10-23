@@ -21,7 +21,7 @@ trait IndividualGrounding {
   def negScoreOpt: Option[Float] = None
 }
 case class SingleOntologyNodeGrounding(namer: Namer, override val score: Float, override val negScoreOpt: Option[Float] = None) extends IndividualGrounding{
-  def name: String = namer.name
+  def name: String = namer.getName
 }
 object SingleOntologyNodeGrounding {
   def apply(tuple: (Namer, Float)): SingleOntologyNodeGrounding = SingleOntologyNodeGrounding(tuple._1, tuple._2)

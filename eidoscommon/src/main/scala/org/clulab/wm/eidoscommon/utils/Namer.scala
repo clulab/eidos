@@ -1,15 +1,16 @@
 package org.clulab.wm.eidoscommon.utils
 
 trait Namer {
-  def name: String // gets the entire name with parts separated by /
-  def branch: Option[String] // gets the branch in top/branch/[more/]leaf
+  def getName: String // gets the entire name with parts separated by /
+  def getBranch: Option[String] // gets the branch in top/branch/[more/]leaf
+  def getSimpleName: String // gets the leaf name
 
-  override def toString: String = name
+  override def toString: String = getName
 }
 
 class PassThruNamer(val name: String) extends Namer {
 
-  def branch: Option[String] = {
+  def getBranch: Option[String] = {
     val count = name.count( char => char == '/')
 
     if (count >= 2)
@@ -17,4 +18,8 @@ class PassThruNamer(val name: String) extends Namer {
     else
       None
   }
+
+  def getName: String = name
+
+  def getSimpleName: String = StringUtils.afterLast(name, '/', all = true)
 }
