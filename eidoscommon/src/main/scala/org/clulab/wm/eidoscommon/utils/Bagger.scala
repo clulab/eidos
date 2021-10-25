@@ -1,8 +1,5 @@
 package org.clulab.wm.eidoscommon.utils
 
-import java.util
-
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 trait Bagger[T] {
@@ -49,7 +46,7 @@ class EqualityBagger[T] extends Bagger[T] {
   }
 
   protected def put(key: T, value: Int): EqualityBagger[T] = {
-    map.put(key, value)
+    map(key) = value
     valueCount += 1
     this
   }
@@ -57,7 +54,7 @@ class EqualityBagger[T] extends Bagger[T] {
   def putIfNew(value: T)(block: T => Unit): EqualityBagger[T] = {
     val count = map.getOrElse(value, 0)
 
-    map.put(value, count + 1)
+    map(value) = count + 1
     if (count == 0)
       block(value)
     this
@@ -88,8 +85,8 @@ object EqualityBagger {
   }
 }
 
-class IdentityBagger[T] extends Bagger[T] {
-  protected val map = new util.IdentityHashMap[T, Int]()
+class IdentityBagger[T <: AnyRef] extends Bagger[T] {
+  protected val map = new IdentityHashMap[T, Int]()
   var valueCount: Int = 0
 
   def put(value: T): IdentityBagger[T] = {
@@ -105,28 +102,26 @@ class IdentityBagger[T] extends Bagger[T] {
   }
 
   protected def put(key: T, value: Int): IdentityBagger[T] = {
-    map.put(key, value)
+    map(key) = value
     valueCount += 1
     this
   }
 
   def putIfNew(value: T)(block: T => Unit): IdentityBagger[T] = {
-    if (map.containsKey(value))
-      put(value, map.get(value) + 1)
+    if (map.contains(value))
+      map(value) = map(value) + 1
     else {
-      map.put(value, 1)
+      map(value) = 1
       block(value)
     }
     this
   }
 
-  def get: Seq[T] = map.keySet().toArray.toSeq.map(_.asInstanceOf[T])
+  def get: Seq[T] = map.keys.toSeq
 
-  def get(value: T): Int = map.getOrDefault(value, 0)
+  def get(value: T): Int = map.getOrElse(value, 0)
 
-  def getEntries: Seq[(T, Int)] = map.entrySet.asScala.toSeq.map { entry =>
-    (entry.getKey, entry.getValue)
-  }
+  def getEntries: Seq[(T, Int)] = map.toSeq
 
   def keySize: Int = map.size
 
@@ -135,11 +130,11 @@ class IdentityBagger[T] extends Bagger[T] {
 
 object IdentityBagger {
 
-  def apply[T](): IdentityBagger[T] = new IdentityBagger[T]()
+  def apply[T <: AnyRef](): IdentityBagger[T] = new IdentityBagger[T]()
 
-  def apply[T](values: Seq[T]): IdentityBagger[T] = apply[T]().put(values)
+  def apply[T <: AnyRef](values: Seq[T]): IdentityBagger[T] = apply[T]().put(values)
 
-  def apply[T](values: Seq[T], getNeighbors: T => Iterable[T]): IdentityBagger[T] = {
+  def apply[T <: AnyRef](values: Seq[T], getNeighbors: T => Iterable[T]): IdentityBagger[T] = {
     val bagger = apply[T]()
 
     Bagger.addAll(bagger, values, getNeighbors)
