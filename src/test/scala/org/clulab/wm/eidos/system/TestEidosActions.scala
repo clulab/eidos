@@ -1,7 +1,5 @@
 package org.clulab.wm.eidos.system
 
-import java.util.IdentityHashMap
-
 import org.clulab.odin._
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.attachments.Property
@@ -10,8 +8,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.actions.EidosActions
 import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidoscommon.EidosParameters.CAUSAL_LABEL
-
-import scala.collection.JavaConverters._
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 
 class TestEidosActions extends ExtractionTest {
 
@@ -40,7 +37,7 @@ class TestEidosActions extends ExtractionTest {
     val mapOfMentions = new IdentityHashMap[Mention, Mention]()
 
     addAllMentions(mentions, mapOfMentions)
-    mapOfMentions.keySet.asScala.toSeq
+    mapOfMentions.keys.toSeq
   }
 
   def areMatching(left: Mention, right: Mention): Boolean = {
@@ -79,13 +76,12 @@ class TestEidosActions extends ExtractionTest {
   def findMatchingPair(mentions: Seq[Mention]): Option[(Mention, Mention)] =
     mentions match {
       case Seq() => None
-      case Seq(head) => None
-      case Seq(head, tail @ _*) => {
+      case Seq(_) => None
+      case Seq(head, tail @ _*) =>
         val matchingPair = findMatchingPair(head, tail)
 
         if (matchingPair.isDefined) matchingPair
         else findMatchingPair(tail)
-      }
     }
 
   protected def test(reader: EidosSystem, text: String, index: Int): Unit = {
@@ -135,6 +131,6 @@ class TestEidosActions extends ExtractionTest {
   it should "remove mentions whose triggers were likely JJs misparsed as VBN" in {
     val text = "Concurrently , female holders have limited access to extension and advisory services."
     val mentions = extractMentions(text)
-    mentions.filter(_ matches CAUSAL_LABEL) should have size(0)
+    mentions.filter(_ matches CAUSAL_LABEL) should have size 0
   }
 }
