@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.context
 
-import java.util.{IdentityHashMap, TimeZone}
+import java.util.TimeZone
 import java.time.{LocalDate, LocalDateTime, LocalTime, ZoneId}
 import java.time.format.DateTimeFormatter
 
@@ -24,9 +24,9 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.mentions.OdinMention
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.Sourcer
 
-import scala.collection.JavaConverters._
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -62,12 +62,11 @@ object TimeNormFinder {
       }
     }
     val timExMap: IdentityHashMap[TimEx, Int] = timExSeq.foldLeft(new IdentityHashMap[TimEx, Int]()) { (identityHashMap, timEx) =>
-      identityHashMap.put(timEx, 0)
+      identityHashMap(timEx) = 0 // This is being used as a set, with values disregarded.
       identityHashMap
     }
     val timExArray = timExMap
-        .keySet
-        .asScala
+        .keys
         .toArray
         .sortBy { timEx: TimEx => timEx.span }
 
