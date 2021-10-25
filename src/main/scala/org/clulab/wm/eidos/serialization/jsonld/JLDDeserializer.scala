@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.serialization.jsonld
 
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
-import java.util
 
 import org.clulab.odin.Attachment
 import org.clulab.odin.CrossSentenceMention
@@ -44,6 +43,7 @@ import org.clulab.wm.eidos.groundings.PredicateGrounding
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
 import org.clulab.wm.eidos.groundings.{OntologyAliases, OntologyGrounding, SingleOntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.PassThruNamer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -821,7 +821,7 @@ class JLDDeserializer {
   def addEidosExtras(eidosMentions: Seq[EidosMention], extractions: Seq[Extraction],
       mentionMap: Map[String, Mention]): Seq[EidosMention] = {
     val extractionsMap = extractions.map { extraction => extraction.id -> extraction }.toMap
-    val mentionToExtractionMap = new util.IdentityHashMap[Mention, Extraction]()
+    val mentionToExtractionMap = new IdentityHashMap[Mention, Extraction]()
     val allEidosMentions = EidosMention.findAllByIdentity(eidosMentions)
 
     mentionMap.foreach { case (id, mention) =>
@@ -831,7 +831,7 @@ class JLDDeserializer {
       val odinMention = eidosMention.odinMention
       // There could be a "fabricated" trigger mention which is not included in the map, because we only track
       // provenance for those in the jsonld and there isn't an entry in the map for them.
-      val extractionOpt = Option(mentionToExtractionMap.get(odinMention))
+      val extractionOpt = mentionToExtractionMap.get(odinMention)
 
       extractionOpt.foreach { extraction =>
         extraction.canonicalNameOpt.foreach { canonicalName => eidosMention.canonicalName = canonicalName }
