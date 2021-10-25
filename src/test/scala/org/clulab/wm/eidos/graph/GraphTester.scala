@@ -73,8 +73,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
         printWriter.println(s"\t#$index: ${mentionId(mention)}")
       }
       printWriter.println("Found:")
-      testResults.keySet.asScala.toSeq.foreach { graphSpec =>
-        val testResult = testResults.get(graphSpec)
+      testResults.foreach { case (graphSpec, testResult) =>
         val mentionOpt = testResult.mention
 
         if (mentionOpt.isDefined) {
