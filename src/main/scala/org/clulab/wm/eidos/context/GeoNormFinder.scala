@@ -1,7 +1,6 @@
 package org.clulab.wm.eidos.context
 
 import java.nio.file.{Files, Path, Paths}
-import java.util.IdentityHashMap
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.geonorm.{GeoLocationExtractor, GeoLocationNormalizer, GeoNamesIndex}
@@ -14,8 +13,7 @@ import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.mentions.OdinMention
 import org.clulab.wm.eidos.utils.Unordered
 import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
-
-import scala.collection.JavaConverters._
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 
 @SerialVersionUID(1L)
 case class GeoPhraseID(text: String, geonameID: Option[String], startOffset: Int, endOffset: Int)
@@ -51,12 +49,11 @@ object GeoNormFinder {
       }
     }
     val geoPhraseIDMap: IdentityHashMap[GeoPhraseID, Int] = geoPhraseIDSeq.foldLeft(new IdentityHashMap[GeoPhraseID, Int]()) { (identityHashMap, geoPhraseID) =>
-      identityHashMap.put(geoPhraseID, 0)
+      identityHashMap(geoPhraseID) = 0 // This is being used as a set, with values disregarded.
       identityHashMap
     }
     val geoPhraseIDArray = geoPhraseIDMap
-        .keySet
-        .asScala
+        .keys
         .toArray
         .sorted
 
