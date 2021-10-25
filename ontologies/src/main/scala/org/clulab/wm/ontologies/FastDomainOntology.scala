@@ -1,14 +1,13 @@
 package org.clulab.wm.ontologies
 
 import java.time.ZonedDateTime
-import java.util
 
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.TsvReader
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.util.matching.Regex
@@ -203,14 +202,14 @@ object FastDomainOntology {
         strings.put(string, strings.size)
 
     // Number all of the nodes by making map of node to number.
-    protected def mkNodeMap(rootNode: FullOntologyNode): util.IdentityHashMap[FullOntologyNode, Int] = {
-      val nodeMap: util.IdentityHashMap[FullOntologyNode, Int] = new util.IdentityHashMap()
+    protected def mkNodeMap(rootNode: FullOntologyNode): IdentityHashMap[FullOntologyNode, Int] = {
+      val nodeMap: IdentityHashMap[FullOntologyNode, Int] = new IdentityHashMap()
 
       def append(node: FullOntologyNode): Unit =
         node.childrenOpt.foreach { children =>
           // Do this depth first, child before its own children.
           children.foreach { child =>
-            nodeMap.put(child, nodeMap.size())
+            nodeMap(child) = nodeMap.size
             append(child)
           }
         }
@@ -269,15 +268,13 @@ object FastDomainOntology {
       (indexBuffer.toArray, startIndexBuffer)
     }
 
-    protected def mkChildIndexesAndStarts(nodes: Seq[FullOntologyNode], nodeMap: util.IdentityHashMap[FullOntologyNode, Int]):
+    protected def mkChildIndexesAndStarts(nodes: Seq[FullOntologyNode], nodeMap: IdentityHashMap[FullOntologyNode, Int]):
     (Array[Int], Array[Int]) = {
       val indexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new Array[Int](nodes.size + 1)
 
       nodes.zipWithIndex.foreach { case (node, index) =>
-        val indexes = node.getChildren.map { child =>
-          nodeMap.get(child)
-        }
+        val indexes = node.getChildren.map(nodeMap)
 
         startIndexBuffer(index) = indexBuffer.size
         indexBuffer.appendAll(indexes)
@@ -289,13 +286,11 @@ object FastDomainOntology {
     def buildFast(): FastDomainOntology = {
       // This stops at, for example, wm, not the implied root above.  It is not an OntologyRootNode.
       val rootNode = treeDomainOntology.getNode(0).parents.last
-      val nodeMap: util.IdentityHashMap[FullOntologyNode, Int] = mkNodeMap(rootNode)
+      val nodeMap: IdentityHashMap[FullOntologyNode, Int] = mkNodeMap(rootNode)
       val nodeArr: Array[FullOntologyNode] = nodeMap
-          .entrySet()
-          .asScala
           .toSeq
-          .sortBy(_.getValue)
-          .map(_.getKey)
+          .sortBy(_._2)
+          .map(_._1)
           .toArray
       val names = nodeArr.map { node => node.escaped }
       val leaves = nodeArr.map { node => node.isLeaf }
