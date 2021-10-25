@@ -295,7 +295,7 @@ object FastDomainOntology {
       val names = nodeArr.map { node => node.escaped }
       val leaves = nodeArr.map { node => node.isLeaf }
       val parents = nodeArr.map { node =>
-        Option(nodeMap.get(node.parentOpt.get)).getOrElse(-1)
+        nodeMap.getOrElse(node.parentOpt.get, -1)
       }
       val wordStringMap: MutableHashMap[String, Int] = mkWordStringMap(nodeArr)
       val wordStringArr = wordStringMap.toSeq.map(_.swap).sorted.map(_._2).toArray
