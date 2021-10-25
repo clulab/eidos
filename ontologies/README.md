@@ -13,7 +13,7 @@ The classes of this subproject are the result of much experimentation with the o
   <tr>
     <th>Clas</th>
     <th>Tree</th>
-    <th>Flat</th>
+    <th>Table</th>
     <th>Children only</th>
     <th>Parent and children</th>
     <th>Positive only</th>
