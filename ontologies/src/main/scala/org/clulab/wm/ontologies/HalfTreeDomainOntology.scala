@@ -8,7 +8,6 @@ import org.clulab.utils.Serializer
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -118,6 +117,7 @@ class HalfOntologyLeafNode(
 class HalfTreeDomainOntology(val ontologyNodes: Array[HalfOntologyLeafNode], version: Option[String], date: Option[ZonedDateTime])
     extends VersionedDomainOntology(version, date) with Serializable {
 
+  // It is assumed that the root node, for which parentOpt is None, is not in the list.
   def getParents(n: Integer): Seq[HalfOntologyParentNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents
 
   def save(filename: String): Unit = Serializer.save(this, filename)
@@ -148,12 +148,18 @@ object HalfTreeDomainOntology {
     def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): HalfTreeDomainOntology =
         buildFromYaml(Resourcer.getText(ontologyPath), versionOpt, dateOpt)
 
+    protected def getOntologyNodes(yamlNodes: Seq[Any]): Array[HalfOntologyLeafNode] = {
+       val rootNode = new HalfOntologyRootNode
+
+       parseOntology(rootNode, yamlNodes).toArray
+    }
+
     def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): HalfTreeDomainOntology = {
       val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
       val yamlNodes = yaml.load(yamlText).asInstanceOf[JCollection[Any]].asScala.toSeq
-      val ontologyNodes = parseOntology(new HalfOntologyRootNode, yamlNodes)
+      val ontologyNodes = getOntologyNodes(yamlNodes)
 
-      new HalfTreeDomainOntology(ontologyNodes.toArray, versionOpt, dateOpt)
+      new HalfTreeDomainOntology(ontologyNodes, versionOpt, dateOpt)
     }
 
     protected def realFiltered(text: String): Seq[String] =
@@ -179,6 +185,7 @@ object HalfTreeDomainOntology {
       val name = yamlNodes(HalfTreeDomainOntology.NAME).asInstanceOf[String]
       /*val names = (name +: parent.nodeName +: parent.parents.map(_.nodeName)).map(unescape)*/
       val examples = yamlNodesToStrings(yamlNodes, HalfTreeDomainOntology.EXAMPLES)
+          .map { examples => examples.filter(_ != null) }
       val descriptions: Option[Array[String]] = yamlNodesToStrings(yamlNodes, HalfTreeDomainOntology.DESCRIPTION)
       // The incoming polarity can now be Int or Double.  We will store either one as a Float.
       val polarity = {
@@ -199,8 +206,7 @@ object HalfTreeDomainOntology {
       val filteredExamples = examples.map(_.flatMap(filtered))
       val filteredDescriptions = descriptions.map(_.flatMap(filtered))
 
-      val res = new HalfOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
-      res
+      new HalfOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
     }
 
     protected def parseOntology(parent: HalfOntologyParentNode, yamlNodes: Seq[Any]): Seq[HalfOntologyLeafNode] = {
@@ -215,8 +221,11 @@ object HalfTreeDomainOntology {
         else {
           // This is to account for leafless branches.
           val yamlNodesOpt = Option(map(key).asScala)
-          if (yamlNodesOpt.nonEmpty) // foreach does not work well here.
-            parseOntology(new HalfOntologyBranchNode(key, parent), yamlNodesOpt.get.toSeq)
+          if (yamlNodesOpt.nonEmpty) { // foreach does not work well here.
+            val branchNode = new HalfOntologyBranchNode(key, parent)
+
+            parseOntology(branchNode, yamlNodesOpt.get.toSeq)
+          }
           else
             Seq.empty
         }

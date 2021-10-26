@@ -34,15 +34,13 @@ abstract class FullOntologyNode(
 
   override def toString: String = fullName
 
-  def branch: Option[String]
-
   def isRoot: Boolean = false
 
   def isLeaf: Boolean = false
 
   def getName: String = fullName
 
-  def getSimpleName: String = simpleName
+  override def getSimpleName: String = simpleName
 
   def getValues: Array[String] = values.getOrElse(Array.empty)
 
@@ -65,7 +63,7 @@ class FullOntologyRootNode extends FullOntologyParentNode("", None) {
 
   override def parents: Seq[FullOntologyParentNode] = Seq.empty
 
-  def branch: Option[String] = None
+  override def getBranch: Option[String] = None
 
   override def isRoot: Boolean = true
 
@@ -84,12 +82,12 @@ class FullOntologyBranchNode(simpleName: String, parent: FullOntologyParentNode,
 
   def isParentRoot: Boolean = parent.isRoot
 
-  def branch: Option[String] =
+  override def getBranch: Option[String] =
       if (parent.isParentRoot) Some(simpleName)
-      else parent.branch
+      else parent.getBranch
 
   override def getValues: Array[String] = {
-    val value = simpleName.replace('_', ' ')
+    val value = DomainOntology.unescaped(simpleName)
     val values = filtered(value)
 
     values.toArray
@@ -109,7 +107,7 @@ class FullOntologyLeafNode(
 
   override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(simpleName)
 
-  def branch: Option[String] = parent.branch
+  override def getBranch: Option[String] = parent.getBranch
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[FullOntologyParentNode] = parents(parentOpt.get)
@@ -146,24 +144,20 @@ object FullTreeDomainOntology {
     domainOntology
   }
 
-
   // This is mostly here to capture sentenceExtractor so that it doesn't have to be passed around.
-  class FullTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer,
-      filter: Boolean) {
+  class FullTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filter: Boolean) {
 
-    def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None):
-        FullTreeDomainOntology = buildFromYaml(Resourcer.getText(ontologyPath), versionOpt, dateOpt)
+    def buildFromPath(ontologyPath: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): FullTreeDomainOntology =
+        buildFromYaml(Resourcer.getText(ontologyPath), versionOpt, dateOpt)
 
-    def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): FullTreeDomainOntology = {
-      val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
-      val yamlNodes = yaml.load(yamlText).asInstanceOf[JCollection[Any]].asScala.toSeq
-      val rootNode = new FullOntologyRootNode // Note: root node is created here
+    protected def getOntologyNodes(yamlNodes: Seq[Any]): Array[FullOntologyNode] = {
+      val rootNode = new FullOntologyRootNode
 
       parseOntology(rootNode, yamlNodes)
 
       def walk(node: FullOntologyNode, f: FullOntologyNode => Unit): Unit = {
-        node.childrenOpt.map { children =>
-          children.map { child =>
+        node.childrenOpt.foreach { children =>
+          children.foreach { child =>
             f(child)
             walk(child, f)
           }
@@ -183,8 +177,15 @@ object FullTreeDomainOntology {
         (parents.toArray, children.toArray)
       }
 
-      val includedNodes = ontologyParentNodes ++ ontologyChildNodes
-      new FullTreeDomainOntology(includedNodes, versionOpt, dateOpt)
+      ontologyParentNodes ++ ontologyChildNodes
+    }
+
+    def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): FullTreeDomainOntology = {
+      val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
+      val yamlNodes = yaml.load(yamlText).asInstanceOf[JCollection[Any]].asScala.toSeq
+      val ontologyNodes = getOntologyNodes(yamlNodes)
+
+      new FullTreeDomainOntology(ontologyNodes, versionOpt, dateOpt)
     }
 
     protected def realFiltered(text: String): Seq[String] =
@@ -231,8 +232,6 @@ object FullTreeDomainOntology {
       val filteredExamples = examples.map(_.flatMap(filtered))
       val filteredDescriptions = descriptions.map(_.flatMap(filtered))
 
-//      println("Adding new node")
-      // Note: leaf nodes are created here
       new FullOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
     }
 
@@ -265,10 +264,12 @@ object FullTreeDomainOntology {
         childNodesSeq += childNodes
       }
 
-      val flatChildNodes = childNodesSeq.flatten
+      parent.childrenOpt = {
+        val flatChildNodes = childNodesSeq.flatten
 
-      if (flatChildNodes.nonEmpty)
-        parent.childrenOpt = Some(flatChildNodes)
+        if (flatChildNodes.isEmpty) None
+        else Some(flatChildNodes)
+      }
     }
   }
 }

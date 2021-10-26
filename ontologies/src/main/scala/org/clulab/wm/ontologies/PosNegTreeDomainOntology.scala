@@ -51,7 +51,7 @@ abstract class PosNegOntologyNode(
 
   def getParent: Option[Option[PosNegOntologyNode]] = Some(parentOpt)
 
-  def getSimpleName: String = simpleName
+  override def getSimpleName: String = simpleName
 }
 
 @SerialVersionUID(1000L)
