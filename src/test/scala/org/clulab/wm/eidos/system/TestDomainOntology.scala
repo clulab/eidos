@@ -96,7 +96,7 @@ class TestDomainOntology extends EidosTest {
 
       val newerOntologyOpt = Timer.time(s"Convert $name to compact") {
         if (includeParents)
-          if (PosNegTreeDomainOntology.isPogNegName(name))
+          if (PosNegTreeDomainOntology.isPosNegName(name))
             None
           else
             Some(new FastDomainOntologyBuilder(newOntology.asInstanceOf[FullTreeDomainOntology]).build)

@@ -1,9 +1,5 @@
 package org.clulab.wm.ontologies
 
-import java.time.ZonedDateTime
-import java.util.{Collection => JCollection}
-import java.util.{Map => JMap}
-
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
@@ -13,6 +9,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
+
+import java.time.ZonedDateTime
+import java.util.{Collection => JCollection}
+import java.util.{Map => JMap}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -215,9 +215,10 @@ object HalfTreeDomainOntology {
         if (yamlNode.isInstanceOf[String])
           throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")
         val map: mutable.Map[String, JCollection[Any]] = yamlNode.asInstanceOf[JMap[String, JCollection[Any]]].asScala
-        val key: String = map.keys.head
+        val key = map.keys.head
+        val isLeaf = key == HalfTreeDomainOntology.FIELD
 
-        if (key == HalfTreeDomainOntology.FIELD)
+        if (isLeaf)
           Seq(parseOntology(parent, map))
         else {
           // This is to account for leafless branches.
