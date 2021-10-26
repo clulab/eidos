@@ -10,8 +10,9 @@ import org.clulab.wm.eidos.utils.Unordered
 import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.eidoscommon.utils.{IdentityBagger, IdentityMapper}
+import org.clulab.wm.eidoscommon.utils.IdentityBagger
 
 // In order to create this all at once with all OdinMentions that are == being rerouted
 // to those being eq(), the mapping needs to be provided and all values calculated upon
@@ -62,7 +63,7 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]],
       odinMentionMapper: EidosMention.OdinMentionMapper): Map[String, Seq[Mention]] = {
     odinArguments.map { case (key, odinMentions) =>
-      key -> odinMentions.map(odinMentionMapper.get)
+      key -> odinMentions.map(odinMentionMapper)
     }
   }
 
@@ -87,9 +88,9 @@ object EidosMention extends Logging {
   val NO_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
 
   // This maps any Odin Mention onto its canonical one.
-  type OdinMentionMapper = IdentityMapper[Mention, Mention]
+  type OdinMentionMapper = IdentityHashMap[Mention, Mention]
   // This then maps any canonical one onto the matching EidosMention.
-  type EidosMentionMapper = IdentityMapper[Mention, EidosMention]
+  type EidosMentionMapper = IdentityHashMap[Mention, EidosMention]
 
   protected def newEidosMention(odinMention: Mention, odinMentionMapper: OdinMentionMapper, eidosMentionMapper: EidosMentionMapper): EidosMention = {
     odinMention match {
@@ -108,7 +109,7 @@ object EidosMention extends Logging {
 
   protected def asEidosMentions(odinMentions: Seq[Mention], odinMentionMapper: OdinMentionMapper, eidosMentionMapper: EidosMentionMapper): Seq[EidosMention] = {
     val eidosMentions = odinMentions.map { keyOdinMention =>
-      val valueOdinMention = odinMentionMapper.get(keyOdinMention)
+      val valueOdinMention = odinMentionMapper(keyOdinMention)
 
       eidosMentionMapper.getOrElse(valueOdinMention, newEidosMention(valueOdinMention, odinMentionMapper, eidosMentionMapper))
     }
@@ -135,10 +136,10 @@ object EidosMention extends Logging {
       newKeyOdinMention -> valueOdinMentions
     }
     // This will map each odin mention back to the representative mention by identity.
-    val odinMentionMapper = new IdentityMapper[Mention, Mention]()
+    val odinMentionMapper = new OdinMentionMapper()
     regroupedOdinMentions.foreach { case (keyOdinMention, valueOdinMentions) =>
       valueOdinMentions.foreach { valueOdinMention =>
-        odinMentionMapper.put(valueOdinMention, keyOdinMention)
+        odinMentionMapper(valueOdinMention) = keyOdinMention
       }
     }
     // Check to make sure there are no concepts that aren't referred to by a relation.
@@ -152,28 +153,28 @@ object EidosMention extends Logging {
     if (groupedOdinMentions.size != eidosMentionMapper.size)
       logger.warn("Not all Odin mentions were converted into Eidos mentions.")
 
-    val allEidosMentions = eidosMentionMapper.getValues
+    val allEidosMentions = eidosMentionMapper.values.toSeq
     (eidosMentions, allEidosMentions)
   }
 
-  def hasOrphanedConcepts(keyMentionMap: Map[Mention, Seq[Mention]], mentionMapper: IdentityMapper[Mention, Mention]): Boolean = {
+  def hasOrphanedConcepts(keyMentionMap: Map[Mention, Seq[Mention]], mentionMapper: OdinMentionMapper[Mention, Mention]): Boolean = {
     val (concepts, relations) = keyMentionMap.keys.partition(_ matches EidosParameters.CONCEPT_LABEL)
     val parentedConcepts = {
-      val parentedConcepts = new IdentityMapper[Mention, Boolean]()
+      val parentedConcepts = new IdentityHashMap[Mention, Boolean]()
       concepts.foreach(concept => parentedConcepts.put(concept, false))
       parentedConcepts
     }
 
     relations.foreach { relation =>
       val children = OdinMention.getNeighbors(relation)
-      val keyChildren = children.map(neighbor => mentionMapper.get(neighbor))
+      val keyChildren = children.map(neighbor => mentionMapper(neighbor))
       keyChildren
         .filter(_ matches EidosParameters.CONCEPT_LABEL)
-        .foreach(keyConcept => parentedConcepts.put(keyConcept, true))
+        .foreach(keyConcept => parentedConcepts(keyConcept) = true)
     }
 
     // Exists would be faster but less informative.  This is for debugging, so choose informative.
-    val orphanedConcepts = concepts.filter(concept => !parentedConcepts.get(concept))
+    val orphanedConcepts = concepts.filter(concept => !parentedConcepts(concept))
     if (orphanedConcepts.nonEmpty)
       println("There is an orphan!") // Set a breakpoint here.
     orphanedConcepts.nonEmpty
@@ -237,11 +238,11 @@ class EidosRelationMention(val odinRelationMention: RelationMention, odinMention
 class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper)
     extends EidosMention(odinCrossSentenceMention, odinMentionMapper, eidosMentionMapper) {
 
-  val odinAnchor: Mention = odinMentionMapper.get(odinCrossSentenceMention.anchor)
+  val odinAnchor: Mention = odinMentionMapper(odinCrossSentenceMention.anchor)
 
   val eidosAnchor: EidosMention = remapOdinMention(odinAnchor, odinMentionMapper, eidosMentionMapper)
 
-  val odinNeighbor: Mention = odinMentionMapper.get(odinCrossSentenceMention.neighbor)
+  val odinNeighbor: Mention = odinMentionMapper(odinCrossSentenceMention.neighbor)
 
   val eidosNeighbor: EidosMention = remapOdinMention(odinNeighbor, odinMentionMapper, eidosMentionMapper)
 
