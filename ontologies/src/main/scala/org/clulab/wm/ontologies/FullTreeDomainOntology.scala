@@ -3,11 +3,11 @@ package org.clulab.wm.ontologies
 import java.time.ZonedDateTime
 import java.util.{Collection => JCollection}
 import java.util.{Map => JMap}
-
 import org.clulab.utils.Serializer
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.OptionUtils
 import org.clulab.wm.eidoscommon.utils.Resourcer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -152,8 +152,7 @@ object FullTreeDomainOntology {
 
     protected def getOntologyNodes(yamlNodes: Seq[Any]): Array[FullOntologyNode] = {
       val rootNode = new FullOntologyRootNode
-
-      parseOntology(rootNode, yamlNodes)
+      val childNodes = parseOntology(rootNode, yamlNodes)
 
       def walk(node: FullOntologyNode, f: FullOntologyNode => Unit): Unit = {
         node.childrenOpt.foreach { children =>
@@ -235,19 +234,14 @@ object FullTreeDomainOntology {
       new FullOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
     }
 
-    protected def parseOntology(parent: FullOntologyParentNode, yamlNodes: Seq[Any], level: Int = 0): Unit = {
-      // This is a hack used because map doesn't work below, so I resort to foreach and have to build the result somewhere else.
-      val childNodesSeq = new ArrayBuffer[Seq[FullOntologyNode]]
-
-      yamlNodes.foreach { yamlNode => // For some really strange reason, map doesn't work here!!!
+    protected def parseOntology(parent: FullOntologyParentNode, yamlNodes: Seq[Any], level: Int = 0):  Seq[FullOntologyNode] = {
+      val childNodes: Seq[FullOntologyNode] = yamlNodes.flatMap { yamlNode => // For some really strange reason, map doesn't work here!!!
         if (yamlNode.isInstanceOf[String])
           throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")
         val map: mutable.Map[String, JCollection[Any]] = yamlNode.asInstanceOf[JMap[String, JCollection[Any]]].asScala
-//        val keys = map.keys
-//        println(s"Keys are $keys")
         val key: String = map.keys.head
 
-        val childNodes = if (key == FullTreeDomainOntology.FIELD)
+        if (key == FullTreeDomainOntology.FIELD)
           Seq(parseOntology(parent, map))
         else {
           // This is to account for leafless branches.
@@ -261,15 +255,10 @@ object FullTreeDomainOntology {
           else
             Seq.empty
         }
-        childNodesSeq += childNodes
       }
 
-      parent.childrenOpt = {
-        val flatChildNodes = childNodesSeq.flatten
-
-        if (flatChildNodes.isEmpty) None
-        else Some(flatChildNodes)
-      }
+      parent.childrenOpt = OptionUtils.someOrNoneIfEmpty(childNodes)
+      childNodes
     }
   }
 }

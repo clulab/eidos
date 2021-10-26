@@ -149,9 +149,10 @@ object HalfTreeDomainOntology {
         buildFromYaml(Resourcer.getText(ontologyPath), versionOpt, dateOpt)
 
     protected def getOntologyNodes(yamlNodes: Seq[Any]): Array[HalfOntologyLeafNode] = {
-       val rootNode = new HalfOntologyRootNode
+      val rootNode = new HalfOntologyRootNode
+      val childNodes = parseOntology(rootNode, yamlNodes).toArray
 
-       parseOntology(rootNode, yamlNodes).toArray
+      childNodes
     }
 
     def buildFromYaml(yamlText: String, versionOpt: Option[String] = None, dateOpt: Option[ZonedDateTime] = None): HalfTreeDomainOntology = {
@@ -210,7 +211,7 @@ object HalfTreeDomainOntology {
     }
 
     protected def parseOntology(parent: HalfOntologyParentNode, yamlNodes: Seq[Any]): Seq[HalfOntologyLeafNode] = {
-      yamlNodes.flatMap { yamlNode =>
+      val childNodes = yamlNodes.flatMap { yamlNode =>
         if (yamlNode.isInstanceOf[String])
           throw new Exception(s"Ontology has string (${yamlNode.asInstanceOf[String]}) where it should have a map.")
         val map: mutable.Map[String, JCollection[Any]] = yamlNode.asInstanceOf[JMap[String, JCollection[Any]]].asScala
@@ -230,6 +231,8 @@ object HalfTreeDomainOntology {
             Seq.empty
         }
       }
+
+      childNodes
     }
   }
 }
