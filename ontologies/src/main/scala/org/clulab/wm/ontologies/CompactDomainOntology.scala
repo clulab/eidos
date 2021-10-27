@@ -1,11 +1,11 @@
 package org.clulab.wm.ontologies
 
-import java.time.ZonedDateTime
-import java.util
-
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.TsvReader
+
+import java.time.ZonedDateTime
+import java.util
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
@@ -45,23 +45,19 @@ class CompactDomainOntology(
   protected val patternRegexes: Array[Regex] = patternStrings.map(_.r)
 
   def getValues(n: Integer): Array[String] = {
-    val start = leafStartIndexes(n)
-    val stop = leafStartIndexes(n + 1)
-
-    start.until(stop).toArray.map(n => leafStrings(leafStringIndexes(n)))
+    Range(leafStartIndexes(n), leafStartIndexes(n + 1))
+        .map(n => leafStrings(leafStringIndexes(n)))
+        .toArray
   }
 
   // TODO: This will not always store just the leaves.
   def isLeaf(n: Integer): Boolean = false
 
   def getPatterns(n: Integer): Option[Array[Regex]] = {
-    val start = patternStartIndexes(n)
-    val stop = patternStartIndexes(n + 1)
+    val range = Range(patternStartIndexes(n), patternStartIndexes(n + 1))
 
-    if (start == stop)
-      None
-    else
-      Some(start.until(stop).toArray.map(n => patternRegexes(n)))
+    if (range.isEmpty) None
+    else Some(range.map(n => patternRegexes(n)).toArray)
   }
 
   def save(filename: String): Unit = {

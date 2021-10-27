@@ -1,11 +1,11 @@
 package org.clulab.wm.ontologies
 
-import java.time.ZonedDateTime
-import java.util
-
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.TsvReader
+
+import java.time.ZonedDateTime
+import java.util
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
@@ -46,9 +46,7 @@ class FastDomainOntology(
   protected val patternRegexes: Array[Regex] = patterns.map(_.r)
 
   def getValues(n: Integer): Array[String] = {
-    val range = Range(wordStartIndexes(n), wordStartIndexes(n + 1))
-
-    range
+    Range(wordStartIndexes(n), wordStartIndexes(n + 1))
         .map(n => wordStringArr(wordIndexes(n)))
         .toArray
   }
