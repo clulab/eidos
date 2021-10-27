@@ -150,7 +150,9 @@ class NegationHandler(val language: String) {
       if !argumentIntervals.exists(_.contains(tok))
       out <- outgoing.lift(tok)
       (ix, label) <- out
-      if label == "neg" && event.sentenceObj.words(tok) != "only"
+      if label == "neg"   // if label is "neg"
+      if !NegationHandler.fakeNegation.contains(event.sentenceObj.words(tok))   // if the outgoing word is not in fakeNegation
+      if !out.contains((ix+1, "advmod"))    // if the subsequent token from the neg is not the advmod
     } negations.append(
       new TextBoundMention(
         Seq("Negation_trigger"),
@@ -183,7 +185,7 @@ class NegationHandler(val language: String) {
       if !(previouslyFound contains ix)             // ix is not a duplicate, and
       if !argumentIntervals.exists(_.contains(ix))  // ix is not part of any argument interval, and
       if !sentenceWords.indices.contains(ix + 1) || // either there is no next word at all or
-        sentenceWords(ix + 1) != "only"           // there is one and the next word is not "only"
+        !NegationHandler.fakeNegation.contains(sentenceWords(ix + 1))           // there is one and the next word is not "only"
     } yield new TextBoundMention(
       Seq("Negation_trigger"),
       Interval(ix),
@@ -240,5 +242,8 @@ object NegationHandler{
   def apply(language: String): NegationHandler = new NegationHandler(language)
 
   val failNot = Seq("fail", "not")
+  // avoid adding negation attachment to "X not _ caused Y, but also..." contexts
+  // this seq could be expanded as needed
+  val fakeNegation = Seq("only", "just", "merely", "simply", "exclusively", "solely")
 
 }
