@@ -835,7 +835,7 @@ class JLDDeserializer {
 
       extractionOpt.foreach { extraction =>
         extraction.canonicalNameOpt.foreach { canonicalName => eidosMention.canonicalName = canonicalName }
-        extraction.ontologyGroundingsOpt.foreach { ontologyGroundings => eidosMention.grounding = ontologyGroundings }
+        extraction.ontologyGroundingsOpt.foreach { ontologyGroundings => eidosMention.deserializedGrounding = ontologyGroundings }
         // It is done this way in case the default value already in the EidosMention has been changed.
         extraction.classificationOpt.foreach { classification => eidosMention.classificationOpt = Some(classification) }
       }

@@ -34,6 +34,7 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
   // Default values are used instead of Option to simplify client code.
   var canonicalName: String = ""
   var grounding: OntologyAliases.OntologyGroundings = EidosMention.NO_ONTOLOGY_GROUNDINGS
+  var deserializedGrounding:  OntologyAliases.OntologyGroundings = EidosMention.NO_DESERIALIZED_ONTOLOGY_GROUNDINGS
   var classificationOpt: Option[Float] = None
 
   // Accessor method to facilitate cleaner code downstream
@@ -85,6 +86,7 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
 
 object EidosMention extends Logging {
   val NO_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
+  val NO_DESERIALIZED_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
 
   // This maps any Odin Mention onto its canonical one.
   type OdinMentionMapper = IdentityMapper[Mention, Mention]
