@@ -23,11 +23,13 @@ import org.clulab.wm.ontologies.PosNegTreeDomainOntology
 import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
 
 object DomainHandler extends Logging {
+  val codeDir = "src/main/resources"
+  val ontologyDir = codeDir + "/org/clulab/wm/eidos/english/ontologies/"
 
   // The intention is to stop the proliferation of the generated Version class to this single method.
   def getVersionOpt(ontologyPath: String): (Option[String], Option[ZonedDateTime]) = {
     // This should work for local ontologies.  Absolute
-    val goodVersionOpt = Versions.versions.get(MockVersions.codeDir + ontologyPath)
+    val goodVersionOpt = Versions.versions.get(codeDir + ontologyPath)
     // See what might have come from WordModelers/Ontologies
     val bestVersionOpt = goodVersionOpt.getOrElse {
       // AwayVersions are no longer available.  Instead, look for a properties resource next to the ontologyPath.
