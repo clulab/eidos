@@ -1,5 +1,6 @@
 package org.clulab.wm.eidos.groundings.grounders
 
+import edu.stanford.nlp.util.EditDistance
 import org.clulab.wm.eidos.groundings.ConceptEmbedding
 import org.clulab.wm.eidos.groundings.ConceptExamples
 import org.clulab.wm.eidos.groundings.ConceptPatterns
@@ -14,10 +15,11 @@ import org.clulab.wm.eidos.groundings.SingleOntologyNodeGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
-import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.{Logging, Namer, StringUtils}
 import org.clulab.wm.ontologies.DomainOntology
 
+import scala.collection.mutable.ArrayBuffer
+import scala.math.{log, pow}
 import scala.util.matching.Regex
 
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
@@ -55,7 +57,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   // For API to reground strings
   def groundText(mentionText: String, canonicalNameParts: Array[String]): OntologyGrounding = {
     // Sieve-based approach
-    newOntologyGrounding(groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptEmbeddings))
+    newOntologyGrounding(groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptExamples, conceptEmbeddings))
   }
 
   def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
@@ -76,21 +78,44 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     }
   }
 
+  // For Regex Matching
+  def nodesExampleMatched(s: String, nodes: Seq[ConceptExamples]): Map[Namer, Float] = {
+    var nodesByMinED = Map[ConceptExamples, Float]()
+    for (node <- nodes) {
+      val nodeScore = nodeExamplesMatch(s, node.examples)
+      nodesByMinED += (node -> nodeScore)
+    }
+    nodesByMinED.map(node => (node._1.namer, node._2))//.toSeq
+  }
+
+  def nodeExamplesMatch(s: String, examples: Option[Array[String]]): Float = {
+    examples match {
+      case None => s.length.toFloat
+      case Some(exs) =>
+        val eds = new ArrayBuffer[Float]
+        for (ex <- exs) {
+          val ed = new EditDistance().score(s.toLowerCase, ex.toLowerCase)
+          eds += ed.toFloat
+        }
+        eds.min
+    }
+  }
+
   def groundExamplesThenEmbeddings(text: String, examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     ???
   }
 
-  def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
-    groundPatternsThenEmbeddings(text, text.split(" +"), patterns, embeddings)
+  def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+    groundPatternsThenEmbeddings(text, text.split(" +"), patterns, examples, embeddings)
   }
 
-  def groundPatternsThenEmbeddings(splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
-    groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, embeddings)
+  def groundPatternsThenEmbeddings(splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+    groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, examples, embeddings)
   }
 
-  def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+  def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     val lowerText = text.toLowerCase
-    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name, '/', true) == lowerText)
+    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name.replaceAll("_", " "), '/', true) == lowerText)
     if (exactMatches.nonEmpty)
       exactMatches.map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f))
     else {
@@ -101,7 +126,21 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         // Otherwise, back-off to the w2v-based approach
         // TODO: The line below only uses the positive embeddings, not the negative ones.
         // Should something be done there or here to take them into account.
-        wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_))
+        val matchedExamples = nodesExampleMatched(text, examples)
+        val matchedEmbeddings = wordToVec.calculateSimilarities(splitText, embeddings)//.map(SingleOntologyNodeGrounding(_))
+        var embeddingExampleScoreMap = Map[Namer, Float]()
+        for (embedding <- matchedEmbeddings) {
+          val embeddingScore = embedding._2
+          val exampleScore = matchedExamples(embedding._1)
+//          val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
+          val comboScore = embeddingScore + 1/(log(exampleScore+1)+1)
+//          val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
+          embeddingExampleScoreMap += (embedding._1 -> comboScore.toFloat)
+        }
+        val returnedEmbeddingGroundings = embeddingExampleScoreMap.map(node => SingleOntologyNodeGrounding(node._1, node._2)).toSeq
+        val returned = returnedEmbeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
+        returned
+//        matchedEmbeddings.map(SingleOntologyNodeGrounding(_)) // original return before edit distance
       }
     }
   }

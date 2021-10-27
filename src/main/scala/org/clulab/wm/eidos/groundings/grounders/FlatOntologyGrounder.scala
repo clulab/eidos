@@ -21,7 +21,7 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
       // because otherwise the canonicalNameParts are never used and they shouldn't be calculated.
       val attachmentWords = mention.odinMention.attachments.flatMap(a => EidosAttachment.getAttachmentWords(a))
       val canonicalNameParts = EidosMention.canonicalNameParts(canonicalizer, mention, attachmentWords)
-      val aggregated = groundPatternsThenEmbeddings(mention.odinMention.text, canonicalNameParts, conceptPatterns, conceptEmbeddings)
+      val aggregated = groundPatternsThenEmbeddings(mention.odinMention.text, canonicalNameParts, conceptPatterns, conceptExamples, conceptEmbeddings)
       val filtered = filterAndSlice(aggregated, topN, threshold)
       Seq(newOntologyGrounding(filtered))
     }

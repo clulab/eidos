@@ -391,7 +391,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     val examples = branches.flatMap(conceptExamplesSeq(_))
     val embeddings = branches.flatMap(conceptEmbeddingsSeq(_))
     val contentWords = canonicalizer.canonicalWordsFromSentence(s, span).toArray
-    val initialGroundings = groundPatternsThenEmbeddings(contentWords, patterns, embeddings)
+    val initialGroundings = groundPatternsThenEmbeddings(contentWords, patterns, examples, embeddings)
     val filtered = filterAndSlice(initialGroundings, topN, threshold)
     newOntologyGrounding(filtered)
   }
