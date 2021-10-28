@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings.grounders
 
 import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.groundings.{EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{EidosWordToVec, OntologyGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.ontologies.DomainOntology
@@ -13,7 +13,7 @@ class InterventionGrounder(name: String, domainOntology: DomainOntology, w2v: Ei
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    Seq(newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddings).map(SingleOntologyNodeGrounding(_)), Some("intervention")))
+    Seq(newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddings).map(OntologyNodeGrounding(_)), Some("intervention")))
   }
 
   def groundEidosMention(mention: EidosMention, topN: Option[Int] = Option(5), threshold: Option[Float] = Option(0.5f)): Seq[OntologyGrounding] = {

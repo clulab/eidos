@@ -33,8 +33,8 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
   // These are filled in by the EidosSystem's default PostProcessor.
   // Default values are used instead of Option to simplify client code.
   var canonicalName: String = ""
-  var grounding: OntologyAliases.OntologyGroundings = EidosMention.NO_ONTOLOGY_GROUNDINGS
-  var deserializedGrounding:  OntologyAliases.OntologyGroundings = EidosMention.NO_DESERIALIZED_ONTOLOGY_GROUNDINGS
+  var grounding: OntologyAliases.OntologyGroundingMap = EidosMention.NO_ONTOLOGY_GROUNDINGS
+  var deserializedGrounding: OntologyAliases.OntologyGroundingMap = EidosMention.NO_DESERIALIZED_ONTOLOGY_GROUNDINGS
   var classificationOpt: Option[Float] = None
 
   // Accessor method to facilitate cleaner code downstream

@@ -5,7 +5,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.grounders.SRLCompositionalGrounder
-import org.clulab.wm.eidos.groundings.{ConceptPatterns, IndividualGrounding, OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{ConceptPatterns, IndividualGrounding, OntologyGrounding, PredicateGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.Closer._
 import org.clulab.wm.eidoscommon.utils.{FileUtils, StringUtils}
@@ -86,7 +86,7 @@ class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem,
   def mentionGroundingInfo(m: EidosMention): ArrayBuffer[String] = {
 
     val compGrounding = m.grounding.get("wm_compositional")
-    val firstCompGrounding = compGrounding.head.grounding.headOption.get
+    val firstCompGrounding = compGrounding.head.individualGroundings.headOption.get
     val pred_grounds = new ArrayBuffer[String]
 
     firstCompGrounding match {

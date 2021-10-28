@@ -5,7 +5,7 @@ import org.clulab.odin.Mention
 import org.clulab.odin.TextBoundMention
 import org.clulab.processors.Document
 import org.clulab.struct.Interval
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.OdinUtils
 import org.clulab.wm.eidoscommon.Canonicalizer
@@ -30,8 +30,8 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
     val property = newOntologyGrounding(strings.flatMap { string => nodesPatternMatched(string, conceptPatternsSeq(CompositionalGrounder.PROPERTY)) }, Some(CompositionalGrounder.PROPERTY))
-    val process = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)).map(SingleOntologyNodeGrounding(_)), Some(CompositionalGrounder.PROCESS))
-    val concept = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)).map(SingleOntologyNodeGrounding(_)), Some(CompositionalGrounder.CONCEPT))
+    val process = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)).map(OntologyNodeGrounding(_)), Some(CompositionalGrounder.PROCESS))
+    val concept = newOntologyGrounding(w2v.calculateSimilarities(strings, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)).map(OntologyNodeGrounding(_)), Some(CompositionalGrounder.CONCEPT))
 
     Seq(property, process, concept)
   }
@@ -70,26 +70,26 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val propertySimilarities = allMentions.flatMap(m => nodesPatternMatched(m.text, conceptPatternsSeq(CompositionalGrounder.PROPERTY)))
       val processSimilarities = allMentions
         .flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.PROCESS)))
-        .map(SingleOntologyNodeGrounding(_))
+        .map(OntologyNodeGrounding(_))
       val conceptSimilarities = {
         val mentionHeadTagIsNN = mentionHeadOpt.map(m=>m.tags.head.head.startsWith("NN")).getOrElse(false)
         if (!mentionHeadTagIsNN) {
           if (modifierMentions.isEmpty) {
             val posTags = mention.odinMention.tags.getOrElse(Seq.empty)
             w2v.calculateSimilaritiesWeighted(mentionText, posTags, 5, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
-              .map(SingleOntologyNodeGrounding(_))
+              .map(OntologyNodeGrounding(_))
           }
           else
           {
             val allMentionTags = allMentions.flatMap(mention =>mention.tags).flatten
             w2v.calculateSimilaritiesWeighted(allMentionTokens.toArray, allMentionTags, 1, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT))
-              .map(SingleOntologyNodeGrounding(_))
+              .map(OntologyNodeGrounding(_))
           }
         }
         else
         {
           allMentions.flatMap(m => w2v.calculateSimilarities(m.words.toArray, conceptEmbeddingsSeq(CompositionalGrounder.CONCEPT)))
-            .map(SingleOntologyNodeGrounding(_))
+            .map(OntologyNodeGrounding(_))
         }
       }
 
@@ -98,7 +98,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
       val effectiveTopN = topN.getOrElse(CompositionalGrounder.defaultGroundTopN)
 
       // Filtering procedure: let process and concept to compete with each other:
-      def getTopKGrounding(similarities: Seq[SingleOntologyNodeGrounding], branch:String):OntologyGrounding = {
+      def getTopKGrounding(similarities: Seq[OntologyNodeGrounding], branch:String):OntologyGrounding = {
         val goodSimilarities = similarities
             .filter(_.score >= effectiveThreshold) // Filter these before sorting!
             .sortBy(-_.score)

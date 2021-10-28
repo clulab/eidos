@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings.grounders
 
 import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.groundings.{EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{EidosWordToVec, OntologyGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.ontologies.DomainOntology
@@ -11,7 +11,7 @@ class FlatOntologyGrounder(name: String, domainOntology: DomainOntology, wordToV
   // TODO Move some stuff from above down here if it doesn't apply to other grounders.
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
-    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings).map(SingleOntologyNodeGrounding(_))))
+    Seq(newOntologyGrounding(wordToVec.calculateSimilarities(strings, conceptEmbeddings).map(OntologyNodeGrounding(_))))
   }
 
   def groundEidosMention(mention: EidosMention, topN: Option[Int] = Some(5), threshold: Option[Float] = Some(0.5f)): Seq[OntologyGrounding] = {

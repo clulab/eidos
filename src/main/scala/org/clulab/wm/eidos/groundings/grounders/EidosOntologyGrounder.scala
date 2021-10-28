@@ -5,11 +5,11 @@ import org.clulab.wm.eidos.groundings.ConceptPatterns
 import org.clulab.wm.eidos.groundings.EidosWordToVec
 import org.clulab.wm.eidos.groundings.IndividualGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases
-import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
-import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
+import org.clulab.wm.eidos.groundings.OntologyAliases.IndividualGroundings
+import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundingMap
 import org.clulab.wm.eidos.groundings.OntologyGrounder
 import org.clulab.wm.eidos.groundings.OntologyGrounding
-import org.clulab.wm.eidos.groundings.SingleOntologyNodeGrounding
+import org.clulab.wm.eidos.groundings.OntologyNodeGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
@@ -22,7 +22,7 @@ import scala.util.matching.Regex
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends OntologyGrounder {
 
-  def newOntologyGrounding(grounding: OntologyAliases.MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None): OntologyGrounding = {
+  def newOntologyGrounding(grounding: OntologyAliases.IndividualGroundings = Seq.empty, branch: Option[String] = None): OntologyGrounding = {
     OntologyGrounding(domainOntology.version, domainOntology.date, grounding, branch)
   }
 
@@ -48,11 +48,11 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     newOntologyGrounding(groundPatternsThenEmbeddings(mentionText, canonicalNameParts, conceptPatterns, conceptEmbeddings))
   }
 
-  def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundings]): Boolean = EidosOntologyGrounder.groundableType(mention)
+  def groundable(mention: EidosMention, primaryGrounding: Option[OntologyGroundingMap]): Boolean = EidosOntologyGrounder.groundableType(mention)
 
   // For Regex Matching
-  def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[SingleOntologyNodeGrounding] = {
-    nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => SingleOntologyNodeGrounding(node.namer, 1.0f))
+  def nodesPatternMatched(s: String, nodes: Seq[ConceptPatterns]): Seq[OntologyNodeGrounding] = {
+    nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => OntologyNodeGrounding(node.namer, 1.0f))
   }
 
   def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
@@ -66,17 +66,17 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     }
   }
 
-  def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+  def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): IndividualGroundings = {
     groundPatternsThenEmbeddings(text, text.split(" +"), patterns, embeddings)
   }
-  def groundPatternsThenEmbeddings(splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+  def groundPatternsThenEmbeddings(splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): IndividualGroundings = {
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, embeddings)
   }
-  def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+  def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], embeddings: Seq[ConceptEmbedding]): IndividualGroundings = {
     val lowerText = text.toLowerCase
     val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.getName, '/', true) == lowerText)
     if (exactMatches.nonEmpty)
-      exactMatches.map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f))
+      exactMatches.map(exactMatch => OntologyNodeGrounding(exactMatch.namer, 1.0f))
     else {
       val matchedPatterns = nodesPatternMatched(text, patterns)
       if (matchedPatterns.nonEmpty)
@@ -85,7 +85,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         // Otherwise, back-off to the w2v-based approach
         // TODO: The line below only uses the positive embeddings, not the negative ones.
         // Should something be done there or here to take them into account.
-        wordToVec.calculateSimilarities(splitText, embeddings).map(SingleOntologyNodeGrounding(_))
+        wordToVec.calculateSimilarities(splitText, embeddings).map(OntologyNodeGrounding(_))
       }
     }
   }
@@ -98,7 +98,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
    * @param thresholdOpt optional threshold for the grounding score, below which you want to prune
    * @return surviving groundings
    */
-  def filterAndSlice(fullGrounding: MultipleOntologyGrounding, topNOpt: Option[Int] = None, thresholdOpt: Option[Float] = None): MultipleOntologyGrounding = {
+  def filterAndSlice(fullGrounding: IndividualGroundings, topNOpt: Option[Int] = None, thresholdOpt: Option[Float] = None): IndividualGroundings = {
     val filtered = thresholdOpt.map { threshold =>
       fullGrounding.filter { case i: IndividualGrounding => i.score >= threshold }
     }.getOrElse(fullGrounding)

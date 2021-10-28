@@ -49,7 +49,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
               groundingFlat match {
                 case None => pw.println("no grounding...")
                 case Some(grounding) =>
-                  grounding.grounding.foreach { gr =>
+                  grounding.individualGroundings.foreach { gr =>
                     pw.println(s"  --> grounding:  ${gr.name}")
                     pw.println(s"      score:      ${gr.score}")
                   }
@@ -61,7 +61,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
                 case None => pw.println("no grounding...")
                 case Some(grounding) =>
                   var tupNum: Int = 0
-                  grounding.grounding.foreach { gr =>
+                  grounding.individualGroundings.foreach { gr =>
                     pw.println(s"Tuple $tupNum")
                     tupNum += 1
                     val tuple = gr.asInstanceOf[PredicateGrounding].predicateTuple
@@ -69,7 +69,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
                     val slots = Seq(tuple.theme, tuple.themeProperties, tuple.themeProcess, tuple.themeProcessProperties)
                     for (j <- labels.indices) {
                       pw.println(s"\t${labels(j)}")
-                      for (g <- slots(j).grounding) {
+                      for (g <- slots(j).individualGroundings) {
                         pw.println(s"    --> grounding ${j}:   ${g.name}")
                         pw.println(s"        score:        ${g.score}")
                       }

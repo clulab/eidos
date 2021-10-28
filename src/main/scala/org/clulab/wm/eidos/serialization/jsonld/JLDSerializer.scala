@@ -25,7 +25,7 @@ import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
-import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceEventMention, EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.clulab.wm.eidos.utils.Unordered
 import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
@@ -240,8 +240,8 @@ object JLDOntologyPredicateGrounding {
 
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, JLDOntologyGroundings.typename) {
-  val jldGroundings: Seq[JObject] = grounding.grounding.map {
-    case s: SingleOntologyNodeGrounding =>
+  val jldGroundings: Seq[JObject] = grounding.individualGroundings.map {
+    case s: OntologyNodeGrounding =>
       new JLDOntologyGrounding(serializer, s.name, s.score).toJObject
     case pred: PredicateGrounding =>
       new JLDOntologyPredicateGrounding(serializer, pred.predicateTuple, name, pred.score, pred.name).toJObject

@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings.grounders
 
 import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.ontologies.DomainOntology
@@ -50,7 +50,7 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
         // Main Portion of the ontology
         val mainConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.REST)
         val mainSimilarities = wordToVec.calculateSimilarities(canonicalNameParts, mainConceptEmbeddings)
-          .map(SingleOntologyNodeGrounding(_))
+          .map(OntologyNodeGrounding(_))
 
         // Intervention Branch
         // Only allow grounding to these nodes if the patterns match
@@ -64,7 +64,7 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
           else {
             val interventionConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.INTERVENTION)
             wordToVec.calculateSimilarities(canonicalNameParts, interventionConceptEmbeddings)
-              .map(SingleOntologyNodeGrounding(_))
+              .map(OntologyNodeGrounding(_))
           }
         }
         else

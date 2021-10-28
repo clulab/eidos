@@ -7,7 +7,7 @@ import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAt
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
-import org.clulab.wm.eidos.groundings.OntologyAliases.MultipleOntologyGrounding
+import org.clulab.wm.eidos.groundings.OntologyAliases.IndividualGroundings
 import org.clulab.wm.eidos.groundings.grounders.SRLCompositionalGrounder.propertyConfidenceThreshold
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils
@@ -36,7 +36,7 @@ case class PredicateTuple(
     val sb = new ArrayBuffer[String]()
 
     def append(grounding: OntologyGrounding, label: String): Unit = {
-      val single = grounding.grounding.take(1)
+      val single = grounding.individualGroundings.take(1)
 
       if (single.nonEmpty)
         sb.append(label + nameAndScore(single.head))
@@ -65,8 +65,8 @@ case class PredicateTuple(
       "Empty Compositional Grounding"
   }
   val score: Float = {
-    val themeScore = theme.grounding.headOption.map(_.score)
-    val themeProcessScore = themeProcess.grounding.headOption.map(_.score)
+    val themeScore = theme.individualGroundings.headOption.map(_.score)
+    val themeProcessScore = themeProcess.individualGroundings.headOption.map(_.score)
     val allScores = (themeScore ++ themeProcessScore).toSeq
     if (allScores.isEmpty) 0.0f
 //    else (allScores.toSeq.sum / allScores.toSeq.length)
@@ -124,7 +124,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       //  Currently we don't have "access" to those here, but that could be changed
       //  Further, the Nones are for a topN and a threshold, which we don't have here
       ontologyGrounding <- groundSentenceSpan(s, 0, s.words.length, Set(), None, None)
-      singleGrounding <- ontologyGrounding.grounding
+      singleGrounding <- ontologyGrounding.individualGroundings
     } yield singleGrounding
 
     val groundingResult = newOntologyGrounding(groundings.sortBy(- _.score))
@@ -245,7 +245,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       case theme :: process :: _ if theme.grounding.headName == process.grounding.headName =>
         val themeScore = theme.grounding.headOption.map(_.score).getOrElse(-100f)
         val processScore = process.grounding.headOption.map(_.score).getOrElse(-100f)
-        if (themeScore >= processScore || theme.grounding.grounding.length == 1) {
+        if (themeScore >= processScore || theme.grounding.individualGroundings.length == 1) {
           PredicateTuple(
             theme.grounding,
             theme.propertyGroundingOrNone,
