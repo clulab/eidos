@@ -2,12 +2,17 @@ package org.clulab.wm.eidoscommon.utils
 
 import org.clulab.wm.eidoscommon.utils.EqualityHashMap.EqualityHashMap
 
-class EqualityHashBag[K](map: EqualityHashMap[K, Int]) extends HashBag[K](map) {
+class EqualityHashBag[T](map: EqualityHashMap[T, Int]) extends HashBag[T](map) {
 
-  def this() = this(new EqualityHashMap[K, Int]())
+  def this() = this(new EqualityHashMap[T, Int]())
 }
 
 object EqualityHashBag {
 
-  def apply[K](): EqualityHashBag[K] = new EqualityHashBag[K]()
+  def apply[T](): EqualityHashBag[T] = new EqualityHashBag[T]()
+
+  def apply[T](values: Seq[T]): EqualityHashBag[T] = apply[T]() ++ values
+
+  def apply[T](values: Seq[T], getNeighbors: T => Iterable[T]): EqualityHashBag[T] =
+      apply[T]() ++ (values, getNeighbors)
 }

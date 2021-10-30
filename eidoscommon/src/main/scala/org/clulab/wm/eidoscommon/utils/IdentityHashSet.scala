@@ -4,11 +4,11 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 object IdentityHashSet {
-  type IdentityHashSet[K] = mutable.Set[K]
+  type IdentityHashSet[T <: AnyRef] = mutable.Set[T]
 
-  def apply[K](): IdentityHashSet[K] = {
-    val jMap = new java.util.IdentityHashMap[K, java.lang.Boolean]
-    val jSet = java.util.Collections.newSetFromMap[K](jMap)
+  def apply[T <: AnyRef](): IdentityHashSet[T] = {
+    val jMap = new java.util.IdentityHashMap[T, java.lang.Boolean]
+    val jSet = java.util.Collections.newSetFromMap[T](jMap)
     val sSet = jSet.asScala
 
     sSet
