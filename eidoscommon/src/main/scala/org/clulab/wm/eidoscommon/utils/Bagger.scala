@@ -86,7 +86,7 @@ object EqualityBagger {
 }
 
 class IdentityBagger[T <: AnyRef] extends Bagger[T] {
-  protected val map = new IdentityHashMap[T, Int]()
+  protected val map = IdentityHashMap[T, Int]()
   var valueCount: Int = 0
 
   def put(value: T): IdentityBagger[T] = {

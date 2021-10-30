@@ -25,7 +25,7 @@ class EqualityMapper[K, V] extends Mapper[K, V] {
 }
 
 class IdentityMapper[K <: AnyRef, V] extends Mapper[K, V] {
-  protected val map = new IdentityHashMap[K, V]()
+  protected val map = IdentityHashMap[K, V]()
 
   def put(key: K, value: V): Unit = map(key) = value
 

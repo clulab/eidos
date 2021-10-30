@@ -1,6 +1,6 @@
 package org.clulab.wm.eidoscommon.utils
 
-class TestIdentityHashMap extends Test {
+class TestIdentityHashSet extends Test {
 
   class IntHolder(val value: Int) {
 
@@ -36,35 +36,35 @@ class TestIdentityHashMap extends Test {
     holder42a eq holder42b should be (true)
   }
 
-  behavior of "IdentityHashMap"
+  behavior of "IdentityHashSet"
 
   it should "not find values that differ" in {
     val holder42 = new IntHolder(42)
     val holder13 = new IntHolder(13)
-    val identityHashMap = IdentityHashMap[IntHolder, Int]()
+    val identityHashSet = IdentityHashSet[IntHolder]()
 
-    identityHashMap += holder42 -> holder42.value
+    identityHashSet += holder42
 
-    identityHashMap.get(holder13) should be (None)
+    identityHashSet(holder13) should be (false)
   }
 
   it should "not find values that are == but not eq" in {
     val holder42a = new IntHolder(42)
     val holder42b = new IntHolder(42)
-    val identityHashMap = IdentityHashMap[IntHolder, Int]()
+    val identityHashSet = IdentityHashSet[IntHolder]()
 
-    identityHashMap += holder42a -> holder42a.value
+    identityHashSet += holder42a
 
-    identityHashMap.get(holder42b) should be (None)
+    identityHashSet(holder42b) should be (false)
   }
 
   it should "not find values that reference the same object" in {
     val holder42a = new IntHolder(42)
     val holder42b = holder42a
-    val identityHashMap = IdentityHashMap[IntHolder, Int]()
+    val identityHashSet = IdentityHashSet[IntHolder]
 
-    identityHashMap += holder42a -> holder42a.value
+    identityHashSet += holder42a
 
-    identityHashMap.get(holder42b) should be (Some(holder42a.value))
+    identityHashSet(holder42b) should be (true)
   }
 }
