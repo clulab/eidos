@@ -18,7 +18,6 @@ import org.clulab.wm.eidoscommon.EidosTokenizer
 import org.clulab.wm.eidoscommon.utils.{Logging, Namer, StringUtils}
 import org.clulab.wm.ontologies.DomainOntology
 
-import scala.collection.mutable.ArrayBuffer
 import scala.math.{log, pow}
 import scala.util.matching.Regex
 
@@ -67,37 +66,30 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     nodes.filter(node => nodePatternsMatch(s, node.patterns)).map(node => SingleOntologyNodeGrounding(node.namer, 1.0f))
   }
 
-  def nodePatternsMatch(s: String, patterns: Option[Array[Regex]]): Boolean = {
-    patterns match {
+  def nodePatternsMatch(string: String, patternsOpt: Option[Array[Regex]]): Boolean = {
+    patternsOpt match {
       case None => false
-      case Some(rxs) =>
-        for (r <- rxs) {
-          if (r.findFirstIn(s).nonEmpty) return true
-        }
-        false
+      case Some(patterns) => patterns.exists(_.findFirstIn(string).nonEmpty)
     }
   }
 
   // For Regex Matching
-  def nodesExampleMatched(s: String, nodes: Seq[ConceptExamples]): Map[Namer, Float] = {
-    var nodesByMinED = Map[ConceptExamples, Float]()
-    for (node <- nodes) {
-      val nodeScore = nodeExamplesMatch(s, node.examples)
-      nodesByMinED += (node -> nodeScore)
-    }
-    nodesByMinED.map(node => (node._1.namer, node._2))//.toSeq
+  def nodesExampleMatched(string: String, nodes: Seq[ConceptExamples]): Map[Namer, Float] = {
+    (
+      for (node <- nodes)
+      yield node.namer -> nodeExamplesMatch(string, node.examples)
+    ).toMap
   }
 
-  def nodeExamplesMatch(s: String, examples: Option[Array[String]]): Float = {
+  def nodeExamplesMatch(string: String, examples: Option[Array[String]]): Float = {
     examples match {
-      case None => s.length.toFloat
-      case Some(exs) =>
-        val eds = new ArrayBuffer[Float]
-        for (ex <- exs) {
-          val ed = new EditDistance().score(s.toLowerCase, ex.toLowerCase)
-          eds += ed.toFloat
-        }
-        eds.min
+      case None => string.length.toFloat
+      case Some(examples) =>
+        val lowerString = string.toLowerCase // just once for all examples
+        examples
+            .map { example => new EditDistance().score(lowerString, example.toLowerCase) }
+            .min
+            .toFloat
     }
   }
 
@@ -128,16 +120,19 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         // Should something be done there or here to take them into account.
         val matchedExamples = nodesExampleMatched(text, examples)
         val matchedEmbeddings = wordToVec.calculateSimilarities(splitText, embeddings)//.map(SingleOntologyNodeGrounding(_))
-        var embeddingExampleScoreMap = Map[Namer, Float]()
-        for (embedding <- matchedEmbeddings) {
-          val embeddingScore = embedding._2
-          val exampleScore = matchedExamples(embedding._1)
-//          val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
-          val comboScore = embeddingScore + 1/(log(exampleScore+1)+1)
-//          val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
-          embeddingExampleScoreMap += (embedding._1 -> comboScore.toFloat)
-        }
-        val returnedEmbeddingGroundings = embeddingExampleScoreMap.map(node => SingleOntologyNodeGrounding(node._1, node._2)).toSeq
+        val embeddingExampleScores = // This is a Seq rather than a Map.
+            for ((namer, embeddingScore) <- matchedEmbeddings)
+            yield {
+              val exampleScore = matchedExamples(namer)
+//              val comboScore = embeddingScore
+//              val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
+              val comboScore = embeddingScore + 1/(log(exampleScore+1)+1)
+//              val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
+              (namer, comboScore.toFloat)
+            }
+        val returnedEmbeddingGroundings = embeddingExampleScores.map(node => SingleOntologyNodeGrounding(node._1, node._2))
+//        val returnedEmbeddingGroundings = matchedEmbeddings.map(SingleOntologyNodeGrounding(_))
+
         val returned = returnedEmbeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
         returned
 //        matchedEmbeddings.map(SingleOntologyNodeGrounding(_)) // original return before edit distance
