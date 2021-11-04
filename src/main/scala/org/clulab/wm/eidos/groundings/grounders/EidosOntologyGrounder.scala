@@ -105,16 +105,34 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, examples, embeddings)
   }
 
+  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): Option[MultipleOntologyGrounding] = {
+    val joinedText = splitText.mkString(" ")
+    val lowerText = joinedText.toLowerCase
+
+    // text contains node name
+    val overlapWithText = embeddings.filter(embedding => lowerText.contains(StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true))).filter(emb => StringUtils.afterLast(emb.namer.name.toLowerCase.replaceAll("_", " "), '/', true).nonEmpty)
+
+    // node name contains text
+    val overlapWithNodeName = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true).contains(lowerText))
+
+    val overlaps = overlapWithText++overlapWithNodeName
+    val maxOverlap = if (overlaps.nonEmpty) overlaps.maxBy(_.namer.name.length) else null
+    val returned = if (maxOverlap != null) Seq(maxOverlap).map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f)) else Seq.empty
+    Some(returned)
+  }
+
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     val lowerText = text.toLowerCase
-    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name.replaceAll("_", " "), '/', true) == lowerText)
-    if (exactMatches.nonEmpty)
+    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true) == lowerText)
+    if (exactMatches.nonEmpty) {
       exactMatches.map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f))
+    }
     else {
       val matchedPatterns = nodesPatternMatched(text, patterns)
       if (matchedPatterns.nonEmpty)
         matchedPatterns
       else {
+        println("Backing off to w2v approach")
         // Otherwise, back-off to the w2v-based approach
         // TODO: The line below only uses the positive embeddings, not the negative ones.
         // Should something be done there or here to take them into account.
