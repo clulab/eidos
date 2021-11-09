@@ -20,4 +20,13 @@ class TestXsvUtils extends Test {
     tsvReader.readln(tabs, 5) should have length 5
     tsvReader.readln(tabs, 6) should have length 6
   }
+
+  it should "escape correctly" in {
+    val tsvWriter = new TsvWriter(null)
+    val input = "\n\r\t\\"
+    val expectedOutput = "\\n\\r\\t\\\\"
+    val actualOutput = tsvWriter.escape(input)
+
+    actualOutput should be (expectedOutput)
+  }
 }
