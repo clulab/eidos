@@ -2,13 +2,18 @@ package org.clulab.wm.eidoscommon.utils
 
 import java.io.PrintWriter
 
-class EscapePair(char: Char) {
-  val unescaped: String = char.toString
-  val escaped: String = "\\" + unescaped
+class EscapePair(char: Char, escaped: Char) {
+  val unescapedString: String = char.toString
+  val escapedString: String = "\\" + escaped
 
-  def escape(string: String): String = string.replace(unescaped, escaped)
+  def escape(string: String): String = string.replace(unescapedString, escapedString)
 
-  def unescape(string: String): String = string.replace(escaped, unescaped)
+  def unescape(string: String): String = string.replace(escapedString, unescapedString)
+}
+
+object EscapePair {
+
+  def apply(char: Char, escaped: Char) = new EscapePair(char, escaped)
 }
 
 // See https://en.wikipedia.org/wiki/Tab-separated_values.
@@ -22,10 +27,10 @@ object XsvUtils {
   val backslashChar = '\\'
 
   val escapePairs = Seq(
-    EscapePair(XsvUtils.backslashChar),
-    EscapePair(XsvUtils.nlChar),
-    EscapePair(XsvUtils.crChar),
-    EscapePair(XsvUtils.tabChar)
+    EscapePair(XsvUtils.backslashChar, '\\'),
+    EscapePair(XsvUtils.nlChar, 'n'),
+    EscapePair(XsvUtils.crChar, 'r'),
+    EscapePair(XsvUtils.tabChar, 't')
   )
 }
 
@@ -134,11 +139,6 @@ class TsvWriter(printWriter: PrintWriter, isExcel: Boolean = true) extends XsvWr
   def mkString(values: Seq[AnyRef]): String =
       if (isExcel) stringlnExcel(values)
       else stringlnPlain(values)
-}
-
-object EscapePair {
-
-  def apply(char: Char) = new EscapePair(char)
 }
 
 object TsvWriter {
