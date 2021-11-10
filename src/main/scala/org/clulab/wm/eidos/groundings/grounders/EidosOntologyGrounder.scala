@@ -106,15 +106,14 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   }
 
   def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): Option[MultipleOntologyGrounding] = {
+    // This looks for exact string overlap only!
     val joinedText = splitText.mkString(" ")
     val lowerText = joinedText.toLowerCase
-
     // text contains node name
     val overlapWithText = embeddings.filter(embedding => lowerText.contains(StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true))).filter(emb => StringUtils.afterLast(emb.namer.name.toLowerCase.replaceAll("_", " "), '/', true).nonEmpty)
-
     // node name contains text
     val overlapWithNodeName = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true).contains(lowerText))
-
+    // get the maximal overlap and return it
     val overlaps = overlapWithText++overlapWithNodeName
     val maxOverlap = if (overlaps.nonEmpty) overlaps.maxBy(_.namer.name.length) else null
     val returned = if (maxOverlap != null) Seq(maxOverlap).map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f)) else Seq.empty
@@ -132,16 +131,16 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
       if (matchedPatterns.nonEmpty)
         matchedPatterns
       else {
-        println("Backing off to w2v approach")
         // Otherwise, back-off to the w2v-based approach
         // TODO: The line below only uses the positive embeddings, not the negative ones.
-        // Should something be done there or here to take them into account.
+        //  Should something be done there or here to take them into account.
         val matchedExamples = nodesExampleMatched(text, examples)
-        val matchedEmbeddings = wordToVec.calculateSimilarities(splitText, embeddings)//.map(SingleOntologyNodeGrounding(_))
+        val matchedEmbeddings = wordToVec.calculateSimilarities(splitText, embeddings)
         val embeddingExampleScores = // This is a Seq rather than a Map.
             for ((namer, embeddingScore) <- matchedEmbeddings)
             yield {
               val exampleScore = matchedExamples(namer)
+              // TODO: try other formulas for comboScore
 //              val comboScore = embeddingScore
 //              val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
               val comboScore = embeddingScore + 1/(log(exampleScore+1)+1)
@@ -149,11 +148,9 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
               (namer, comboScore.toFloat)
             }
         val returnedEmbeddingGroundings = embeddingExampleScores.map(node => SingleOntologyNodeGrounding(node._1, node._2))
-//        val returnedEmbeddingGroundings = matchedEmbeddings.map(SingleOntologyNodeGrounding(_))
 
         val returned = returnedEmbeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
         returned
-//        matchedEmbeddings.map(SingleOntologyNodeGrounding(_)) // original return before edit distance
       }
     }
   }

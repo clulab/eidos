@@ -186,20 +186,18 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     topN: Option[Int],
     threshold: Option[Float]
   ): Seq[OntologyGrounding] = {
-//    println("\nDEBUG\tgroundSentenceSpan")
-//    println(s.words.slice(tokenInterval.start, tokenInterval.end).mkString(" "))
 
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
     val validPredicates = sentenceHelper.validPredicates.sorted
     val srlGrounding = validPredicates match {
       case Seq() =>
-//        println("\nNO predicates!")
         // No predicates
         // First check for Property
         val propertyOpt = maybeProperty(tokenInterval, sentenceHelper)
         val themeProperty = propertyOpt.getOrElse(emptyOntologyGrounding)
         val maybeConceptOrProcess = groundToBranches(SRLCompositionalGrounder.processOrConceptBranches, tokenInterval, s, topN, threshold)
-        // If there's no property, try Concept and Process
+        // If there is a Property, just return that
+        // Else if there's no Property, try Concept and Process
         val predicateTuple = if (themeProperty != emptyOntologyGrounding) PredicateTuple(emptyOntologyGrounding, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet) else maybeConceptOrProcess.grounding.head.branchOpt match {
           case Some(SRLCompositionalGrounder.CONCEPT) => PredicateTuple(maybeConceptOrProcess, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
           case Some(SRLCompositionalGrounder.PROCESS) => PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, maybeConceptOrProcess, emptyOntologyGrounding, tokenInterval.toSet)
@@ -208,9 +206,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
       case predicates =>
         // Yes predicates
-        // First try to exact match entire mention before splitting up
+        // First try to exact match entire mention before splitting up into args and preds
         // Keep longest exact match, then try to ground remaining content
-//        println("\nYES predicates!")
+
         // Try to exact match entire token interval
         val mentionWords: Array[String] =
           for (w <- s.words.slice(tokenInterval.start, tokenInterval.end))
@@ -225,15 +223,13 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
           case Some(SRLCompositionalGrounder.CONCEPT) => PredicateTuple(exactMatch, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
           case Some(SRLCompositionalGrounder.PROCESS) => PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, exactMatch, emptyOntologyGrounding, tokenInterval.toSet)
         }
+        // If there is no content left, stop here.
+        // Just return the exact match
         if (remainingContent.isEmpty) {
-//          println("No content left!")
-          // stop here! just return exact match
           Seq(PredicateGrounding(exactMatchPredicateTuple))
         }
+        // Otherwise, try to ground the rest of the content.
         else {
-//          println("More content to ground!")
-//          println(sentenceHelper.srls)
-          // keep going! try to ground the rest of the content
           var groundings =
             for (tok <- remainingContent)
             yield {
@@ -241,9 +237,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
                 for (w <- s.words)
                   yield w.toLowerCase
               val idx = sentenceWords.indexOf(tok)
-              // TODO: debug SRLs?
-              //  In 'oil transportation costs', 'transportation' gets an incoming SRL from 'costs', but 'oil' does not have any SRL
+              // isArg if incoming SRL edges and no outgoing SRL edges
               val isArg = if (sentenceHelper.srls.getOutgoingEdges(idx).isEmpty && sentenceHelper.srls.getIncomingEdges(idx).isEmpty) true else false
+              // isPred if no incoming SRL edges (not connected in SRL graph) OR there are outgoing SRL edges
               val isPred = if (sentenceHelper.srls.getIncomingEdges(idx).nonEmpty || sentenceHelper.srls.getOutgoingEdges(idx).nonEmpty) true else false
               val propertyOpt = maybeProperty(Interval(idx), sentenceHelper)
               val themeProperty = propertyOpt.getOrElse(emptyOntologyGrounding)
@@ -266,6 +262,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     Seq(newOntologyGrounding(srlGrounding))
   }
 
+  //TODO: Remove old functions no longer used, or keep for posterity, in case recent changes need rolled back?
   private def packagePredicate(
     pred: Int,
     s: SentenceHelper,
