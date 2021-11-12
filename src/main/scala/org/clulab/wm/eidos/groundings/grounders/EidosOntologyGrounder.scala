@@ -102,7 +102,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, examples, embeddings)
   }
 
-  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): Option[MultipleOntologyGrounding] = {
+  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     // This looks for exact string overlap only!
     val lowerText = splitText.mkString(" ").toLowerCase
     // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
@@ -122,7 +122,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         .map { overlapTuple => Seq(SingleOntologyNodeGrounding(overlapTuple._3, 1.0f)) }
         .getOrElse(Seq.empty)
 
-    Some(multiOntologyGrounding)
+    multiOntologyGrounding
   }
 
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {

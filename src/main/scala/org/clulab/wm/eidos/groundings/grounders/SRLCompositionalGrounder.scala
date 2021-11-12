@@ -214,7 +214,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
           for (w <- s.words.slice(tokenInterval.start, tokenInterval.end))
           yield w.toLowerCase
         val embeddings = SRLCompositionalGrounder.processOrConceptBranches.flatMap(conceptEmbeddingsSeq(_))
-        val exactMatches = exactMatchForPreds(mentionWords, embeddings).getOrElse(Seq.empty) //the max overlap match
+        val exactMatches = exactMatchForPreds(mentionWords, embeddings) //the max overlap match
         val exactMatch = newOntologyGrounding(exactMatches)
         // remove exact match overlap from remaining content
         val remainingContent = if (exactMatches.nonEmpty) mentionWords.toSet.diff(StringUtils.afterLast(exactMatches.head.name.toLowerCase.replaceAll("_", " "), '/', true).split(" ").toSet).toArray else mentionWords
