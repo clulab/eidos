@@ -127,10 +127,9 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     val lowerText = text.toLowerCase
-    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true) == lowerText)
-    if (exactMatches.nonEmpty) {
+    val exactMatches = embeddings.filter(_.namer.canonicalName == lowerText)
+    if (exactMatches.nonEmpty)
       exactMatches.map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f))
-    }
     else {
       val matchedPatterns = nodesPatternMatched(text, patterns)
       if (matchedPatterns.nonEmpty)
@@ -141,21 +140,18 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         //  Should something be done there or here to take them into account.
         val matchedExamples = nodesExampleMatched(text, examples)
         val matchedEmbeddings = wordToVec.calculateSimilarities(splitText, embeddings)
-        val embeddingExampleScores = // This is a Seq rather than a Map.
+        val embeddingGroundings = // This is a Seq rather than a Map.
             for ((namer, embeddingScore) <- matchedEmbeddings)
             yield {
               val exampleScore = matchedExamples(namer)
-              // TODO: try other formulas for comboScore
-//              val comboScore = embeddingScore
-//              val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
-              val comboScore = embeddingScore + 1/(log(exampleScore+1)+1)
-//              val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
-              (namer, comboScore.toFloat)
+              // val comboScore = embeddingScore
+              // val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
+              val comboScore = embeddingScore + 1 / (log(exampleScore + 1) + 1)
+              // val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
+              SingleOntologyNodeGrounding(namer, comboScore.toFloat)
             }
-        val returnedEmbeddingGroundings = embeddingExampleScores.map(node => SingleOntologyNodeGrounding(node._1, node._2))
 
-        val returned = returnedEmbeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
-        returned
+        embeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
       }
     }
   }
