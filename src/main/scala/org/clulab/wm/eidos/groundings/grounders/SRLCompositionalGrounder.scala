@@ -197,8 +197,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val themeProperty = propertyOpt.getOrElse(emptyOntologyGrounding)
         val maybeConceptOrProcess = groundToBranches(SRLCompositionalGrounder.processOrConceptBranches, tokenInterval, s, topN, threshold)
         // If there is a Property, just return that
-        // Else if there's no Property, try Concept and Process
-        val predicateTuple = if (themeProperty != emptyOntologyGrounding) PredicateTuple(emptyOntologyGrounding, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet) else maybeConceptOrProcess.grounding.head.branchOpt match {
+        // If there's no Property and no Concept or Process, return empty grounding
+        // Else try Concept and Process
+        val predicateTuple = if (themeProperty != emptyOntologyGrounding) PredicateTuple(emptyOntologyGrounding, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet) else if (themeProperty == emptyOntologyGrounding && maybeConceptOrProcess == emptyOntologyGrounding) PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet) else maybeConceptOrProcess.grounding.head.branchOpt match {
           case Some(SRLCompositionalGrounder.CONCEPT) => PredicateTuple(maybeConceptOrProcess, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
           case Some(SRLCompositionalGrounder.PROCESS) => PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, maybeConceptOrProcess, emptyOntologyGrounding, tokenInterval.toSet)
         }
