@@ -109,8 +109,8 @@ class TestSentenceClassifier extends EidosTest {
       }
       val (acc, precision, recall, f1) = getEvaluationStatistics(preds, labels)
 
-      acc > 0.69 should be (true)
-      f1 > 0.77 should be (true)
+      acc should be > (0.68f) // was 0.69f
+      f1 should be > (0.77f)
     }
   }
 
@@ -149,8 +149,8 @@ class TestSentenceClassifier extends EidosTest {
 
       println("precision and recall:", precision, recall)
 
-      precision > 0.80 should be (true)
-      recall > 0.17 should be (true)
+      precision should be > (0.80f)
+      recall should be > (0.17f)
     }
   }
 
