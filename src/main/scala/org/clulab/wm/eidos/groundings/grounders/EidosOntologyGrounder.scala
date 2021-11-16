@@ -15,6 +15,7 @@ import org.clulab.wm.eidos.groundings.SingleOntologyNodeGrounding
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
+import org.clulab.wm.eidoscommon.utils.Collection
 import org.clulab.wm.eidoscommon.utils.{Logging, Namer, StringUtils}
 import org.clulab.wm.ontologies.DomainOntology
 
@@ -93,10 +94,6 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     }
   }
 
-  def groundExamplesThenEmbeddings(text: String, examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
-    ???
-  }
-
   def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     groundPatternsThenEmbeddings(text, text.split(" +"), patterns, examples, embeddings)
   }
@@ -105,27 +102,34 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, examples, embeddings)
   }
 
-  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): Option[MultipleOntologyGrounding] = {
+  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     // This looks for exact string overlap only!
-    val joinedText = splitText.mkString(" ")
-    val lowerText = joinedText.toLowerCase
-    // text contains node name
-    val overlapWithText = embeddings.filter(embedding => lowerText.contains(StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true))).filter(emb => StringUtils.afterLast(emb.namer.name.toLowerCase.replaceAll("_", " "), '/', true).nonEmpty)
-    // node name contains text
-    val overlapWithNodeName = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true).contains(lowerText))
-    // get the maximal overlap and return it
-    val overlaps = overlapWithText++overlapWithNodeName
-    val maxOverlap = if (overlaps.nonEmpty) overlaps.maxBy(_.namer.name.length) else null
-    val returned = if (maxOverlap != null) Seq(maxOverlap).map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f)) else Seq.empty
-    Some(returned)
+    val lowerText = splitText.mkString(" ").toLowerCase
+    // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
+    // (or max length) and in case of ties, the min canonicalName, so the first in alphabetical order.
+    val overlapTuples = embeddings.flatMap { embedding =>
+      val canonicalName = embedding.namer.canonicalName
+      // Non-leaf nodes end with a / resulting in an empty canonicalName which we don't want to match.
+      // Text contains node name.
+      if (canonicalName.nonEmpty && lowerText.contains(canonicalName))
+        Some(-canonicalName.length, canonicalName, embedding.namer)
+      // Node name contains the text
+      else if (canonicalName.contains(lowerText))
+        Some(-lowerText.length, canonicalName, embedding.namer)
+      else None
+    }
+    val multiOntologyGrounding = Collection.minOption(overlapTuples)
+        .map { overlapTuple => Seq(SingleOntologyNodeGrounding(overlapTuple._3, 1.0f)) }
+        .getOrElse(Seq.empty)
+
+    multiOntologyGrounding
   }
 
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     val lowerText = text.toLowerCase
-    val exactMatches = embeddings.filter(embedding => StringUtils.afterLast(embedding.namer.name.toLowerCase.replaceAll("_", " "), '/', true) == lowerText)
-    if (exactMatches.nonEmpty) {
+    val exactMatches = embeddings.filter(_.namer.canonicalName == lowerText)
+    if (exactMatches.nonEmpty)
       exactMatches.map(exactMatch => SingleOntologyNodeGrounding(exactMatch.namer, 1.0f))
-    }
     else {
       val matchedPatterns = nodesPatternMatched(text, patterns)
       if (matchedPatterns.nonEmpty)
@@ -136,21 +140,18 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         //  Should something be done there or here to take them into account.
         val matchedExamples = nodesExampleMatched(text, examples)
         val matchedEmbeddings = wordToVec.calculateSimilarities(splitText, embeddings)
-        val embeddingExampleScores = // This is a Seq rather than a Map.
+        val embeddingGroundings = // This is a Seq rather than a Map.
             for ((namer, embeddingScore) <- matchedEmbeddings)
             yield {
               val exampleScore = matchedExamples(namer)
-              // TODO: try other formulas for comboScore
-//              val comboScore = embeddingScore
-//              val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
-              val comboScore = embeddingScore + 1/(log(exampleScore+1)+1)
-//              val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
-              (namer, comboScore.toFloat)
+              // val comboScore = embeddingScore
+              // val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
+              val comboScore = embeddingScore + 1 / (log(exampleScore + 1) + 1)
+              // val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
+              SingleOntologyNodeGrounding(namer, comboScore.toFloat)
             }
-        val returnedEmbeddingGroundings = embeddingExampleScores.map(node => SingleOntologyNodeGrounding(node._1, node._2))
 
-        val returned = returnedEmbeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
-        returned
+        embeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
       }
     }
   }

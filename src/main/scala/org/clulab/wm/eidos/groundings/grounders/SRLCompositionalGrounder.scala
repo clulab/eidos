@@ -14,6 +14,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
+import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.{Logging, StringUtils}
 import org.clulab.wm.ontologies.DomainOntology
 
@@ -120,20 +121,23 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
     branches.exists(_.namer.name == s)
 
-  protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] =
+  protected lazy val conceptEmbeddingsMap: Map[String, Seq[ConceptEmbedding]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptEmbeddings.filter { _.namer.branch.contains(branch) })
+      branch -> conceptEmbeddings.filter { _.namer.branch.contains(branch) }
     }.toMap
 
-  protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
+  protected lazy val conceptPatternsMap: Map[String, Seq[ConceptPatterns]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptPatterns.filter { _.namer.branch.contains(branch) })
+      branch -> conceptPatterns.filter { _.namer.branch.contains(branch) }
     }.toMap
 
-  protected lazy val conceptExamplesSeq: Map[String, Seq[ConceptExamples]] =
+  protected lazy val conceptExamplesMap: Map[String, Seq[ConceptExamples]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptExamples.filter { _.namer.branch.contains(branch) })
+      branch -> conceptExamples.filter { _.namer.branch.contains(branch) }
     }.toMap
+
+  // KWA TODO
+  protected lazy val triplesMap: Map[Seq[String],(Seq[ConceptEmbedding], Seq[ConceptPatterns], Seq[ConceptExamples])] = null
 
   // primarily used for passing in the canonical name parts
   override def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
@@ -213,60 +217,72 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
             }
         Seq(PredicateGrounding(predicateTuple))
 
-      case predicates =>
-        // Yes predicates
-        // First try to exact match entire mention before splitting up into args and preds
-        // Keep longest exact match, then try to ground remaining content
+          // Try to exact match entire token interval
+          val mentionWords = tokenInterval.map(s.words(_).toLowerCase).toArray
+          val embeddings = SRLCompositionalGrounder.processOrConceptBranches.flatMap(conceptEmbeddingsMap)
+          val exactMatches = exactMatchForPreds(mentionWords, embeddings) //the max overlap match
+          val exactMatchPredicateTuple =
+              if (exactMatches.isEmpty)
+                PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
+              else {
+                val exactMatch = newOntologyGrounding(exactMatches)
+                val branch = exactMatches.head.branchOpt.get
 
-        // Try to exact match entire token interval
-        val mentionWords: Array[String] =
-          for (w <- s.words.slice(tokenInterval.start, tokenInterval.end))
-          yield w.toLowerCase
-        val embeddings = SRLCompositionalGrounder.processOrConceptBranches.flatMap(conceptEmbeddingsSeq(_))
-        val exactMatches = exactMatchForPreds(mentionWords, embeddings).getOrElse(Seq.empty) //the max overlap match
-        val exactMatch = newOntologyGrounding(exactMatches)
-        // remove exact match overlap from remaining content
-        val remainingContent = if (exactMatches.nonEmpty) mentionWords.toSet.diff(StringUtils.afterLast(exactMatches.head.name.toLowerCase.replaceAll("_", " "), '/', true).split(" ").toSet).toArray else mentionWords
+                branch match {
+                  case SRLCompositionalGrounder.CONCEPT =>
+                    PredicateTuple(exactMatch, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
+                  case SRLCompositionalGrounder.PROCESS =>
+                    PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, exactMatch, emptyOntologyGrounding, tokenInterval.toSet)
+                }
+              }
+          val exactMatchPredicateGrounding = PredicateGrounding(exactMatchPredicateTuple)
 
-        val exactMatchPredicateTuple = if (exactMatches.isEmpty) PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet) else exactMatches.head.branchOpt match {
-          case Some(SRLCompositionalGrounder.CONCEPT) => PredicateTuple(exactMatch, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
-          case Some(SRLCompositionalGrounder.PROCESS) => PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, exactMatch, emptyOntologyGrounding, tokenInterval.toSet)
+          // remove exact match overlap from remaining content
+          val exactMatchWords = exactMatches
+              .headOption
+              .map { individualGrounding => Namer.canonicalize(individualGrounding.name).split(' ') }
+              .getOrElse(Array.empty)
+          val remainingContent = mentionWords
+              .toSet
+              .--(exactMatchWords)
+              .toArray
+
+          // If there is no content left, stop here.
+          // Just return the exact match
+          if (remainingContent.isEmpty)
+            Seq(exactMatchPredicateGrounding)
+          // Otherwise, try to ground the rest of the content.
+          else {
+            val sentenceWords = s.words.map(_.toLowerCase)
+            val remainingGroundings =
+                for (tok <- remainingContent)
+                yield {
+                  val idx = sentenceWords.indexOf(tok)
+                  // isArg if incoming SRL edges and no outgoing SRL edges
+                  val isArg = sentenceHelper.srls.getOutgoingEdges(idx).isEmpty && sentenceHelper.srls.getIncomingEdges(idx).isEmpty
+                  // isPred if no incoming SRL edges (not connected in SRL graph) OR there are outgoing SRL edges
+                  val isPred = sentenceHelper.srls.getIncomingEdges(idx).nonEmpty || sentenceHelper.srls.getOutgoingEdges(idx).nonEmpty
+                  val propertyOpt = maybeProperty(Interval(idx), sentenceHelper)
+                  val themeProperty = propertyOpt.getOrElse(emptyOntologyGrounding)
+                  val conceptProcessOpt =
+                      if (isArg) groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(idx), s, topN, threshold)
+                      else groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(idx), s, topN, threshold)
+                  val propertyGrounding = PredicateTuple(emptyOntologyGrounding, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, Interval(idx).toSet)
+                  val processGrounding = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, conceptProcessOpt, emptyOntologyGrounding, tokenInterval.toSet)
+                  val conceptGrounding = PredicateTuple(conceptProcessOpt, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Interval(idx).toSet)
+                  val predicateTuple =
+                      if (themeProperty != emptyOntologyGrounding) propertyGrounding
+                      else if ((themeProperty == emptyOntologyGrounding) && isPred) processGrounding
+                      else conceptGrounding
+
+                  PredicateGrounding(predicateTuple)
+                }
+            val groundings = remainingGroundings :+ exactMatchPredicateGrounding
+            val sortedSliced = groundings.sortBy(-_.score)
+            val returned = sortedSliced.take(topN.getOrElse(sortedSliced.length))
+            returned.toSeq
+          }
         }
-        // If there is no content left, stop here.
-        // Just return the exact match
-        if (remainingContent.isEmpty) {
-          Seq(PredicateGrounding(exactMatchPredicateTuple))
-        }
-        // Otherwise, try to ground the rest of the content.
-        else {
-          var groundings =
-            for (tok <- remainingContent)
-            yield {
-              val sentenceWords: Array[String] =
-                for (w <- s.words)
-                  yield w.toLowerCase
-              val idx = sentenceWords.indexOf(tok)
-              // isArg if incoming SRL edges and no outgoing SRL edges
-              val isArg = if (sentenceHelper.srls.getOutgoingEdges(idx).isEmpty && sentenceHelper.srls.getIncomingEdges(idx).isEmpty) true else false
-              // isPred if no incoming SRL edges (not connected in SRL graph) OR there are outgoing SRL edges
-              val isPred = if (sentenceHelper.srls.getIncomingEdges(idx).nonEmpty || sentenceHelper.srls.getOutgoingEdges(idx).nonEmpty) true else false
-              val propertyOpt = maybeProperty(Interval(idx), sentenceHelper)
-              val themeProperty = propertyOpt.getOrElse(emptyOntologyGrounding)
-              val conceptProcessOpt = if (isArg) groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(idx), s, topN, threshold) else groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(idx), s, topN, threshold)
-
-              val propertyGrounding = PredicateTuple(emptyOntologyGrounding, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, Interval(idx).toSet)
-              val processGrounding = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, conceptProcessOpt, emptyOntologyGrounding, tokenInterval.toSet)
-              val conceptGrounding = PredicateTuple(conceptProcessOpt, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Interval(idx).toSet)
-
-              val predicateTuple = if (themeProperty != emptyOntologyGrounding) propertyGrounding else if ((themeProperty == emptyOntologyGrounding) && isPred) processGrounding else conceptGrounding
-              PredicateGrounding(predicateTuple)
-            }
-          groundings = groundings :+ PredicateGrounding(exactMatchPredicateTuple)
-          val sortedSliced = groundings.sortBy(-_.score)
-          val returned = sortedSliced.take(topN.getOrElse(sortedSliced.length))
-          returned.toSeq
-        }
-    }
 
     Seq(newOntologyGrounding(srlGrounding))
   }
@@ -437,9 +453,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   private def groundToBranches(branches: Seq[String], span: Interval, s: Sentence, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
-    val patterns = branches.flatMap(conceptPatternsSeq(_))
-    val examples = branches.flatMap(conceptExamplesSeq(_))
-    val embeddings = branches.flatMap(conceptEmbeddingsSeq(_))
+    val patterns = branches.flatMap(conceptPatternsMap)
+    val examples = branches.flatMap(conceptExamplesMap)
+    val embeddings = branches.flatMap(conceptEmbeddingsMap)
     val contentWords = canonicalizer.canonicalWordsFromSentence(s, span).toArray
     val initialGroundings = groundPatternsThenEmbeddings(contentWords, patterns, examples, embeddings)
     val filtered = filterAndSlice(initialGroundings, topN, threshold)
