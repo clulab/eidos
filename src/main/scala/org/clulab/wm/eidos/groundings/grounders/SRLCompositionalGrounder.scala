@@ -257,13 +257,13 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
                   if (themePropertyOpt.isDefined)
                     PredicateTuple(emptyOntologyGrounding, themePropertyOpt.get, emptyOntologyGrounding, emptyOntologyGrounding, Interval(index).toSet)
                   else {
-                    // isArg if incoming SRL edges and no outgoing SRL edges
-                    val isArg = sentenceHelper.srls.getOutgoingEdges(index).isEmpty && sentenceHelper.srls.getIncomingEdges(index).isEmpty
+                    // isArg if incoming SRL edges AND no outgoing SRL edges
+                    val isArg = sentenceHelper.srls.getIncomingEdges(index).nonEmpty && sentenceHelper.srls.getOutgoingEdges(index).isEmpty
                     val conceptProcessOpt =
                         if (isArg) groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(index), s, topN, threshold)
                         else groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(index), s, topN, threshold)
                     // isPred if no incoming SRL edges (not connected in SRL graph) OR there are outgoing SRL edges
-                    val isPred = sentenceHelper.srls.getIncomingEdges(index).nonEmpty || sentenceHelper.srls.getOutgoingEdges(index).nonEmpty
+                    val isPred = sentenceHelper.srls.getIncomingEdges(index).isEmpty || sentenceHelper.srls.getOutgoingEdges(index).nonEmpty
 
                     if (isPred)
                       PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, conceptProcessOpt, emptyOntologyGrounding, tokenInterval.toSet)
