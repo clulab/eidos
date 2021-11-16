@@ -37,6 +37,7 @@ case class PredicateGrounding(predicateTuple: PredicateTuple) extends Individual
 
 case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], grounding: MultipleOntologyGrounding = Seq.empty, branchOpt: Option[String] = None) {
   def nonEmpty: Boolean = grounding.nonEmpty
+  def isEmpty: Boolean = grounding.isEmpty
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
   def headOption: Option[IndividualGrounding] = grounding.headOption
   def headName: Option[String] = headOption.map(_.name)
