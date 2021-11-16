@@ -192,9 +192,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   ): Seq[OntologyGrounding] = {
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
     val validPredicates = sentenceHelper.validPredicates.sorted
-    val srlGrounding = validPredicates match {
-      case Seq() =>
-        // No predicates
+    val srlGrounding =
+      if (validPredicates.isEmpty) {
         // First check for Property
         val themePropertyOpt = maybeProperty(tokenInterval, sentenceHelper)
         val predicateTuple =
@@ -210,13 +209,15 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
               else
                 // Else try Concept and Process
                 maybeConceptOrProcess.grounding.head.branchOpt match {
-                  case Some(SRLCompositionalGrounder.CONCEPT) => PredicateTuple(maybeConceptOrProcess, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
-                  case Some(SRLCompositionalGrounder.PROCESS) => PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, maybeConceptOrProcess, emptyOntologyGrounding, tokenInterval.toSet)
+                  case Some(SRLCompositionalGrounder.CONCEPT) =>
+                    PredicateTuple(maybeConceptOrProcess, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
+                  case Some(SRLCompositionalGrounder.PROCESS) =>
+                    PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, maybeConceptOrProcess, emptyOntologyGrounding, tokenInterval.toSet)
                 }
             }
         Seq(PredicateGrounding(predicateTuple))
-
-      case predicates =>
+      }
+      else {
         // Try to exact match entire token interval
         val mentionWords = tokenInterval.map(s.words(_).toLowerCase).toArray
         val embeddings = SRLCompositionalGrounder.processOrConceptBranches.flatMap(conceptEmbeddingsMap)
@@ -282,7 +283,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
           val returned = sortedSliced.take(topN.getOrElse(sortedSliced.length))
           returned.toSeq
         }
-    }
+      }
 
     Seq(newOntologyGrounding(srlGrounding))
   }
