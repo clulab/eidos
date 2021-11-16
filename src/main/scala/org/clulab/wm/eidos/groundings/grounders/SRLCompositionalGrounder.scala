@@ -208,7 +208,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
 
     def groundWithoutPredicates(sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
-      val themePropertyOpt = maybeProperty(tokenInterval, sentenceHelper)
+      val themePropertyOpt: Option[OntologyGrounding] = maybeProperty(tokenInterval, sentenceHelper)
       // First check for Property
       val predicateTuple =
           if (themePropertyOpt.isDefined)
@@ -251,23 +251,25 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val remainingGroundings =
             for (tok <- remainingContent)
             yield {
-              val idx = sentenceWords.indexOf(tok)
-              // isArg if incoming SRL edges and no outgoing SRL edges
-              val isArg = sentenceHelper.srls.getOutgoingEdges(idx).isEmpty && sentenceHelper.srls.getIncomingEdges(idx).isEmpty
-              // isPred if no incoming SRL edges (not connected in SRL graph) OR there are outgoing SRL edges
-              val isPred = sentenceHelper.srls.getIncomingEdges(idx).nonEmpty || sentenceHelper.srls.getOutgoingEdges(idx).nonEmpty
-              val propertyOpt = maybeProperty(Interval(idx), sentenceHelper)
-              val themeProperty = propertyOpt.getOrElse(emptyOntologyGrounding)
-              val conceptProcessOpt =
-                  if (isArg) groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(idx), s, topN, threshold)
-                  else groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(idx), s, topN, threshold)
-              val propertyGrounding = PredicateTuple(emptyOntologyGrounding, themeProperty, emptyOntologyGrounding, emptyOntologyGrounding, Interval(idx).toSet)
-              val processGrounding = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, conceptProcessOpt, emptyOntologyGrounding, tokenInterval.toSet)
-              val conceptGrounding = PredicateTuple(conceptProcessOpt, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Interval(idx).toSet)
+              val index = sentenceWords.indexOf(tok)
+              val themePropertyOpt: Option[OntologyGrounding] = maybeProperty(Interval(index), sentenceHelper)
               val predicateTuple =
-                  if (themeProperty != emptyOntologyGrounding) propertyGrounding
-                  else if ((themeProperty == emptyOntologyGrounding) && isPred) processGrounding
-                  else conceptGrounding
+                  if (themePropertyOpt.isDefined)
+                    PredicateTuple(emptyOntologyGrounding, themePropertyOpt.get, emptyOntologyGrounding, emptyOntologyGrounding, Interval(index).toSet)
+                  else {
+                    // isArg if incoming SRL edges and no outgoing SRL edges
+                    val isArg = sentenceHelper.srls.getOutgoingEdges(index).isEmpty && sentenceHelper.srls.getIncomingEdges(index).isEmpty
+                    val conceptProcessOpt =
+                        if (isArg) groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(index), s, topN, threshold)
+                        else groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(index), s, topN, threshold)
+                    // isPred if no incoming SRL edges (not connected in SRL graph) OR there are outgoing SRL edges
+                    val isPred = sentenceHelper.srls.getIncomingEdges(index).nonEmpty || sentenceHelper.srls.getOutgoingEdges(index).nonEmpty
+
+                    if (isPred)
+                      PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, conceptProcessOpt, emptyOntologyGrounding, tokenInterval.toSet)
+                    else
+                      PredicateTuple(conceptProcessOpt, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Interval(index).toSet)
+                  }
 
               PredicateGrounding(predicateTuple)
             }
