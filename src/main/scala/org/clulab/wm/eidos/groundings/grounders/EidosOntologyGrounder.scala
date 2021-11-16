@@ -93,10 +93,6 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     }
   }
 
-  def groundExamplesThenEmbeddings(text: String, examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
-    ???
-  }
-
   def groundPatternsThenEmbeddings(text: String, patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
     groundPatternsThenEmbeddings(text, text.split(" +"), patterns, examples, embeddings)
   }
