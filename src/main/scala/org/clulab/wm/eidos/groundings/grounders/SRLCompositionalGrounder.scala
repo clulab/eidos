@@ -133,9 +133,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       branch -> conceptExamples.filter { _.namer.branch.contains(branch) }
     }.toMap
 
-  // KWA TODO
-  protected lazy val triplesMap: Map[Seq[String],(Seq[ConceptEmbedding], Seq[ConceptPatterns], Seq[ConceptExamples])] = null
-
   // primarily used for passing in the canonical name parts
   override def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
     throw new RuntimeException("The SRLCompositionalGrounder isn't designed to be used with canonical name parts only.")
