@@ -223,10 +223,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       // Try to exact match entire token interval
       val bestExactSingleOntologyNodeGroundingAndRangeOpt: Option[(SingleOntologyNodeGrounding, Range)] = {
         val exactSingleOntologyNodeGroundingAndRanges = SRLCompositionalGrounder.processOrConceptBranches.flatMap { branch =>
-          val embeddings = conceptEmbeddingsMap(branch)
-          exactMatchForPreds(mentionWords, embeddings)
+          exactMatchForPreds(mentionWords, conceptEmbeddingsMap(branch))
         }
         if (exactSingleOntologyNodeGroundingAndRanges.isEmpty) None
+        else if (SRLCompositionalGrounder.processOrConceptBranches.length == 1)
+          Some(exactSingleOntologyNodeGroundingAndRanges.head) // Don't bother to resort.
         else {
           val bestExactSingleOntologyNodeGroundingAndRange = exactSingleOntologyNodeGroundingAndRanges.minBy { case (_, range) =>
             (-range.length, range.start)
