@@ -33,7 +33,7 @@ class PredicateTuple protected (
     s"${gr.name} (${gr.score})"
   }
 
-  override def toString(): String = {
+  override def toString: String = {
     val sb = new ArrayBuffer[String]()
 
     def append(grounding: OntologyGrounding, label: String): Unit = {
@@ -56,7 +56,7 @@ class PredicateTuple protected (
 
       def appendIf(condition: Boolean, f: => String): Unit = if (condition) sb.append(f)
 
-      appendIf(true, s"THEME: ${nameAndScore(theme)}")
+      appendIf(condition = true, s"THEME: ${nameAndScore(theme)}")
       appendIf(themeProperties.nonEmpty, s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
       appendIf(themeProcess.nonEmpty, s"; THEME PROCESS: ${nameAndScore(themeProcess)}")
       appendIf(themeProcessProperties.nonEmpty, s", Process properties: ${themeProcessProperties.take(5).map(nameAndScore).mkString(", ")}")
@@ -323,7 +323,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
           onlyPredicate.propertyGroundingOrNone,
           emptyOntologyGrounding,
           emptyOntologyGrounding,
-          Set(onlyPredicate.idx)
+          Set(onlyPredicate.index)
         )
 
       // if there are two or more things in the list,
@@ -335,7 +335,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
           theme.propertyGroundingOrNone,
           process.grounding,
           process.propertyGroundingOrNone,
-          Set(theme.idx, process.idx)
+          Set(theme.index, process.index)
         )
 
       // disallow the proces == theme
@@ -349,7 +349,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
             // drop the top grounding of the process
             process.grounding.dropFirst(),
             process.propertyGroundingOrNone,
-            Set(theme.idx, process.idx)
+            Set(theme.index, process.index)
           )
         } else {
           PredicateTuple(
@@ -358,12 +358,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
             theme.propertyGroundingOrNone,
             process.grounding,
             process.propertyGroundingOrNone,
-            Set(theme.idx, process.idx)
+            Set(theme.index, process.index)
           )
         }
 
-      // shouldn't happen
-      case _ => ???
+      case _ => throw new RuntimeException("Couldn't create predicate from path.")
     }
   }
 
@@ -379,7 +378,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       // if there are at least 2 things left...
       case head :: next :: rest =>
         if (next.isProperty) {
-          head.updateProperty(next)
+          head.setProperty(next)
           squeezeNodeList(rest, processed :+ head)
         } else {
           squeezeNodeList(next +: rest, processed :+ head)
@@ -392,10 +391,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     val found = getArguments(predicate, SRLCompositionalGrounder.THEME_ROLE, s)
     if (found.isEmpty && backoff) {
       // Handle "just in case" infinite loop -- seemed to happen earlier, but the algorithm was diff then...
-      s.outgoingOfType(predicate, Seq("compound")).filterNot(i => (i == predicate) || (alreadySeen.contains(i)))
+      s.outgoingOfType(predicate, Seq("compound")).filterNot(i => (i == predicate) || alreadySeen.contains(i))
     } else {
       // prevent infinite loops in edge cases
-      found.filterNot(i => (i == predicate) || (alreadySeen.contains(i)))
+      found.filterNot(i => (i == predicate) || alreadySeen.contains(i))
     }
   }
 
@@ -411,10 +410,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   private def getAttachmentStrings(mention: Mention): Set[String] = {
     mention.attachments.flatMap { a =>
       a match {
-        case t: TriggeredAttachment if !t.isInstanceOf[Property] => Seq(t.trigger) ++ t.quantifiers.getOrElse(Seq())
         case _: Property => Seq.empty
+        case t: TriggeredAttachment => Seq(t.trigger) ++ t.quantifiers.getOrElse(Seq())
         case c: ContextAttachment => Seq(c.text)
-        case _ => ???
+        case _ => throw new RuntimeException("Unexpected attachment")
       }
     }
   }
@@ -473,22 +472,19 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   def emptyPredicateTuple: PredicateTuple = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set.empty)
 
-  case class GraphNode(idx: Int, s: SentenceHelper, backoff: Boolean, topN: Option[Int], threshold: Option[Float], ancestors: Set[Int]) {
-    lazy val groundedSpan: GroundedSpan = groundToken(idx, s, topN, threshold)
+  case class GraphNode(index: Int, sentenceHelper: SentenceHelper, backoff: Boolean, topN: Option[Int], threshold: Option[Float], ancestors: Set[Int]) {
+    lazy val groundedSpan: GroundedSpan = groundToken(index, sentenceHelper, topN, threshold)
     lazy val isProperty: Boolean = groundedSpan.isProperty
-    def grounding: OntologyGrounding = groundedSpan.grounding
-    val children: Array[GraphNode] = getThemes(idx, s, backoff, ancestors).map(GraphNode(_, s, backoff, topN, threshold, ancestors ++ Set(idx)))
-    private var _property: Option[GraphNode] = None
+    val children: Array[GraphNode] = getThemes(index, sentenceHelper, backoff, ancestors).map(GraphNode(_, sentenceHelper, backoff, topN, threshold, ancestors ++ Set(index)))
+    protected var propertyOpt: Option[GraphNode] = None
 
-    def property: Option[GraphNode] = _property
-    def updateProperty(prop: GraphNode) = _property = Some(prop)
-    def propertyGroundingOrNone: OntologyGrounding = {
-      if (_property.isDefined) {
-        _property.get.grounding
-      }
-      else
-        emptyOntologyGrounding
-    }
+    def grounding: OntologyGrounding = groundedSpan.grounding
+
+    def getPropertyOpt: Option[GraphNode] = propertyOpt
+
+    def setProperty(property: GraphNode): Unit = propertyOpt = Some(property)
+
+    def propertyGroundingOrNone: OntologyGrounding = propertyOpt.map(_.grounding).getOrElse(emptyOntologyGrounding)
   }
 
   // lookup table [Int, Grounding]
