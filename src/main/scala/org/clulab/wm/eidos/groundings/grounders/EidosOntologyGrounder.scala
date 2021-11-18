@@ -16,7 +16,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
 import org.clulab.wm.eidoscommon.utils.Collection
-import org.clulab.wm.eidoscommon.utils.{Logging, Namer, StringUtils}
+import org.clulab.wm.eidoscommon.utils.{Logging, Namer}
 import org.clulab.wm.ontologies.DomainOntology
 
 import scala.math.{log, pow}
@@ -31,7 +31,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // This can be reused repeatedly.
   //def emptyOntologyGrounding(branchOpt: Option[String] = None) = new OntologyGrounding(domainOntology.version, domainOntology.date, branchOpt = branchOpt)
-  val emptyOntologyGrounding = new OntologyGrounding(domainOntology.version, domainOntology.date)
+  val emptyOntologyGrounding: OntologyGrounding = OntologyGrounding(domainOntology.version, domainOntology.date)
 
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
@@ -184,7 +184,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
    */
   def filterAndSlice(fullGrounding: MultipleOntologyGrounding, topNOpt: Option[Int] = None, thresholdOpt: Option[Float] = None): MultipleOntologyGrounding = {
     val filtered = thresholdOpt.map { threshold =>
-      fullGrounding.filter { case i: IndividualGrounding => i.score >= threshold }
+      fullGrounding.filter { i: IndividualGrounding => i.score >= threshold }
     }.getOrElse(fullGrounding)
     val sorted = filtered.sortBy(grounding => -grounding.score)
     val taken = topNOpt.map { topN =>
