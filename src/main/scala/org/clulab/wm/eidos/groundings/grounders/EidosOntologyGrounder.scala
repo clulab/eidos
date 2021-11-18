@@ -102,27 +102,45 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     groundPatternsThenEmbeddings(splitText.mkString(" "), splitText, patterns, examples, embeddings)
   }
 
-  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
+  // If there was an exact match, returns Some of a tuple including the SingleOntologyNodeGrounding and the
+  // Range of the match in the splitText so that we can tell how much of it was used.  No match results in None.
+  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): Option[(SingleOntologyNodeGrounding, Range)] = {
     // This looks for exact string overlap only!
-    val lowerText = splitText.mkString(" ").toLowerCase
     // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
-    // (or max length) and in case of ties, the min canonicalName, so the first in alphabetical order.
+    // (or max length) and in case of ties, the min position in the sentence, so the leftmost match.
+    // The embedding.namer should not be required to break ties.  It goes along for the ride.
+    // For expediency, the word count is used rather than the letter count.
     val overlapTuples = embeddings.flatMap { embedding =>
-      val canonicalName = embedding.namer.canonicalName
-      // Non-leaf nodes end with a / resulting in an empty canonicalName which we don't want to match.
-      // Text contains node name.
-      if (canonicalName.nonEmpty && lowerText.contains(canonicalName))
-        Some(-canonicalName.length, canonicalName, embedding.namer)
-      // Node name contains the text
-      else if (canonicalName.contains(lowerText))
-        Some(-lowerText.length, canonicalName, embedding.namer)
-      else None
-    }
-    val multiOntologyGrounding = Collection.minOption(overlapTuples)
-        .map { overlapTuple => Seq(SingleOntologyNodeGrounding(overlapTuple._3, 1.0f)) }
-        .getOrElse(Seq.empty)
+      val canonicalWords = embedding.namer.canonicalWords
 
-    multiOntologyGrounding
+      if (canonicalWords.isEmpty)
+        // Non-leaf nodes end with a / resulting in an empty canonicalWords which we don't want to match.
+        None
+      else if (splitText.length >= canonicalWords.length) {
+        // Text contains node name.
+        val index = splitText.indexOfSlice(canonicalWords)
+        if (index < 0) None
+        // Part or maybe all of the split text was matched, indicated by 1, favored.
+        else Some(-canonicalWords.length, index, 1, embedding.namer)
+      }
+      else {
+        // Node name contains the text
+        val index = canonicalWords.indexOfSlice(splitText)
+        if (index < 0) None
+        // The entirety of splitText was matched, indicated by 2, disfavored.
+        else Some(-splitText.length, 0, 2, embedding.namer)
+      }
+    }
+    val result = Collection
+        .minOption(overlapTuples)
+        .map { overlapTuple =>
+          val singleOntologyNodeGrounding = SingleOntologyNodeGrounding(overlapTuple._4, 1.0f)
+          val range = Range(overlapTuple._2, overlapTuple._2 - overlapTuple._1) // - because it is -length
+
+          (singleOntologyNodeGrounding, range)
+        }
+
+    result
   }
 
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): MultipleOntologyGrounding = {
