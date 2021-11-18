@@ -109,7 +109,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
     // (or max length) and in case of ties, the min position in the sentence, so the leftmost match.
     // The embedding.namer should not be required to break ties.  It goes along for the ride.
-    // For expediency, the word count is used rather than the letter count.
+    // For expediency, the word count is used for length rather than the letter count.
     val overlapTuples = embeddings.flatMap { embedding =>
       val canonicalWords = embedding.namer.canonicalWords
 
