@@ -444,8 +444,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   // try to ground the span as a property, returning None if the confidence isn't high enough
   private def maybeProperty(span: Interval, s: SentenceHelper): Option[OntologyGrounding] = {
-    val tempGrounding = groundProperty(span, s, topN=Option(1), threshold=Option(SRLCompositionalGrounder.propertyConfidenceThreshold))
-    if (tempGrounding.nonEmpty) Option(tempGrounding) else None
+    val tempGrounding = groundProperty(span, s, topN = Some(1), threshold = Some(SRLCompositionalGrounder.propertyConfidenceThreshold))
+    if (tempGrounding.nonEmpty) Some(tempGrounding) else None
   }
 
   private def groundProperty(span: Interval, s: SentenceHelper, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
