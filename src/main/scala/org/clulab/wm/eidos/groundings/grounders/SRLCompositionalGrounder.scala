@@ -67,10 +67,10 @@ class PredicateTuple protected (
   }
   val score: Float = {
     val themeScoreOpt = theme.headOption.map(_.score)
-    val themeProcessScoreOpt = themeProcess.grounding.headOption.map(_.score)
+    val themeProcessScoreOpt = themeProcess.headOption.map(_.score)
 
     val themePropertyScoreOpt = themeProperties.headOption.map(_.score * 0.5f)
-    val themeProcessPropertyScoreOpt = this.themeProcessProperties.headOption.map(_.score * 05f)
+    val themeProcessPropertyScoreOpt = themeProcessProperties.headOption.map(_.score * 0.5f)
 
     val allScores = (themeScoreOpt ++ themeProcessScoreOpt ++ themePropertyScoreOpt ++ themeProcessPropertyScoreOpt).toSeq
     if (allScores.isEmpty) 0.0f
