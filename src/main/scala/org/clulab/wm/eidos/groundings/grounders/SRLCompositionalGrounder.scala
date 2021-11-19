@@ -66,9 +66,13 @@ class PredicateTuple protected (
       "Empty Compositional Grounding"
   }
   val score: Float = {
-    val themeScore = theme.grounding.headOption.map(_.score)
-    val themeProcessScore = themeProcess.grounding.headOption.map(_.score)
-    val allScores = (themeScore ++ themeProcessScore).toSeq
+    val themeScoreOpt = theme.headOption.map(_.score)
+    val themeProcessScoreOpt = themeProcess.grounding.headOption.map(_.score)
+
+    val themePropertyScoreOpt = themeProperties.headOption.map(_.score * 0.5f)
+    val themeProcessPropertyScoreOpt = this.themeProcessProperties.headOption.map(_.score * 05f)
+
+    val allScores = (themeScoreOpt ++ themeProcessScoreOpt ++ themePropertyScoreOpt ++ themeProcessPropertyScoreOpt).toSeq
     if (allScores.isEmpty) 0.0f
 //    else (allScores.toSeq.sum / allScores.toSeq.length)
     else GroundingUtils.noisyOr(allScores)
