@@ -19,6 +19,7 @@ trait IndividualGrounding {
   def name: String
   def score: Float
   def negScoreOpt: Option[Float] = None
+  def branchOpt: Option[String] = name.split('/').lift(1)
 }
 case class SingleOntologyNodeGrounding(namer: Namer, override val score: Float, override val negScoreOpt: Option[Float] = None) extends IndividualGrounding{
   def name: String = namer.name
@@ -34,13 +35,15 @@ case class PredicateGrounding(predicateTuple: PredicateTuple) extends Individual
 
 
 
-case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], grounding: MultipleOntologyGrounding = Seq.empty, branch: Option[String] = None) {
+case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], grounding: MultipleOntologyGrounding = Seq.empty, branchOpt: Option[String] = None) {
   def nonEmpty: Boolean = grounding.nonEmpty
+  def isEmpty: Boolean = grounding.isEmpty
   def take(n: Int): MultipleOntologyGrounding = grounding.take(n)
   def headOption: Option[IndividualGrounding] = grounding.headOption
   def headName: Option[String] = headOption.map(_.name)
   // discard the top grounding, take the next
-  def dropFirst(): OntologyGrounding = OntologyGrounding(version, date, grounding.drop(1), branch)
+  def dropFirst(): OntologyGrounding = OntologyGrounding(version, date, grounding.drop(1), branchOpt)
+  def filterSlots(slot: String): OntologyGrounding = OntologyGrounding(version, date, grounding.filter(_.branchOpt == Some(slot)))
 }
 
 trait OntologyGrounder {

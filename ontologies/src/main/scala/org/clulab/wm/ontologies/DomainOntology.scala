@@ -27,6 +27,12 @@ trait DomainOntology {
 
   def getPatterns(n: Integer): Option[Array[Regex]]
 
+  def getPosExamples(n: Integer): Option[Array[String]] = getExamples(n)
+
+  def getNegExamples(n: Integer): Option[Array[String]] = None
+
+  def getExamples(n: Integer): Option[Array[String]]  = ???
+
   def isLeaf(n: Integer): Boolean
 
   def save(filename: String): Unit

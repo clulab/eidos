@@ -22,7 +22,7 @@ import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
 abstract class FullOntologyNode(val nodeName: String, var parentOpt: Option[FullOntologyParentNode], var childrenOpt: Option[Seq[FullOntologyNode]] = None,
-    val values: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None) extends Namer with Serializable {
+    val values: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None, val examples: Option[Array[String]] = None) extends Namer with Serializable {
   // At this level there is no distinction made between a parent node and child node.
   // Parent and children are var so that they can be assigned at different times and after object creation.
 
@@ -52,6 +52,8 @@ abstract class FullOntologyNode(val nodeName: String, var parentOpt: Option[Full
   def getValues: Array[String] = values.getOrElse(Array.empty)
 
   def getPatterns: Array[Regex] = patterns.getOrElse(Array.empty)
+
+  def getExamples: Array[String] = examples.getOrElse(Array.empty)
 
   def getChildren: Seq[FullOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 }
@@ -110,10 +112,11 @@ class FullOntologyLeafNode(
   val parent: FullOntologyParentNode,
   polarity: Float,
   /*names: Seq[String],*/
-  examples: Option[Array[String]] = None,
+  examples: Option[Array[String]] = None, // These have been filtered.
   descriptions: Option[Array[String]] = None,
-  override val patterns: Option[Array[Regex]] = None
-) extends FullOntologyNode(nodeName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patterns) with Namer {
+  override val patterns: Option[Array[Regex]] = None,
+  rawExamplesOpt: Option[Array[String]] = None
+) extends FullOntologyNode(nodeName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patterns, rawExamplesOpt) with Namer {
 
   override def fullName: String = parentOpt.get.fullName + escaped
 
@@ -141,6 +144,8 @@ class FullTreeDomainOntology(val ontologyNodes: Array[FullOntologyNode], overrid
   def isLeaf(n: Integer): Boolean = ontologyNodes(n).isLeaf
 
   def getPatterns(n: Integer): Option[Array[Regex]] = ontologyNodes(n).patterns
+
+  override def getExamples(n: Integer): Option[Array[String]] = ontologyNodes(n).examples
 
   def getNode(n: Integer): FullOntologyNode = ontologyNodes(n)
 
@@ -257,12 +262,12 @@ object FullTreeDomainOntology {
       val patterns: Option[Array[Regex]] = yamlNodesToRegexes(yamlNodes, FullTreeDomainOntology.PATTERN)
 
       /*val filteredNames = names.flatMap(filtered)*/
-      val filteredExamples = examples.map(_.flatMap(filtered))
+      val filteredExamples = examples.map(_.flatMap(filtered)) // Note: Examples have been filtered!
       val filteredDescriptions = descriptions.map(_.flatMap(filtered))
 
 //      println("Adding new node")
       // Note: leaf nodes are created here
-      new FullOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns)
+      new FullOntologyLeafNode(name, parent, polarity, /*filteredNames,*/ filteredExamples, filteredDescriptions, patterns, examples)
     }
 
     protected def parseOntology(parent: FullOntologyParentNode, yamlNodes: Seq[Any], level: Int = 0): Unit = {

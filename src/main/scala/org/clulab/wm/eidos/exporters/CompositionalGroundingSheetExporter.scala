@@ -28,13 +28,11 @@ class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem,
   private val k: Int = config.getInt("apps.groundingInsight.topk")
 
 
-
-
   override def export(annotatedDocument: AnnotatedDocument): Unit = {
 
     FileUtils.printWriterFromFile(filename + ".insight_sheet.tsv").autoClose { pw =>
 
-      pw.println("sentence\tcause\tc theme\tscore\tc prop\tscore\tc proc\tscore\tc proc prop\tscore\teffect\te theme\tscore\te prop\tscore\te proc\tscore\te proc prop")
+      pw.println("sentence\tcause\tc interval\tc theme\tscore\tc prop\tscore\tc proc\tscore\tc proc prop\tscore\teffect\te interval\te theme\tscore\te prop\tscore\te proc\tscore\te proc prop\tscore")
 
       val doc = annotatedDocument.document
 
@@ -109,41 +107,6 @@ class CompositionalGroundingSheetExporter(filename: String, reader: EidosSystem,
     println(pred_grounds)
 
     pred_grounds
-  }
-
-  def exactMatch(text: String): Seq[String] = {
-    val patterns: Seq[ConceptPatterns] = currOntologyGrounder.conceptPatterns
-    val lowerText = text.toLowerCase
-    val exactMatches = patterns.filter(pattern => StringUtils.afterLast(pattern.namer.name, '/', true) == lowerText)
-    if (exactMatches.nonEmpty)
-      exactMatches.map(exactMatch => s"         Exact Match: ${exactMatch.namer}\t(1.0f)")
-    else {
-      val matchedPatterns = currOntologyGrounder.nodesPatternMatched(text, patterns)
-      if (matchedPatterns.nonEmpty)
-        matchedPatterns.map(grounding => s"         Pattern Match: ${grounding.namer}\t(1.0f)")
-      else Seq.empty
-    }
-  }
-
-  def examplesDetail(text: String, examples: Seq[String]): Seq[String] = {
-    val lines = new ArrayBuffer[String]()
-    val scoredExamples = examples
-      .map(example => (example, w2v.stringSimilarity(text, example)))
-      .sortBy(- _._2)
-    val bestMatch = scoredExamples.head
-    val worstMatch = scoredExamples.last
-    val topk = scoredExamples.take(k)
-    val avg = scoredExamples.map(_._2).sum / scoredExamples.length.toFloat
-
-    lines.append(s"       num examples: ${scoredExamples.length}")
-    lines.append(s"       examples with top score:")
-    val topKLines = topk.map(t => s"          --> ${t._1}\t(${t._2})")
-    lines.appendAll(topKLines)
-    lines.append(s"       max match: ${bestMatch._1} (${bestMatch._2})")
-    lines.append(s"       min match: ${worstMatch._1} (${worstMatch._2})")
-    lines.append(s"       avg match: ${avg})")
-
-    lines
   }
 
 }

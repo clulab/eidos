@@ -9,3 +9,6 @@ case class ConceptEmbedding(val namer: Namer, embedding: Array[Float], negEmbedd
 
 @SerialVersionUID(1000L)
 case class ConceptPatterns(namer: Namer, patterns: Option[Array[Regex]]) extends Serializable
+
+@SerialVersionUID(1000L)
+case class ConceptExamples(namer: Namer, examples: Option[Array[String]]) extends Serializable
