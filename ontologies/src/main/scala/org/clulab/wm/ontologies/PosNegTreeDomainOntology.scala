@@ -49,7 +49,7 @@ abstract class PosNegOntologyNode(
 
   override def getNegValues: Array[String] = negValues.getOrElse(Array.empty)
 
-  def getPatterns: Option[Array[Regex]] = patterns
+  def getPatternsOpt: Option[Array[Regex]] = patterns
 
   def getChildren: Seq[PosNegOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 

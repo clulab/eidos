@@ -23,7 +23,7 @@ import scala.util.matching.Regex
 @SerialVersionUID(1000L)
 abstract class FullOntologyNode(
     val simpleName: String, var parentOpt: Option[FullOntologyParentNode], var childrenOpt: Option[Seq[FullOntologyNode]] = None,
-    val values: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None
+    val values: Option[Array[String]] = None, val patternsOpt: Option[Array[Regex]] = None
 ) extends DomainOntologyNode with Serializable {
   // At this level there is no distinction made between a parent node and child node.
   // Parent and children are var so that they can be assigned at different times and after object creation.
@@ -45,7 +45,7 @@ abstract class FullOntologyNode(
 
   def getValues: Array[String] = values.getOrElse(Array.empty)
 
-  def getPatterns: Option[Array[Regex]] = patterns
+  def getPatternsOpt: Option[Array[Regex]] = patternsOpt
 
   def getChildren: Seq[FullOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 
@@ -103,8 +103,8 @@ class FullOntologyLeafNode(
     /*names: Seq[String],*/
     examples: Option[Array[String]] = None,
     descriptions: Option[Array[String]] = None,
-    override val patterns: Option[Array[Regex]] = None
-) extends FullOntologyNode(simpleName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patterns) {
+    override val patternsOpt: Option[Array[Regex]] = None
+) extends FullOntologyNode(simpleName, Some(parent), None, Some(/*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), patternsOpt) {
 
   override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(simpleName)
 

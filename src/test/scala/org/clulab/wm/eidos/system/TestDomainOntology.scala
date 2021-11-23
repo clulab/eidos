@@ -13,6 +13,8 @@ import org.clulab.wm.ontologies.PosNegTreeDomainOntology
 import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
+import scala.util.matching.Regex
+
 class TestDomainOntology extends EidosTest {
 
   def matches(left: DomainOntology, right: DomainOntology): Boolean = {
@@ -71,7 +73,7 @@ class TestDomainOntology extends EidosTest {
   def show1(ontology: DomainOntology): Unit = {
     ontology.nodes.foreach { node =>
       println(node.getName + " = " + node.getValues.mkString(", "))
-      node.getPatterns.map(_.foreach(regex => println(regex.toString)))
+      node.getPatternsOpt.map(_.foreach { pattern: Regex => println(pattern.toString) })
     }
     println
   }

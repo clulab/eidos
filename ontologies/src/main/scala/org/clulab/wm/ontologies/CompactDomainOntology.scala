@@ -53,7 +53,7 @@ class CompactDomainOntology(
   // TODO: This will not always store just the leaves.
   def isLeaf(n: Integer): Boolean = false
 
-  def getPatterns(n: Integer): Option[Array[Regex]] = {
+  def getPatternsOpt(n: Integer): Option[Array[Regex]] = {
     val range = Range(patternStartIndexes(n), patternStartIndexes(n + 1))
 
     if (range.isEmpty) None
@@ -224,7 +224,7 @@ object CompactDomainOntology {
       nodes.zipWithIndex.foreach { case (node, i) =>
         startIndexBuffer(i) = stringBuffer.size
 
-        val optionRegexes = node.getPatterns
+        val optionRegexes = node.getPatternsOpt
         if (optionRegexes.isDefined)
               stringBuffer.appendAll(optionRegexes.get.map(_.toString))
       }

@@ -16,7 +16,7 @@ trait DomainOntologyNode extends Namer {
 
   def getNegValues: Array[String] = Array.empty
 
-  def getPatterns: Option[Array[Regex]]
+  def getPatternsOpt: Option[Array[Regex]]
   def isLeaf: Boolean
 
   // If the Node is obvlious about its parents, for example if the information is not stored, then None.
@@ -74,7 +74,7 @@ trait IndexedDomainOntology {
   def getValues(n: Integer): Array[String]
   def getPosValues(n: Integer): Array[String] = getValues(n)
   def getNegValues(n: Integer): Array[String] = Array.empty
-  def getPatterns(n: Integer): Option[Array[Regex]]
+  def getPatternsOpt(n: Integer): Option[Array[Regex]]
   def isLeaf(n: Integer): Boolean
   def getParent(n: Integer): Option[Option[DomainOntologyNode]]
   def getName(n: Integer): String
@@ -86,7 +86,7 @@ class IndexedDomainOntologyNode(indexedDomainOntology: IndexedDomainOntology, in
 
   override def getValues: Array[String] = indexedDomainOntology.getValues(index)
 
-  override def getPatterns: Option[Array[Regex]] = indexedDomainOntology.getPatterns(index)
+  override def getPatternsOpt: Option[Array[Regex]] = indexedDomainOntology.getPatternsOpt(index)
 
   override def isLeaf: Boolean = indexedDomainOntology.isLeaf(index)
 

@@ -55,7 +55,7 @@ class FastDomainOntology(
 
   protected def isRoot(n: Int): Boolean = parents(n) < 0
 
-  def getPatterns(n: Integer): Option[Array[Regex]] = {
+  def getPatternsOpt(n: Integer): Option[Array[Regex]] = {
     val range = Range(patternStartIndexes(n), patternStartIndexes(n + 1))
 
     if (range.isEmpty) None
@@ -134,7 +134,7 @@ class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1
 
   def getValues(n: Integer): Array[String] = fastDomainOntology.getValues(n + offset)
 
-  def getPatterns(n: Integer): Option[Array[Regex]] = fastDomainOntology.getPatterns(n + offset)
+  def getPatternsOpt(n: Integer): Option[Array[Regex]] = fastDomainOntology.getPatternsOpt(n + offset)
 
   def isLeaf(n: Integer): Boolean = fastDomainOntology.isLeaf(n + offset)
 
@@ -234,7 +234,9 @@ object FastDomainOntology {
       val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
 
       nodes.foreach { node =>
-        node.getPatterns.foreach { pattern => append(stringMap, pattern.toString) }
+        node.getPatternsOpt.foreach { patterns =>
+          patterns.foreach { pattern: Regex => append(stringMap, pattern.toString) }
+        }
       }
       stringMap
     }
@@ -260,9 +262,9 @@ object FastDomainOntology {
       val startIndexBuffer = new Array[Int](nodes.size + 1)
 
       nodes.zipWithIndex.foreach { case (node, index) =>
-        val indexes = node.getPatterns.map { pattern =>
-          pattern.toString
-        }
+        val indexes = node.getPatternsOpt.map { patterns =>
+          patterns.map { pattern: Regex => pattern.toString }
+        }.getOrElse(Array.empty)
 
         startIndexBuffer(index) = indexBuffer.size
         indexBuffer.appendAll(indexes)

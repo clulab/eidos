@@ -37,7 +37,7 @@ abstract class HalfOntologyNode extends DomainOntologyNode with Serializable {
 
   def getValues: Array[String] = Array.empty
 
-  def getPatterns: Option[Array[Regex]] = None
+  def getPatternsOpt: Option[Array[Regex]] = None
 }
 
 @SerialVersionUID(1000L)

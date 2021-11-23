@@ -110,7 +110,7 @@ class NodeTreeDomainOntologyNode(
 
   lazy val patterns: Option[Array[Regex]] = yamlNode.patternsOpt.map(_.map(DomainOntology.toRegex))
 
-  def getPatterns: Option[Array[Regex]] = patterns
+  def getPatternsOpt: Option[Array[Regex]] = patterns
 
   def getNode: YamlNode = yamlNode
 

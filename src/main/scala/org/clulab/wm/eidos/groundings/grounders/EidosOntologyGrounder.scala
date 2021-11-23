@@ -39,7 +39,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   val conceptPatterns: Seq[ConceptPatterns] =
     domainOntology.nodes.map { node =>
-      ConceptPatterns(node, node.getPatterns)
+      ConceptPatterns(node, node.getPatternsOpt)
     }
 
   // For API to reground strings
