@@ -117,7 +117,7 @@ class CompactDomainOntology(
     nodeStrings(nameOffset)
   }
 
-  override def getBranch(n: Integer): Option[String] = {
+  override def getBranchOpt(n: Integer): Option[String] = {
 
     def branch(n: Int, prevNameOffset: Int): Option[String] = {
       if (n > 0) {
@@ -269,7 +269,7 @@ object CompactDomainOntology {
       val indexBuffer = new ArrayBuffer[Int]()
 
       treeDomainOntology.nodes.foreach { node =>
-        indexBuffer += parentMap.get(node.getParent.get.get)._1 // parentOffset
+        indexBuffer += parentMap.get(node.getParentOptOpt.get.get)._1 // parentOffset
         indexBuffer += stringMap(DomainOntology.escaped(node.getSimpleName)) // nameOffset
       }
       indexBuffer.toArray

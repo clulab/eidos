@@ -113,7 +113,7 @@ class FastDomainOntology(
 
   def getSimpleName(n: Integer): String = names(n)
 
-  def getBranch(n: Integer): Option[String] = {
+  def getBranchOpt(n: Integer): Option[String] = {
 
     def branch(n: Int, prevN: Int): Option[String] = {
       if (isRoot(n)) Some(names(prevN))
@@ -156,7 +156,7 @@ class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1
 
   override def getSimpleName(n: Integer): String = fastDomainOntology.getSimpleName(n + offset)
 
-  override def getBranch(n: Integer): Option[String] = fastDomainOntology.getBranch(n + offset)
+  override def getBranchOpt(n: Integer): Option[String] = fastDomainOntology.getBranchOpt(n + offset)
 }
 
 object FastDomainOntology {

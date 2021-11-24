@@ -39,7 +39,7 @@ class TestDomainOntology extends EidosTest {
 
     domainOntology.nodes.foreach { node =>
       // Just make sure this doesn't crash now.
-      val branch = node.getBranch
+      val branch = node.getBranchOpt
 //      println(branch)
     }
 

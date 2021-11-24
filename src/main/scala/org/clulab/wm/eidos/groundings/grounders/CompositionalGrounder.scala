@@ -20,12 +20,12 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptEmbeddings.filter { _.namer.getBranch.contains(branch) })
+      (branch, conceptEmbeddings.filter { _.namer.getBranchOpt.contains(branch) })
     }.toMap
 
   protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptPatterns.filter { _.namer.getBranch.contains(branch) })
+      (branch, conceptPatterns.filter { _.namer.getBranchOpt.contains(branch) })
     }.toMap
 
   def groundStrings(strings: Array[String]): Seq[OntologyGrounding] = {
@@ -103,7 +103,7 @@ class CompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: E
             .filter(_.score >= effectiveThreshold) // Filter these before sorting!
             .sortBy(-_.score)
             .take(effectiveTopN)
-            .filter(_.namer.getBranch.get == branch)
+            .filter(_.namer.getBranchOpt.get == branch)
         newOntologyGrounding(goodSimilarities, Some(branch))
       }
       val goodPropertyGroundings = getTopKGrounding(propertySimilarities, CompositionalGrounder.PROPERTY)

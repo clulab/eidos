@@ -49,7 +49,7 @@ abstract class FullOntologyNode(
 
   def getChildren: Seq[FullOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 
-  def getParent: Option[Option[FullOntologyNode]] = Some(this.parentOpt)
+  def getParentOptOpt: Option[Option[FullOntologyNode]] = Some(this.parentOpt)
 }
 
 @SerialVersionUID(1000L)
@@ -64,7 +64,7 @@ class FullOntologyRootNode extends FullOntologyParentNode("", None) {
 
   override def parents: Seq[FullOntologyParentNode] = Seq.empty
 
-  override def getBranch: Option[String] = None
+  override def getBranchOpt: Option[String] = None
 
   override def isRoot: Boolean = true
 
@@ -83,9 +83,9 @@ class FullOntologyBranchNode(simpleName: String, parent: FullOntologyParentNode,
 
   def isParentRoot: Boolean = parent.isRoot
 
-  override def getBranch: Option[String] =
+  override def getBranchOpt: Option[String] =
       if (parent.isParentRoot) Some(simpleName)
-      else parent.getBranch
+      else parent.getBranchOpt
 
   override def getValues: Array[String] = {
     val value = DomainOntology.unescaped(simpleName)
@@ -108,7 +108,7 @@ class FullOntologyLeafNode(
 
   override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(simpleName)
 
-  override def getBranch: Option[String] = parent.getBranch
+  override def getBranchOpt: Option[String] = parent.getBranchOpt
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[FullOntologyParentNode] = parents(parentOpt.get)

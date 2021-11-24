@@ -54,13 +54,13 @@ class HalfOntologyRootNode extends HalfOntologyParentNode {
 
   override def parents: Seq[HalfOntologyParentNode] = Seq.empty
 
-  override def getBranch: Option[String] = None
+  override def getBranchOpt: Option[String] = None
 
   override def isRoot: Boolean = true
 
   def isParentRoot: Boolean = false
 
-  def getParent: Option[Option[HalfOntologyParentNode]] = Some(None)
+  def getParentOptOpt: Option[Option[HalfOntologyParentNode]] = Some(None)
 }
 
 class HalfOntologyBranchNode(val simpleName: String, val parent: HalfOntologyParentNode) extends HalfOntologyParentNode {
@@ -74,11 +74,11 @@ class HalfOntologyBranchNode(val simpleName: String, val parent: HalfOntologyPar
 
   def isParentRoot: Boolean = parent.isRoot
 
-  override def getBranch: Option[String] =
+  override def getBranchOpt: Option[String] =
       if (parent.isParentRoot) Some(simpleName)
-      else parent.getBranch
+      else parent.getBranchOpt
 
-  def getParent: Option[Option[HalfOntologyNode]] = Some(Some(parent))
+  def getParentOptOpt: Option[Option[HalfOntologyNode]] = Some(Some(parent))
 
   override def getSimpleName: String = simpleName
 }
@@ -96,7 +96,7 @@ class HalfOntologyLeafNode(
 
   override def fullName: String = parent.fullName + DomainOntology.escaped(simpleName)
 
-  override def getBranch: Option[String] = parent.getBranch
+  override def getBranchOpt: Option[String] = parent.getBranchOpt
 
   // Right now it doesn't matter where these come from, so they can be combined.
   val values: Array[String] = /*names ++*/ examples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)
@@ -108,7 +108,7 @@ class HalfOntologyLeafNode(
 
   override def isLeaf: Boolean = true
 
-  def getParent: Option[Option[HalfOntologyNode]] = Some(Some(parent))
+  def getParentOptOpt: Option[Option[HalfOntologyNode]] = Some(Some(parent))
 
   override def getSimpleName: String = simpleName
 }

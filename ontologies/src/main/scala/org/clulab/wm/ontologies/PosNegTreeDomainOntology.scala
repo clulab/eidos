@@ -53,7 +53,7 @@ abstract class PosNegOntologyNode(
 
   def getChildren: Seq[PosNegOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 
-  def getParent: Option[Option[PosNegOntologyNode]] = Some(parentOpt)
+  def getParentOptOpt: Option[Option[PosNegOntologyNode]] = Some(parentOpt)
 }
 
 @SerialVersionUID(1000L)
@@ -71,7 +71,7 @@ class PosNegOntologyRootNode extends PosNegOntologyParentNode("", None) {
 
   override def parents: Seq[PosNegOntologyParentNode] = Seq.empty
 
-  override def getBranch: Option[String] = None
+  override def getBranchOpt: Option[String] = None
 
   override def isRoot: Boolean = true
 
@@ -94,9 +94,9 @@ class PosNegOntologyBranchNode(simpleName: String, parent: PosNegOntologyParentN
 
   def isParentRoot: Boolean = parent.isRoot
 
-  override def getBranch: Option[String] =
+  override def getBranchOpt: Option[String] =
       if (parent.isParentRoot) Some(simpleName)
-      else parent.getBranch
+      else parent.getBranchOpt
 }
 
 object PosNegOntologyBranchNode {
@@ -130,7 +130,7 @@ class PosNegOntologyLeafNode(
 
   override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(simpleName)
 
-  override def getBranch: Option[String] = parent.getBranch
+  override def getBranchOpt: Option[String] = parent.getBranchOpt
 
   // These come out in order parent, grandparent, great grandparent, etc. by design
   override def parents: Seq[PosNegOntologyParentNode] = parents(parentOpt.get)

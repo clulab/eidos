@@ -126,7 +126,7 @@ class NodeTreeDomainOntologyNode(
     ontologyNodes.toArray
   }
 
-  def getParent: Option[Option[NodeTreeDomainOntologyNode]] = Some(parentOpt)
+  def getParentOptOpt: Option[Option[NodeTreeDomainOntologyNode]] = Some(parentOpt)
 
   override def getName: String = name
 

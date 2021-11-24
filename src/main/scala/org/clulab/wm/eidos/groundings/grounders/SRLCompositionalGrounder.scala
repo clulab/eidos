@@ -103,12 +103,12 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptEmbeddings.filter { _.namer.getBranch.contains(branch) })
+      (branch, conceptEmbeddings.filter { _.namer.getBranchOpt.contains(branch) })
     }.toMap
 
   protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] =
     CompositionalGrounder.branches.map { branch =>
-      (branch, conceptPatterns.filter { _.namer.getBranch.contains(branch) })
+      (branch, conceptPatterns.filter { _.namer.getBranchOpt.contains(branch) })
     }.toMap
 
   // primarily used for passing in the canonical name parts
