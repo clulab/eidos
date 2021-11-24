@@ -22,8 +22,8 @@ import scala.util.matching.Regex
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends OntologyGrounder {
 
-  def newOntologyGrounding(grounding: OntologyAliases.IndividualGroundings = Seq.empty, branch: Option[String] = None): OntologyGrounding = {
-    OntologyGrounding(domainOntology.version, domainOntology.date, grounding, branch)
+  def newOntologyGrounding(individualGroundings: OntologyAliases.IndividualGroundings = Seq.empty, branch: Option[String] = None): OntologyGrounding = {
+    OntologyGrounding(domainOntology.version, domainOntology.date, individualGroundings, branch)
   }
 
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.

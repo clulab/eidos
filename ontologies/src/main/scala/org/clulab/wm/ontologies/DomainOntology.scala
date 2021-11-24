@@ -19,7 +19,7 @@ trait DomainOntologyNode extends Namer {
   def getPatternsOpt: Option[Array[Regex]]
   def isLeaf: Boolean
 
-  // If the Node is obvlious about its parents, for example if the information is not stored, then None.
+  // If the Node is oblivious about its parents, for example if the information is not stored, then None.
   // If the Node knows of its parents, but there isn't one, because it's the root, then Some(None).
   // If The Node knows of its parents and it is not the root, then Some(Some(DomainOntologyNode)).
   def getParentOptOpt: Option[Option[DomainOntologyNode]]
@@ -51,7 +51,7 @@ object DomainOntology {
       .replace(SEPARATOR, ESCAPED_SEPARATOR)
 
   // Sometimes the words in node names are concatenated with _.
-  def unescaped(name: String): String = name
+  def unescaped(simpleName: String): String = simpleName
       .replace('_', ' ')
 
   // We're doing case insensitive matching.
