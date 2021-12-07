@@ -23,7 +23,9 @@ import scala.util.matching.Regex
 @SerialVersionUID(1000L)
 abstract class PosNegOntologyNode(
   val simpleName: String, var parentOpt: Option[PosNegOntologyParentNode], var childrenOpt: Option[Seq[PosNegOntologyNode]] = None,
-  val posValues: Option[Array[String]] = None, val negValues: Option[Array[String]] = None, val patterns: Option[Array[Regex]] = None
+  val posValues: Option[Array[String]] = None, val negValues: Option[Array[String]] = None,
+  val posExamples: Option[Array[String]] = None, val negExamples: Option[Array[String]] = None,
+  val patterns: Option[Array[Regex]] = None
 ) extends DomainOntologyNode with Serializable {
   // At this level there is no distinction made between a parent node and child node.
   // Parent and children are var so that they can be assigned at different times and after object creation.
@@ -51,6 +53,10 @@ abstract class PosNegOntologyNode(
 
   def getPatternsOpt: Option[Array[Regex]] = patterns
 
+  def getPosExamples: Array[String] = posExamples.getOrElse(Array.empty)
+
+  def getNegExamples: Array[String] = negExamples.getOrElse(Array.empty)
+
   def getChildren: Seq[PosNegOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 
   def getParentOptOpt: Option[Option[PosNegOntologyNode]] = Some(parentOpt)
@@ -59,8 +65,9 @@ abstract class PosNegOntologyNode(
 @SerialVersionUID(1000L)
 abstract class PosNegOntologyParentNode(simpleName: String, parentOpt: Option[PosNegOntologyParentNode],
     posValuesOpt: Option[Array[String]] = None, negValuesOpt: Option[Array[String]] = None,
+    posExamples: Option[Array[String]] = None, negExamples: Option[Array[String]] = None,
     patternsOpt: Option[Array[Regex]] = None)
-    extends PosNegOntologyNode(simpleName, parentOpt, None, posValuesOpt, negValuesOpt, patternsOpt) {
+    extends PosNegOntologyNode(simpleName, parentOpt, None, posValuesOpt, negValuesOpt, posExamples, negExamples, patternsOpt) {
   def isParentRoot: Boolean
 }
 
@@ -125,8 +132,13 @@ class PosNegOntologyLeafNode(
   posExamples: Option[Array[String]] = None,
   negExamples: Option[Array[String]] = None,
   descriptions: Option[Array[String]] = None,
-  override val patterns: Option[Array[Regex]] = None
-) extends PosNegOntologyNode(simpleName, Some(parent), None, Some(/*names ++*/ posExamples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)), negExamples, patterns) {
+  override val patterns: Option[Array[Regex]] = None,
+  rawPosExamplesOpt: Option[Array[String]] = None,
+  rawNegExamplesOpt: Option[Array[String]] = None
+) extends PosNegOntologyNode(simpleName, Some(parent), None,
+    Some(/*names ++*/ posExamples.getOrElse(Array.empty) ++ descriptions.getOrElse(Array.empty)),
+    Some(negExamples.getOrElse(Array.empty)),
+    rawPosExamplesOpt, rawNegExamplesOpt, patterns) {
 
   override def fullName: String = parentOpt.get.fullName + DomainOntology.escaped(simpleName)
 
@@ -275,11 +287,13 @@ object PosNegTreeDomainOntology {
       val nodeData = parseNodeData(yamlNodes)
 
       /*val filteredNames = names.flatMap(filtered)*/
-      val posFilteredExamples = nodeData.posExamplesOpt.map(_.flatMap(filtered))
+      val posFilteredExamples = nodeData.posExamplesOpt.map(_.flatMap(filtered)) // Note: These have all been filtered!
       val negFilteredExamples = nodeData.negExamplesOpt.map(_.flatMap(filtered))
       val filteredDescriptions = nodeData.descriptionsOpt.map(_.flatMap(filtered))
 
-      new PosNegOntologyLeafNode(nodeData.name, parent, nodeData.polarity, /*filteredNames,*/ posFilteredExamples, negFilteredExamples, filteredDescriptions, nodeData.patterns)
+      new PosNegOntologyLeafNode(nodeData.name, parent, nodeData.polarity, /*filteredNames,*/ 
+          posFilteredExamples, negFilteredExamples, filteredDescriptions, nodeData.patterns,
+          nodeData.posExamplesOpt, nodeData.negExamplesOpt)
     }
 
     protected def parseOntology(parent: PosNegOntologyParentNode, yamlNodes: Seq[Any], level: Int = 0): Seq[PosNegOntologyNode] = {

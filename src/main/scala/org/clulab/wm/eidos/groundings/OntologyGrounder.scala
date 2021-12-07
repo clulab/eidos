@@ -18,6 +18,7 @@ trait IndividualGrounding {
   def name: String
   def score: Float
   def negScoreOpt: Option[Float] = None
+  def branchOpt: Option[String] = name.split('/').lift(1)
 }
 
 case class OntologyNodeGrounding(namer: Namer, override val score: Float, override val negScoreOpt: Option[Float] = None) extends IndividualGrounding{
@@ -34,14 +35,15 @@ case class PredicateGrounding(predicateTuple: PredicateTuple) extends Individual
   override def toString(): String = predicateTuple.toString()
 }
 
-case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], individualGroundings: IndividualGroundings = Seq.empty, branch: Option[String] = None) {
-  // These are convenience functions on the individualGroundings.
+case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], individualGroundings: IndividualGroundings = Seq.empty, branchOpt: Option[String] = None) {
   def nonEmpty: Boolean = individualGroundings.nonEmpty
+  def isEmpty: Boolean = individualGroundings.isEmpty
   def take(n: Int): IndividualGroundings = individualGroundings.take(n)
   def headOption: Option[IndividualGrounding] = individualGroundings.headOption
   def headName: Option[String] = headOption.map(_.name)
-  // Discard the head grounding, and return a copy with the next.
-  def dropFirst(): OntologyGrounding = OntologyGrounding(version, date, individualGroundings.drop(1), branch)
+  // Discard the head grounding and return a copy with the tail.
+  def dropFirst(): OntologyGrounding = OntologyGrounding(version, date, individualGroundings.drop(1), branchOpt)
+  def filterSlots(slot: String): OntologyGrounding = OntologyGrounding(version, date, individualGroundings.filter(_.branchOpt == Some(slot)))
 }
 
 trait OntologyGrounder {

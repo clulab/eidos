@@ -664,17 +664,17 @@ class TestJLDDeserializer extends ExtractionTest {
         |	   "display" : "THEME: wm_compositional/concept/service/information/"
         |  }, {
         |	   "@type" : "PredicateGrounding",
-        |	   "themeProcessProperties" : [ {
+        |	   "themeProperties" : [ {
         |	     "@type" : "Grounding",
-        |	     "ontologyConcept" : "wm_compositional/concept/population/density/",
+        |	     "ontologyConcept" : "wm_compositional/property/population/density/",
         |	     "value" : 0.34960877895355225
         |	   }, {
         |	     "@type" : "Grounding",
-        |	     "ontologyConcept" : "wm_compositional/concept/migration/returnees",
+        |	     "ontologyConcept" : "wm_compositional/property/migration/returnees",
         |	     "value" : 0.29021745920181274
         |	   } ],
         |	   "value" : 0.3396087884902954,
-        |	   "display" : "THEME: wm_compositional/concept/population/density/"
+        |	   "display" : "THEME: wm_compositional/property/population/density/"
         |  } ]
         |} ]
         |""".stripMargin

@@ -17,6 +17,13 @@ trait DomainOntologyNode extends Namer {
   def getNegValues: Array[String] = Array.empty
 
   def getPatternsOpt: Option[Array[Regex]]
+
+  def getPosExamplesOpt: Option[Array[String]] = getExamplesOpt
+
+  def getNegExamplesOpt: Option[Array[String]] = None
+
+  def getExamplesOpt: Option[Array[String]] = ???
+
   def isLeaf: Boolean
 
   // If the Node is oblivious about its parents, for example if the information is not stored, then None.
@@ -32,11 +39,11 @@ trait DomainOntologyNode extends Namer {
 }
 
 trait DomainOntology {
-  def version: Option[String] = None
-  def date: Option[ZonedDateTime] = None
+    def version: Option[String] = None
+    def date: Option[ZonedDateTime] = None
 
-  def nodes: IndexedSeq[DomainOntologyNode]
-  def save(filename: String): Unit
+    def nodes: IndexedSeq[DomainOntologyNode]
+    def save(filename: String): Unit
 }
 
 object DomainOntology {

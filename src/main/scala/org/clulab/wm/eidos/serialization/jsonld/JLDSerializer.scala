@@ -251,7 +251,7 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
     "name" -> name,
-    "category" -> grounding.branch,
+    "category" -> grounding.branchOpt,
     "version" -> grounding.version,
     "versionDate" -> grounding.date.map(_.toString),
     "values" -> jldGroundings

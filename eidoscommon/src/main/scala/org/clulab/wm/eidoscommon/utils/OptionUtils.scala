@@ -1,5 +1,7 @@
 package org.clulab.wm.eidoscommon.utils
 
+import scala.language.reflectiveCalls
+
 object OptionUtils {
 
   protected type IsEmptyAble = { def isEmpty: Boolean}
