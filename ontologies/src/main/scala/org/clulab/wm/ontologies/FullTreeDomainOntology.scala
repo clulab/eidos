@@ -22,8 +22,12 @@ import scala.util.matching.Regex
 
 @SerialVersionUID(1000L)
 abstract class FullOntologyNode(
-    val simpleName: String, var parentOpt: Option[FullOntologyParentNode], var childrenOpt: Option[Seq[FullOntologyNode]] = None,
-    val values: Option[Array[String]] = None, val patternsOpt: Option[Array[Regex]] = None, val examples: Option[Array[String]] = None
+    val simpleName: String,
+    var parentOpt: Option[FullOntologyParentNode],
+    var childrenOpt: Option[Seq[FullOntologyNode]] = None,
+    val values: Option[Array[String]] = None,
+    val patternsOpt: Option[Array[Regex]] = None,
+    val examplesOpt: Option[Array[String]] = None
 ) extends DomainOntologyNode with Serializable {
   // At this level there is no distinction made between a parent node and child node.
   // Parent and children are var so that they can be assigned at different times and after object creation.
@@ -47,7 +51,7 @@ abstract class FullOntologyNode(
 
   def getPatternsOpt: Option[Array[Regex]] = patternsOpt
 
-  def getExamples: Array[String] = examples.getOrElse(Array.empty)
+  override def getExamplesOpt: Option[Array[String]] = examplesOpt
 
   def getChildren: Seq[FullOntologyNode] = childrenOpt.getOrElse(Seq.empty)
 

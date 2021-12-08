@@ -106,7 +106,7 @@ class NodeTreeDomainOntologyNode(
 
   def isRoot: Boolean = parentOpt.isEmpty
 
-  def getExamples: Array[String] = yamlNode.examplesOpt.getOrElse(Array.empty)
+  override def getExamplesOpt: Option[Array[String]] = yamlNode.examplesOpt
 
   lazy val patterns: Option[Array[Regex]] = yamlNode.patternsOpt.map(_.map(DomainOntology.toRegex))
 

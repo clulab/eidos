@@ -22,7 +22,7 @@ trait DomainOntologyNode extends Namer {
 
   def getNegExamplesOpt: Option[Array[String]] = None
 
-  def getExamplesOpt: Option[Array[String]] = ???
+  def getExamplesOpt: Option[Array[String]] = None // Some subclasses don't keep track of this.
 
   def isLeaf: Boolean
 
@@ -87,6 +87,7 @@ trait IndexedDomainOntology {
   def getName(n: Integer): String
   def getSimpleName(n: Integer): String
   def getBranchOpt(n: Integer): Option[String]
+  def getExamplesOpt(n: Integer): Option[Array[String]] = None // Some subclasses don't keep track of this.
 }
 
 class IndexedDomainOntologyNode(indexedDomainOntology: IndexedDomainOntology, index: Int) extends DomainOntologyNode {
@@ -104,4 +105,6 @@ class IndexedDomainOntologyNode(indexedDomainOntology: IndexedDomainOntology, in
   override def getSimpleName: String = indexedDomainOntology.getSimpleName(index)
 
   override def getBranchOpt: Option[String] = indexedDomainOntology.getBranchOpt(index)
+
+  override def getExamplesOpt: Option[Array[String]] = indexedDomainOntology.getExamplesOpt(index)
 }

@@ -664,7 +664,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |	   "display" : "THEME: wm_compositional/concept/service/information/"
         |  }, {
         |	   "@type" : "PredicateGrounding",
-        |	   "themeProperties" : [ {
+        |	   "themeProcessProperties" : [ {
         |	     "@type" : "Grounding",
         |	     "ontologyConcept" : "wm_compositional/property/population/density/",
         |	     "value" : 0.34960877895355225
