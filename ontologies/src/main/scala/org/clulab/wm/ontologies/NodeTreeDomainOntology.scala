@@ -101,7 +101,7 @@ class NodeTreeDomainOntologyNode(
 
   def getValues: Array[String] = values
 
-  def isLeaf: Boolean = yamlNode.isLeaf
+  override def isLeaf: Boolean = yamlNode.isLeaf
 
   def isBranch: Boolean = !isLeaf
 

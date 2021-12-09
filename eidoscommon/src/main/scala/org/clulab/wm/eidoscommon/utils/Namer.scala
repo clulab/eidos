@@ -5,8 +5,14 @@ trait Namer {
   def getBranchOpt: Option[String] // gets the branch in top/branch/[more/]leaf
   def getSimpleName: String // gets the leaf name
 
-  def canonicalName: String = Namer.canonicalize(getSimpleName) // replaces the _s with spaces
-  def canonicalWords: Array[String] = Namer.canonicalizeWords(getSimpleName) // splits the canonical name
+  def isLeaf: Boolean //  = getName.endsWith("/")
+
+  def canonicalName: String =
+      if (!isLeaf) ""
+      else Namer.canonicalize(getSimpleName) // replaces the _s with spaces
+  def canonicalWords: Array[String] =
+      if (!isLeaf) Array.empty
+      else Namer.canonicalizeWords(getSimpleName) // splits the canonical name
 
   override def toString: String = getName
 }
@@ -52,6 +58,8 @@ object Namer {
 // This is mostly for deserialization.  When we read back a serialization,
 // it may not be possible to match it back up to something with nodes.
 class PassThruNamer(val name: String) extends Namer {
+
+  def isLeaf: Boolean = !name.endsWith("/")
 
   def getBranchOpt: Option[String] = Namer.getBranch(name)
 

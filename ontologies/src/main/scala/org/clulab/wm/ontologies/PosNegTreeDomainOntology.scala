@@ -39,7 +39,7 @@ abstract class PosNegOntologyNode(
 
   def isRoot: Boolean = false
 
-  def isLeaf: Boolean = false
+  override def isLeaf: Boolean = false
 
   def getName: String = fullName
 
