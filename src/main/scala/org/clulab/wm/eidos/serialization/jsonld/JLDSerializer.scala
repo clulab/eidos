@@ -252,8 +252,8 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
     serializer.mkType(this),
     "name" -> name,
     "category" -> grounding.branchOpt,
-    "version" -> grounding.version,
-    "versionDate" -> grounding.date.map(_.toString),
+    "version" -> grounding.versionOpt,
+    "versionDate" -> grounding.dateOpt.map(_.toString),
     "values" -> jldGroundings
   ))
 }

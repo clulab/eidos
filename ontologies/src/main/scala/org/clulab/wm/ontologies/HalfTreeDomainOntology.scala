@@ -114,8 +114,8 @@ class HalfOntologyLeafNode(
 }
 
 @SerialVersionUID(1000L)
-class HalfTreeDomainOntology(val ontologyNodes: Array[HalfOntologyLeafNode], version: Option[String], date: Option[ZonedDateTime])
-    extends VersionedDomainOntology(version, date) with Serializable {
+class HalfTreeDomainOntology(val ontologyNodes: Array[HalfOntologyLeafNode], versionOpt: Option[String], dateOpt: Option[ZonedDateTime])
+    extends VersionedDomainOntology(versionOpt, dateOpt) with Serializable {
 
   // It is assumed that the root node, for which parentOpt is None, is not in the list.
   def getParents(n: Integer): Seq[HalfOntologyParentNode] = ontologyNodes(n).parent +: ontologyNodes(n).parent.parents

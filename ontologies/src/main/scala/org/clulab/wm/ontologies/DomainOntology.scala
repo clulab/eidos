@@ -39,8 +39,8 @@ trait DomainOntologyNode extends Namer {
 }
 
 trait DomainOntology {
-    def version: Option[String] = None
-    def date: Option[ZonedDateTime] = None
+    def versionOpt: Option[String] = None
+    def dateOpt: Option[ZonedDateTime] = None
 
     def nodes: IndexedSeq[DomainOntologyNode]
     def save(filename: String): Unit
@@ -73,8 +73,8 @@ object DomainOntology {
 }
 
 abstract class VersionedDomainOntology(
-  override val version: Option[String],
-  override val date: Option[ZonedDateTime]
+    override val versionOpt: Option[String],
+    override val dateOpt: Option[ZonedDateTime]
 ) extends DomainOntology
 
 trait IndexedDomainOntology {
@@ -83,7 +83,7 @@ trait IndexedDomainOntology {
   def getNegValues(n: Integer): Array[String] = Array.empty
   def getPatternsOpt(n: Integer): Option[Array[Regex]]
   def isLeaf(n: Integer): Boolean
-  def getParent(n: Integer): Option[Option[DomainOntologyNode]]
+  def getParentOptOpt(n: Integer): Option[Option[DomainOntologyNode]]
   def getName(n: Integer): String
   def getSimpleName(n: Integer): String
   def getBranchOpt(n: Integer): Option[String]
@@ -98,7 +98,7 @@ class IndexedDomainOntologyNode(indexedDomainOntology: IndexedDomainOntology, in
 
   override def isLeaf: Boolean = indexedDomainOntology.isLeaf(index)
 
-  override def getParentOptOpt: Option[Option[DomainOntologyNode]] = indexedDomainOntology.getParent(index)
+  override def getParentOptOpt: Option[Option[DomainOntologyNode]] = indexedDomainOntology.getParentOptOpt(index)
 
   override def getName: String = indexedDomainOntology.getName(index)
 

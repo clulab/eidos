@@ -124,8 +124,8 @@ class FullOntologyLeafNode(
 }
 
 @SerialVersionUID(1000L)
-class FullTreeDomainOntology(ontologyNodes: Array[FullOntologyNode], version: Option[String], date: Option[ZonedDateTime])
-    extends VersionedDomainOntology(version, date) with Serializable {
+class FullTreeDomainOntology(ontologyNodes: Array[FullOntologyNode], versionOpt: Option[String], dateOpt: Option[ZonedDateTime])
+    extends VersionedDomainOntology(versionOpt, dateOpt) with Serializable {
 
   // It is assumed that the root node, for which parentOpt is None, is not in the list.
   def getParents(n: Integer): Seq[FullOntologyParentNode] = ontologyNodes(n).parentOpt.get +: ontologyNodes(n).parentOpt.get.parents

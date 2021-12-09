@@ -35,15 +35,15 @@ case class PredicateGrounding(predicateTuple: PredicateTuple) extends Individual
   override def toString(): String = predicateTuple.toString()
 }
 
-case class OntologyGrounding(version: Option[String], date: Option[ZonedDateTime], individualGroundings: IndividualGroundings = Seq.empty, branchOpt: Option[String] = None) {
+case class OntologyGrounding(versionOpt: Option[String], dateOpt: Option[ZonedDateTime], individualGroundings: IndividualGroundings = Seq.empty, branchOpt: Option[String] = None) {
   def nonEmpty: Boolean = individualGroundings.nonEmpty
   def isEmpty: Boolean = individualGroundings.isEmpty
   def take(n: Int): IndividualGroundings = individualGroundings.take(n)
   def headOption: Option[IndividualGrounding] = individualGroundings.headOption
   def headName: Option[String] = headOption.map(_.name)
   // Discard the head grounding and return a copy with the tail.
-  def dropFirst(): OntologyGrounding = OntologyGrounding(version, date, individualGroundings.drop(1), branchOpt)
-  def filterSlots(slot: String): OntologyGrounding = OntologyGrounding(version, date, individualGroundings.filter(_.branchOpt == Some(slot)))
+  def dropFirst(): OntologyGrounding = OntologyGrounding(versionOpt, dateOpt, individualGroundings.drop(1), branchOpt)
+  def filterSlots(slot: String): OntologyGrounding = OntologyGrounding(versionOpt, dateOpt, individualGroundings.filter(_.branchOpt == Some(slot)))
 }
 
 trait OntologyGrounder {

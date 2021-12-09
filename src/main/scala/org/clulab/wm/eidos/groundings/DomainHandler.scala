@@ -3,12 +3,9 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
-import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.ontologies.NodeTreeDomainOntologyBuilder
 
-import java.io.File
-//import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor

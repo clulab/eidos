@@ -26,12 +26,12 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
     extends OntologyGrounder {
 
   def newOntologyGrounding(individualGroundings: OntologyAliases.IndividualGroundings = Seq.empty, branchOpt: Option[String] = None): OntologyGrounding = {
-    OntologyGrounding(domainOntology.version, domainOntology.date, individualGroundings, branchOpt)
+    OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt, individualGroundings, branchOpt)
   }
 
   // This can be reused repeatedly.
   //def emptyOntologyGrounding(branchOpt: Option[String] = None) = new OntologyGrounding(domainOntology.version, domainOntology.date, branchOpt = branchOpt)
-  val emptyOntologyGrounding: OntologyGrounding = OntologyGrounding(domainOntology.version, domainOntology.date)
+  val emptyOntologyGrounding: OntologyGrounding = OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt)
 
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =

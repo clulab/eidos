@@ -520,6 +520,8 @@ class JLDDeserializer {
 
     def deserializeSingleOntologyNodeGrounding(value: JValue): OntologyNodeGrounding = {
       requireType(value, JLDOntologyGrounding.typename)
+      // This is not unescaped in any way and should only be used in a PassThruNameer which
+      // should return the name then without re-escaping it.
       val ontologyConcept = (value \ "ontologyConcept").extract[String]
       val floatVal = (value \ "value").extract[Double].toFloat
       val namer = new PassThruNamer(ontologyConcept)
@@ -535,7 +537,7 @@ class JLDDeserializer {
         }
       }.getOrElse(List.empty[OntologyNodeGrounding])
 
-      OntologyGrounding(version = None, date = None, individualGroundings = multipleOntologyGrounding)
+      OntologyGrounding(versionOpt = None, dateOpt = None, individualGroundings = multipleOntologyGrounding)
     }
 
     val nameAndGroundings = groundingsValue.arr.map { groundingValue =>

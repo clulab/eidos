@@ -11,18 +11,19 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.JavaConverters._
-import scala.util.matching.Regex
 import java.io.InputStream
 import java.time.ZonedDateTime
 import java.util.{ArrayList => JArrayList}
 import java.util.{LinkedHashMap => JLinkedHashMap}
 
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
+import scala.util.matching.Regex
+
 class NodeTreeDomainOntology(
-  ontologyNodes: Array[NodeTreeDomainOntologyNode],
-  version: Option[String], date: Option[ZonedDateTime]
-) extends VersionedDomainOntology(version, date) {
+    ontologyNodes: Array[NodeTreeDomainOntologyNode],
+    versionOpt: Option[String], dateOpt: Option[ZonedDateTime]
+) extends VersionedDomainOntology(versionOpt, dateOpt) {
 
   override def save(filename: String): Unit = ???
 

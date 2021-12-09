@@ -2,11 +2,11 @@ package org.clulab.wm.ontologies
 
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.OptionUtils
 import org.clulab.wm.eidoscommon.utils.TsvReader
 
 import java.time.ZonedDateTime
 import java.util
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{HashMap => MutableHashMap}
@@ -29,18 +29,18 @@ import scala.util.matching.Regex
 //* @param childStartIndexes Similar to above two, but index into childIndexes of the start of children for node N
 
 class FastDomainOntology(
-  names: Array[String],
-  val parents: Array[Int],
-  leaves: Array[Boolean],
-  wordIndexes: Array[Int],
-  wordStartIndexes: Array[Int],
-  patterns: Array[String],
-  patternStartIndexes: Array[Int],
-//  childIndexes: Array[Int],
-//  childStartIndexes: Array[Int],
-  wordStringArr: Array[String],
-  override val version: Option[String] = None,
-  override val date: Option[ZonedDateTime] = None
+    names: Array[String],
+    val parents: Array[Int],
+    leaves: Array[Boolean],
+    wordIndexes: Array[Int],
+    wordStartIndexes: Array[Int],
+    patterns: Array[String],
+    patternStartIndexes: Array[Int],
+    //  childIndexes: Array[Int],
+    //  childStartIndexes: Array[Int],
+    wordStringArr: Array[String],
+    override val versionOpt: Option[String] = None,
+    override val dateOpt: Option[ZonedDateTime] = None
 ) extends DomainOntology with IndexedDomainOntology with IndexedSeq[DomainOntologyNode] {
 
   protected val patternRegexes: Array[Regex] = patterns.map(_.r)
@@ -56,17 +56,17 @@ class FastDomainOntology(
   protected def isRoot(n: Int): Boolean = parents(n) < 0
 
   def getPatternsOpt(n: Integer): Option[Array[Regex]] = {
-    val range = Range(patternStartIndexes(n), patternStartIndexes(n + 1))
-
-    if (range.isEmpty) None
-    else Some(range.map(n => patternRegexes(n)).toArray)
+    OptionUtils.someOrNoneIfEmpty(Range(patternStartIndexes(n), patternStartIndexes(n + 1)))
+        .map { range =>
+          range.map(n => patternRegexes(n)).toArray
+        }
   }
 
   def save(filename: String): Unit = {
     FileUtils.newObjectOutputStream(filename).autoClose { objectOutputStream =>
       val firstLine = Seq(
-        version.getOrElse(""),
-        date.map(_.toString).getOrElse("")
+        versionOpt.getOrElse(""),
+        dateOpt.map(_.toString).getOrElse("")
       ).mkString("\t") // Some versions of ZonedDateTime.toString can contain spaces.
       objectOutputStream.writeObject(firstLine)
       objectOutputStream.writeObject(names.mkString("\n"))
@@ -86,9 +86,9 @@ class FastDomainOntology(
 
   override def length: Int = names.length
 
-  override def apply(idx: Int): DomainOntologyNode = new IndexedDomainOntologyNode(this, idx)
+  override def apply(index: Int): DomainOntologyNode = new IndexedDomainOntologyNode(this, index)
 
-  override def getParent(n: Integer): Option[Option[DomainOntologyNode]] =
+  override def getParentOptOpt(n: Integer): Option[Option[DomainOntologyNode]] =
       Some(
         if (isRoot(n)) None
         else Some(new IndexedDomainOntologyNode(this, parents(n)))
@@ -130,7 +130,7 @@ class FastDomainOntology(
 // for the compositional grounding even the next level will be skipped.
 class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1)
     extends DomainOntology with IndexedDomainOntology with IndexedSeq[DomainOntologyNode] {
-  // TODO Doesn't this need to store the offset as well?
+  // TODO Doesn't this need to store the offset as well for serialization?
 
   def getValues(n: Integer): Array[String] = fastDomainOntology.getValues(n + offset)
 
@@ -146,7 +146,7 @@ class SkipDomainOntology(fastDomainOntology: FastDomainOntology, offset: Int = 1
 
   override def apply(idx: Int): DomainOntologyNode = new IndexedDomainOntologyNode(this, idx)
 
-  override def getParent(n: Integer): Option[Option[DomainOntologyNode]] =
+  override def getParentOptOpt(n: Integer): Option[Option[DomainOntologyNode]] =
     Some(
       if (n > offset) Some(new IndexedDomainOntologyNode(this, fastDomainOntology.parents(n + offset)))
       else None
@@ -314,7 +314,7 @@ object FastDomainOntology {
 
       new FastDomainOntology(names, parents, leaves, wordIndexes, wordStartIndexes,
         patterns, patternStartIndexes, /*childIndexes, childStartIndexes,*/ wordStringArr,
-        treeDomainOntology.version, treeDomainOntology.date)
+        treeDomainOntology.versionOpt, treeDomainOntology.dateOpt)
     }
 
     def build(): DomainOntology = {

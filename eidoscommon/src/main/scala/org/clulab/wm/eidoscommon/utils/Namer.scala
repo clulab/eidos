@@ -5,42 +5,42 @@ trait Namer {
   def getBranchOpt: Option[String] // gets the branch in top/branch/[more/]leaf
   def getSimpleName: String // gets the leaf name
 
-  def canonicalName: String = Namer.canonicalize(getName)
-  def canonicalWords: Array[String] = Namer.canonicalizeWords(getName)
+  def canonicalName: String = Namer.canonicalize(getSimpleName) // replaces the _s with spaces
+  def canonicalWords: Array[String] = Namer.canonicalizeWords(getSimpleName) // splits the canonical name
 
   override def toString: String = getName
 }
 
 object Namer {
+  val slash = '/'
+  val underscore = '_'
+
   implicit val NameOrdering: Ordering[Namer] = new Ordering[Namer] {
     override def compare(x: Namer, y: Namer): Int = x.getName.compare(y.getName)
   }
 
   def getBranch(name: String): Option[String] = {
-    val count = name.count( char => char == '/')
+    val count = name.count(char => char == slash)
 
     if (count >= 2)
-      Some(StringUtils.beforeFirst(StringUtils.afterFirst(name, '/', false), '/', false))
+      Some(StringUtils.beforeFirst(StringUtils.afterFirst(name, slash, false), slash, false))
     else
       None
   }
 
-  def getSimpleName(name: String): String = StringUtils.afterLast(name, '/', all = true)
+  def getSimpleName(name: String): String = StringUtils.afterLast(name, slash, all = true)
 
-  def canonicalize(name: String): String = {
-    val shortName = StringUtils.afterLast(name, '/', true)
-    val lowerName = shortName.toLowerCase
-    val separatedName = lowerName.replace('_', ' ')
+  def canonicalize(simpleName: String): String = {
+    val lowerName = simpleName.toLowerCase
+    val separatedName = lowerName.replace(underscore, ' ')
 
     separatedName
   }
 
-  def canonicalizeWords(name: String): Array[String] = {
-    val shortName = StringUtils.afterLast(name, '/', true)
-
-    if (shortName.nonEmpty) {
-      val lowerName = shortName.toLowerCase
-      val separatedNames = lowerName.split('_')
+  def canonicalizeWords(simpleName: String): Array[String] = {
+    if (simpleName.nonEmpty) {
+      val lowerName = simpleName.toLowerCase
+      val separatedNames = lowerName.split(underscore)
 
       separatedNames
     }

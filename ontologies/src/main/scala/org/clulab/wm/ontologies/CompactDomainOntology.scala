@@ -2,11 +2,11 @@ package org.clulab.wm.ontologies
 
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.OptionUtils
 import org.clulab.wm.eidoscommon.utils.TsvReader
 
 import java.time.ZonedDateTime
 import java.util
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{HashMap => MutableHashMap}
@@ -27,20 +27,20 @@ import scala.util.matching.Regex
   *                      Name offset is into nodeStrings, parent offset is back into branchIndexes.
   */
 class CompactDomainOntology(
-  protected val leafStrings: Array[String],
-  protected val leafStringIndexes: Array[Int],
-  protected val leafStartIndexes: Array[Int],
+    protected val leafStrings: Array[String],
+    protected val leafStringIndexes: Array[Int],
+    protected val leafStartIndexes: Array[Int],
 
-  patternStrings: Array[String],
-  protected val patternStartIndexes: Array[Int],
+    patternStrings: Array[String],
+    protected val patternStartIndexes: Array[Int],
 
-  protected val nodeStrings: Array[String],
+    protected val nodeStrings: Array[String],
 
-  protected val leafIndexes: Array[Int],
-  protected val branchIndexes: Array[Int],
+    protected val leafIndexes: Array[Int],
+    protected val branchIndexes: Array[Int],
 
-  override val version: Option[String] = None,
-  override val date: Option[ZonedDateTime]
+    override val versionOpt: Option[String] = None,
+    override val dateOpt: Option[ZonedDateTime]
 ) extends DomainOntology with IndexedDomainOntology with IndexedSeq[IndexedDomainOntologyNode] {
   protected val patternRegexes: Array[Regex] = patternStrings.map(_.r)
 
@@ -54,17 +54,17 @@ class CompactDomainOntology(
   def isLeaf(n: Integer): Boolean = false
 
   def getPatternsOpt(n: Integer): Option[Array[Regex]] = {
-    val range = Range(patternStartIndexes(n), patternStartIndexes(n + 1))
-
-    if (range.isEmpty) None
-    else Some(range.map(n => patternRegexes(n)).toArray)
+    OptionUtils.someOrNoneIfEmpty(Range(patternStartIndexes(n), patternStartIndexes(n + 1)))
+        .map { range =>
+          range.map(n => patternRegexes(n)).toArray
+        }
   }
 
   def save(filename: String): Unit = {
     FileUtils.newObjectOutputStream(filename).autoClose { objectOutputStream =>
       val firstLine = Seq(
-        version.getOrElse(""),
-        date.map(_.toString).getOrElse("")
+        versionOpt.getOrElse(""),
+        dateOpt.map(_.toString).getOrElse("")
       ).mkString("\t") // Some versions of ZonedDateTime.toString can contain spaces.
       objectOutputStream.writeObject(firstLine)
       objectOutputStream.writeObject(leafStrings.mkString("\n"))
@@ -84,7 +84,7 @@ class CompactDomainOntology(
 
   override def apply(idx: Int): IndexedDomainOntologyNode = new IndexedDomainOntologyNode(this, idx)
 
-  override def getParent(n: Integer): Option[Option[DomainOntologyNode]] = None // unknown
+  override def getParentOptOpt(n: Integer): Option[Option[DomainOntologyNode]] = None // unknown
 
   override def getName(n: Integer): String = {
     val stringBuilder = new StringBuilder()
@@ -119,7 +119,7 @@ class CompactDomainOntology(
 
   override def getBranchOpt(n: Integer): Option[String] = {
 
-    def branch(n: Int, prevNameOffset: Int): Option[String] = {
+    def loop(n: Int, prevNameOffset: Int): Option[String] = {
       if (n > 0) {
         val index = n * CompactDomainOntology.branchIndexWidth
         val parentOffset = branchIndexes(index + CompactDomainOntology.parentOffset)
@@ -130,7 +130,7 @@ class CompactDomainOntology(
         else {
           val nameOffset = branchIndexes(index + CompactDomainOntology.nameOffset)
 
-          branch(parentOffset, nameOffset)
+          loop(parentOffset, nameOffset)
         }
       }
       else None
@@ -140,7 +140,7 @@ class CompactDomainOntology(
     val index = n * CompactDomainOntology.leafIndexWidth
     val parentOffset = leafIndexes(index + CompactDomainOntology.parentOffset)
 
-    branch(parentOffset, -1)
+    loop(parentOffset, -1)
   }
 }
 
@@ -303,7 +303,7 @@ object CompactDomainOntology {
       val nodeStrings: Array[String] = toArray(nodeStringMap)
 
       new CompactDomainOntology(leafStrings, leafStringIndexes, leafStartIndexes, patternStrings, patternStartIndexes,
-          nodeStrings, leafIndexes, branchIndexes, treeDomainOntology.version, treeDomainOntology.date)
+          nodeStrings, leafIndexes, branchIndexes, treeDomainOntology.versionOpt, treeDomainOntology.dateOpt)
     }
   }
 }
