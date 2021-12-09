@@ -206,7 +206,7 @@ class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
-    "ontologyConcept" -> name,
+    "ontologyConcept" -> name, // This should have escaped any slashes within a node name (simpleName)
     "value" -> value
   ))
 }

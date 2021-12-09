@@ -96,7 +96,7 @@ class CompactDomainOntology(
         val nameOffset = branchIndexes(index + CompactDomainOntology.nameOffset)
 
         parentName(parentOffset)
-        stringBuilder.append(nodeStrings(nameOffset))
+        stringBuilder.append(DomainOntology.escaped(nodeStrings(nameOffset)))
         stringBuilder.append(DomainOntology.SEPARATOR)
       }
     }

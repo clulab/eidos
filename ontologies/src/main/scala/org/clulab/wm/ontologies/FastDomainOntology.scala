@@ -100,7 +100,7 @@ class FastDomainOntology(
     def parentName(n: Int): Unit = {
       if (!isRoot(n))
         parentName(parents(n))
-      stringBuilder.append(names(n))
+      stringBuilder.append(DomainOntology.escaped(names(n)))
       stringBuilder.append(DomainOntology.SEPARATOR)
     }
 

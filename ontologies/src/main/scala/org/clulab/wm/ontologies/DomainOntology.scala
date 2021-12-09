@@ -53,7 +53,7 @@ object DomainOntology {
   val ESCAPED_SEPARATOR: String = ESCAPE + SEPARATOR
 
   // This takes care of possible /s in the node names so that paths can be built.
-  def escaped(name: String): String = name
+  def escaped(simpleName: String): String = simpleName
       .replace(ESCAPE, ESCAPED_ESCAPE)
       .replace(SEPARATOR, ESCAPED_SEPARATOR)
 
