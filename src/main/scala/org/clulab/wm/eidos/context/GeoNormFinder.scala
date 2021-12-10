@@ -13,9 +13,9 @@ import org.clulab.wm.eidos.mentions.OdinMention
 import org.clulab.wm.eidos.utils.Unordered
 import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
 import org.clulab.wm.eidoscommon.utils.IdentityHashMap
+import org.clulab.wm.eidoscommon.utils.IdentityHashSet
 
 import scala.collection.mutable
-
 import java.nio.file.{Files, Path, Paths}
 
 @SerialVersionUID(1L)
@@ -51,12 +51,7 @@ object GeoNormFinder {
         case attachment: Location => attachment.geoPhraseID
       }
     }
-    val geoPhraseIDMap: mutable.Map[GeoPhraseID, Int] = geoPhraseIDSeq.foldLeft(IdentityHashMap[GeoPhraseID, Int]()) { (identityHashMap, geoPhraseID) =>
-      identityHashMap(geoPhraseID) = 0 // This is being used as a set, with values disregarded.
-      identityHashMap
-    }
-    val geoPhraseIDArray = geoPhraseIDMap
-        .keys
+    val geoPhraseIDArray = IdentityHashSet(geoPhraseIDSeq)
         .toArray
         .sorted
 
