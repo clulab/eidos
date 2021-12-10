@@ -13,21 +13,17 @@ import org.clulab.wm.ontologies.PosNegTreeDomainOntology
 import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
 import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
+import scala.util.matching.Regex
+
 class TestDomainOntology extends EidosTest {
 
   def matches(left: DomainOntology, right: DomainOntology): Boolean = {
 
-    def getNames(domainOntology: DomainOntology): Seq[String] = {
-      domainOntology.indices.map { index =>
-        domainOntology.getNamer(index).name
-      }
-    }
+    def getNames(domainOntology: DomainOntology): Seq[String] =
+        domainOntology.nodes.map(_.getName)
 
-    def getValues(domainOntology: DomainOntology): Seq[Array[String]] = {
-      domainOntology.indices.map { index =>
-        domainOntology.getValues(index)
-      }
-    }
+    def getValues(domainOntology: DomainOntology): Seq[Array[String]] =
+        domainOntology.nodes.map(_.getValues)
 
     val leftNames = getNames(left)
     val rightNames = getNames(right)
@@ -39,11 +35,11 @@ class TestDomainOntology extends EidosTest {
   }
 
   def hasDuplicates(name: String, domainOntology: DomainOntology): Boolean = {
-    val pathSeq = 0.until(domainOntology.size).map { i => domainOntology.getNamer(i).name }
+    val pathSeq = domainOntology.nodes.map(_.getName)
 
-    domainOntology.indices.foreach { i =>
+    domainOntology.nodes.foreach { node =>
       // Just make sure this doesn't crash now.
-      val branch = domainOntology.getNamer(i).branch
+      val branch = node.getBranchOpt
 //      println(branch)
     }
 
@@ -75,9 +71,9 @@ class TestDomainOntology extends EidosTest {
   val filter = true
 
   def show1(ontology: DomainOntology): Unit = {
-    ontology.indices.foreach { i =>
-      println(ontology.getNamer(i).name + " = " + ontology.getValues(i).mkString(", "))
-      ontology.getPatterns(i).map(_.foreach(regex => println(regex.toString)))
+    ontology.nodes.foreach { node =>
+      println(node.getName + " = " + node.getValues.mkString(", "))
+      node.getPatternsOpt.map(_.foreach { pattern: Regex => println(pattern.toString) })
     }
     println
   }
@@ -96,13 +92,13 @@ class TestDomainOntology extends EidosTest {
 
     it should "load and not have duplicates" in {
       val newOntology = Timer.time(s"Load $name without cache") {
-        DomainHandler(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies = false, includeParents)
+        DomainHandler(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies = false, includeParents, fmt2 = false)
       }
       hasDuplicates(name, newOntology) should be (false)
 
       val newerOntologyOpt = Timer.time(s"Convert $name to compact") {
         if (includeParents)
-          if (PosNegTreeDomainOntology.isPogNegName(name))
+          if (PosNegTreeDomainOntology.isPosNegName(name))
             None
           else
             Some(new FastDomainOntologyBuilder(newOntology.asInstanceOf[FullTreeDomainOntology]).build)

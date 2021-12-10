@@ -60,9 +60,9 @@ class TestOntologyGrounder extends EnglishTest {
       val odinMention = odinMentions.head
       val eidosMentions = annotatedDocument.eidosMentions.filter { eidosMention => eidosMention.odinMention.eq(odinMention) }
       val eidosMention = eidosMentions.head
-      val unGrounding = eidosMention.grounding("un").grounding
+      val unGrounding = eidosMention.grounding("un").individualGroundings
       val grounding = unGrounding.map {
-        case s: SingleOntologyNodeGrounding => (s.name, s.score)
+        case s: OntologyNodeGrounding => (s.name, s.score)
         case _ => ???
       }
 

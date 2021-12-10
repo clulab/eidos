@@ -66,7 +66,7 @@ class TestPosNegGrounding extends EnglishGroundingTest {
 
     it should "change grounding when negative examples are added" in {
       val negConceptEmbedding = conceptEmbeddings.find { conceptEmbedding =>
-        conceptEmbedding.namer.name == negNodeName
+        conceptEmbedding.namer.getName == negNodeName
       }.get
       val posConceptEmbedding = negConceptEmbedding.copy(negEmbeddingOpt = None)
 

@@ -4,13 +4,18 @@ assembly / assemblyMergeStrategy := {
   // This is nearly the same as case _ => MergeStrategy.defaultMergeStrategy with the most important difference
   // being that any problem noticed by deduplicate will halt the process.  The is presently/temporarily
   // preferred over a version that will silently handle new conflicts without alerting us to the potential problem.
-  case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
   case PathList("META-INF", "DEPENDENCIES") => MergeStrategy.discard // All dependencies will be included in the assembly already.
+  case PathList("META-INF", "MANIFEST.MF")  => MergeStrategy.discard // We'll make a new manifest for Eidos.
+  case PathList("META-INF", "INDEX.LIST")   => MergeStrategy.discard // These can't be automatically combined, so skip the optimization.
   case PathList("module-info.class")        => MergeStrategy.discard // This might not be right, but it stops the complaints.
-  case PathList("META-INF", "LICENSE")      => MergeStrategy.concat  // Concatenate everyone's licenses and notices.
+
+  // Concatenate everyone's licenses and notices.
+  case PathList("LICENSE")                  => MergeStrategy.concat
+  case PathList("META-INF", "LICENSE")      => MergeStrategy.concat 
   case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
   case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
   case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat
+
   // If two copies of glove are included, this readme file will be duplicated.
   // case PathList("org", "clulab", "glove", "README.md") => MergeStrategy.concat
   // These all have different contents and cannot be automatically deduplicated.

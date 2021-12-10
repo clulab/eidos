@@ -5,7 +5,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.grounders.SRLCompositionalGrounder
-import org.clulab.wm.eidos.groundings.{ConceptPatterns, IndividualGrounding, OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{ConceptPatterns, IndividualGrounding, OntologyGrounding, PredicateGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.Closer._
 import org.clulab.wm.eidoscommon.utils.{FileUtils, StringUtils}
@@ -79,14 +79,14 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem, config: Co
 
 
   def groundingInfo(grounding: OntologyGrounding, canonical: String): Seq[String] = {
-    grounding.grounding.map(groundingInfo(_, canonical))
+    grounding.individualGroundings.map(groundingInfo(_, canonical))
   }
 
   def groundingInfo(grounding: IndividualGrounding, canonical: String): String = {
     val lines = new ArrayBuffer[String]
 
     grounding match {
-      case single: SingleOntologyNodeGrounding =>
+      case single: OntologyNodeGrounding =>
         val node = nodes(grounding.name)
         lines.append("--------GROUNDING INFO----------")
         lines.append(s"  NODE: ${single.name}")
@@ -129,7 +129,7 @@ class GroundingInsightExporter(filename: String, reader: EidosSystem, config: Co
   def exactMatch(text: String): Seq[String] = {
     val patterns: Seq[ConceptPatterns] = currOntologyGrounder.conceptPatterns
     val lowerText = text.toLowerCase
-    val exactMatches = patterns.filter(pattern => StringUtils.afterLast(pattern.namer.name, '/', true) == lowerText)
+    val exactMatches = patterns.filter(pattern => StringUtils.afterLast(pattern.namer.getName, '/', true) == lowerText)
     if (exactMatches.nonEmpty)
       exactMatches.map(exactMatch => s"         Exact Match: ${exactMatch.namer}\t(1.0f)")
     else {

@@ -6,7 +6,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
 import org.clulab.processors.Sentence
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, OntologyHandler, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, OntologyHandler, OntologyNodeGrounding}
 import org.clulab.wm.eidos.groundings.grounders.FlatOntologyGrounder
 import org.clulab.wm.eidoscommon.Language
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
@@ -24,7 +24,7 @@ class SentenceClassifier(val classificationThreshold: Float, idfWeights: Map[Str
     val weights = words.map(idfWeights.getOrElse(_, 1.0f))
     val similarities = ontologyHandler.wordToVec.calculateSimilaritiesWeighted(words, weights, conceptEmbeddings)
     // FIXME: assumes flat grounding
-    val grounding = flatOntologyGrounder.newOntologyGrounding(similarities.map(SingleOntologyNodeGrounding(_)))
+    val grounding = flatOntologyGrounder.newOntologyGrounding(similarities.map(OntologyNodeGrounding(_)))
     // The correlation score of a sentence is set to 0 if it is below the threshold. Change it later if needed.
     val classificationRaw = grounding.headOption.map(_.score).getOrElse(0.0f)
 

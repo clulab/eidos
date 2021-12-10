@@ -40,7 +40,7 @@ class OntologyHandler(
       val name: String = ontologyGrounder.name
       val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundEidosMention(eidosMention, topN, threshold)
       val nameAndOntologyGroundings: Seq[(String, OntologyGrounding)] = ontologyGroundings.map { ontologyGrounding =>
-        OntologyHandler.mkBranchName(name, ontologyGrounding.branch) -> ontologyGrounding
+        OntologyHandler.mkBranchName(name, ontologyGrounding.branchOpt) -> ontologyGrounding
       }
 
       nameAndOntologyGroundings
@@ -50,7 +50,7 @@ class OntologyHandler(
     eidosMention
   }
 
-  def reground(sentenceText: String, interval: Interval, document: Document): OntologyAliases.OntologyGroundings = {
+  def reground(sentenceText: String, interval: Interval, document: Document): OntologyAliases.OntologyGroundingMap = {
     // This is assuming that there is just one sentence and the interval falls within it.  That may
     // not always be the case, especially as information may have originated with a different reader.
     // Furthermore, the interval may not align exactly with our tokenization of the sentence.  This
@@ -97,14 +97,14 @@ class OntologyHandler(
     }
     catch {
       case throwable: Throwable =>
-        val ontologyGroundings: OntologyAliases.OntologyGroundings = Map.empty
+        val ontologyGroundings: OntologyAliases.OntologyGroundingMap = Map.empty
 
         OntologyHandler.logger.error(s"Regrounding of '$sentenceText' on interval [${interval.start}-${interval.end}) was not possible ", throwable)
         ontologyGroundings
     }
   }
 
-  def reground(sentenceText: String, interval: Interval): OntologyAliases.OntologyGroundings = {
+  def reground(sentenceText: String, interval: Interval): OntologyAliases.OntologyGroundingMap = {
     // This is assuming that there is just one sentence and the interval falls within it.  That may
     // not always be the case, especially as information may have originated with a different reader.
     // Furthermore, the interval may not align exactly with our tokenization of the sentence.  This
@@ -150,7 +150,7 @@ class OntologyHandler(
     }
     catch {
       case throwable: Throwable =>
-        val ontologyGroundings: OntologyAliases.OntologyGroundings = Map.empty
+        val ontologyGroundings: OntologyAliases.OntologyGroundingMap = Map.empty
 
         OntologyHandler.logger.error(s"Regrounding of '$sentenceText' on interval [${interval.start}-${interval.end}) was not possible ", throwable)
         ontologyGroundings

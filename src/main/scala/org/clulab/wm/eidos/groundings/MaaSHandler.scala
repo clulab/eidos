@@ -15,7 +15,7 @@ object MaaSHandler {
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
     val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings
-    val primaryKeys = primaryConceptEmbeddings.map(_.namer.name)
+    val primaryKeys = primaryConceptEmbeddings.map(_.namer.getName)
     val canonicalizer = new Canonicalizer(reader.components.stopwordManagerOpt.get, reader.components.procOpt.get.getTagSet)
     val providedOntology = OntologyHandler.mkDomainOntologyFromYaml(
       ontologyName,

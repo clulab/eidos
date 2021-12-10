@@ -23,7 +23,7 @@ import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
-import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceEventMention, EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.clulab.wm.eidos.utils.Unordered
 import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
@@ -206,7 +206,7 @@ class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
-    "ontologyConcept" -> name,
+    "ontologyConcept" -> name, // This should have escaped any slashes within a node name (simpleName)
     "value" -> value
   ))
 }
@@ -240,8 +240,8 @@ object JLDOntologyPredicateGrounding {
 
 class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: OntologyGrounding)
     extends JLDObject(serializer, JLDOntologyGroundings.typename) {
-  val jldGroundings: Seq[JObject] = grounding.grounding.map {
-    case s: SingleOntologyNodeGrounding =>
+  val jldGroundings: Seq[JObject] = grounding.individualGroundings.map {
+    case s: OntologyNodeGrounding =>
       new JLDOntologyGrounding(serializer, s.name, s.score).toJObject
     case pred: PredicateGrounding =>
       new JLDOntologyPredicateGrounding(serializer, pred.predicateTuple, name, pred.score, pred.name).toJObject
@@ -251,9 +251,9 @@ class JLDOntologyGroundings(serializer: JLDSerializer, name: String, grounding: 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
     "name" -> name,
-    "category" -> grounding.branch,
-    "version" -> grounding.version,
-    "versionDate" -> grounding.date.map(_.toString),
+    "category" -> grounding.branchOpt,
+    "version" -> grounding.versionOpt,
+    "versionDate" -> grounding.dateOpt.map(_.toString),
     "values" -> jldGroundings
   ))
 }
@@ -513,7 +513,11 @@ abstract class JLDExtraction(serializer: JLDSerializer, typeString: String, val 
     //val ontologyGroundings = mention.grounding.values.flatMap(_.grounding).toSeq
     //val ontologyGrounding = new OntologyGrounding(Seq(("hello", 4.5d), ("bye", 1.0d))).grounding
     val jldGroundings = {
-      val groundings = eidosMention.grounding
+      val groundings =
+          if (eidosMention.grounding.isEmpty && eidosMention.deserializedGrounding.nonEmpty)
+            eidosMention.deserializedGrounding
+          else
+            eidosMention.grounding
       val keys = groundings.keys.toSeq.sorted // for consistency
 
       keys.map { key =>

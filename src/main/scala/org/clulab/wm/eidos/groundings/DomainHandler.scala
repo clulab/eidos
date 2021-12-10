@@ -3,11 +3,9 @@ package org.clulab.wm.eidos.groundings
 import java.time.ZonedDateTime
 import com.github.clulab.eidos.Version
 import com.github.clulab.eidos.Versions
-import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
+import org.clulab.wm.ontologies.NodeTreeDomainOntologyBuilder
 
-import java.io.File
-//import com.github.worldModelers.ontologies.{Versions => AwayVersions}
 import org.clulab.wm.eidos.groundings.OntologyHandler.serializedPath
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
@@ -22,11 +20,13 @@ import org.clulab.wm.ontologies.PosNegTreeDomainOntology
 import org.clulab.wm.ontologies.PosNegTreeDomainOntology.PosNegTreeDomainOntologyBuilder
 
 object DomainHandler extends Logging {
+  val codeDir = "src/main/resources"
+  val ontologyDir = codeDir + "/org/clulab/wm/eidos/english/ontologies/"
 
   // The intention is to stop the proliferation of the generated Version class to this single method.
   def getVersionOpt(ontologyPath: String): (Option[String], Option[ZonedDateTime]) = {
     // This should work for local ontologies.  Absolute
-    val goodVersionOpt = Versions.versions.get(MockVersions.codeDir + ontologyPath)
+    val goodVersionOpt = Versions.versions.get(codeDir + ontologyPath)
     // See what might have come from WordModelers/Ontologies
     val bestVersionOpt = goodVersionOpt.getOrElse {
       // AwayVersions are no longer available.  Instead, look for a properties resource next to the ontologyPath.
@@ -55,7 +55,7 @@ object DomainHandler extends Logging {
 
   def apply(ontologyPath: String, serializedPath: String, sentencesExtractor: SentencesExtractor,
       canonicalizer: Canonicalizer, filter: Boolean = true, useCacheForOntologies: Boolean = false,
-      includeParents: Boolean = false): DomainOntology = {
+      includeParents: Boolean = false, fmt2: Boolean = true): DomainOntology = {
 
     // As coded below, when parents are included, the FullTreeDomainOntology is being used.
     // The faster loading version is the FastDomainOntology.
@@ -71,8 +71,12 @@ object DomainHandler extends Logging {
         val (versionOpt, dateOpt) = getVersionOpt(ontologyPath)
         if (PosNegTreeDomainOntology.isPosNegPath(ontologyPath))
           new PosNegTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
-        else
-          new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+        else {
+          if (fmt2)
+            new NodeTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+          else
+            new FullTreeDomainOntologyBuilder(sentencesExtractor, canonicalizer, filter).buildFromPath(ontologyPath, versionOpt, dateOpt)
+        }
       }
     }
     else {

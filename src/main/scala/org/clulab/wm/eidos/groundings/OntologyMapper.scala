@@ -114,7 +114,7 @@ object OntologyMapper extends EidosConfigured {
     // Semantic similarity between leaf nodes (based on their examples)
     val examplesScore = EidosWordToVec.dotProduct(ce1.embedding, ce2.embedding)
     // Semantic similarity of the parents (going up the hierarchy, more weight closer to leaves)
-    val structureScore = weightedParentScore(ce1.namer.name, ce2.namer.name, reader)
+    val structureScore = weightedParentScore(ce1.namer.getName, ce2.namer.getName, reader)
     // Similarity between the indicator an the ontology concept ancestors
     //val indicatorToAncestorScore = weightedNodeToParentScore(ce1.namer.name, ce2.namer.name, reader)
 
@@ -123,13 +123,13 @@ object OntologyMapper extends EidosConfigured {
 
   def mostSimilarIndicators(concepts: Seq[ConceptEmbedding], indicators: Seq[ConceptEmbedding], n: Int = 10,
                             reader: EidosSystem, exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f): Seq[(String, Seq[(String, Float)])] = {
-    concepts.map(c => (c.namer.name, mostSimilar(c, indicators, n, reader)))
+    concepts.map(c => (c.namer.getName, mostSimilar(c, indicators, n, reader)))
   }
 
   // n is to limit the number returned, 0 means return all
   def mostSimilar(concept: ConceptEmbedding, indicators: Seq[ConceptEmbedding], n: Int, reader: EidosSystem, exampleWeight: Float = 0.8f, parentWeight: Float = 0.1f): Seq[(String, Float)] = {
-    println(s"comparing ${concept.namer.name}...")
-    val comparisons = indicators.map(indicator => (indicator.namer.name, pairwiseScore(concept, indicator, reader, exampleWeight, parentWeight))) //.filter(p => p._2 > 0.7)
+    println(s"comparing ${concept.namer.getName}...")
+    val comparisons = indicators.map(indicator => (indicator.namer.getName, pairwiseScore(concept, indicator, reader, exampleWeight, parentWeight))) //.filter(p => p._2 > 0.7)
     if (n > 0) {
       comparisons.sortBy(-_._2).take(n)
     } else {
@@ -158,7 +158,7 @@ object OntologyMapper extends EidosConfigured {
     // For purposes of this app, it is assumed that the primary grounder exists.
     val primaryGrounder = grounders.find { grounder => grounder.name == EidosOntologyGrounder.PRIMARY_NAMESPACE }.get
     val primaryConceptEmbeddings = primaryGrounder.conceptEmbeddings
-    val primaryKeys = primaryConceptEmbeddings.map(_.namer.name)
+    val primaryKeys = primaryConceptEmbeddings.map(_.namer.getName)
     val indicatorGrounders = grounders.filter(g => EidosOntologyGrounder.indicatorNamespaces.contains(g.name))
     val indicatorMaps = indicatorGrounders.map { ontology: EidosOntologyGrounder =>
       val namespace = ontology.name
