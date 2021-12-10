@@ -1,9 +1,5 @@
 package org.clulab.wm.eidos.context
 
-import java.util.TimeZone
-import java.time.{LocalDate, LocalDateTime, LocalTime, ZoneId}
-import java.time.format.DateTimeFormatter
-
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import edu.stanford.nlp.time.Timex
@@ -27,8 +23,13 @@ import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.Sourcer
 
+import scala.collection.mutable
 import scala.util.Try
 import scala.util.matching.Regex
+
+import java.util.TimeZone
+import java.time.{LocalDate, LocalDateTime, LocalTime, ZoneId}
+import java.time.format.DateTimeFormatter
 
 @SerialVersionUID(1L)
 case class TimeStep(startDate: LocalDateTime, endDate: LocalDateTime)
@@ -61,7 +62,7 @@ object TimeNormFinder {
         case attachment: Time => attachment.interval
       }
     }
-    val timExMap: IdentityHashMap[TimEx, Int] = timExSeq.foldLeft(new IdentityHashMap[TimEx, Int]()) { (identityHashMap, timEx) =>
+    val timExMap: mutable.Map[TimEx, Int] = timExSeq.foldLeft(IdentityHashMap[TimEx, Int]()) { (identityHashMap, timEx) =>
       identityHashMap(timEx) = 0 // This is being used as a set, with values disregarded.
       identityHashMap
     }

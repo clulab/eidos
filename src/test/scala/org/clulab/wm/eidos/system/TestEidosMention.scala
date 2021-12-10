@@ -6,7 +6,7 @@ import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.mentions.{EidosMention, OdinMention}
 import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidos.text.english.cag.CAG._
-import org.clulab.wm.eidoscommon.utils.{EqualityBagger, IdentityBagger}
+import org.clulab.wm.eidoscommon.utils.{EqualityHashBag, IdentityHashBag}
 
 class TestEidosMention extends ExtractionTest {
 
@@ -27,13 +27,13 @@ class TestEidosMention extends ExtractionTest {
 
     {
       // Diagnostics
-      val distinctExtractedOdinMentions = new EqualityBagger[Mention].put(extractedOdinMentions).get
-      val uniqueExtractedOdinMentions = new IdentityBagger[Mention].put(extractedOdinMentions).get
-      val uniqueDistinctExtractedOdinMentions = new IdentityBagger[Mention].put(distinctExtractedOdinMentions).get
+      val distinctExtractedOdinMentions = EqualityHashBag(extractedOdinMentions).toSeq
+      val uniqueExtractedOdinMentions = IdentityHashBag(extractedOdinMentions).toSeq
+      val uniqueDistinctExtractedOdinMentions = IdentityHashBag(distinctExtractedOdinMentions).toSeq
 
-      val distinctReachableOdinMentions = new EqualityBagger[Mention].put(reachableOdinMentions).get
-      val uniqueReachableOdinMentions = new IdentityBagger[Mention].put(reachableOdinMentions).get
-      val uniqueDistinctReachableOdinMentions = new IdentityBagger[Mention].put(distinctReachableOdinMentions).get
+      val distinctReachableOdinMentions = EqualityHashBag(reachableOdinMentions).toSeq
+      val uniqueReachableOdinMentions = IdentityHashBag(reachableOdinMentions).toSeq
+      val uniqueDistinctReachableOdinMentions = IdentityHashBag(distinctReachableOdinMentions).toSeq
 
       //    reachableOdinMentions.foreach { odinMention =>
       //      println(System.identityHashCode(odinMention) + "\t" + odinMention.hashCode())
@@ -41,14 +41,14 @@ class TestEidosMention extends ExtractionTest {
     }
 
     val odinMentions = reachableOdinMentions // These should already be distinct
-    val distinctOdinMentions = new EqualityBagger[Mention].put(odinMentions).get // This shouldn't make a difference
+    val distinctOdinMentions = EqualityHashBag(odinMentions).toSeq // This shouldn't make a difference
     val (eidosMentions, _) = EidosMention.asEidosMentions(odinMentions)
     odinMentions.size should be (distinctOdinMentions.size)
     odinMentions.size should be (eidosMentions.size)
 
     // Since they are all distinct above, they are also unique
-    val odinUniqueMentions = new IdentityBagger[Mention].put(odinMentions).get
-    val eidosUniqueMentions = new IdentityBagger[EidosMention].put(eidosMentions).get
+    val odinUniqueMentions = IdentityHashBag(odinMentions).toSeq
+    val eidosUniqueMentions = IdentityHashBag(eidosMentions).toSeq
     odinMentions.size should be (odinUniqueMentions.size)
     odinMentions.size should be (eidosUniqueMentions.size)
 

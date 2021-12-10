@@ -12,7 +12,9 @@ import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosParameters
 import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.eidoscommon.utils.IdentityBagger
+import org.clulab.wm.eidoscommon.utils.IdentityHashBag
+
+import scala.collection.mutable
 
 // In order to create this all at once with all OdinMentions that are == being rerouted
 // to those being eq(), the mapping needs to be provided and all values calculated upon
@@ -88,9 +90,9 @@ object EidosMention extends Logging {
   val NO_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
 
   // This maps any Odin Mention onto its canonical one.
-  type OdinMentionMapper = IdentityHashMap[Mention, Mention]
+  type OdinMentionMapper = mutable.Map[Mention, Mention] // should be identity
   // This then maps any canonical one onto the matching EidosMention.
-  type EidosMentionMapper = IdentityHashMap[Mention, EidosMention]
+  type EidosMentionMapper = mutable.Map[Mention, EidosMention]
 
   protected def newEidosMention(odinMention: Mention, odinMentionMapper: OdinMentionMapper, eidosMentionMapper: EidosMentionMapper): EidosMention = {
     odinMention match {
@@ -136,7 +138,7 @@ object EidosMention extends Logging {
       newKeyOdinMention -> valueOdinMentions
     }
     // This will map each odin mention back to the representative mention by identity.
-    val odinMentionMapper = new OdinMentionMapper()
+    val odinMentionMapper = IdentityHashMap[Mention, Mention]()
     regroupedOdinMentions.foreach { case (keyOdinMention, valueOdinMentions) =>
       valueOdinMentions.foreach { valueOdinMention =>
         odinMentionMapper(valueOdinMention) = keyOdinMention
@@ -148,7 +150,7 @@ object EidosMention extends Logging {
     // A stray orphan would not be catastrophic, so the test is being skipped for now,
     // hasOrphanedConcepts(regroupedOdinMentions, odinMentionMapper)
 
-    val eidosMentionMapper = new EidosMentionMapper()
+    val eidosMentionMapper = IdentityHashMap[Mention, EidosMention]()
     val eidosMentions = asEidosMentions(distinctOdinMentions, odinMentionMapper, eidosMentionMapper)
     if (groupedOdinMentions.size != eidosMentionMapper.size)
       logger.warn("Not all Odin mentions were converted into Eidos mentions.")
@@ -157,10 +159,10 @@ object EidosMention extends Logging {
     (eidosMentions, allEidosMentions)
   }
 
-  def hasOrphanedConcepts(keyMentionMap: Map[Mention, Seq[Mention]], mentionMapper: OdinMentionMapper[Mention, Mention]): Boolean = {
+  def hasOrphanedConcepts(keyMentionMap: Map[Mention, Seq[Mention]], mentionMapper: OdinMentionMapper): Boolean = {
     val (concepts, relations) = keyMentionMap.keys.partition(_ matches EidosParameters.CONCEPT_LABEL)
     val parentedConcepts = {
-      val parentedConcepts = new IdentityHashMap[Mention, Boolean]()
+      val parentedConcepts = IdentityHashMap[Mention, Boolean]()
       concepts.foreach(concept => parentedConcepts.put(concept, false))
       parentedConcepts
     }
@@ -183,7 +185,7 @@ object EidosMention extends Logging {
   def findAllByIdentity(surfaceMentions: Seq[EidosMention]): Seq[EidosMention] = {
     // For the EidosMentions, identity should be used because it is faster
     // and the underlying Odin mentions are known to be distinct.
-    IdentityBagger[EidosMention](surfaceMentions, { eidosMention: EidosMention => eidosMention.getEidosNeighbors }).get
+    IdentityHashBag[EidosMention](surfaceMentions, { eidosMention: EidosMention => eidosMention.getEidosNeighbors }).toSeq
   }
 
 
@@ -218,7 +220,7 @@ class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, odinMent
 class EidosEventMention(val odinEventMention: EventMention, odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper)
     extends EidosMention(odinEventMention, odinMentionMapper, eidosMentionMapper) {
 
-  val odinTrigger: TextBoundMention = odinMentionMapper.get(odinEventMention.trigger).asInstanceOf[TextBoundMention]
+  val odinTrigger: TextBoundMention = odinMentionMapper(odinEventMention.trigger).asInstanceOf[TextBoundMention]
 
   val eidosTrigger: EidosMention = remapOdinMention(odinTrigger, odinMentionMapper, eidosMentionMapper)
 

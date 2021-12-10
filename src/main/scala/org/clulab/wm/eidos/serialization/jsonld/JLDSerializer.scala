@@ -84,9 +84,9 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 // within the JSON structure.
 class JLDSerializer {
   protected val typenames: mutable.HashSet[String] = mutable.HashSet[String]()
-  protected val typenamesByIdentity: IdentityHashMap[AnyRef, String] = new IdentityHashMap[AnyRef, String]()
-  protected val idsByTypenameByIdentity: mutable.HashMap[String, IdentityHashMap[AnyRef, Int]] = mutable.HashMap()
-  protected val jldObjectsByTypenameByIdentity: mutable.HashMap[String, IdentityHashMap[JLDObject, Int]] = mutable.HashMap()
+  protected val typenamesByIdentity: mutable.Map[AnyRef, String] = IdentityHashMap[AnyRef, String]()
+  protected val idsByTypenameByIdentity: mutable.HashMap[String, mutable.Map[AnyRef, Int]] = mutable.HashMap()
+  protected val jldObjectsByTypenameByIdentity: mutable.HashMap[String, mutable.Map[JLDObject, Int]] = mutable.HashMap()
 
   def register(jldObject: JLDObject): Unit = {
     val identity = jldObject.value.asInstanceOf[AnyRef]
@@ -94,12 +94,12 @@ class JLDSerializer {
 
     typenamesByIdentity.put(identity, typename) // So that know which idsByTypenamesByIdentity to look in
 
-    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, new IdentityHashMap[AnyRef, Int]())
+    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, IdentityHashMap[AnyRef, Int]())
 
     if (!idsByIdentity.contains(identity))
       idsByIdentity(identity) = idsByIdentity.size + 1
 
-    val jldObjectsByIdentity = jldObjectsByTypenameByIdentity.getOrElseUpdate(typename, new IdentityHashMap[JLDObject,Int]())
+    val jldObjectsByIdentity = jldObjectsByTypenameByIdentity.getOrElseUpdate(typename, IdentityHashMap[JLDObject,Int]())
 
     jldObjectsByIdentity.put(jldObject, 0)
   }
@@ -115,7 +115,7 @@ class JLDSerializer {
 
     typenamesByIdentity.put(identity, typename) // So that know which idsByTypenamesByIdentity to look in
 
-    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, new IdentityHashMap[AnyRef, Int]())
+    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, IdentityHashMap[AnyRef, Int]())
     val id = idsByIdentity(identity)
 
     mkId(typename, id)
@@ -1050,7 +1050,7 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
   def this(annotatedDocument: AnnotatedDocument) = this(Seq(annotatedDocument))
 
-  protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: IdentityHashMap[EidosMention, Int]):
+  protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: mutable.Map[EidosMention, Int]):
       Seq[JLDExtraction] = {
     val newMentions = mentions.filter(isExtractable).filter { mention =>
       if (mapOfMentions.contains(mention))
@@ -1073,7 +1073,7 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
   }
 
   protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
-    val mapOfMentions = new IdentityHashMap[EidosMention, Int]()
+    val mapOfMentions = IdentityHashMap[EidosMention, Int]()
 
     collectMentions(mentions, mapOfMentions)
   }
@@ -1083,7 +1083,7 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
   protected def sortJldExtractions(jldExtractions: Seq[JLDExtraction], corpus: Corpus): Seq[JLDExtraction] = {
     val mapOfDocuments = {
-      val mapOfDocuments = new IdentityHashMap[Document, Int]()
+      val mapOfDocuments = IdentityHashMap[Document, Int]()
       corpus.foreach { annotatedDocument =>
         mapOfDocuments(annotatedDocument.document) = mapOfDocuments.size + 1
       }

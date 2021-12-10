@@ -4,6 +4,14 @@ import scala.collection.mutable
 
 class HashBag[T](protected val map: mutable.Map[T, Int]) extends mutable.Set[T] {
 
+  // Return the new count.
+  def addAndCount(elem: T): Int = {
+    val count = map.getOrElse(elem, 0) + 1
+
+    map(elem) = count
+    count
+  }
+
   override def +=(elem: T): HashBag.this.type = {
     val count = map.getOrElse(elem, 0) + 1
 
@@ -16,7 +24,7 @@ class HashBag[T](protected val map: mutable.Map[T, Int]) extends mutable.Set[T] 
 
     if (count > 0)
       map(elem) = count
-    else
+    else if (count == 0)
       map.remove(elem)
     this
   }
@@ -25,7 +33,7 @@ class HashBag[T](protected val map: mutable.Map[T, Int]) extends mutable.Set[T] 
 
   override def iterator: Iterator[T] = map.keysIterator
 
-  def count(elem: T): Int = map(elem)
+  def count(elem: T): Int = map.getOrElse(elem, 0)
 
   def ++(elems: Seq[T]): HashBag.this.type = {
     elems.foreach { elem => this + elem }
@@ -33,7 +41,14 @@ class HashBag[T](protected val map: mutable.Map[T, Int]) extends mutable.Set[T] 
   }
 
   def ++(elems: Seq[T], getNeighbors: T => Iterable[T]): HashBag.this.type = {
-    elems.foreach { elem => this ++ getNeighbors(elem) }
+
+    def loop(value: T): Unit = {
+      // If the count is now 1, it is new and neighbors should be collected.
+      if (addAndCount(value) == 1)
+        getNeighbors(value).foreach(loop)
+    }
+
+    elems.foreach(loop)
     this
   }
 }

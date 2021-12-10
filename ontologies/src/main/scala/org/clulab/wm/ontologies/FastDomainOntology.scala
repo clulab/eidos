@@ -8,8 +8,8 @@ import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.eidoscommon.utils.TsvReader
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.util.matching.Regex
 
 class FastNamerData(val names: Array[String], val parents: Array[Int], val leaves: Array[Boolean])
@@ -197,13 +197,13 @@ object FastDomainOntology {
 
   class FastDomainOntologyBuilder(treeDomainOntology: FullTreeDomainOntology) {
 
-    protected def append(strings: MutableHashMap[String, Int], string: String): Unit =
+    protected def append(strings: mutable.Map[String, Int], string: String): Unit =
       if (!strings.contains(string))
         strings.put(string, strings.size)
 
     // Number all of the nodes by making map of node to number.
-    protected def mkNodeMap(rootNode: FullOntologyNode): IdentityHashMap[FullOntologyNode, Int] = {
-      val nodeMap: IdentityHashMap[FullOntologyNode, Int] = new IdentityHashMap()
+    protected def mkNodeMap(rootNode: FullOntologyNode): mutable.Map[FullOntologyNode, Int] = {
+      val nodeMap: mutable.Map[FullOntologyNode, Int] = IdentityHashMap[FullOntologyNode, Int]()
 
       def append(node: FullOntologyNode): Unit =
         node.childrenOpt.foreach { children =>
@@ -218,8 +218,8 @@ object FastDomainOntology {
       nodeMap
     }
 
-    protected def mkWordStringMap(nodes: Seq[FullOntologyNode]): MutableHashMap[String, Int] = {
-      val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
+    protected def mkWordStringMap(nodes: Seq[FullOntologyNode]): mutable.Map[String, Int] = {
+      val stringMap = new mutable.HashMap[String, Int]()
 
       nodes.foreach { node =>
         node.getValues.foreach(append(stringMap, _))
@@ -227,8 +227,8 @@ object FastDomainOntology {
       stringMap
     }
 
-    protected def mkPatternStringMap(nodes: Seq[FullOntologyNode]): MutableHashMap[String, Int] = {
-      val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
+    protected def mkPatternStringMap(nodes: Seq[FullOntologyNode]): mutable.Map[String, Int] = {
+      val stringMap = new mutable.HashMap[String, Int]()
 
       nodes.foreach { node =>
         node.getPatterns.foreach { pattern => append(stringMap, pattern.toString) }
@@ -236,7 +236,7 @@ object FastDomainOntology {
       stringMap
     }
 
-    protected def mkWordIndexesAndStarts(nodes: Seq[FullOntologyNode], stringMap: MutableHashMap[String, Int]): (Array[Int], Array[Int]) = {
+    protected def mkWordIndexesAndStarts(nodes: Seq[FullOntologyNode], stringMap: mutable.Map[String, Int]): (Array[Int], Array[Int]) = {
       val indexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new Array[Int](nodes.size + 1)
 
@@ -268,7 +268,7 @@ object FastDomainOntology {
       (indexBuffer.toArray, startIndexBuffer)
     }
 
-    protected def mkChildIndexesAndStarts(nodes: Seq[FullOntologyNode], nodeMap: IdentityHashMap[FullOntologyNode, Int]):
+    protected def mkChildIndexesAndStarts(nodes: Seq[FullOntologyNode], nodeMap: mutable.Map[FullOntologyNode, Int]):
     (Array[Int], Array[Int]) = {
       val indexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new Array[Int](nodes.size + 1)
@@ -286,7 +286,7 @@ object FastDomainOntology {
     def buildFast(): FastDomainOntology = {
       // This stops at, for example, wm, not the implied root above.  It is not an OntologyRootNode.
       val rootNode = treeDomainOntology.getNode(0).parents.last
-      val nodeMap: IdentityHashMap[FullOntologyNode, Int] = mkNodeMap(rootNode)
+      val nodeMap: mutable.Map[FullOntologyNode, Int] = mkNodeMap(rootNode)
       val nodeArr: Array[FullOntologyNode] = nodeMap
           .toSeq
           .sortBy(_._2)
@@ -297,7 +297,7 @@ object FastDomainOntology {
       val parents = nodeArr.map { node =>
         nodeMap.getOrElse(node.parentOpt.get, -1)
       }
-      val wordStringMap: MutableHashMap[String, Int] = mkWordStringMap(nodeArr)
+      val wordStringMap: mutable.Map[String, Int] = mkWordStringMap(nodeArr)
       val wordStringArr = wordStringMap.toSeq.map(_.swap).sorted.map(_._2).toArray
       val (wordIndexes, wordStartIndexes) = mkWordIndexesAndStarts(nodeArr, wordStringMap)
       val (patterns, patternStartIndexes) = mkPatternsAndStarts(nodeArr)

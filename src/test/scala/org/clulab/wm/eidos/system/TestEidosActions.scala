@@ -10,9 +10,11 @@ import org.clulab.wm.eidos.test.ExtractionTest
 import org.clulab.wm.eidoscommon.EidosParameters.CAUSAL_LABEL
 import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 
+import scala.collection.mutable
+
 class TestEidosActions extends ExtractionTest {
 
-  def addAllMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Mention]): Unit = {
+  def addAllMentions(mentions: Seq[Mention], mapOfMentions: mutable.Map[Mention, Mention]): Unit = {
     def mentionsInPaths(paths: Map[String, Map[Mention, SynPath]]): Seq[Mention] =
       Seq.empty
     //        paths.values.map(_.keys).flatten.toSeq
@@ -34,7 +36,7 @@ class TestEidosActions extends ExtractionTest {
   }
 
   def findUniqueMentions(mentions: Seq[Mention]): Seq[Mention] = {
-    val mapOfMentions = new IdentityHashMap[Mention, Mention]()
+    val mapOfMentions = IdentityHashMap[Mention, Mention]()
 
     addAllMentions(mentions, mapOfMentions)
     mapOfMentions.keys.toSeq

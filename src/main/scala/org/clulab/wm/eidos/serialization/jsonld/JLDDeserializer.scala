@@ -821,7 +821,7 @@ class JLDDeserializer {
   def addEidosExtras(eidosMentions: Seq[EidosMention], extractions: Seq[Extraction],
       mentionMap: Map[String, Mention]): Seq[EidosMention] = {
     val extractionsMap = extractions.map { extraction => extraction.id -> extraction }.toMap
-    val mentionToExtractionMap = new IdentityHashMap[Mention, Extraction]()
+    val mentionToExtractionMap = IdentityHashMap[Mention, Extraction]()
     val allEidosMentions = EidosMention.findAllByIdentity(eidosMentions)
 
     mentionMap.foreach { case (id, mention) =>

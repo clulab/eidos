@@ -3,16 +3,16 @@ package org.clulab.wm.eidos.graph
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosAliases.Quantifier
 import org.clulab.wm.eidos.attachments._
-import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.QuicklyEqualable
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.hashing.MurmurHash3.mix
 
 class TestResult(val mention: Option[Mention], val complaints: Seq[String])
 
 object TestResult {
-  type TestResults = IdentityHashMap[GraphSpec, TestResult]
+  type TestResults = mutable.Map[GraphSpec, TestResult]
 }
 
 import org.clulab.wm.eidos.graph.TestResult.TestResults
