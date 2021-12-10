@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.text.englishGrounding
 import org.clulab.odin.TextBoundMention
 import org.clulab.struct.Interval
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
+import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundingMap
 import org.clulab.wm.eidos.groundings.{OntologyGrounder, OntologyGrounding, PredicateGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.EnglishGroundingTest
@@ -31,6 +31,8 @@ class TestGrounding extends EnglishGroundingTest {
     (Seq[EidosMention], Seq[EidosMention])
 
     def allGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[Seq[String]]
+
+    // TODO: Map form theme to index and branch name
 
     def groundingShouldContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       if (active) {
@@ -97,7 +99,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     def split(text: String): Array[String] = text.split(' ')
 
-    def groundings(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): OntologyGroundings = {
+    def groundings(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): OntologyGroundingMap = {
       val ontologyGroundings: Seq[OntologyGrounding] = ontologyGrounder.groundEidosMention(mention, topN = groundTopN, threshold = threshold)
       val groundings = ontologyGroundings.map { ontologyGrounding =>
         val newName = name + ontologyGrounding.branchOpt.map { branch => "/" + branch }.getOrElse("")
@@ -124,17 +126,17 @@ class TestGrounding extends EnglishGroundingTest {
     def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[Seq[String]] = {
       val allGroundings = groundings(mention, topN, threshold)
       val names = allGroundings.values.flatMap { ontologyGrounding =>
-        ontologyGrounding.grounding.map { grounding =>
+        ontologyGrounding.individualGroundings.map { grounding =>
           val predicateGrounding = grounding.asInstanceOf[PredicateGrounding]
           val predicateTuple = predicateGrounding.predicateTuple
           val theme = predicateTuple.theme
-          val theme_name = theme.grounding.headOption.map(_.name).getOrElse("")
+          val theme_name = theme.individualGroundings.headOption.map(_.name).getOrElse("")
           val property = predicateTuple.themeProperties
-          val property_name = property.grounding.headOption.map(_.name).getOrElse("")
+          val property_name = property.individualGroundings.headOption.map(_.name).getOrElse("")
           val process = predicateTuple.themeProcess
-          val process_name = process.grounding.headOption.map(_.name).getOrElse("")
+          val process_name = process.individualGroundings.headOption.map(_.name).getOrElse("")
           val process_property = predicateTuple.themeProcessProperties
-          val process_property_name = process_property.grounding.headOption.map(_.name).getOrElse("")
+          val process_property_name = process_property.individualGroundings.headOption.map(_.name).getOrElse("")
           val tuple = Seq(theme_name, property_name, process_name, process_property_name)
           tuple
         }
@@ -145,7 +147,7 @@ class TestGrounding extends EnglishGroundingTest {
     def allGroundingInfo(mention: EidosMention): Seq[(String,Float)] = {
       val allGroundings = groundings(mention)
       val names = allGroundings.values.flatMap { ontologyGrounding =>
-        ontologyGrounding.grounding.map { grounding => (grounding.name, grounding.score) }
+        ontologyGrounding.individualGroundings.map { grounding => (grounding.name, grounding.score) }
       }.toSeq
 
       names

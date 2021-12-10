@@ -28,7 +28,7 @@ class GroundExporter(filename: String, reader: EidosSystem) extends JSONLDExport
         groundingOpt match {
           case None => printWriter.println("no grounding...")
           case Some(grounding) =>
-            grounding.grounding.foreach { gr =>
+            grounding.individualGroundings.foreach { gr =>
               printWriter.println(s"  --> grounding: ${gr.name}")
               printWriter.println(s"      score: ${gr.score}")
             }

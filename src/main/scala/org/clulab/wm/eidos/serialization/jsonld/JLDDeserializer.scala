@@ -42,7 +42,7 @@ import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.PredicateGrounding
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
-import org.clulab.wm.eidos.groundings.{OntologyAliases, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{OntologyAliases, OntologyGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.PassThruNamer
 import org.json4s._
@@ -85,7 +85,7 @@ case class DocumentSpec(idAndDocument: IdAndDocument, idAndDctOpt: Option[IdAndD
 class IdAndMention(id: String, mention: Mention) extends IdAndValue[Mention](id,mention)
 
 case class Extraction(id: String, extractionType: String, extractionSubtype: String, labels: List[String],
-    foundBy: String, canonicalNameOpt: Option[String], classificationOpt: Option[Float], ontologyGroundingsOpt:  Option[OntologyAliases.OntologyGroundings],
+    foundBy: String, canonicalNameOpt: Option[String], classificationOpt: Option[Float], ontologyGroundingsOpt:  Option[OntologyAliases.OntologyGroundingMap],
     provenance: Provenance, triggerProvenanceOpt: Option[Provenance], argumentMap: Map[String, Seq[String]])
 
 object JLDDeserializer {
@@ -516,15 +516,17 @@ class JLDDeserializer {
     attachment
   }
 
-  def deserializeGroundings(groundingsValue: JArray): OntologyAliases.OntologyGroundings = {
+  def deserializeGroundings(groundingsValue: JArray): OntologyAliases.OntologyGroundingMap = {
 
-    def deserializeSingleOntologyNodeGrounding(value: JValue): SingleOntologyNodeGrounding = {
+    def deserializeSingleOntologyNodeGrounding(value: JValue): OntologyNodeGrounding = {
       requireType(value, JLDOntologyGrounding.typename)
+      // This is not unescaped in any way and should only be used in a PassThruNameer which
+      // should return the name then without re-escaping it.
       val ontologyConcept = (value \ "ontologyConcept").extract[String]
       val floatVal = (value \ "value").extract[Double].toFloat
       val namer = new PassThruNamer(ontologyConcept)
 
-      SingleOntologyNodeGrounding(namer, floatVal)
+      OntologyNodeGrounding(namer, floatVal)
     }
 
     def deserializeOntologyGrounding(jValue: JValue, field: String): OntologyGrounding = {
@@ -533,9 +535,9 @@ class JLDDeserializer {
         jArray.arr.map { jValue =>
           deserializeSingleOntologyNodeGrounding(jValue)
         }
-      }.getOrElse(List.empty[SingleOntologyNodeGrounding])
+      }.getOrElse(List.empty[OntologyNodeGrounding])
 
-      OntologyGrounding(version = None, date = None, grounding = multipleOntologyGrounding)
+      OntologyGrounding(versionOpt = None, dateOpt = None, individualGroundings = multipleOntologyGrounding)
     }
 
     val nameAndGroundings = groundingsValue.arr.map { groundingValue =>
@@ -835,7 +837,7 @@ class JLDDeserializer {
 
       extractionOpt.foreach { extraction =>
         extraction.canonicalNameOpt.foreach { canonicalName => eidosMention.canonicalName = canonicalName }
-        extraction.ontologyGroundingsOpt.foreach { ontologyGroundings => eidosMention.grounding = ontologyGroundings }
+        extraction.ontologyGroundingsOpt.foreach { ontologyGroundings => eidosMention.deserializedGrounding = ontologyGroundings }
         // It is done this way in case the default value already in the EidosMention has been changed.
         extraction.classificationOpt.foreach { classification => eidosMention.classificationOpt = Some(classification) }
       }

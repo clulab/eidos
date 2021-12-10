@@ -9,7 +9,7 @@ import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidos.context.{DCT, GeoPhraseID, TimEx, TimeStep}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.document.AnnotatedDocument.Corpus
-import org.clulab.wm.eidos.groundings.OntologyAliases.{MultipleOntologyGrounding, OntologyGroundings}
+import org.clulab.wm.eidos.groundings.OntologyAliases.{IndividualGroundings, OntologyGroundingMap}
 import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding}
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer._
 import org.clulab.wm.eidos.test.ExtractionTest
@@ -664,7 +664,7 @@ class TestJLDDeserializer extends ExtractionTest {
         |	   "display" : "THEME: wm_compositional/concept/service/information/"
         |  }, {
         |	   "@type" : "PredicateGrounding",
-        |	   "themeProperties" : [ {
+        |	   "themeProcessProperties" : [ {
         |	     "@type" : "Grounding",
         |	     "ontologyConcept" : "wm_compositional/property/population/density/",
         |	     "value" : 0.34960877895355225
@@ -679,26 +679,26 @@ class TestJLDDeserializer extends ExtractionTest {
         |} ]
         |""".stripMargin
       val jValue = parse(json).asInstanceOf[JArray]
-      val ontologyGroundings: OntologyGroundings = new JLDDeserializer().deserializeGroundings(jValue)
+      val ontologyGroundings: OntologyGroundingMap = new JLDDeserializer().deserializeGroundings(jValue)
 
       ontologyGroundings.size should be (1)
 
       val ontologyGrounding: OntologyGrounding = ontologyGroundings("wm_compositional")
-      val multipleOntologyGrounding: MultipleOntologyGrounding = ontologyGrounding.grounding
+      val multipleOntologyGrounding: IndividualGroundings = ontologyGrounding.individualGroundings
 
       multipleOntologyGrounding.size should be (2)
 
       val multipleOntologyGrounding0 = multipleOntologyGrounding(0)
 
       multipleOntologyGrounding0.isInstanceOf[PredicateGrounding] should be (true)
-      multipleOntologyGrounding0.asInstanceOf[PredicateGrounding].predicateTuple.theme.grounding.size should be (3)
-      multipleOntologyGrounding0.asInstanceOf[PredicateGrounding].predicateTuple.themeProcessProperties.grounding.size should be (0)
+      multipleOntologyGrounding0.asInstanceOf[PredicateGrounding].predicateTuple.theme.individualGroundings.size should be (3)
+      multipleOntologyGrounding0.asInstanceOf[PredicateGrounding].predicateTuple.themeProcessProperties.individualGroundings.size should be (0)
 
       val multipleOntologyGrounding1 = multipleOntologyGrounding(1)
 
       multipleOntologyGrounding1.isInstanceOf[PredicateGrounding] should be (true)
-      multipleOntologyGrounding1.asInstanceOf[PredicateGrounding].predicateTuple.theme.grounding.size should be (0)
-      multipleOntologyGrounding1.asInstanceOf[PredicateGrounding].predicateTuple.themeProperties.grounding.size should be (2)
+      multipleOntologyGrounding1.asInstanceOf[PredicateGrounding].predicateTuple.theme.individualGroundings.size should be (0)
+      multipleOntologyGrounding1.asInstanceOf[PredicateGrounding].predicateTuple.themeProcessProperties.individualGroundings.size should be (2)
     }
 
     it should "deserialize Mention from jsonld" in {

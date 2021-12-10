@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings.grounders
 
 import org.clulab.wm.eidos.attachments.EidosAttachment
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, OntologyGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.ontologies.DomainOntology
@@ -15,10 +15,10 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
   }
 
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
-    branches.exists(_.namer.name == s)
+    branches.exists(_.namer.getName == s)
 
   protected lazy val conceptEmbeddingsSeq: Map[String, Seq[ConceptEmbedding]] = {
-    val (interventionNodes, rest) = conceptEmbeddings.partition(_.namer.name.contains("causal_factor/interventions"))
+    val (interventionNodes, rest) = conceptEmbeddings.partition(_.namer.getName.contains("causal_factor/interventions"))
     Map(
       InterventionSieveGrounder.INTERVENTION -> interventionNodes,
       InterventionSieveGrounder.REST -> rest
@@ -26,7 +26,7 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
   }
 
   protected lazy val conceptPatternsSeq: Map[String, Seq[ConceptPatterns]] = {
-    val (interventionNodes, rest) = conceptPatterns.partition(_.namer.name.contains("causal_factor/interventions"))
+    val (interventionNodes, rest) = conceptPatterns.partition(_.namer.getName.contains("causal_factor/interventions"))
     Map(
       InterventionSieveGrounder.INTERVENTION -> interventionNodes,
       InterventionSieveGrounder.REST -> rest
@@ -50,7 +50,7 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
         // Main Portion of the ontology
         val mainConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.REST)
         val mainSimilarities = wordToVec.calculateSimilarities(canonicalNameParts, mainConceptEmbeddings)
-          .map(SingleOntologyNodeGrounding(_))
+          .map(OntologyNodeGrounding(_))
 
         // Intervention Branch
         // Only allow grounding to these nodes if the patterns match
@@ -64,7 +64,7 @@ class InterventionSieveGrounder(name: String, domainOntology: DomainOntology, wo
           else {
             val interventionConceptEmbeddings = conceptEmbeddingsSeq(InterventionSieveGrounder.INTERVENTION)
             wordToVec.calculateSimilarities(canonicalNameParts, interventionConceptEmbeddings)
-              .map(SingleOntologyNodeGrounding(_))
+              .map(OntologyNodeGrounding(_))
           }
         }
         else

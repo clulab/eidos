@@ -12,6 +12,7 @@ import org.clulab.wm.ontologies.FastDomainOntology.FastDomainOntologyBuilder
 import org.clulab.wm.ontologies.{DomainOntology, FullTreeDomainOntology, HalfTreeDomainOntology}
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 class TestCachedDomainOntology extends EidosTest {
   val ontologies: Iterable[String] = Seq("one", "two")
@@ -41,11 +42,11 @@ class TestCachedDomainOntology extends EidosTest {
   }
 
   protected def extract(domainOntology: DomainOntology): Seq[OntologyEntry]= {
-    domainOntology.indices.map { index =>
+    domainOntology.nodes.map { node =>
       OntologyEntry(
-        domainOntology.getNamer(index).name,
-        domainOntology.getValues(index).sorted,
-        domainOntology.getPatterns(index).getOrElse(Array.empty).map(_.toString).sorted
+        node.getName,
+        node.getValues.sorted,
+        node.getPatternsOpt.getOrElse(Array.empty).map { pattern: Regex => pattern.toString }.sorted
       )
     }
     .sortBy(_.name)

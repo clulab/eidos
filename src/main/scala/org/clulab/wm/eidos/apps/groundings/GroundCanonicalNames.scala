@@ -5,7 +5,7 @@ import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.OntologyGrounder
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.groundings.PredicateGrounding
-import org.clulab.wm.eidos.groundings.SingleOntologyNodeGrounding
+import org.clulab.wm.eidos.groundings.OntologyNodeGrounding
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sinker
 import org.clulab.wm.eidoscommon.utils.Sourcer
@@ -20,9 +20,9 @@ object GroundCanonicalNames extends App {
     protected val ontologyGrounder: OntologyGrounder = ontologyHandler.ontologyGrounders.find(_.name == name).get
     protected val nameToIsLeaf: Map[String, Boolean] = {
       val domainOntology = ontologyGrounder.domainOntology
-      domainOntology.indices.map { index =>
-        val name = domainOntology.getNamer(index).name
-        val isLeaf = domainOntology.isLeaf(index)
+      domainOntology.nodes.map { node =>
+        val name = node.getName
+        val isLeaf = node.isLeaf
         name -> isLeaf
       }.toMap
     }
@@ -33,7 +33,7 @@ object GroundCanonicalNames extends App {
       val allGroundings = ontologyGrounder.groundStrings(strings)
       val namerAndFloatOpt = allGroundings.head.headOption
       val nameAndValueOpt = namerAndFloatOpt.map {
-        case g: SingleOntologyNodeGrounding => (g.name, g.score)
+        case g: OntologyNodeGrounding => (g.name, g.score)
         case pred: PredicateGrounding => ???
       }
 

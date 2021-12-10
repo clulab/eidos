@@ -8,7 +8,9 @@ import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosW
 import org.clulab.dynet.Utils
 import org.clulab.processors.clu.CluProcessor
 import org.clulab.wm.eidos.groundings.ConceptExamples
-import org.clulab.wm.eidos.groundings.SingleOntologyNodeGrounding
+import org.clulab.wm.eidos.groundings.OntologyAliases.IndividualGroundings
+import org.clulab.wm.eidos.groundings.OntologyNodeGrounding
+import org.clulab.wm.eidos.groundings.grounders.SRLCompositionalGrounder.propertyConfidenceThreshold
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidoscommon.Canonicalizer
@@ -37,7 +39,7 @@ class PredicateTuple protected (
     val sb = new ArrayBuffer[String]()
 
     def append(grounding: OntologyGrounding, label: String): Unit = {
-      val single = grounding.grounding.take(1)
+      val single = grounding.individualGroundings.take(1)
 
       if (single.nonEmpty)
         sb.append(label + nameAndScore(single.head))
@@ -66,11 +68,11 @@ class PredicateTuple protected (
       "Empty Compositional Grounding"
   }
   val score: Float = {
-    val themeScoreOpt = theme.headOption.map(_.score)
-    val themeProcessScoreOpt = themeProcess.headOption.map(_.score)
+    val themeScoreOpt = theme.individualGroundings.headOption.map(_.score)
+    val themeProcessScoreOpt = themeProcess.individualGroundings.headOption.map(_.score)
 
-    val themePropertyScoreOpt = themeProperties.headOption.map(_.score * 0.5f)
-    val themeProcessPropertyScoreOpt = themeProcessProperties.headOption.map(_.score * 0.5f)
+    val themePropertyScoreOpt = themeProperties.individualGroundings.headOption.map(_.score * 0.5f)
+    val themeProcessPropertyScoreOpt = themeProcessProperties.individualGroundings.headOption.map(_.score * 0.5f)
 
     val allScores = (themeScoreOpt ++ themeProcessScoreOpt ++ themePropertyScoreOpt ++ themeProcessPropertyScoreOpt).toSeq
     if (allScores.isEmpty) 0.0f
@@ -120,21 +122,21 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   def inBranch(s: String, branches: Seq[ConceptEmbedding]): Boolean =
-    branches.exists(_.namer.name == s)
+    branches.exists(_.namer.getName == s)
 
   protected lazy val conceptEmbeddingsMap: Map[String, Seq[ConceptEmbedding]] =
     CompositionalGrounder.branches.map { branch =>
-      branch -> conceptEmbeddings.filter { _.namer.branch.contains(branch) }
+      branch -> conceptEmbeddings.filter { _.namer.getBranchOpt.contains(branch) }
     }.toMap
 
   protected lazy val conceptPatternsMap: Map[String, Seq[ConceptPatterns]] =
     CompositionalGrounder.branches.map { branch =>
-      branch -> conceptPatterns.filter { _.namer.branch.contains(branch) }
+      branch -> conceptPatterns.filter { _.namer.getBranchOpt.contains(branch) }
     }.toMap
 
   protected lazy val conceptExamplesMap: Map[String, Seq[ConceptExamples]] =
     CompositionalGrounder.branches.map { branch =>
-      branch -> conceptExamples.filter { _.namer.branch.contains(branch) }
+      branch -> conceptExamples.filter { _.namer.getBranchOpt.contains(branch) }
     }.toMap
 
   // primarily used for passing in the canonical name parts
@@ -150,7 +152,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       //  Currently we don't have "access" to those here, but that could be changed
       //  Further, the Nones are for a topN and a threshold, which we don't have here
       ontologyGrounding <- groundSentenceSpan(s, 0, s.words.length, Set(), None, None)
-      singleGrounding <- ontologyGrounding.grounding
+      singleGrounding <- ontologyGrounding.individualGroundings
     } yield singleGrounding
 
     val groundingResult = newOntologyGrounding(groundings.sortBy(- _.score))
@@ -194,7 +196,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         // If there's nothing here, return an empty grounding.
         PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
       else {
-        val branch = ontologyGrounding.grounding.head.branchOpt.get
+        val branch = ontologyGrounding.individualGroundings.head.branchOpt.get
 
         branch match {
           case SRLCompositionalGrounder.CONCEPT =>
@@ -223,7 +225,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
     def findExactPredicateGroundingAndRange(mentionStrings: Array[String]): (PredicateGrounding, Range) = {
       // Try to exact match entire token interval
-      val bestExactSingleOntologyNodeGroundingAndRangeOpt: Option[(SingleOntologyNodeGrounding, Range)] = {
+      val bestExactSingleOntologyNodeGroundingAndRangeOpt: Option[(OntologyNodeGrounding, Range)] = {
         val exactSingleOntologyNodeGroundingAndRanges = SRLCompositionalGrounder.processOrConceptBranches.flatMap { branch =>
           exactMatchForPreds(mentionStrings, conceptEmbeddingsMap(branch))
         }
@@ -354,7 +356,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       case theme :: process :: _ if theme.grounding.headName == process.grounding.headName =>
         val themeScore = theme.grounding.headOption.map(_.score).getOrElse(-100f)
         val processScore = process.grounding.headOption.map(_.score).getOrElse(-100f)
-        if (themeScore >= processScore || theme.grounding.grounding.length == 1) {
+        if (themeScore >= processScore || theme.grounding.individualGroundings.length == 1) {
           PredicateTuple(
             theme.grounding,
             theme.propertyGroundingOrNone,

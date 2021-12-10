@@ -160,9 +160,9 @@ object EvalOntologyGrounders extends App {
     }
   }
 
-  protected def getOntologyGroundings(name: String, groundings: OntologyAliases.OntologyGroundings):
-  Option[OntologyAliases.MultipleOntologyGrounding] = {
-    groundings.get(name).map(_.grounding) // It is assumed that these are sorted!
+  protected def getOntologyGroundings(name: String, groundings: OntologyAliases.OntologyGroundingMap):
+  Option[OntologyAliases.IndividualGroundings] = {
+    groundings.get(name).map(_.individualGroundings) // It is assumed that these are sorted!
   }
 
   protected def getShorterName(name: String): String = {
@@ -175,7 +175,7 @@ object EvalOntologyGrounders extends App {
     shorterName
   }
 
-  protected def getNameAndValue(multipleOntologyGroundingsOpt: Option[OntologyAliases.MultipleOntologyGrounding]): (String, Double) = {
+  protected def getNameAndValue(multipleOntologyGroundingsOpt: Option[OntologyAliases.IndividualGroundings]): (String, Double) = {
     val singleOntologyGroundingOpt = multipleOntologyGroundingsOpt.map { multipleOntologyGroundingsOpt =>
       multipleOntologyGroundingsOpt.head // Can it be assumed not to be empty?
     }
@@ -190,7 +190,7 @@ object EvalOntologyGrounders extends App {
   }
 
   protected def evaluateSide(side: Side.Value, row: Row, scores: Scores, caption: String, line: String, isEidos: Boolean,
-                             multipleOntologyGroundingsOpt: Option[OntologyAliases.MultipleOntologyGrounding]): Unit = {
+      multipleOntologyGroundingsOpt: Option[OntologyAliases.IndividualGroundings]): Unit = {
     val (actualName, value) = getNameAndValue(multipleOntologyGroundingsOpt)
     val expectedName = row.getCorrectGrounding(side)
     val correct = expectedName == actualName

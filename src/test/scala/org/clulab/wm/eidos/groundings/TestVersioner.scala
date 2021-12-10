@@ -24,7 +24,7 @@ class TestVersioner extends Test {
       println(file + ": " + version)
 
       if (file.contains('/'))
-        file.startsWith(MockVersions.ontologyDir) should be (true)
+        file.startsWith(DomainHandler.ontologyDir) should be (true)
     }
   }
 

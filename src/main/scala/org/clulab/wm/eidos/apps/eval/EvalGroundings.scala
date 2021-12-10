@@ -4,7 +4,7 @@ import ai.lum.common.ConfigUtils._
 import org.clulab.struct.Interval
 import org.clulab.struct.MutableNumber
 import org.clulab.wm.eidos.EidosSystem
-import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundings
+import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundingMap
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Counter
@@ -30,12 +30,12 @@ object EvalGroundings {
       (correct.value / counter.get).toString
 
     // Get top 5 groundings (as strings) to compare with gold groundings.
-    protected def getTop5(allGroundings: OntologyGroundings): Seq[String] =
+    protected def getTop5(allGroundings: OntologyGroundingMap): Seq[String] =
       allGroundings(grounderName)
         .take(5)
         .map(_.name)
 
-    def evaluate(allGroundings: OntologyGroundings, gold: String): (String, String) = {
+    def evaluate(allGroundings: OntologyGroundingMap, gold: String): (String, String) = {
       val top5 = getTop5(allGroundings)
       val (top, isCorrect, score) = if (top5.isEmpty)
         (none, gold == none, if (gold == none) 1f else 0f)
@@ -133,7 +133,7 @@ object EvalGroundings {
             // Make a Document out of the sentence.
             val document = eidosSystem.annotate(sentence)
             // Get all groundings for the entity.
-            val allGroundings: OntologyGroundings = ontologyHandler.reground(sentence, interval, document)
+            val allGroundings: OntologyGroundingMap = ontologyHandler.reground(sentence, interval, document)
             val golds = Array(flatGold, conceptGold, processGold, propertyGold)
             val returnsAndCorrects = evaluators.zip(golds).map { case (evaluator, gold) =>
               evaluator.evaluate(allGroundings, gold)
