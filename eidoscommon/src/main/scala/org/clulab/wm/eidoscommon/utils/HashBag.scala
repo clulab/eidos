@@ -36,7 +36,7 @@ class HashBag[T](protected val map: mutable.Map[T, Int]) extends mutable.Set[T] 
   def count(elem: T): Int = map.getOrElse(elem, 0)
 
   def ++(elems: Seq[T]): HashBag.this.type = {
-    elems.foreach { elem => this + elem }
+    elems.foreach { elem => this += elem }
     this
   }
 
