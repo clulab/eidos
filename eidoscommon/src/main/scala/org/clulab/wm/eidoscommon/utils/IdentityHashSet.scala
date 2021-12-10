@@ -13,4 +13,6 @@ object IdentityHashSet {
 
     sSet
   }
+
+  def apply[T <: AnyRef](values: Seq[T]): IdentityHashSet[T] = apply[T]() ++ values
 }
