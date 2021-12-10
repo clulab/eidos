@@ -2,8 +2,6 @@ package org.clulab.wm.eidos.serialization.jsonld
 
 import java.io.PrintWriter
 import java.time.LocalDateTime
-import java.util.{IdentityHashMap => JIdentityHashMap}
-import java.util.{Set => JavaSet}
 import org.clulab.odin.Attachment
 import org.clulab.odin.EventMention
 import org.clulab.odin.Mention
@@ -29,10 +27,12 @@ import org.clulab.wm.eidos.groundings.{OntologyGrounding, PredicateGrounding, On
 import org.clulab.wm.eidos.mentions.{EidosCrossSentenceEventMention, EidosCrossSentenceMention, EidosEventMention, EidosMention, EidosTextBoundMention}
 import org.clulab.wm.eidos.utils.Unordered
 import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.math.Ordering.Implicits._ // enable list ordering
 
@@ -84,39 +84,39 @@ abstract class JLDObject(val serializer: JLDSerializer, val typename: String, va
 // within the JSON structure.
 class JLDSerializer {
   protected val typenames: mutable.HashSet[String] = mutable.HashSet[String]()
-  protected val typenamesByIdentity: JIdentityHashMap[Any, String] = new JIdentityHashMap[Any, String]()
-  protected val idsByTypenameByIdentity: mutable.HashMap[String, JIdentityHashMap[Any, Int]] = mutable.HashMap()
-  protected val jldObjectsByTypenameByIdentity: mutable.HashMap[String, JIdentityHashMap[JLDObject, Int]] = mutable.HashMap()
+  protected val typenamesByIdentity: mutable.Map[AnyRef, String] = IdentityHashMap[AnyRef, String]()
+  protected val idsByTypenameByIdentity: mutable.HashMap[String, mutable.Map[AnyRef, Int]] = mutable.HashMap()
+  protected val jldObjectsByTypenameByIdentity: mutable.HashMap[String, mutable.Map[JLDObject, Int]] = mutable.HashMap()
 
   def register(jldObject: JLDObject): Unit = {
-    val identity = jldObject.value
+    val identity = jldObject.value.asInstanceOf[AnyRef]
     val typename = jldObject.typename
 
     typenamesByIdentity.put(identity, typename) // So that know which idsByTypenamesByIdentity to look in
 
-    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, new JIdentityHashMap[Any, Int]())
+    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, IdentityHashMap[AnyRef, Int]())
 
-    if (!idsByIdentity.containsKey(identity))
-      idsByIdentity.put(identity, idsByIdentity.size() + 1)
+    if (!idsByIdentity.contains(identity))
+      idsByIdentity(identity) = idsByIdentity.size + 1
 
-    val jldObjectsByIdentity = jldObjectsByTypenameByIdentity.getOrElseUpdate(typename, new JIdentityHashMap[JLDObject,Int]())
+    val jldObjectsByIdentity = jldObjectsByTypenameByIdentity.getOrElseUpdate(typename, IdentityHashMap[JLDObject,Int]())
 
     jldObjectsByIdentity.put(jldObject, 0)
   }
 
-  def byTypename(typename: String): JavaSet[JLDObject] = jldObjectsByTypenameByIdentity(typename).keySet()
+  def byTypename(typename: String): java.util.Set[JLDObject] = jldObjectsByTypenameByIdentity(typename).keySet.asJava
 
   protected def mkId(typename: String, id: Int): JField =
       new JField("@id", s"_:${typename}_$id")
 
   def mkId(jldObject: JLDObject): JField = {
-    val identity = jldObject.value
+    val identity = jldObject.value.asInstanceOf[AnyRef]
     val typename = jldObject.typename
 
     typenamesByIdentity.put(identity, typename) // So that know which idsByTypenamesByIdentity to look in
 
-    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, new JIdentityHashMap[Any, Int]())
-    val id = idsByIdentity.get(identity)
+    val idsByIdentity = idsByTypenameByIdentity.getOrElseUpdate(typename, IdentityHashMap[AnyRef, Int]())
+    val id = idsByIdentity(identity)
 
     mkId(typename, id)
   }
@@ -152,10 +152,10 @@ class JLDSerializer {
     TidyJObject(types)
   }
 
-  def mkRef(identity: Any): TidyJObject = {
-    val typename = Option(typenamesByIdentity.get(identity))
+  def mkRef(identity: AnyRef): TidyJObject = {
+    val typename = typenamesByIdentity.get(identity)
         .getOrElse(throw new Exception("Cannot make reference to unknown identity: " + identity))
-    val id = idsByTypenameByIdentity(typename).get(identity)
+    val id = idsByTypenameByIdentity(typename)(identity)
 
     val field: JField = mkId(typename, id)
 
@@ -785,8 +785,8 @@ class JLDDependency(serializer: JLDSerializer, key: String, edge: (Int, Int, Str
     extends JLDObject(serializer, JLDDependency.typename) {
 
   override def toJObject: TidyJObject = {
-    val source = words(edge._1).value
-    val destination = words(edge._2).value
+    val source = words(edge._1).value.asInstanceOf[AnyRef]
+    val destination = words(edge._2).value.asInstanceOf[AnyRef]
     val relation = edge._3
 
     TidyJObject(List(
@@ -1054,13 +1054,13 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
   def this(annotatedDocument: AnnotatedDocument) = this(Seq(annotatedDocument))
 
-  protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: JIdentityHashMap[EidosMention, Int]):
+  protected def collectMentions(mentions: Seq[EidosMention], mapOfMentions: mutable.Map[EidosMention, Int]):
       Seq[JLDExtraction] = {
     val newMentions = mentions.filter(isExtractable).filter { mention =>
-      if (mapOfMentions.containsKey(mention))
+      if (mapOfMentions.contains(mention))
         false
       else {
-        mapOfMentions.put(mention, mapOfMentions.size() + 1)
+        mapOfMentions(mention) = mapOfMentions.size + 1
         true
       }
     }
@@ -1077,7 +1077,7 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
   }
 
   protected def collectMentions(mentions: Seq[EidosMention]): Seq[JLDExtraction] = {
-    val mapOfMentions = new JIdentityHashMap[EidosMention, Int]()
+    val mapOfMentions = IdentityHashMap[EidosMention, Int]()
 
     collectMentions(mentions, mapOfMentions)
   }
@@ -1087,15 +1087,15 @@ class JLDCorpus protected (serializer: JLDSerializer, corpus: Corpus) extends JL
 
   protected def sortJldExtractions(jldExtractions: Seq[JLDExtraction], corpus: Corpus): Seq[JLDExtraction] = {
     val mapOfDocuments = {
-      val mapOfDocuments = new JIdentityHashMap[Document, Int]()
+      val mapOfDocuments = IdentityHashMap[Document, Int]()
       corpus.foreach { annotatedDocument =>
-        mapOfDocuments.put(annotatedDocument.document, mapOfDocuments.size() + 1)
+        mapOfDocuments(annotatedDocument.document) = mapOfDocuments.size + 1
       }
       mapOfDocuments
     }
     val sortedJldExtractions = jldExtractions.sorted {
       Unordered[JLDExtraction]
-        .orElseBy { extraction => mapOfDocuments.get(extraction.eidosMention.odinMention.document) }
+        .orElseBy { extraction => mapOfDocuments(extraction.eidosMention.odinMention.document) }
         .orElseBy { extraction => extraction }
     }
 

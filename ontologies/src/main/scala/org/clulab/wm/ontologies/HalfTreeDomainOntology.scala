@@ -38,6 +38,8 @@ abstract class HalfOntologyNode extends DomainOntologyNode with Serializable {
   def getValues: Array[String] = Array.empty
 
   def getPatternsOpt: Option[Array[Regex]] = None
+
+  override def getParentOptOpt: Option[Option[HalfOntologyParentNode]]
 }
 
 @SerialVersionUID(1000L)
@@ -60,7 +62,7 @@ class HalfOntologyRootNode extends HalfOntologyParentNode {
 
   def isParentRoot: Boolean = false
 
-  def getParentOptOpt: Option[Option[HalfOntologyParentNode]] = Some(None)
+  override def getParentOptOpt: Option[Option[HalfOntologyParentNode]] = Some(None)
 }
 
 class HalfOntologyBranchNode(val simpleName: String, val parent: HalfOntologyParentNode) extends HalfOntologyParentNode {
@@ -78,7 +80,7 @@ class HalfOntologyBranchNode(val simpleName: String, val parent: HalfOntologyPar
       if (parent.isParentRoot) Some(simpleName)
       else parent.getBranchOpt
 
-  def getParentOptOpt: Option[Option[HalfOntologyNode]] = Some(Some(parent))
+  override def getParentOptOpt: Option[Option[HalfOntologyParentNode]] = Some(Some(parent))
 
   override def getSimpleName: String = simpleName
 }
@@ -108,7 +110,7 @@ class HalfOntologyLeafNode(
 
   override def isLeaf: Boolean = true
 
-  def getParentOptOpt: Option[Option[HalfOntologyNode]] = Some(Some(parent))
+  override def getParentOptOpt: Option[Option[HalfOntologyParentNode]] = Some(Some(parent))
 
   override def getSimpleName: String = simpleName
 }

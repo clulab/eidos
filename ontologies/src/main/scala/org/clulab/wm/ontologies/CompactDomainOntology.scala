@@ -2,14 +2,13 @@ package org.clulab.wm.ontologies
 
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.OptionUtils
 import org.clulab.wm.eidoscommon.utils.TsvReader
 
 import java.time.ZonedDateTime
-import java.util
-import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.util.matching.Regex
 
 /**
@@ -181,18 +180,18 @@ object CompactDomainOntology {
 
   class CompactDomainOntologyBuilder(treeDomainOntology: HalfTreeDomainOntology) {
 
-    protected def append(strings: MutableHashMap[String, Int], string: String): Unit =
+    protected def append(strings: mutable.Map[String, Int], string: String): Unit =
        if (!strings.contains(string))
           strings.put(string, strings.size)
 
-    protected def mkParentMap(): util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = {
+    protected def mkParentMap(): mutable.Map[HalfOntologyParentNode, (Int, Int)] = {
       // This is myIndex, parentIndex
-      val parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = new util.IdentityHashMap()
+      val parentMap = IdentityHashMap[HalfOntologyParentNode, (Int, Int)]()
 
       def append(parents: Seq[HalfOntologyParentNode]): Int =
           if (parents.nonEmpty)
-            if (parentMap.containsKey(parents.head))
-              parentMap.get(parents.head)._1
+            if (parentMap.contains(parents.head))
+              parentMap(parents.head)._1
             else {
               val parentIndex = append(parents.tail) // Put root on top.
               val myIndex = parentMap.size
@@ -206,8 +205,8 @@ object CompactDomainOntology {
       parentMap
     }
 
-    protected def mkLeafStringMap(): MutableHashMap[String, Int] = {
-      val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
+    protected def mkLeafStringMap(): mutable.Map[String, Int] = {
+      val stringMap = new mutable.HashMap[String, Int]()
 
       treeDomainOntology.nodes.foreach { node =>
         node.getValues.foreach(append(stringMap, _))
@@ -232,15 +231,10 @@ object CompactDomainOntology {
       (stringBuffer.toArray, startIndexBuffer)
     }
 
-    protected def mkNodeStringMap(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)]): MutableHashMap[String, Int] = {
+    protected def mkNodeStringMap(parentMap: mutable.Map[HalfOntologyParentNode, (Int, Int)]): mutable.Map[String, Int] = {
       // TODO: Fix this code.  Try to sort entrySet.      
-      val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
-      val parentSeq = parentMap
-          .entrySet
-          .asScala
-          .toSeq
-          .map { entrySet => (entrySet.getKey, entrySet.getValue) }
-          .sortBy(_._2)
+      val stringMap = new mutable.HashMap[String, Int]()
+      val parentSeq = parentMap.toSeq.sortBy(_._2)
 
       parentSeq.foreach { case (ontologyParentNode, _)  =>
         append(stringMap, DomainOntology.escaped(ontologyParentNode.getSimpleName))
@@ -251,7 +245,7 @@ object CompactDomainOntology {
       stringMap
     }
 
-    protected def mkLeafStringAndStartIndexes(leafStringMap: MutableHashMap[String, Int]): (Array[Int], Array[Int]) = {
+    protected def mkLeafStringAndStartIndexes(leafStringMap: mutable.Map[String, Int]): (Array[Int], Array[Int]) = {
       val stringIndexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new ArrayBuffer[Int]()
 
@@ -265,19 +259,19 @@ object CompactDomainOntology {
       (stringIndexBuffer.toArray, startIndexBuffer.toArray)
     }
 
-    protected def mkLeafIndexes(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
+    protected def mkLeafIndexes(parentMap: mutable.Map[HalfOntologyParentNode, (Int, Int)], stringMap: mutable.Map[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
 
       treeDomainOntology.nodes.foreach { node =>
-        indexBuffer += parentMap.get(node.getParentOptOpt.get.get)._1 // parentOffset
+        indexBuffer += parentMap(node.getParentOptOpt.get.get)._1 // parentOffset
         indexBuffer += stringMap(DomainOntology.escaped(node.getSimpleName)) // nameOffset
       }
       indexBuffer.toArray
     }
 
-    protected def mkParentIndexes(parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)], stringMap: MutableHashMap[String, Int]): Array[Int] = {
+    protected def mkParentIndexes(parentMap: mutable.Map[HalfOntologyParentNode, (Int, Int)], stringMap: mutable.Map[String, Int]): Array[Int] = {
       val indexBuffer = new ArrayBuffer[Int]()
-      val keysAndValues: Array[(HalfOntologyParentNode, (Int, Int))] = parentMap.asScala.toArray.sortBy(_._2._1)
+      val keysAndValues: Array[(HalfOntologyParentNode, (Int, Int))] = parentMap.toArray.sortBy(_._2._1)
 
       keysAndValues.foreach { case (branchNode, (_, parentIndex)) =>
         indexBuffer += parentIndex // parentOffset
@@ -287,16 +281,16 @@ object CompactDomainOntology {
     }
 
     def build(): DomainOntology = {
-      val parentMap: util.IdentityHashMap[HalfOntologyParentNode, (Int, Int)] = mkParentMap()
-      val leafStringMap: MutableHashMap[String, Int] = mkLeafStringMap()
-      val nodeStringMap: MutableHashMap[String, Int] = mkNodeStringMap(parentMap)
+      val parentMap: mutable.Map[HalfOntologyParentNode, (Int, Int)] = mkParentMap()
+      val leafStringMap: mutable.Map[String, Int] = mkLeafStringMap()
+      val nodeStringMap: mutable.Map[String, Int] = mkNodeStringMap(parentMap)
       val (leafStringIndexes, leafStartIndexes) = mkLeafStringAndStartIndexes(leafStringMap)
       val (patternStrings, patternStartIndexes) = mkPatternStringAndStartIndexes()
       val leafIndexes = mkLeafIndexes(parentMap, nodeStringMap)
       val branchIndexes = mkParentIndexes(parentMap, nodeStringMap)
 
       // This sorts by the latter, the Int, and then answers the former, the String.
-      def toArray(stringMap:MutableHashMap[String, Int]): Array[String] =
+      def toArray(stringMap: mutable.Map[String, Int]): Array[String] =
           stringMap.toArray.sortBy(_._2).map(_._1)
 
       val leafStrings: Array[String] = toArray(leafStringMap)

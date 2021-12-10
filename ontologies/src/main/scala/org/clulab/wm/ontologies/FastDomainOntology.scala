@@ -2,14 +2,14 @@ package org.clulab.wm.ontologies
 
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.OptionUtils
 import org.clulab.wm.eidoscommon.utils.TsvReader
 
 import java.time.ZonedDateTime
-import java.util
-import scala.collection.JavaConverters._
+import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.{HashMap => MutableHashMap}
 import scala.util.matching.Regex
 
 /**
@@ -115,13 +115,14 @@ class FastDomainOntology(
 
   def getBranchOpt(n: Integer): Option[String] = {
 
-    def branch(n: Int, prevN: Int): Option[String] = {
+    @tailrec
+    def loop(n: Int, prevN: Int): Option[String] = {
       if (isRoot(n)) Some(names(prevN))
-      else branch(parents(n), n)
+      else loop(parents(n), n)
     }
 
     if (isRoot(n)) None // The top one isn't in a branch yet.
-    else branch(parents(n), n)
+    else loop(parents(n), n)
   }
 }
 
@@ -200,19 +201,19 @@ object FastDomainOntology {
 
   class FastDomainOntologyBuilder(treeDomainOntology: FullTreeDomainOntology) {
 
-    protected def append(strings: MutableHashMap[String, Int], string: String): Unit =
+    protected def append(strings: mutable.Map[String, Int], string: String): Unit =
       if (!strings.contains(string))
         strings.put(string, strings.size)
 
     // Number all of the nodes by making map of node to number.
-    protected def mkNodeMap(rootNode: FullOntologyNode): util.IdentityHashMap[FullOntologyNode, Int] = {
-      val nodeMap: util.IdentityHashMap[FullOntologyNode, Int] = new util.IdentityHashMap()
+    protected def mkNodeMap(rootNode: FullOntologyNode): mutable.Map[FullOntologyNode, Int] = {
+      val nodeMap: mutable.Map[FullOntologyNode, Int] = IdentityHashMap[FullOntologyNode, Int]()
 
       def append(node: FullOntologyNode): Unit =
         node.childrenOpt.foreach { children =>
           // Do this depth first, child before its own children.
           children.foreach { child =>
-            nodeMap.put(child, nodeMap.size())
+            nodeMap(child) = nodeMap.size
             append(child)
           }
         }
@@ -221,8 +222,8 @@ object FastDomainOntology {
       nodeMap
     }
 
-    protected def mkWordStringMap(nodes: Seq[FullOntologyNode]): MutableHashMap[String, Int] = {
-      val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
+    protected def mkWordStringMap(nodes: Seq[FullOntologyNode]): mutable.Map[String, Int] = {
+      val stringMap = new mutable.HashMap[String, Int]()
 
       nodes.foreach { node =>
         node.getValues.foreach(append(stringMap, _))
@@ -230,8 +231,8 @@ object FastDomainOntology {
       stringMap
     }
 
-    protected def mkPatternStringMap(nodes: Seq[FullOntologyNode]): MutableHashMap[String, Int] = {
-      val stringMap: MutableHashMap[String, Int] = new MutableHashMap()
+    protected def mkPatternStringMap(nodes: Seq[FullOntologyNode]): mutable.Map[String, Int] = {
+      val stringMap = new mutable.HashMap[String, Int]()
 
       nodes.foreach { node =>
         node.getPatternsOpt.foreach { patterns =>
@@ -241,7 +242,7 @@ object FastDomainOntology {
       stringMap
     }
 
-    protected def mkWordIndexesAndStarts(nodes: Seq[FullOntologyNode], stringMap: MutableHashMap[String, Int]): (Array[Int], Array[Int]) = {
+    protected def mkWordIndexesAndStarts(nodes: Seq[FullOntologyNode], stringMap: mutable.Map[String, Int]): (Array[Int], Array[Int]) = {
       val indexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new Array[Int](nodes.size + 1)
 
@@ -273,15 +274,13 @@ object FastDomainOntology {
       (indexBuffer.toArray, startIndexBuffer)
     }
 
-    protected def mkChildIndexesAndStarts(nodes: Seq[FullOntologyNode], nodeMap: util.IdentityHashMap[FullOntologyNode, Int]):
+    protected def mkChildIndexesAndStarts(nodes: Seq[FullOntologyNode], nodeMap: mutable.Map[FullOntologyNode, Int]):
     (Array[Int], Array[Int]) = {
       val indexBuffer = new ArrayBuffer[Int]()
       val startIndexBuffer = new Array[Int](nodes.size + 1)
 
       nodes.zipWithIndex.foreach { case (node, index) =>
-        val indexes = node.getChildren.map { child =>
-          nodeMap.get(child)
-        }
+        val indexes = node.getChildren.map(nodeMap)
 
         startIndexBuffer(index) = indexBuffer.size
         indexBuffer.appendAll(indexes)
@@ -293,20 +292,18 @@ object FastDomainOntology {
     def buildFast(): FastDomainOntology = {
       // This stops at, for example, wm, not the implied root above.  It is not an OntologyRootNode.
       val rootNode = treeDomainOntology.nodes.head.parents.last
-      val nodeMap: util.IdentityHashMap[FullOntologyNode, Int] = mkNodeMap(rootNode)
+      val nodeMap: mutable.Map[FullOntologyNode, Int] = mkNodeMap(rootNode)
       val nodeArr: Array[FullOntologyNode] = nodeMap
-          .entrySet()
-          .asScala
           .toSeq
-          .sortBy(_.getValue)
-          .map(_.getKey)
+          .sortBy(_._2)
+          .map(_._1)
           .toArray
       val names = nodeArr.map { node => DomainOntology.escaped(node.getSimpleName) }
       val leaves = nodeArr.map { node => node.isLeaf }
       val parents = nodeArr.map { node =>
-        Option(nodeMap.get(node.parentOpt.get)).getOrElse(-1)
+        nodeMap.getOrElse(node.parentOpt.get, -1)
       }
-      val wordStringMap: MutableHashMap[String, Int] = mkWordStringMap(nodeArr)
+      val wordStringMap: mutable.Map[String, Int] = mkWordStringMap(nodeArr)
       val wordStringArr = wordStringMap.toSeq.map(_.swap).sorted.map(_._2).toArray
       val (wordIndexes, wordStartIndexes) = mkWordIndexesAndStarts(nodeArr, wordStringMap)
       val (patterns, patternStartIndexes) = mkPatternsAndStarts(nodeArr)
