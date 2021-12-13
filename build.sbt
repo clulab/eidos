@@ -84,3 +84,5 @@ lazy val wmexchanger = project
     .disablePlugins(PlayScala)
     .aggregate(core)
     .dependsOn(core % "compile -> compile; test -> test", eidoscommon)
+
+addCommandAlias("dockerizeWebapp", ";runMain org.clulab.wm.eidos.apps.cache.CacheGeonames;webapp/docker:publishLocal")

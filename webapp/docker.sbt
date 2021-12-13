@@ -27,7 +27,7 @@ dockerChmodType := DockerChmodType.UserGroupWriteExecute
 // dockerCmd := Seq(s"-Dhttp.port=$port")
 dockerEntrypoint := Seq(app)
 dockerEnvVars := Map(
-  "_JAVA_OPTIONS" -> "-Xmx12g -Xms12g -Dfile.encoding=UTF-8"
+  "_JAVA_OPTIONS" -> "-Xmx10g -Xms10g -Dfile.encoding=UTF-8"
 )
 dockerPermissionStrategy := DockerPermissionStrategy.MultiStage
 dockerUpdateLatest := true
@@ -50,22 +50,7 @@ dockerCommands := dockerCommands.value.flatMap { dockerCommand: CmdLike =>
       Seq(dockerCommand)
   }
 }
-/*
-Universal / mappings ++= {
 
-  def moveFile(filename: String): (File, String) = {
-    file(filename) -> filename
-  }
-
-  Seq(
-    moveFile("../hnswlib-glove.idx"),
-    moveFile("../hnswlib-wm_flattened.idx"),
-    moveFile("../hnswlib-concept.idx"),
-    moveFile("../hnswlib-process.idx"),
-    moveFile("../hnswlib-property.idx")
-  )
-}
-*/
 def moveDir(dirname: String): Seq[(File, String)] = {
   val dir = file(dirname)
   val result = dir
