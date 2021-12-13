@@ -34,10 +34,6 @@ dockerUpdateLatest := true
 
 // Run "show dockerCommands" and use this to edit as appropriate.
 dockerCommands := dockerCommands.value.flatMap { dockerCommand: CmdLike =>
-  // Run "show dockerCommands" and use this to edit as appropriate.
-  val oldDir = appDir
-  val newDir = topDir
-
   dockerCommand match {
     // Make sure that the appDir can be written for file locking.
     // case Cmd("USER", oldArgs @ _*) if (oldArgs.length == 1 && oldArgs.head == "1001:0") =>
@@ -58,12 +54,12 @@ def moveDir(dirname: String): Seq[(File, String)] = {
     .pair(relativeTo(dir.getParentFile))
     .map { case (file, _) => (file, file.getPath) }
 
-  result.foreach { case (file, string) =>
-    println(s"$file -> $string")
-  }
+//  result.foreach { case (file, string) =>
+//    println(s"$file -> $string")
+//  }
   result
 }
 
-Universal / mappings ++= moveDir("./cache")
+Universal / mappings ++= moveDir("./cache/geonames")
 
 Global / excludeLintKeys += Docker / dockerBaseImage
