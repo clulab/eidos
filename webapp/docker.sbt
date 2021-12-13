@@ -1,0 +1,84 @@
+import NativePackagerHelper._
+import com.typesafe.sbt.packager.MappingsHelper.directory
+import com.typesafe.sbt.packager.docker.{Cmd, CmdLike, DockerChmodType, DockerPermissionStrategy}
+
+val topDir = "/eidos/webapp"
+val appDir = topDir + "/app"
+val binDir = appDir + "/bin/" // The second half is determined by the plug-in.  Don't change.
+val app = binDir + "eidos-webapp"
+val port = 9000
+val tag = "1.5.0"
+
+Docker / defaultLinuxInstallLocation := appDir
+Docker / dockerBaseImage := "openjdk:8"
+Docker / daemonUser := "nobody"
+Docker / dockerExposedPorts := List(port)
+Docker / maintainer := "Keith Alcock <docker@keithalcock.com>"
+Docker / mappings := (Docker / mappings).value.filter { case (_, string) =>
+  // Only allow the app into the /app/bin directory.  Other apps that
+  // might be automatically discovered are to be excluded.
+  !string.startsWith(binDir) || string == app
+}
+Docker / packageName := "eidos-webapp"
+Docker / version := tag
+
+dockerAdditionalPermissions += (DockerChmodType.UserGroupPlusExecute, app)
+dockerChmodType := DockerChmodType.UserGroupWriteExecute
+// dockerCmd := Seq(s"-Dhttp.port=$port")
+dockerEntrypoint := Seq(app)
+dockerEnvVars := Map(
+  "_JAVA_OPTIONS" -> "-Xmx12g -Xms12g -Dfile.encoding=UTF-8"
+)
+dockerPermissionStrategy := DockerPermissionStrategy.MultiStage
+dockerUpdateLatest := true
+
+// Run "show dockerCommands" and use this to edit as appropriate.
+dockerCommands := dockerCommands.value.flatMap { dockerCommand: CmdLike =>
+  // Run "show dockerCommands" and use this to edit as appropriate.
+  val oldDir = appDir
+  val newDir = topDir
+
+  dockerCommand match {
+    // Make sure that the appDir can be written for file locking.
+    // case Cmd("USER", oldArgs @ _*) if (oldArgs.length == 1 && oldArgs.head == "1001:0") =>
+    case Cmd("USER", "1001:0") =>
+      Seq(
+        Cmd("RUN", "chmod", "775", appDir),
+        dockerCommand
+      )
+    case _ =>
+      Seq(dockerCommand)
+  }
+}
+/*
+Universal / mappings ++= {
+
+  def moveFile(filename: String): (File, String) = {
+    file(filename) -> filename
+  }
+
+  Seq(
+    moveFile("../hnswlib-glove.idx"),
+    moveFile("../hnswlib-wm_flattened.idx"),
+    moveFile("../hnswlib-concept.idx"),
+    moveFile("../hnswlib-process.idx"),
+    moveFile("../hnswlib-property.idx")
+  )
+}
+*/
+def moveDir(dirname: String): Seq[(File, String)] = {
+  val dir = file(dirname)
+  val result = dir
+    .**(AllPassFilter)
+    .pair(relativeTo(dir.getParentFile))
+    .map { case (file, _) => (file, file.getPath) }
+
+  result.foreach { case (file, string) =>
+    println(s"$file -> $string")
+  }
+  result
+}
+
+Universal / mappings ++= moveDir("./cache")
+
+Global / excludeLintKeys += Docker / dockerBaseImage
