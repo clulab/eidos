@@ -20,11 +20,14 @@ class Canonicalizer(stopwordManaging: StopwordManaging, tagSet: TagSet) {
     val contentWords = for {
       i <- tokenInterval.start until tokenInterval.end
       if isCanonicalLemma(lemmas(i), tags(i), ners(i))
-      if !excludedWords.contains(words(i))
-    } yield words(i)
+      if !excludedWords.contains(lemmas(i))
+    } yield lemmas(i)
+//      if !excludedWords.contains(words(i))
+//    } yield words(i)
 
     if (contentWords.isEmpty)
-      words.slice(tokenInterval.start, tokenInterval.end)   // fixme -- better and cleaner backoff
+//      words.slice(tokenInterval.start, tokenInterval.end)   // fixme -- better and cleaner backoff
+      lemmas.slice(tokenInterval.start, tokenInterval.end)   // fixme -- better and cleaner backoff
     else
       contentWords
   }
