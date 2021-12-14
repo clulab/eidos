@@ -13,8 +13,8 @@ description := BuildUtils.singleLine("""
 
 // Last checked 2021-08-23
 val scala11 = "2.11.12" // up to 2.11.12
-val scala12 = "2.12.14" // up to 2.12.14
-val scala13 = "2.13.6"  // up to 2.13.6
+val scala12 = "2.12.15" // up to 2.12.15
+val scala13 = "2.13.7"  // up to 2.13.7
 
 // Processors is not available for scala13, so it is skipped here.
 ThisBuild / crossScalaVersions := Seq(scala12, scala11) // , scala13)
@@ -84,3 +84,5 @@ lazy val wmexchanger = project
     .disablePlugins(PlayScala)
     .aggregate(core)
     .dependsOn(core % "compile -> compile; test -> test", eidoscommon)
+
+addCommandAlias("dockerizeWebapp", ";runMain org.clulab.wm.eidos.apps.cache.CacheGeonames;webapp/docker:publishLocal")
