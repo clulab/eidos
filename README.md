@@ -1,4 +1,6 @@
 [![Build Status](http://jenkins.cs.arizona.edu:8090/buildStatus/icon?job=eidos%2Fmaster)](http://jenkins.cs.arizona.edu:8090/job/eidos)
+[![Maven Central](https://img.shields.io/maven-central/v/org.clulab/eidos_2.12?logo=apachemaven)](https://mvnrepository.com/artifact/org.clulab/eidos)
+[![Docker Version](https://shields.io/docker/v/clulab/eidos-webapp?sort=semver&label=docker&logo=docker)](https://hub.docker.com/r/clulab/eidos-webapp/tags)
 
 # Eidos
 
