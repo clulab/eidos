@@ -12,7 +12,7 @@ import org.apache.http.client.utils.URIBuilder
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, PropertiesBuilder, Sinker, Sourcer, StringUtils}
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Sinker, Sourcer, StringUtils}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.json4s.DefaultFormats

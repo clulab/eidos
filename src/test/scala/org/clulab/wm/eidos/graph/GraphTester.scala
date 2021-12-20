@@ -10,11 +10,12 @@ import org.clulab.wm.eidoscommon.Language
 
 import scala.collection.JavaConverters._
 import scala.collection.Seq
+import scala.collection.mutable
 
 class GraphTester(ieSystem: EidosSystem, text: String) {
   val annotatedDocument: AnnotatedDocument = ieSystem.extractFromText(clean(text), cagRelevantOnly = false)
   val odinMentions: Seq[Mention] = annotatedDocument.allOdinMentions.toVector // They are easier to debug than streams.
-  val testResults = new TestResults()
+  val testResults = new  mutable.HashMap[GraphSpec, TestResult]
 
   def getSpecialChars(s: String): String = s.filter(c => c < 32 || 127 < c)
 
@@ -73,8 +74,7 @@ class GraphTester(ieSystem: EidosSystem, text: String) {
         printWriter.println(s"\t#$index: ${mentionId(mention)}")
       }
       printWriter.println("Found:")
-      testResults.keySet.asScala.toSeq.foreach { graphSpec =>
-        val testResult = testResults.get(graphSpec)
+      testResults.foreach { case (graphSpec, testResult) =>
         val mentionOpt = testResult.mention
 
         if (mentionOpt.isDefined) {

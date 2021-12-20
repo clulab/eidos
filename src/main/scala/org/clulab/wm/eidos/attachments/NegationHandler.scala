@@ -150,7 +150,9 @@ class NegationHandler(val language: String) {
       if !argumentIntervals.exists(_.contains(tok))
       out <- outgoing.lift(tok)
       (ix, label) <- out
-      if label == "neg"
+      if label == "neg"   // if label is "neg"
+      if !NegationHandler.fakeNegation.contains(event.sentenceObj.words(tok))   // if the outgoing word is not in fakeNegation
+      if !out.contains((ix+1, "advmod"))    // if the subsequent token from the neg is not the advmod
     } negations.append(
       new TextBoundMention(
         Seq("Negation_trigger"),
@@ -174,11 +176,16 @@ class NegationHandler(val language: String) {
 
     // Get the token interval of the event, but exclude the intervals of the arguments
     val argumentIntervals = event.arguments.values.flatten.map(_.tokenInterval)
+    val sentenceWords = event.sentenceObj.words
     // Check for single-token negative verbs
     for {
       (ix, lemma) <- leftContext ++ rightContext
-      if !argumentIntervals.exists(_.contains(ix))
-      if (Seq("fail", "not") contains lemma) && !(previouslyFound contains ix)
+      // These are ordered roughly from fastest and most effective to slowest and least.
+      if NegationHandler.failNot contains lemma     // lemma is either "fail" or "not", and
+      if !(previouslyFound contains ix)             // ix is not a duplicate, and
+      if !argumentIntervals.exists(_.contains(ix))  // ix is not part of any argument interval, and
+      if !sentenceWords.indices.contains(ix + 1) || // either there is no next word at all or
+        !NegationHandler.fakeNegation.contains(sentenceWords(ix + 1))           // there is one and the next word is not "only"
     } yield new TextBoundMention(
       Seq("Negation_trigger"),
       Interval(ix),
@@ -233,5 +240,10 @@ class NegationHandler(val language: String) {
 object NegationHandler{
 
   def apply(language: String): NegationHandler = new NegationHandler(language)
+
+  val failNot = Seq("fail", "not")
+  // avoid adding negation attachment to "X not _ caused Y, but also..." contexts
+  // this seq could be expanded as needed
+  val fakeNegation = Seq("only", "just", "merely", "simply", "exclusively", "solely")
 
 }

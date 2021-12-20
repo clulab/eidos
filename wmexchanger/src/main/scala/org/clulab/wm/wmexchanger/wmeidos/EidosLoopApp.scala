@@ -3,15 +3,12 @@ package org.clulab.wm.wmexchanger.wmeidos
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidos.EidosOptions
+import org.clulab.wm.eidos.metadata.CdrText
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
-import org.clulab.wm.eidos.utils.meta.CdrText
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.StringUtils
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, StringUtils}
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 
@@ -49,12 +46,11 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
         }
       val outputFile = FileEditor(file).setDir(outputDir).setExt(Extensions.jsonld).get
 
-      FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
-        new JLDCorpus(annotatedDocument).serialize(printWriter)
+      LockUtils.withLock(outputFile, Extensions.lock) {
+        FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
+          new JLDCorpus(annotatedDocument).serialize(printWriter)
+        }
       }
-
-      val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
-      lockFile.createNewFile()
 
       EidosLoopApp.synchronized {
         val doneFile = FileEditor(file).setDir(doneDir).get
@@ -78,8 +74,6 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String, threads
 
     override def runSafely(): Unit = {
       while (!isInterrupted) {
-        LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.jsonld)
-
         val files = EidosLoopApp.synchronized {
           val allFiles = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock)
           val newFiles = allFiles.filter { file => !filesBeingProcessed.contains(file.getAbsolutePath) }
@@ -106,13 +100,12 @@ object EidosLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
-    val inputDir: String = args(0)
-    val outputDir: String = args(1)
-    val doneDir: String = args(2)
-    val threads: Int = args(3).toInt
+    val  inputDir: String = getArgOrEnv(args, 0, "EIDOS_INPUT_DIR")
+    val outputDir: String = getArgOrEnv(args, 1, "EIDOS_OUTPUT_DIR")
+    val   doneDir: String = getArgOrEnv(args, 2, "EIDOS_DONE_DIR")
+    val   threads: Int    = getArgOrEnv(args, 3, "EIDOS_THREADS").toInt
 
     FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
-
     loop {
       () => new EidosLoopApp(inputDir, outputDir, doneDir, threads).thread
     }

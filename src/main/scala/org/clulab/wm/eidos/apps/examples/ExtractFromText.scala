@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.apps.examples
 
-import scala.collection.Seq
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.serialization.json.WMJSONSerializer

@@ -1,0 +1,21 @@
+FROM eidos:base as builder
+
+ENV SBT_OPTS "-Xms5G -Xmx8G -XX:+UseConcMarkSweepGC $GLOBAL_JAVA_OPTS"
+
+ADD . /opt/app/eidos
+
+WORKDIR /opt/app/eidos
+
+RUN sbt "project wmexchanger" "dist"
+RUN unzip ./wmexchanger/target/universal/wmexchanger*.zip -d /tmp
+
+FROM openjdk:8
+ENV APP_DIR /opt/wmexchanger
+RUN mkdir $APP_DIR
+WORKDIR $APP_DIR
+COPY --from=builder /tmp/wmexchanger* .
+COPY --from=builder /opt/app/eidos/wmexchanger/bin/start-loop.sh ./bin/
+RUN chmod +x ./bin/start-loop.sh
+
+ENTRYPOINT ["./bin/start-loop.sh"]
+

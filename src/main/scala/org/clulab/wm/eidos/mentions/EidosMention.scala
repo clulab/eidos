@@ -6,31 +6,38 @@ import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.groundings._
 import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounder
 import org.clulab.wm.eidos.utils.FoundBy
+import org.clulab.wm.eidos.utils.Unordered
+import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
 import org.clulab.wm.eidoscommon.Canonicalizer
+import org.clulab.wm.eidoscommon.EidosParameters
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.eidoscommon.utils.{IdentityBagger, IdentityMapper}
+import org.clulab.wm.eidoscommon.utils.IdentityHashBag
+
+import scala.collection.mutable
 
 // In order to create this all at once with all OdinMentions that are == being rerouted
 // to those being eq(), the mapping needs to be provided and all values calculated upon
 // construction.  This implies recursion.  There's no avoiding it.
 
-// This first odinMention should be valid.  It is a key in odinMentionMapper and will be one in eidosMentionMapper.
-abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMention.OdinMentionMapper,
-    eidosMentionMapper: EidosMention.EidosMentionMapper) {
+// This first odinMention should be valid.  It is a key in odinMentionMap and will be one in eidosMentionMap.
+abstract class EidosMention(val odinMention: Mention, odinMentionMap: EidosMention.OdinMentionMap,
+    eidosMentionMap: EidosMention.EidosMentionMap) {
 
   // This must happen before the remap in case arguments point back to this
-  eidosMentionMapper.put(odinMention, this)
+  eidosMentionMap.put(odinMention, this)
 
   // Convenience function for parallel construction
-  val odinArguments: Map[String, Seq[Mention]] = remapOdinArguments(odinMention.arguments, odinMentionMapper)
+  val odinArguments: Map[String, Seq[Mention]] = remapOdinArguments(odinMention.arguments, odinMentionMap)
 
   // Access to new and improved Eidos arguments
-  val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, odinMentionMapper, eidosMentionMapper)
+  val eidosArguments: Map[String, Seq[EidosMention]] = remapOdinArguments(odinArguments, odinMentionMap, eidosMentionMap)
 
   // These are filled in by the EidosSystem's default PostProcessor.
   // Default values are used instead of Option to simplify client code.
   var canonicalName: String = ""
-  var grounding: OntologyAliases.OntologyGroundings = EidosMention.NO_ONTOLOGY_GROUNDINGS
+  var grounding: OntologyAliases.OntologyGroundingMap = EidosMention.NO_ONTOLOGY_GROUNDINGS
+  var deserializedGrounding: OntologyAliases.OntologyGroundingMap = EidosMention.NO_DESERIALIZED_ONTOLOGY_GROUNDINGS
   var classificationOpt: Option[Float] = None
 
   // Accessor method to facilitate cleaner code downstream
@@ -39,7 +46,7 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
   // Return any mentions that are involved in the canonical name.  By default, the argument values.
   // This is here to allow subclasses to override it so that the Canonicalizer doesn't have to keep track.
   def canonicalMentions: Seq[Mention] = odinArguments.values.flatten.toSeq
-  
+
   // You'd think this would just be OdinMention.getNeighbors(odinMention).  However,
   // the neighbors of odinMention may have been replaced by others that are ==.
   def getOdinNeighbors: Seq[Mention] = odinArguments.values.flatten.toSeq
@@ -57,17 +64,17 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
       .foreach(_.groundAdjective(adjectiveGrounder))
 
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]],
-      odinMentionMapper: EidosMention.OdinMentionMapper): Map[String, Seq[Mention]] = {
+      odinMentionMap: EidosMention.OdinMentionMap): Map[String, Seq[Mention]] = {
     odinArguments.map { case (key, odinMentions) =>
-      key -> odinMentions.map(odinMentionMapper.get)
+      key -> odinMentions.map(odinMentionMap)
     }
   }
 
   protected def remapOdinArguments(odinArguments: Map[String, Seq[Mention]],
-      odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper):
+                                   odinMentionMap: EidosMention.OdinMentionMap, eidosMentionMap: EidosMention.EidosMentionMap):
       Map[String, Seq[EidosMention]] = {
     val result = odinArguments.map { case (key, odinMentions) =>
-      val mappedValues = EidosMention.asEidosMentions(odinMentions, odinMentionMapper, eidosMentionMapper)
+      val mappedValues = EidosMention.asEidosMentions(odinMentions, odinMentionMap, eidosMentionMap)
 
       key -> mappedValues
     }
@@ -75,39 +82,40 @@ abstract class EidosMention(val odinMention: Mention, odinMentionMapper: EidosMe
     result
   }
 
-  protected def remapOdinMention(odinMention: Mention, odinMentionMapper: EidosMention.OdinMentionMapper,
-      eidosMentionMapper: EidosMention.EidosMentionMapper): EidosMention =
-    EidosMention.asEidosMentions(Seq(odinMention), odinMentionMapper, eidosMentionMapper).head
+  protected def remapOdinMention(odinMention: Mention, odinMentionMap: EidosMention.OdinMentionMap,
+                                 eidosMentionMap: EidosMention.EidosMentionMap): EidosMention =
+    EidosMention.asEidosMentions(Seq(odinMention), odinMentionMap, eidosMentionMap).head
 }
 
 object EidosMention extends Logging {
   val NO_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
+  val NO_DESERIALIZED_ONTOLOGY_GROUNDINGS = Map.empty[String, OntologyGrounding]
 
   // This maps any Odin Mention onto its canonical one.
-  type OdinMentionMapper = IdentityMapper[Mention, Mention]
+  type OdinMentionMap = mutable.Map[Mention, Mention] // should be identity
   // This then maps any canonical one onto the matching EidosMention.
-  type EidosMentionMapper = IdentityMapper[Mention, EidosMention]
+  type EidosMentionMap = mutable.Map[Mention, EidosMention]
 
-  protected def newEidosMention(odinMention: Mention, odinMentionMapper: OdinMentionMapper, eidosMentionMapper: EidosMentionMapper): EidosMention = {
+  protected def newEidosMention(odinMention: Mention, odinMentionMap: OdinMentionMap, eidosMentionMap: EidosMentionMap): EidosMention = {
     odinMention match {
-      case mention: TextBoundMention => new EidosTextBoundMention(mention, odinMentionMapper, eidosMentionMapper)
+      case mention: TextBoundMention => new EidosTextBoundMention(mention, odinMentionMap, eidosMentionMap)
       // TODO: Provenance for these mentions probably needs to be improved.
       // These CrossSentenceEventMentions are headed to the same place as the EventMention for now in the jsonld,
       // so they are not distinguished here.  They might be in the future.
       // Right now this is only migration and we're not especially using that right now.
-      //case mention: CrossSentenceEventMention => new EidosCrossSentenceEventMention(mention, odinMentionMapper, eidosMentionMapper)
-      case mention: EventMention => new EidosEventMention(mention, odinMentionMapper, eidosMentionMapper)
-      case mention: RelationMention => new EidosRelationMention(mention, odinMentionMapper, eidosMentionMapper)
-      case mention: CrossSentenceMention => new EidosCrossSentenceMention(mention, odinMentionMapper, eidosMentionMapper)
+      //case mention: CrossSentenceEventMention => new EidosCrossSentenceEventMention(mention, odinMentionMap, eidosMentionMap)
+      case mention: EventMention => new EidosEventMention(mention, odinMentionMap, eidosMentionMap)
+      case mention: RelationMention => new EidosRelationMention(mention, odinMentionMap, eidosMentionMap)
+      case mention: CrossSentenceMention => new EidosCrossSentenceMention(mention, odinMentionMap, eidosMentionMap)
       case _ => throw new IllegalArgumentException("Unknown Mention: " + odinMention)
     }
   }
 
-  protected def asEidosMentions(odinMentions: Seq[Mention], odinMentionMapper: OdinMentionMapper, eidosMentionMapper: EidosMentionMapper): Seq[EidosMention] = {
+  protected def asEidosMentions(odinMentions: Seq[Mention], odinMentionMap: OdinMentionMap, eidosMentionMap: EidosMentionMap): Seq[EidosMention] = {
     val eidosMentions = odinMentions.map { keyOdinMention =>
-      val valueOdinMention = odinMentionMapper.get(keyOdinMention)
+      val valueOdinMention = odinMentionMap(keyOdinMention)
 
-      eidosMentionMapper.getOrElse(valueOdinMention, newEidosMention(valueOdinMention, odinMentionMapper, eidosMentionMapper))
+      eidosMentionMap.getOrElse(valueOdinMention, newEidosMention(valueOdinMention, odinMentionMap, eidosMentionMap))
     }
     eidosMentions
   }
@@ -131,27 +139,55 @@ object EidosMention extends Logging {
       //  println("It changed!")
       newKeyOdinMention -> valueOdinMentions
     }
-    val odinMentionMapper = new IdentityMapper[Mention, Mention]()
+    // This will map each odin mention back to the representative mention by identity.
+    val odinMentionMap = IdentityHashMap[Mention, Mention]()
     regroupedOdinMentions.foreach { case (keyOdinMention, valueOdinMentions) =>
       valueOdinMentions.foreach { valueOdinMention =>
-        odinMentionMapper.put(valueOdinMention, keyOdinMention)
+        odinMentionMap(valueOdinMention) = keyOdinMention
       }
     }
+    // Check to make sure there are no concepts that aren't referred to by a relation.
+    // If keepStatefulConcepts is true, there may be orphans but otherwise not.
+    // This test is fairly expensive and has been run in advance across may documents.
+    // A stray orphan would not be catastrophic, so the test is being skipped for now,
+    // hasOrphanedConcepts(regroupedOdinMentions, odinMentionMap)
 
-    val eidosMentionMapper = new EidosMentionMapper()
-    val eidosMentions = asEidosMentions(distinctOdinMentions, odinMentionMapper, eidosMentionMapper)
-    if (groupedOdinMentions.size != eidosMentionMapper.size)
+    val eidosMentionMap = IdentityHashMap[Mention, EidosMention]()
+    val eidosMentions = asEidosMentions(distinctOdinMentions, odinMentionMap, eidosMentionMap)
+    if (groupedOdinMentions.size != eidosMentionMap.size)
       logger.warn("Not all Odin mentions were converted into Eidos mentions.")
 
-    val allEidosMentions = eidosMentionMapper.getValues
+    val allEidosMentions = eidosMentionMap.values.toSeq
     (eidosMentions, allEidosMentions)
+  }
 
+  def hasOrphanedConcepts(keyMentionMap: Map[Mention, Seq[Mention]], mentionMap: OdinMentionMap): Boolean = {
+    val (concepts, relations) = keyMentionMap.keys.partition(_ matches EidosParameters.CONCEPT_LABEL)
+    val parentedConcepts = {
+      val parentedConcepts = IdentityHashMap[Mention, Boolean]()
+      concepts.foreach(concept => parentedConcepts.put(concept, false))
+      parentedConcepts
+    }
+
+    relations.foreach { relation =>
+      val children = OdinMention.getNeighbors(relation)
+      val keyChildren = children.map(neighbor => mentionMap(neighbor))
+      keyChildren
+        .filter(_ matches EidosParameters.CONCEPT_LABEL)
+        .foreach(keyConcept => parentedConcepts(keyConcept) = true)
+    }
+
+    // Exists would be faster but less informative.  This is for debugging, so choose informative.
+    val orphanedConcepts = concepts.filter(concept => !parentedConcepts(concept))
+    if (orphanedConcepts.nonEmpty)
+      println("There is an orphan!") // Set a breakpoint here.
+    orphanedConcepts.nonEmpty
   }
 
   def findAllByIdentity(surfaceMentions: Seq[EidosMention]): Seq[EidosMention] = {
     // For the EidosMentions, identity should be used because it is faster
     // and the underlying Odin mentions are known to be distinct.
-    IdentityBagger[EidosMention](surfaceMentions, { eidosMention: EidosMention => eidosMention.getEidosNeighbors }).get
+    IdentityHashBag[EidosMention](surfaceMentions, { eidosMention: EidosMention => eidosMention.getEidosNeighbors }).toSeq
   }
 
 
@@ -165,60 +201,54 @@ object EidosMention extends Logging {
     * to get the tokens that will make it into the canonicalName.
     */
   def canonicalNameParts(canonicalizer: Canonicalizer, eidosMention: EidosMention, excludedWords: Set[String]): Array[String] = {
-    // Sentence has been added to account for cross sentence mentions.
-    def lessThan(left: Mention, right: Mention): Boolean =
-      if (left.sentence != right.sentence)
-        left.sentence < right.sentence
-      else if (left.start != right.start)
-        left.start < right.start
-      // This one shouldn't really be necessary.
-      else if (left.end != right.end)
-        left.end < right.end
-      else
-        false // False is needed to preserve order on tie.
+    implicit val ordering = Unordered[Mention]
+        .orElseBy(_.sentence)
+        .orElseBy(_.start)
+        .orElseBy(_.end)
+        .orElseBy(_.hashCode)
 
-    eidosMention.canonicalMentions.sortWith(lessThan).flatMap(canonicalTokensSimple(canonicalizer, _, excludedWords)).toArray
+    eidosMention.canonicalMentions.sorted.flatMap(canonicalTokensSimple(canonicalizer, _, excludedWords)).toArray
   }
 
   def canonicalize(canonicalizer: Canonicalizer, eidosMention: EidosMention, excludedWords: Set[String]): String = canonicalNameParts(canonicalizer, eidosMention, excludedWords).mkString(" ")
 }
 
-class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper)
-    extends EidosMention(odinTextBoundMention, odinMentionMapper, eidosMentionMapper) {
+class EidosTextBoundMention(val odinTextBoundMention: TextBoundMention, odinMentionMap: EidosMention.OdinMentionMap, eidosMentionMap: EidosMention.EidosMentionMap)
+    extends EidosMention(odinTextBoundMention, odinMentionMap, eidosMentionMap) {
 
   override def canonicalMentions: Seq[Mention] = Seq(odinMention)
 }
 
-class EidosEventMention(val odinEventMention: EventMention, odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper)
-    extends EidosMention(odinEventMention, odinMentionMapper, eidosMentionMapper) {
+class EidosEventMention(val odinEventMention: EventMention, odinMentionMap: EidosMention.OdinMentionMap, eidosMentionMap: EidosMention.EidosMentionMap)
+    extends EidosMention(odinEventMention, odinMentionMap, eidosMentionMap) {
 
-  val odinTrigger: TextBoundMention = odinMentionMapper.get(odinEventMention.trigger).asInstanceOf[TextBoundMention]
+  val odinTrigger: TextBoundMention = odinMentionMap(odinEventMention.trigger).asInstanceOf[TextBoundMention]
 
-  val eidosTrigger: EidosMention = remapOdinMention(odinTrigger, odinMentionMapper, eidosMentionMapper)
+  val eidosTrigger: EidosMention = remapOdinMention(odinTrigger, odinMentionMap, eidosMentionMap)
 
   override def canonicalMentions: Seq[Mention] = super.canonicalMentions ++ Seq(odinTrigger)
 
   override def getEidosNeighbors: Seq[EidosMention] = super.getEidosNeighbors ++ Seq(eidosTrigger)
 }
 
-class EidosCrossSentenceEventMention(val crossSentenceEventMention: CrossSentenceEventMention, odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper)
-    extends EidosEventMention(crossSentenceEventMention, odinMentionMapper, eidosMentionMapper) {
+class EidosCrossSentenceEventMention(val crossSentenceEventMention: CrossSentenceEventMention, odinMentionMap: EidosMention.OdinMentionMap, eidosMentionMap: EidosMention.EidosMentionMap)
+    extends EidosEventMention(crossSentenceEventMention, odinMentionMap, eidosMentionMap) {
 }
 
-class EidosRelationMention(val odinRelationMention: RelationMention, odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper)
-    extends EidosMention(odinRelationMention, odinMentionMapper, eidosMentionMapper) {
+class EidosRelationMention(val odinRelationMention: RelationMention, odinMentionMap: EidosMention.OdinMentionMap, eidosMentionMap: EidosMention.EidosMentionMap)
+    extends EidosMention(odinRelationMention, odinMentionMap, eidosMentionMap) {
 }
 
-class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, odinMentionMapper: EidosMention.OdinMentionMapper, eidosMentionMapper: EidosMention.EidosMentionMapper)
-    extends EidosMention(odinCrossSentenceMention, odinMentionMapper, eidosMentionMapper) {
+class EidosCrossSentenceMention(val odinCrossSentenceMention: CrossSentenceMention, odinMentionMap: EidosMention.OdinMentionMap, eidosMentionMap: EidosMention.EidosMentionMap)
+    extends EidosMention(odinCrossSentenceMention, odinMentionMap, eidosMentionMap) {
 
-  val odinAnchor: Mention = odinMentionMapper.get(odinCrossSentenceMention.anchor)
+  val odinAnchor: Mention = odinMentionMap(odinCrossSentenceMention.anchor)
 
-  val eidosAnchor: EidosMention = remapOdinMention(odinAnchor, odinMentionMapper, eidosMentionMapper)
+  val eidosAnchor: EidosMention = remapOdinMention(odinAnchor, odinMentionMap, eidosMentionMap)
 
-  val odinNeighbor: Mention = odinMentionMapper.get(odinCrossSentenceMention.neighbor)
+  val odinNeighbor: Mention = odinMentionMap(odinCrossSentenceMention.neighbor)
 
-  val eidosNeighbor: EidosMention = remapOdinMention(odinNeighbor, odinMentionMapper, eidosMentionMapper)
+  val eidosNeighbor: EidosMention = remapOdinMention(odinNeighbor, odinMentionMap, eidosMentionMap)
 
   override def canonicalMentions: Seq[Mention] = Seq(odinAnchor, odinNeighbor)
 

@@ -8,4 +8,3 @@ sleep 5
 sleep 5
 # The container ends when eidos stops running.
 ./wmexchanger/loop_sbt_eidos.sh
-

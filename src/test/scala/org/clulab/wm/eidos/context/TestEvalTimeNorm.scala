@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.context
 
-import org.clulab.wm.eidos.apps.EvalTimeNorm
+import org.clulab.wm.eidos.apps.eval.EvalTimeNorm
 import org.clulab.wm.eidos.test.EidosTest
 
 class TestEvalTimeNorm extends EidosTest {

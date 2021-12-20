@@ -22,7 +22,7 @@ import scala.io.Source
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
 // and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
-class RealRestProducer(service: String, username: String, password: String, version: String)
+class RealRestProducer(service: String, username: String, password: String, eidosVersion: String, ontologyVersion: String)
     extends RestExchanger(service, username, password) with RestProducerish {
 
   def newHttpPost(url: URL, metadata: String, file: File): HttpPost = {
@@ -69,7 +69,7 @@ class RealRestProducer(service: String, username: String, password: String, vers
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val docId = StringUtils.beforeLast(file.getName, '.')
-    val metadata = s"""{ "identity": "eidos", "version": "$version", "document_id": "$docId" }"""
+    val metadata = s"""{ "identity": "eidos", "version": "$eidosVersion", "document_id": "$docId", "output_version": "$ontologyVersion" }"""
     val storageKey = upload(docId, metadata, file, closeableHttpClientOpt.get, httpHost)
 
     storageKey

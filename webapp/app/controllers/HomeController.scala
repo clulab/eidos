@@ -2,12 +2,14 @@ package controllers
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigRenderOptions
+
 import javax.inject._
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.groundings.MaaSHandler
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.serialization.web.BuildInfoObj
 import org.clulab.wm.eidos.serialization.web.WebSerializer
-import org.clulab.wm.eidos.utils.{DisplayUtils, MaaSUtils, PlayUtils}
+import org.clulab.wm.eidos.utils.{DisplayUtils, PlayUtils}
 import play.api.mvc._
 import play.api.libs.json._
 import play.api.mvc.Action
@@ -69,14 +71,14 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     val data = request.body.asJson.get.toString()
 
     // Note -- topN can be exposed to the API if needed
-    Ok(MaaSUtils.mapNodeToPrimaryConcepts(ieSystem, data, topN = 10)).as(JSON)
+    Ok(MaaSHandler.mapNodeToPrimaryConcepts(ieSystem, data, topN = 10)).as(JSON)
   }
 
   def mapOntology: Action[AnyContent] = Action { request =>
     val fileContents = request.body.asText.get
 
     // Note -- topN can be exposed to the API if needed
-    Ok(MaaSUtils.mapOntology(ieSystem, "MaaS", fileContents, topN = 10)).as(JSON)
+    Ok(MaaSHandler.mapOntology(ieSystem, "MaaS", fileContents, topN = 10)).as(JSON)
   }
 
   // Entry method
@@ -86,16 +88,19 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
 
     val annotatedDocument = ieSystem.extractFromText(text, cagRelevantOnly)
     val doc = annotatedDocument.document
-    val mentions = annotatedDocument.odinMentions
-    val sortedMentions = mentions.sortBy(m => (m.sentence, m.getClass.getSimpleName))
+    val eidosMentions = annotatedDocument.eidosMentions
+    val sortedEidosMentions = eidosMentions.sortBy { eidosMention =>
+      val m = eidosMention.odinMention
+      (m.sentence, m.getClass.getSimpleName)
+    }
 
     println(s"Tokenized sentence: ${doc.sentences.head.getSentenceText}")
     println()
     println("Mention texts:")
-    sortedMentions.foreach(odinMention => println(odinMention.text))
+    sortedEidosMentions.foreach(eidosMention => println(eidosMention.odinMention.text))
     println()
     println("Mention details:")
-    sortedMentions.foreach(odinMention => DisplayUtils.displayMention(odinMention))
+    sortedEidosMentions.foreach(eidosMention => DisplayUtils.displayEidosMention(eidosMention))
     println()
 
     val json = webSerializer.processAnnotatedDocument(text, annotatedDocument)

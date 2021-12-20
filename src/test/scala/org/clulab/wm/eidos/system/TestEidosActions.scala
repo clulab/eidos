@@ -1,7 +1,5 @@
 package org.clulab.wm.eidos.system
 
-import java.util.IdentityHashMap
-
 import org.clulab.odin._
 import org.clulab.serialization.json.stringify
 import org.clulab.wm.eidos.attachments.Property
@@ -9,12 +7,14 @@ import org.clulab.wm.eidos.serialization.json.WMJSONSerializer
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.actions.EidosActions
 import org.clulab.wm.eidos.test.ExtractionTest
+import org.clulab.wm.eidoscommon.EidosParameters.CAUSAL_LABEL
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 
-import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 class TestEidosActions extends ExtractionTest {
 
-  def addAllMentions(mentions: Seq[Mention], mapOfMentions: IdentityHashMap[Mention, Mention]): Unit = {
+  def addAllMentions(mentions: Seq[Mention], mapOfMentions: mutable.Map[Mention, Mention]): Unit = {
     def mentionsInPaths(paths: Map[String, Map[Mention, SynPath]]): Seq[Mention] =
       Seq.empty
     //        paths.values.map(_.keys).flatten.toSeq
@@ -36,10 +36,10 @@ class TestEidosActions extends ExtractionTest {
   }
 
   def findUniqueMentions(mentions: Seq[Mention]): Seq[Mention] = {
-    val mapOfMentions = new IdentityHashMap[Mention, Mention]()
+    val mapOfMentions = IdentityHashMap[Mention, Mention]()
 
     addAllMentions(mentions, mapOfMentions)
-    mapOfMentions.keySet.asScala.toSeq
+    mapOfMentions.keys.toSeq
   }
 
   def areMatching(left: Mention, right: Mention): Boolean = {
@@ -78,13 +78,12 @@ class TestEidosActions extends ExtractionTest {
   def findMatchingPair(mentions: Seq[Mention]): Option[(Mention, Mention)] =
     mentions match {
       case Seq() => None
-      case Seq(head) => None
-      case Seq(head, tail @ _*) => {
+      case Seq(_) => None
+      case Seq(head, tail @ _*) =>
         val matchingPair = findMatchingPair(head, tail)
 
         if (matchingPair.isDefined) matchingPair
         else findMatchingPair(tail)
-      }
     }
 
   protected def test(reader: EidosSystem, text: String, index: Int): Unit = {
@@ -129,5 +128,11 @@ class TestEidosActions extends ExtractionTest {
     val text = "Rainfall increases the price of puppies."
     val mentions = extractMentions(text)
     mentions.exists(m => hasProperty(m, "price")) should be (true)
+  }
+
+  it should "remove mentions whose triggers were likely JJs misparsed as VBN" in {
+    val text = "Concurrently , female holders have limited access to extension and advisory services."
+    val mentions = extractMentions(text)
+    mentions.filter(_ matches CAUSAL_LABEL) should have size 0
   }
 }

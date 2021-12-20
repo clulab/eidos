@@ -18,7 +18,7 @@ import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClientBuilder
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Logging
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, PropertiesBuilder, Sourcer, StringUtils}
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Sourcer, StringUtils}
 import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 
@@ -28,7 +28,6 @@ import scala.io.Source
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
 // and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
 object RestProducerApp extends App with Logging {
-  val version = "1.1.0"
 
   def getPort(url: URL): Int = {
     val explicitPort = url.getPort
@@ -116,7 +115,8 @@ object RestProducerApp extends App with Logging {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val docId = StringUtils.beforeLast(file.getName, '.')
-    val metadata = s"""{ "identity": "eidos", "version": "$version", "document_id": "$docId" }"""
+    val metadata = s"""{ "identity": "eidos", "version": "$eidosVersion", "document_id": "$docId", "output_version": "$ontologyVersion" }"""
+
     val storageKey = upload(docId, metadata, file, closeableHttpClient, httpHost)
 
     storageKey
@@ -132,6 +132,8 @@ object RestProducerApp extends App with Logging {
   val pauseDuration: Int = config.getInt("rest.producer.duration.pause")
   val username: String = config.getString("rest.producer.username")
   val password: String = config.getString("rest.producer.password")
+  val eidosVersion: String = config.getString("rest.producer.eidosVersion")
+  val ontologyVersion: String = config.getString("rest.producer.ontologyVersion")
 
   val url = new URL(service)
   val httpHost = newHttpHost(url)

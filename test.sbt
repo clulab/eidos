@@ -1,20 +1,24 @@
 import Tests._
 
 def groupByLanguage(tests: Seq[TestDefinition]) = {
-  //def newRunPolicy = SubProcess(ForkOptions())
-  def newRunPolicy = InProcess
+//val newRunPolicy = SubProcess(ForkOptions())
+  val newRunPolicy = InProcess
+  val namesAndSubstrings = Seq(
+    ("englishGroup",          ".text.english."),
+    ("englishGroundingGroup", ".text.englishGrounding."),
+    ("portugueseGroup",       ".text.portuguese."),
+    ("other",                 "")
+  )
+  val groupedTestDefinitions: Map[String, Seq[TestDefinition]] = tests.groupBy { testDefinition =>
+    namesAndSubstrings.find { case (_, substring) =>
+      testDefinition.name.contains(substring)
+    }.get._1 // Get the name of the Option[NameAndSubstring].
+  }
+  val groups: Seq[Group] = groupedTestDefinitions.toSeq.map { case (name, testDefinitions) =>
+    new Group(name, testDefinitions, newRunPolicy)
+  }
 
-  val englishTests = tests.filter(_.name.contains(".text.english."))
-  val portugueseTests = tests.filter(_.name.contains(".text.portuguese."))
-  val languageNames = englishTests.map(_.name) ++ portugueseTests.map(_.name)
-  val otherTests = tests.filter(test => !languageNames.contains(test.name))
-  val allNames = otherTests.map(_.name) ++ languageNames
-//    val otherAndEnglishGroup = new Group("otherAndEnglish", otherTests ++ englishTests, newWubProcess) 
-  val englishGroup = new Group("english", englishTests, newRunPolicy)
-  val portugueseGroup = new Group("portuguese", portugueseTests, newRunPolicy)
-  val otherGroup = new Group("other", otherTests, newRunPolicy)
-
-  Seq(otherGroup, englishGroup, portugueseGroup)
+  groups
 }
 
 ThisBuild / Test / fork := true // also forces sequential operation

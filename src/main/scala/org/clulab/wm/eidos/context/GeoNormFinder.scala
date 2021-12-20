@@ -1,8 +1,5 @@
 package org.clulab.wm.eidos.context
 
-import java.nio.file.{Files, Path, Paths}
-import java.util.IdentityHashMap
-
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import org.clulab.geonorm.{GeoLocationExtractor, GeoLocationNormalizer, GeoNamesIndex}
@@ -13,11 +10,23 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.attachments.Location
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.mentions.OdinMention
+import org.clulab.wm.eidos.utils.Unordered
+import org.clulab.wm.eidos.utils.Unordered.OrderingOrElseBy
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
+import org.clulab.wm.eidoscommon.utils.IdentityHashSet
 
-import scala.collection.JavaConverters._
+import scala.collection.mutable
+import java.nio.file.{Files, Path, Paths}
 
 @SerialVersionUID(1L)
 case class GeoPhraseID(text: String, geonameID: Option[String], startOffset: Int, endOffset: Int)
+
+object GeoPhraseID {
+  implicit val ordering = Unordered[GeoPhraseID]
+      .orElseBy(_.startOffset)
+      .orElseBy(_.endOffset)
+      .orElseBy(_.hashCode)
+}
 
 object GeoNormFinder {
 
@@ -42,22 +51,9 @@ object GeoNormFinder {
         case attachment: Location => attachment.geoPhraseID
       }
     }
-    val geoPhraseIDMap: IdentityHashMap[GeoPhraseID, Int] = geoPhraseIDSeq.foldLeft(new IdentityHashMap[GeoPhraseID, Int]()) { (identityHashMap, geoPhraseID) =>
-      identityHashMap.put(geoPhraseID, 0)
-      identityHashMap
-    }
-    val geoPhraseIDArray = geoPhraseIDMap
-        .keySet
-        .asScala
+    val geoPhraseIDArray = IdentityHashSet(geoPhraseIDSeq)
         .toArray
-        .sortWith { (left: GeoPhraseID, right: GeoPhraseID) =>
-          if (left.startOffset != right.startOffset)
-            left.startOffset < right.startOffset
-          else if (left.endOffset != right.endOffset)
-            left.endOffset < right.endOffset
-          else
-            true
-        }
+        .sorted
 
     geoPhraseIDArray
   }

@@ -143,7 +143,10 @@ class TestDocumentAttachment extends EidosTest {
   }
 
   "Document relevance score added by annotateDoc" should "have 6 non-negative scores" in {
-    val config: Config = EidosSystem.defaultConfig
+    // In order to have the document relevance available, the sentence classifier must be enabled,
+    // which in turn relies on the flat ontology conceptEmbeddings.  Hence, here we ensure that they're
+    // enabled/available.
+    val config: Config = SentenceClassifier.enable(EidosSystem.defaultConfig)
     val eidosSystem = new EidosSystem(config)
     // This text is randomly selected.
     val docText = "As I wrote about before the conventions, " +

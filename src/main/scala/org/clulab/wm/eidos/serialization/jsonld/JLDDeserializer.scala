@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.serialization.jsonld
 
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
-import java.util
 
 import org.clulab.odin.Attachment
 import org.clulab.odin.CrossSentenceMention
@@ -42,8 +41,9 @@ import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.PredicateGrounding
 import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
-import org.clulab.wm.eidos.groundings.{OntologyAliases, OntologyGrounding, SingleOntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.{OntologyAliases, OntologyGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
 import org.clulab.wm.eidoscommon.utils.PassThruNamer
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -85,7 +85,7 @@ case class DocumentSpec(idAndDocument: IdAndDocument, idAndDctOpt: Option[IdAndD
 class IdAndMention(id: String, mention: Mention) extends IdAndValue[Mention](id,mention)
 
 case class Extraction(id: String, extractionType: String, extractionSubtype: String, labels: List[String],
-    foundBy: String, canonicalNameOpt: Option[String], classificationOpt: Option[Float], ontologyGroundingsOpt:  Option[OntologyAliases.OntologyGroundings],
+    foundBy: String, canonicalNameOpt: Option[String], classificationOpt: Option[Float], ontologyGroundingsOpt:  Option[OntologyAliases.OntologyGroundingMap],
     provenance: Provenance, triggerProvenanceOpt: Option[Provenance], argumentMap: Map[String, Seq[String]])
 
 object JLDDeserializer {
@@ -202,14 +202,16 @@ class JLDDeserializer {
     new IdAndWordSpec(wordId, wordData)
   }
 
-  def deserializeDependency(dependencyValue: JValue, wordMap: Map[String, Int]): Edge[String] = {
+  def deserializeDependency(dependencyValue: JValue, wordMap: Map[String, Int]): (String, Edge[String]) = {
     requireType(dependencyValue, JLDDependency.typename)
+    // If no type is found, assume it is this one.  Earlier it was the only one and therefore implied.
+    val typ = (dependencyValue \ "type").extractOpt[String].getOrElse(GraphMap.UNIVERSAL_ENHANCED)
     val source = getId(dependencyValue \ "source")
     val destination = getId(dependencyValue \ "destination")
     val relation = (dependencyValue \ "relation").extract[String]
     val edge: Edge[String] = Edge(wordMap(source), wordMap(destination), relation)
 
-    edge
+    typ -> edge
   }
 
   protected def mkRaw(idsAndWordSpecs: Array[IdAndWordSpec], documentText: Option[String]): Array[String] = {
@@ -238,15 +240,14 @@ class JLDDeserializer {
       // This doesn't work if there are double spaces in the text.  Too many elements will be made.
       // val raw: Array[String] = (sentenceValue \ "text").extract[String].split(' ')
       val graphMap = (sentenceValue \ "dependencies").extractOpt[JArray].map { dependenciesValue =>
-        val dependencies = dependenciesValue.arr.map { dependencyValue: JValue =>
+        val typesAndDependencies = dependenciesValue.arr.map { dependencyValue: JValue =>
           deserializeDependency(dependencyValue, wordMap)
         }
-        val sourceRoots = dependencies.map(_.source).toSet
-        val destinationRoots = dependencies.map(_.destination).toSet
-        val roots = sourceRoots ++ destinationRoots
-        val graph = DirectedGraph[String](dependencies, roots)
-
-        GraphMap(Map(GraphMap.UNIVERSAL_ENHANCED -> graph))
+        val typeMap = typesAndDependencies.groupBy(_._1).mapValues(_.map(_._2))
+        val graphs = typeMap.map { case (key, dependencies) =>
+          key -> DirectedGraph(dependencies, Some(idsAndWordSpecs.length))
+        }
+        GraphMap(graphs)
       }.getOrElse(new GraphMap)
 
       val idsAndTimexes = (sentenceValue \ "timexes").extractOpt[JArray].map { jArray =>
@@ -515,15 +516,17 @@ class JLDDeserializer {
     attachment
   }
 
-  def deserializeGroundings(groundingsValue: JArray): OntologyAliases.OntologyGroundings = {
+  def deserializeGroundings(groundingsValue: JArray): OntologyAliases.OntologyGroundingMap = {
 
-    def deserializeSingleOntologyNodeGrounding(value: JValue): SingleOntologyNodeGrounding = {
+    def deserializeSingleOntologyNodeGrounding(value: JValue): OntologyNodeGrounding = {
       requireType(value, JLDOntologyGrounding.typename)
+      // This is not unescaped in any way and should only be used in a PassThruNameer which
+      // should return the name then without re-escaping it.
       val ontologyConcept = (value \ "ontologyConcept").extract[String]
       val floatVal = (value \ "value").extract[Double].toFloat
       val namer = new PassThruNamer(ontologyConcept)
 
-      SingleOntologyNodeGrounding(namer, floatVal)
+      OntologyNodeGrounding(namer, floatVal)
     }
 
     def deserializeOntologyGrounding(jValue: JValue, field: String): OntologyGrounding = {
@@ -532,9 +535,9 @@ class JLDDeserializer {
         jArray.arr.map { jValue =>
           deserializeSingleOntologyNodeGrounding(jValue)
         }
-      }.getOrElse(List.empty[SingleOntologyNodeGrounding])
+      }.getOrElse(List.empty[OntologyNodeGrounding])
 
-      OntologyGrounding(version = None, date = None, grounding = multipleOntologyGrounding)
+      OntologyGrounding(versionOpt = None, dateOpt = None, individualGroundings = multipleOntologyGrounding)
     }
 
     val nameAndGroundings = groundingsValue.arr.map { groundingValue =>
@@ -820,7 +823,7 @@ class JLDDeserializer {
   def addEidosExtras(eidosMentions: Seq[EidosMention], extractions: Seq[Extraction],
       mentionMap: Map[String, Mention]): Seq[EidosMention] = {
     val extractionsMap = extractions.map { extraction => extraction.id -> extraction }.toMap
-    val mentionToExtractionMap = new util.IdentityHashMap[Mention, Extraction]()
+    val mentionToExtractionMap = IdentityHashMap[Mention, Extraction]()
     val allEidosMentions = EidosMention.findAllByIdentity(eidosMentions)
 
     mentionMap.foreach { case (id, mention) =>
@@ -830,11 +833,11 @@ class JLDDeserializer {
       val odinMention = eidosMention.odinMention
       // There could be a "fabricated" trigger mention which is not included in the map, because we only track
       // provenance for those in the jsonld and there isn't an entry in the map for them.
-      val extractionOpt = Option(mentionToExtractionMap.get(odinMention))
+      val extractionOpt = mentionToExtractionMap.get(odinMention)
 
       extractionOpt.foreach { extraction =>
         extraction.canonicalNameOpt.foreach { canonicalName => eidosMention.canonicalName = canonicalName }
-        extraction.ontologyGroundingsOpt.foreach { ontologyGroundings => eidosMention.grounding = ontologyGroundings }
+        extraction.ontologyGroundingsOpt.foreach { ontologyGroundings => eidosMention.deserializedGrounding = ontologyGroundings }
         // It is done this way in case the default value already in the EidosMention has been changed.
         extraction.classificationOpt.foreach { classification => eidosMention.classificationOpt = Some(classification) }
       }

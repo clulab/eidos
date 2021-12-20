@@ -1,9 +1,7 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils}
 import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
 
 import java.io.File
 
@@ -18,16 +16,16 @@ class MockKafkaConsumer(inputDir: String, outputDir: String) extends KafkaConsum
 
   def poll(duration: Int): Unit = {
     Thread.sleep(duration)
-    LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.json)
 
     val files = FileUtils.findFiles(inputDir, Extensions.json)
 
     if (files.nonEmpty) {
       val inputFile = files.head
       val outputFile = FileEditor(inputFile).setDir(outputDir).get
-      FileUtils.rename(inputFile, outputFile)
-      val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
-      lockFile.createNewFile()
+
+      LockUtils.withLock(outputFile, Extensions.lock) {
+        FileUtils.rename(inputFile, outputFile)
+      }
     }
   }
 

@@ -1,9 +1,5 @@
 package org.clulab.wm.eidos.context
 
-import java.util.{IdentityHashMap, TimeZone}
-import java.time.{LocalDate, LocalDateTime, LocalTime, ZoneId}
-import java.time.format.DateTimeFormatter
-
 import ai.lum.common.ConfigUtils._
 import com.typesafe.config.Config
 import edu.stanford.nlp.time.Timex
@@ -24,11 +20,16 @@ import org.clulab.wm.eidos.document.attachments.DctDocumentAttachment
 import org.clulab.wm.eidos.extraction.Finder
 import org.clulab.wm.eidos.mentions.OdinMention
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.IdentityHashMap
+import org.clulab.wm.eidoscommon.utils.IdentityHashSet
 import org.clulab.wm.eidoscommon.utils.Sourcer
 
-import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.util.Try
 import scala.util.matching.Regex
+import java.util.TimeZone
+import java.time.{LocalDate, LocalDateTime, LocalTime, ZoneId}
+import java.time.format.DateTimeFormatter
 
 @SerialVersionUID(1L)
 case class TimeStep(startDate: LocalDateTime, endDate: LocalDateTime)
@@ -61,13 +62,7 @@ object TimeNormFinder {
         case attachment: Time => attachment.interval
       }
     }
-    val timExMap: IdentityHashMap[TimEx, Int] = timExSeq.foldLeft(new IdentityHashMap[TimEx, Int]()) { (identityHashMap, timEx) =>
-      identityHashMap.put(timEx, 0)
-      identityHashMap
-    }
-    val timExArray = timExMap
-        .keySet
-        .asScala
+    val timExArray = IdentityHashSet(timExSeq)
         .toArray
         .sortBy { timEx: TimEx => timEx.span }
 

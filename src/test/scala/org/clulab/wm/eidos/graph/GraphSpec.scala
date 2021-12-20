@@ -1,19 +1,18 @@
 package org.clulab.wm.eidos.graph
 
-import java.util.{IdentityHashMap => JIdentityHashMap}
-
 import org.clulab.odin.{Attachment, EventMention, Mention, TextBoundMention}
 import org.clulab.wm.eidos.EidosAliases.Quantifier
 import org.clulab.wm.eidos.attachments._
 import org.clulab.wm.eidoscommon.utils.QuicklyEqualable
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.hashing.MurmurHash3.mix
 
 class TestResult(val mention: Option[Mention], val complaints: Seq[String])
 
 object TestResult {
-  type TestResults = JIdentityHashMap[GraphSpec, TestResult]
+  type TestResults = mutable.Map[GraphSpec, TestResult]
 }
 
 import org.clulab.wm.eidos.graph.TestResult.TestResults
@@ -309,14 +308,14 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
       val contextSpecs =  attachmentSpecs.collect { case a: ContextAttachmentSpec => a }
       // See if this works, then take out time and geo during the apply
 
-      ((useTimeNorm, useGeoNorm) match {
+      (useTimeNorm, useGeoNorm) match {
         case (true, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs)
         case (true, false) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs)
         case (false, true) => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- timeSpecs)
         case _ => ContextAttachmentSpec.matchAttachments(mention, contextSpecs -- geoSpecs -- timeSpecs)
-      })
+      }
     }
-    val allMatch = triggeredsMatch
+    val allMatch = triggeredsMatch // So the contexts are not being used!
 
     allMatch
   }
@@ -340,19 +339,16 @@ class NodeSpec(val nodeText: String, val attachmentSpecs: Set[AttachmentSpec], n
   }
   
   def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
-    if (!testResults.containsKey(this)) {
+    testResults.getOrElseUpdate(this, {
       val matches = testSpec(mentions, useTimeNorm, useGeoNorm)
-      val testResult =
-          if (matches.size < 1)
-            new TestResult(None, Seq("Could not find NodeSpec " + this))
-          else if (matches.size > 1)
-            new TestResult(None, Seq("Found too many (" + matches.size + ") instances of NodeSpec " + this))
-          else
-            new TestResult(Some(matches.head), Seq.empty)
 
-      testResults.put(this, testResult)
-    }
-    testResults.get(this)
+      if (matches.size < 1)
+        new TestResult(None, Seq("Could not find NodeSpec " + this))
+      else if (matches.size > 1)
+        new TestResult(None, Seq("Found too many (" + matches.size + ") instances of NodeSpec " + this))
+      else
+        new TestResult(Some(matches.head), Seq.empty)
+    })
   }
   
   protected def toString(left: String, right: String): String = {
@@ -397,17 +393,14 @@ object NodeSpec {
 class AntiNodeSpec(nodeText: String, attachmentSpecs: Set[AttachmentSpec]) extends NodeSpec(nodeText, attachmentSpecs) {
 
   override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
-    if (!testResults.containsKey(this)) {
+    testResults.getOrElseUpdate(this, {
       val matches = testSpec(mentions, useTimeNorm, useGeoNorm)
-      val testResult =
-          if (matches.nonEmpty)
-            new TestResult(None, Seq("Could find AntiNodeSpec " + this))
-          else
-            new TestResult(None, Seq.empty)
 
-      testResults.put(this, testResult)
-    }
-    testResults.get(this)
+      if (matches.nonEmpty)
+        new TestResult(None, Seq("Could find AntiNodeSpec " + this))
+      else
+        new TestResult(None, Seq.empty)
+    })
   }
 
   override def toString: String = toString("]", "[")
@@ -462,7 +455,7 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
   }
 
   def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
-    if (!testResults.containsKey(this)) {
+    testResults.getOrElseUpdate(this, {
       val causeTestResult = cause.test(mentions, useTimeNorm, useGeoNorm, testResults)
       val effectTestResult = effect.test(mentions, useTimeNorm, useGeoNorm, testResults)
 
@@ -485,9 +478,8 @@ class EdgeSpec(val cause: NodeSpec, val event: EventSpec, val effect: NodeSpec) 
           else new TestResult(None, Seq.empty)
       val testResult = new TestResult(edgeTestResult.mention, edgeTestResult.complaints ++ causeComplaints ++ effectComplaints)
 
-      testResults.put(this, testResult)
-    }
-    testResults.get(this)
+      testResult
+    })
   }
 
   def toString(left: String, right: String): String = {
@@ -511,7 +503,7 @@ class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends 
   override def toString: String = toString("->)", "(->")
 
   override def test(mentions: Seq[Mention], useTimeNorm: Boolean, useGeoNorm: Boolean, testResults: TestResults): TestResult = {
-    if (!testResults.containsKey(this)) {
+    testResults.getOrElseUpdate(this, {
       val causeTestResult = cause.test(mentions, useTimeNorm, useGeoNorm, testResults)
       val effectTestResult = effect.test(mentions, useTimeNorm, useGeoNorm, testResults)
 
@@ -533,9 +525,8 @@ class AntiEdgeSpec(cause: NodeSpec, event: EventSpec, effect: NodeSpec) extends 
           else new TestResult(None, Seq.empty)
       val testResult = new TestResult(edgeTestResult.mention, edgeTestResult.complaints ++ causeComplaints ++ effectComplaints)
 
-      testResults.put(this, testResult)
-    }
-    testResults.get(this)
+      testResult
+    })
   }
 }
 

@@ -4,7 +4,7 @@ import java.io._
 import java.net.URL
 import java.nio.file.StandardCopyOption
 import java.nio.file.{Files, Path, Paths}
-import java.util.Collection
+import java.util.{Collection => JCollection}
 import java.util.zip.ZipFile
 
 import org.clulab.utils.ClassLoaderObjectInputStream
@@ -37,13 +37,15 @@ object FileUtils {
 
   def findFiles(collectionDir: String, extension: String): Seq[File] = {
     val dir = new File(collectionDir)
-    val filter = new FilenameFilter {
-      def accept(dir: File, name: String): Boolean = name.endsWith(extension)
+    val fileFilter = new FileFilter {
+      override def accept(file: File): Boolean = {
+        file.isFile && file.getCanonicalPath.endsWith(extension)
+      }
     }
-
-    val result = Option(dir.listFiles(filter))
+    val files = Option(dir.listFiles(fileFilter))
       .getOrElse(throw Sourcer.newFileNotFoundException(collectionDir))
-    result
+
+    files
   }
 
   def getCommentedLinesFromSource(source: Source): Iterator[String] =
@@ -82,11 +84,11 @@ object FileUtils {
       getTextFromSource(source)
     }
 
-  def loadYamlFromResource(path: String): Collection[Any] = {
+  def loadYamlFromResource(path: String): JCollection[Any] = {
     val input = Resourcer.getText(path)
-    val yaml = new Yaml(new Constructor(classOf[Collection[Any]]))
+    val yaml = new Yaml(new Constructor(classOf[JCollection[Any]]))
 
-    yaml.load(input).asInstanceOf[Collection[Any]]
+    yaml.load(input).asInstanceOf[JCollection[Any]]
   }
 
   def copyResourceToFile(src: String, dest: File): Unit = {
@@ -110,6 +112,9 @@ object FileUtils {
       }
     }
   }
+
+  def newResourceInputStream(filename: String, classProvider: Any = this): InputStream =
+      classProvider.getClass.getResourceAsStream(filename)
 
   def newClassLoaderObjectInputStream(filename: String, classProvider: Any = this): ClassLoaderObjectInputStream = {
     val classLoader = classProvider.getClass.getClassLoader

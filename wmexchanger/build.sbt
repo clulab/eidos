@@ -1,9 +1,12 @@
 name := "wmexchanger"
 
+// This is actually for the native packager, but it breaks things.
+// dist / maintainer := "msurdeanu@email.arizona.edu"
+
 resolvers ++= Seq(
   ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release").withAllowInsecureProtocol(true), // processors-models
   "Local Ivy Repository" at s"file://${System.getProperty("user.home")}/.ivy2/local"
-  )
+)
 
 libraryDependencies ++= {
   // Versions were last checked 2021 Mar 12.

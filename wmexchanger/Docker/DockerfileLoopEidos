@@ -1,0 +1,31 @@
+# This file is for the looping/streaming version of the wmexchanger subproject.
+# docker build -f ./Docker/DockerfileLoop -t clulab/eidos-loop .
+# docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g eidos-loop
+
+FROM clulab/eidos-base:latest as builder
+
+RUN apt-get update
+RUN apt-get install -y unzip
+
+# These are just enough to get it compiled.
+ENV SBT_OPTS "-Xms5G -Xmx8G -XX:+UseConcMarkSweepGC $GLOBAL_JAVA_OPTS"
+
+# Update with any changes since base was last created.
+ADD . /eidos
+WORKDIR /eidos
+
+# Build the application
+RUN sbt "project wmexchanger" "dist"
+RUN unzip ./wmexchanger/target/universal/wmexchanger*.zip -d /tmp
+
+# Start all over with just java and copy over dist
+FROM openjdk:8
+RUN mkdir /eidos
+WORKDIR /eidos
+COPY --from=builder /tmp/wmexchanger* .
+COPY --from=builder /eidos/wmexchanger/bin/start-loop-all.sh .
+
+RUN chmod +x *.sh
+
+#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["./loop_sbt_loop_all.sh"]

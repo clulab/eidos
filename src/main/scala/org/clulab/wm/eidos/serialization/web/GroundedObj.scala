@@ -4,12 +4,13 @@ import org.clulab.wm.eidos.context.GeoNormFinder
 import org.clulab.wm.eidos.context.GeoPhraseID
 import org.clulab.wm.eidos.context.TimEx
 import org.clulab.wm.eidos.context.TimeNormFinder
-import org.clulab.wm.eidos.groundings.GroundingUtils
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.DisplayUtils
+import org.clulab.wm.eidos.utils.GroundingUtils
 
-class GroundedObj(groundedEntities: Seq[GroundedEntity], mentions: Seq[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]) {
+class GroundedObj(groundedEntities: Seq[GroundedEntity], eidosMentions: Seq[EidosMention], time: Option[Array[Seq[TimEx]]], location: Option[Array[Seq[GeoPhraseID]]]) {
+  val mentions = eidosMentions.map(_.odinMention)
 
   def tab:String = "&nbsp;&nbsp;&nbsp;&nbsp;"
 
@@ -45,41 +46,36 @@ class GroundedObj(groundedEntities: Seq[GroundedEntity], mentions: Seq[EidosMent
       objectToReturn += ""
 
     // TimeExpressions
-    val timeMentions = TimeNormFinder.getTimExs(mentions.map(_.odinMention))
+    val timeMentions = TimeNormFinder.getTimExs(mentions)
     if (timeMentions.nonEmpty) {
       objectToReturn += "<h2>Found TimeExpressions:</h2>"
       objectToReturn += s"${DisplayUtils.webAppTimeExpressions(timeMentions)}"
     }
 
     // GeoLocations
-    val locationMentions = GeoNormFinder.getGeoPhraseIDs(mentions.map(_.odinMention))
+    val locationMentions = GeoNormFinder.getGeoPhraseIDs(mentions)
     if (locationMentions.nonEmpty) {
       objectToReturn += "<h2>Found GeoLocations:</h2>"
       objectToReturn += s"${DisplayUtils.webAppGeoLocations(locationMentions)}"
     }
 
     // Concepts
-    val entities = mentions.filter(_.odinMention matches "Entity")
+    val entities = eidosMentions.filter(_.odinMention matches "Entity")
     if (entities.nonEmpty){
       objectToReturn += "<h2>Found Concepts:</h2>"
       for (entity <- entities) {
-        objectToReturn += s"${DisplayUtils.webAppMention(entity.odinMention)}"
-        // If the primary groundings are available, let's print them too...
-        val groundingStringOpt = GroundingUtils.getGroundingsStringOpt(entity, EidosOntologyGrounder.PRIMARY_NAMESPACE, 5, s"<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}")
-        if (groundingStringOpt.isDefined) {
-          objectToReturn += s"${DisplayUtils.htmlTab}OntologyLinkings:<br>${DisplayUtils.htmlTab}${DisplayUtils.htmlTab}"
-          objectToReturn +=  groundingStringOpt
-          objectToReturn += "<br><br>"
-        }
+        objectToReturn += s"${DisplayUtils.webAppEidosMention(entity)}"
+        objectToReturn += "<br><br>"
       }
     }
 
     // Relations
-    val events = mentions.filter(_.odinMention matches "Event")
+    val events = eidosMentions.filter(_.odinMention matches "Event")
     if (events.nonEmpty) {
       objectToReturn += s"<h2>Found Relations:</h2>"
       for (event <- events) {
-        objectToReturn += s"${DisplayUtils.webAppMention(event.odinMention)}"
+        objectToReturn += s"${DisplayUtils.webAppEidosMention(event)}"
+        objectToReturn += "<br><br>"
       }
     }
 

@@ -32,6 +32,7 @@ class EidosTest extends Test() {
 
 object EidosTest {
   val config = "englishTest" // CLU Lab version
+  val groundingConfig = "englishGroundingTest"
 }
 
 class ContraptionTest extends EidosTest
@@ -53,6 +54,10 @@ class ExtractionTest(val ieSystem: EidosSystem, val config: Config) extends Cont
 
 class EnglishTest(ieSystem: EidosSystem, config: Config) extends ExtractionTest(ieSystem, config) {
   def this(config: Config = ConfigFactory.load(EidosTest.config)) = this(newEidosSystem(config), config)
+}
+
+class EnglishGroundingTest(ieSystem: EidosSystem, config: Config) extends ExtractionTest(ieSystem, config) {
+  def this(config: Config = ConfigFactory.load(EidosTest.groundingConfig)) = this(newEidosSystem(config), config)
 }
 
 class PortugueseTest(ieSystem: EidosSystem, config: Config) extends ExtractionTest(ieSystem, config) {

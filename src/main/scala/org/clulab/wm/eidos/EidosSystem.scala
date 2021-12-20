@@ -7,7 +7,7 @@ import org.clulab.wm.eidos.components.EidosComponents
 import org.clulab.wm.eidos.components.ComponentsBuilder
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.document.Metadata
+import org.clulab.wm.eidos.metadata.Metadata
 import org.clulab.wm.eidos.refiners.EidosRefiner
 import org.clulab.wm.eidos.refiners.FinderRefiner
 import org.clulab.wm.eidos.refiners.OdinRefiner

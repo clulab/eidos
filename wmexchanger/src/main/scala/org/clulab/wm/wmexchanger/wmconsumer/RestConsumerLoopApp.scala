@@ -2,18 +2,13 @@ package org.clulab.wm.wmexchanger.wmconsumer
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.FileEditor
-import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, Sinker}
 import org.clulab.wm.wmexchanger.utils.SafeThread
-import org.clulab.wm.eidoscommon.utils.Sinker
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
-import org.clulab.wm.wmexchanger.utils.LockUtils
 import org.clulab.wm.wmexchanger.utils.LoopApp
 
 import java.io.File
-import java.util.Properties
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
@@ -37,12 +32,11 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
         val cdr = restConsumer.download(file)
         val outputFile = FileEditor(file).setDir(outputDir).get
 
-        Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
-          printWriter.print(cdr)
+        LockUtils.withLock(outputFile, Extensions.lock) {
+          Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
+            printWriter.print(cdr)
+          }
         }
-
-        val lockFile = FileEditor(outputFile).setExt(Extensions.lock).get
-        lockFile.createNewFile()
 
         val doneFile = FileEditor(file).setDir(doneDir).get
         FileUtils.rename(file, doneFile)
@@ -64,8 +58,6 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
       }
 
       while (!isInterrupted) {
-        LockUtils.cleanupLocks(outputDir, Extensions.lock, Extensions.json)
-
         val files = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock).par
 
         if (files.nonEmpty) {
@@ -88,12 +80,11 @@ object RestConsumerLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
   def main(args: Array[String]): Unit = {
-    val inputDir: String = args(0)
-    val outputDir: String = args(1)
-    val doneDir: String = args(2)
+    val  inputDir: String = getArgOrEnv(args, 0, "REST_CONSUMER_INPUT_DIR")
+    val outputDir: String = getArgOrEnv(args, 1, "REST_CONSUMER_OUTPUT_DIR")
+    val   doneDir: String = getArgOrEnv(args, 2, "REST_CONSUMER_DONE_DIR")
 
     FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
-
     loop {
       () => new RestConsumerLoopApp(inputDir, outputDir, doneDir).thread
     }

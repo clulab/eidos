@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.mentions
 
 import org.clulab.odin.{CrossSentenceMention, EventMention, Mention}
-import org.clulab.wm.eidoscommon.utils.IdentityBagger
+import org.clulab.wm.eidoscommon.utils.IdentityHashBag
 
 object OdinMention {
 
@@ -22,7 +22,7 @@ object OdinMention {
   // The point of this is to avoid visiting any mention twice if there are any loops.
   // Equality is eq() and not == here, in part so that mentions are not constantly compared.
   def findAllByIdentity(surfaceMentions: Seq[Mention]): Seq[Mention] =
-    IdentityBagger[Mention](surfaceMentions, mention => getNeighbors(mention) ).get
+    IdentityHashBag[Mention](surfaceMentions, mention => getNeighbors(mention) ).toSeq
 
   // In these case we're not caring which of the mentions are used if they are ==.
   // Because this equality is defined loosely, the mentions may still differ, for

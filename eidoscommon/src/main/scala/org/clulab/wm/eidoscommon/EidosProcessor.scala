@@ -3,6 +3,7 @@ package org.clulab.wm.eidoscommon
 import java.text.Normalizer
 import java.util.regex.Pattern
 
+import org.clulab.dynet.Utils.initializeDyNet
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
@@ -42,9 +43,40 @@ trait LanguageSpecific {
   def getTagSet: TagSet
 }
 
+class FubarDetector {
+
+  def isFubar(sentence: Sentence): Boolean = false
+}
+
+class EnglishFubarDetector extends FubarDetector {
+
+  protected def isSingleAlphaNonword(word: String): Boolean = {
+    word.length == 1 &&
+        word.head.isLetter &&
+        !EnglishFubarDetector.SHORT_WORDS.contains(word)
+  }
+
+  // Determines if the sentence is likely a misparsed table or graph etc., possibly because
+  // of PDF to text errors.
+  override def isFubar(sentence: Sentence): Boolean = {
+    val numSingleAlphaNonwords = sentence.words.count(isSingleAlphaNonword)
+    val fubar = numSingleAlphaNonwords > EnglishFubarDetector.MAX_SINGLE_ALPHA_NONWORDS
+
+    fubar
+  }
+}
+
+object EnglishFubarDetector {
+  val MAX_SINGLE_ALPHA_NONWORDS = 10
+  // There can be problems with outlines and short itemized lists.
+  val SHORT_WORDS = List("I", "a", "A") // "A" could begin a sentence.
+}
+
 class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
     with EidosProcessor {
-  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+
+  initializeDyNet()
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff, new EnglishFubarDetector())
   override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new EnglishTagSet()
 
@@ -59,6 +91,7 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
       tagPartsOfSpeech(document)
       lemmatize(document)
       recognizeNamedEntities(document)
+      srl(document)
     }
     document
   }
@@ -186,7 +219,7 @@ object ParagraphSplitter {
   //val eopPattern: Pattern = """^(\.?)([ \t\x0B\f\r]*)\n([ \t\x0B\f\r]*)\n(\s*)$""".r.pattern // End of paragraph
 }
 
-class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
+class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int, fubarDetector: FubarDetector = new FubarDetector()) extends Tokenizer(
   tokenizer.lexer, tokenizer.steps, tokenizer.sentenceSplitter
 ) {
   val paragraphSplitter = new ParagraphSplitter()
@@ -318,13 +351,16 @@ class EidosTokenizer(tokenizer: Tokenizer, cutoff: Int) extends Tokenizer(
     // split() looks only at the word, not the token, so it is safe to have
     // rewritten the tokens at this point.
     val sentences = sentenceSplitter.split(tokens, sentenceSplit)
-    // The second change is to filter by sentence length.
-    val shortSentences = sentences.filter { sentence => sentence.words.length < cutoff }
-    val skipLength = sentences.length - shortSentences.length
+    val reasonableSentences = sentences
+      // The second change is to filter by sentence length.
+      .filter { sentence => sentence.words.length < cutoff }
+      // This is to filter out tables/graphs/etc mis-parsed as text.
+      .filterNot { sentence => fubarDetector.isFubar(sentence) }
+    val skipLength = sentences.length - reasonableSentences.length
 
     if (skipLength > 0)
       EidosProcessor.logger.info(s"skipping $skipLength sentences")
-    shortSentences
+    reasonableSentences
   }
 
   // This is a bit misnamed, but we are overriding a processors method here.
@@ -349,8 +385,9 @@ trait Tokenizing {
 }
 
 object EidosProcessor extends Logging {
+  val DEFAULT_CUTOFF = 200
 
-  def apply(language: String, cutoff: Int = 200): EidosProcessor = language match {
+  def apply(language: String, cutoff: Int = DEFAULT_CUTOFF): EidosProcessor = language match {
     case Language.ENGLISH =>
       new EidosEnglishProcessor(language, cutoff)
     case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)

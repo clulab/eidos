@@ -3,7 +3,7 @@ package org.clulab.wm.eidos.exporters
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.groundings.PredicateGrounding
-import org.clulab.wm.eidoscommon.{EidosCluProcessor, EidosProcessor}
+import org.clulab.wm.eidoscommon.EidosCluProcessor
 import org.clulab.wm.eidoscommon.utils.Closer._
 import org.clulab.wm.eidoscommon.utils.FileUtils
 
@@ -25,9 +25,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
     FileUtils.printWriterFromFile(filename + ".debug.txt").autoClose { pw =>
 
       val doc = annotatedDocument.document
-      for (i <- doc.sentences.indices) {
-        val clusent = reader.components.procOpt.get.asInstanceOf[EidosCluProcessor].annotate(doc.sentences(i)
-          .getSentenceText).sentences.head
+      for ((clusent, i) <- doc.sentences.zipWithIndex) {
         pw.println("********************************************\n")
         pw.println(s"Sentence $i: ${clusent.getSentenceText}.\n")
         pw.println("SRLS:")
@@ -51,7 +49,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
               groundingFlat match {
                 case None => pw.println("no grounding...")
                 case Some(grounding) =>
-                  grounding.grounding.foreach { gr =>
+                  grounding.individualGroundings.foreach { gr =>
                     pw.println(s"  --> grounding:  ${gr.name}")
                     pw.println(s"      score:      ${gr.score}")
                   }
@@ -63,7 +61,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
                 case None => pw.println("no grounding...")
                 case Some(grounding) =>
                   var tupNum: Int = 0
-                  grounding.grounding.foreach { gr =>
+                  grounding.individualGroundings.foreach { gr =>
                     pw.println(s"Tuple $tupNum")
                     tupNum += 1
                     val tuple = gr.asInstanceOf[PredicateGrounding].predicateTuple
@@ -71,7 +69,7 @@ class DebugGroundingExporter(filename: String, reader: EidosSystem, reground: Bo
                     val slots = Seq(tuple.theme, tuple.themeProperties, tuple.themeProcess, tuple.themeProcessProperties)
                     for (j <- labels.indices) {
                       pw.println(s"\t${labels(j)}")
-                      for (g <- slots(j).grounding) {
+                      for (g <- slots(j).individualGroundings) {
                         pw.println(s"    --> grounding ${j}:   ${g.name}")
                         pw.println(s"        score:        ${g.score}")
                       }

@@ -307,7 +307,7 @@ class TestDoc3 extends EnglishTest {
     behavior of "TestDoc3 Paragraph 9"
     val cropCond = NodeSpec("Cropping conditions", Pos("favorable"), Quant("favorable"))
     val rainfall = NodeSpec("good performance of seasonal rainfall", Quant("good"), Pos("good"))
-    val rainfall2 = NodeSpec("persistently well above-average rainfall over the western Ethiopia highlands", Inc("above-average","persistently", "well"), Quant("above-average", "persistently", "well"), GeoLoc("Ethiopia"), TimEx("the coming weeks"))
+    val rainfall2 = NodeSpec("persistently well above-average rainfall over the western Ethiopia highlands", Inc("above-average", "persistently", "well"), Quant("above-average", "persistently", "well"), GeoLoc("Ethiopia"), TimEx("the coming weeks"))
     val flood = NodeSpec("flooding", TimEx("the coming weeks"), NodeSpec.sentenceFilter(1))
     val rainfall3 = NodeSpec("continued rains")
     val worm = NodeSpec("impact of Fall Armyworm", Dec("reduce"), TimEx("Fall"))

@@ -3,10 +3,10 @@ package org.clulab.wm.eidos.apps.batch
 import org.clulab.utils.ThreadUtils
 import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.EidosSystem
+import org.clulab.wm.eidos.metadata.CdrText
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, Timer}
-import org.clulab.wm.eidos.utils.meta.CdrText
 import org.clulab.wm.eidoscommon.utils.Logging
 
 object ExtractCdrMetaFromDirectory extends App with Logging {
@@ -44,7 +44,7 @@ object ExtractCdrMetaFromDirectory extends App with Logging {
             // 3. Write to output file
             val path = FileEditor(file).setDir(outputDir).setExt("jsonld").get
             FileUtils.printWriterFromFile(path).autoClose { printWriter =>
-              new JLDCorpus(annotatedDocument).serialize(printWriter)
+              new JLDCorpus(annotatedDocument).serialize(printWriter, regrounding = false)
             }
             // Now move the file to directory done
             val newFile = FileEditor(file).setDir(doneDir).get

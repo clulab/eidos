@@ -1,12 +1,13 @@
 package org.clulab.wm.eidos.exporters
 
-import java.io.PrintWriter
-
+import com.typesafe.config.Config
 import org.clulab.odin.Attachment
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.{Decrease, Hedging, Increase, Negation, Quantification}
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
+
+import java.io.PrintWriter
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -16,20 +17,22 @@ trait Exporter {
 
 object Exporter {
 
-  def apply(exporterString: String, filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int): Exporter = {
+  def apply(exporterString: String, filename: String, reader: EidosSystem, groundAs: Seq[String], topN: Int, config: Config): Exporter = {
     exporterString match {
       case "jsonld" => JSONLDExporter(filename + ".jsonld", reader)
       case "serialized" => SerializedExporter(filename)
       case "grounding" => new GroundingAnnotationExporter(filename + ".ground.csv", reader, groundAs, topN)
-      case "reground" => new RegroundExporter(filename + ".jsonld", reader)
+      case "ground" => new GroundExporter(filename, reader)
       case "debugGrounding" => new DebugGroundingExporter(filename, reader)
+      case "groundingInsight" => new GroundingInsightExporter(filename, reader, config)
+      case "groundingSheet" => new CompositionalGroundingSheetExporter(filename, reader, config)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")
     }
   }
 
   // This version is intended for use when all exports are to be output to the same file which has already
   // been opened and is accessible through the printWriter.
-  def apply(exporterString: String, printWriter: PrintWriter, reader: EidosSystem, groundAs: Seq[String], topN: Int): Exporter = {
+  def apply(exporterString: String, printWriter: PrintWriter, reader: EidosSystem, groundAs: Seq[String], topN: Int, config: Config): Exporter = {
     exporterString match {
       case "incdec" => IncDecExporter(printWriter)
       case _ => throw new NotImplementedError(s"Export mode $exporterString is not supported.")

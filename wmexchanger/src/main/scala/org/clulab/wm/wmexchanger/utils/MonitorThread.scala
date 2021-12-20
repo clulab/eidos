@@ -29,6 +29,7 @@ class MonitorThread(safeThread: SafeThread, logger: Logger, duration: Long) exte
       logger.info("Exiting...")
     }
     catch {
+      case _: NoSuchElementException => logger.info("User input is unavailable.  Running without...")
       case _: Throwable => logger.info("Exiting...")
     }
   }

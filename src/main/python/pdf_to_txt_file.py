@@ -1,5 +1,5 @@
 """
-This script takes a folder containing PDF files and converts them into TXT.
+This script takes a PDF file and converts it into TXT.
 It works with python3 in a Unix or Linux or (without alarms) Windows system.
 
 Requirements:

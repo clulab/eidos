@@ -13,10 +13,10 @@ import org.clulab.utils.ThreadUtils
 import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.groundings.grounders.EidosAdjectiveGrounder
+import org.clulab.wm.eidos.metadata.CluText
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils}
-import org.clulab.wm.eidos.utils.meta.CluText
 
 object ExtractCluMetaFromDirectoryFiltered extends App {
   val inputDir = args(0)
