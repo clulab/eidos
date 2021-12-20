@@ -9,6 +9,7 @@ import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
 
 import java.io.File
+import scala.util.Try
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
@@ -21,8 +22,9 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
   val interactive: Boolean = config.getBoolean("rest.consumer.interactive")
   val waitDuration: Int = config.getInt("rest.consumer.duration.wait")
   val pauseDuration: Int = config.getInt("rest.consumer.duration.pause")
-  val username: String = config.getString("rest.consumer.username")
-  val password: String = config.getString("rest.consumer.password")
+  val username: String = Try(config.getString("rest.consumer.username")).getOrElse("")
+  val password: String = Try(config.getString("rest.consumer.password")).getOrElse("")
+
 
   val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
 

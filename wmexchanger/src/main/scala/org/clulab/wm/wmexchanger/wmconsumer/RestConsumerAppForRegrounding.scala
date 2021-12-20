@@ -16,6 +16,7 @@ import java.io.File
 import java.net.URL
 import java.nio.file.{Files, Paths}
 import scala.io.Source
+import scala.util.Try
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
@@ -137,8 +138,8 @@ object RestConsumerAppForRegrounding extends App with Logging {
   val config: Config = ConfigFactory.defaultApplication().resolve()
   val service = config.getString("rest.consumer.service")
   val annotations = config.getBoolean("rest.consumer.annotations")
-  val username: String = config.getString("rest.consumer.username")
-  val password: String = config.getString("rest.consumer.password")
+  val username: String = Try(config.getString("rest.consumer.username")).getOrElse("")
+  val password: String = Try(config.getString("rest.consumer.password")).getOrElse("")
 
   val url = new URL(service)
   val httpHost = newHttpHost(url)

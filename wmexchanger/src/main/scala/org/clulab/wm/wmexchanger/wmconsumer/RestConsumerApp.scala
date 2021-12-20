@@ -19,6 +19,7 @@ import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 
 import scala.io.Source
+import scala.util.Try
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
@@ -76,13 +77,13 @@ object RestConsumerApp extends App with Logging {
   }
 
   def newCloseableHttpClient(url: URL, userName: String, password: String): CloseableHttpClient = {
-    val credentialsProvider = newCredentialsProvider(url, userName, password)
-    val closeableHttpClient = HttpClientBuilder
-        .create
-        .setDefaultCredentialsProvider(credentialsProvider)
-        .build
+    val closeableHttpClient = HttpClientBuilder.create
 
-    closeableHttpClient
+    if(userName.nonEmpty) {
+      closeableHttpClient.setDefaultCredentialsProvider(newCredentialsProvider(url, userName, password))
+    }
+
+    closeableHttpClient.build()
   }
 
   def download(docId: String, dateOpt: Option[String], annotations: Boolean, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
@@ -122,8 +123,8 @@ object RestConsumerApp extends App with Logging {
   val config: Config = ConfigFactory.defaultApplication().resolve()
   val service = config.getString("rest.consumer.service")
   val annotations = config.getBoolean("rest.consumer.annotations")
-  val username: String = config.getString("rest.consumer.username")
-  val password: String = config.getString("rest.consumer.password")
+  val username: String = Try(config.getString("rest.consumer.username")).getOrElse("")
+  val password: String = Try(config.getString("rest.consumer.password")).getOrElse("")
 
   val url = new URL(service)
   val httpHost = newHttpHost(url)
