@@ -9,12 +9,12 @@ assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "INDEX.LIST")   => MergeStrategy.discard // These can't be automatically combined, so skip the optimization.
   case PathList("module-info.class")        => MergeStrategy.discard // This might not be right, but it stops the complaints.
 
-  // Concatenate everyone's licenses and notices.
-  case PathList("LICENSE")                  => MergeStrategy.concat
-  case PathList("META-INF", "LICENSE")      => MergeStrategy.concat 
-  case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.concat
-  case PathList("META-INF", "NOTICE")       => MergeStrategy.concat
-  case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.concat
+  // Rename everyone's licenses and notices.
+  case PathList("LICENSE")                  => MergeStrategy.rename
+  case PathList("META-INF", "LICENSE")      => MergeStrategy.rename
+  case PathList("META-INF", "LICENSE.txt")  => MergeStrategy.rename
+  case PathList("META-INF", "NOTICE")       => MergeStrategy.rename
+  case PathList("META-INF", "NOTICE.txt")   => MergeStrategy.rename
 
   // If two copies of glove are included, this readme file will be duplicated.
   // case PathList("org", "clulab", "glove", "README.md") => MergeStrategy.concat
@@ -24,7 +24,9 @@ assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "services", "com.fasterxml.jackson.databind.Module")      => MergeStrategy.filterDistinctLines
   case PathList("META-INF", "services", "javax.xml.transform.TransformerFactory")     => MergeStrategy.first // or last or both?
   // Otherwise just keep one copy if the contents are the same and complain if not.
-  case _ => MergeStrategy.deduplicate
+  case other => MergeStrategy.deduplicate
+    // val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
+    // oldStrategy(other)
 }
 // This prevents testing in core, then non-aggregation prevents it in other subprojects.
 assembly / test := {}
