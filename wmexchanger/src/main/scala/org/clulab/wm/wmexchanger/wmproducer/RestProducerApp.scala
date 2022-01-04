@@ -23,6 +23,7 @@ import org.json4s.DefaultFormats
 import org.json4s.jackson.JsonMethods
 
 import scala.io.Source
+import scala.util.Try
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
@@ -78,13 +79,12 @@ object RestProducerApp extends App with Logging {
   }
 
   def newCloseableHttpClient(url: URL, userName: String, password: String): CloseableHttpClient = {
-    val credentialsProvider = newCredentialsProvider(url, userName, password)
-    val closeableHttpClient = HttpClientBuilder
-        .create
-        .setDefaultCredentialsProvider(credentialsProvider)
-        .build
+    val closeableHttpClient = HttpClientBuilder.create
+    if(userName.nonEmpty) {
+      closeableHttpClient.setDefaultCredentialsProvider(newCredentialsProvider(url, userName, password))
+    }
 
-    closeableHttpClient
+    closeableHttpClient.build()
   }
 
   def upload(docId: String, metadata: String, file: File, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
@@ -130,8 +130,8 @@ object RestProducerApp extends App with Logging {
   val interactive: Boolean = config.getBoolean("rest.producer.interactive")
   val waitDuration: Int = config.getInt("rest.producer.duration.wait")
   val pauseDuration: Int = config.getInt("rest.producer.duration.pause")
-  val username: String = config.getString("rest.producer.username")
-  val password: String = config.getString("rest.producer.password")
+  val username: String = Try(config.getString("rest.producer.username")).getOrElse("")
+  val password: String = Try(config.getString("rest.producer.password")).getOrElse("")
   val eidosVersion: String = config.getString("rest.producer.eidosVersion")
   val ontologyVersion: String = config.getString("rest.producer.ontologyVersion")
 
