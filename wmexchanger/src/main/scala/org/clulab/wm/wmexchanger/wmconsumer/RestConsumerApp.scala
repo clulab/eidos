@@ -78,7 +78,6 @@ object RestConsumerApp extends App with Logging {
 
   def newCloseableHttpClient(url: URL, userName: String, password: String): CloseableHttpClient = {
     val closeableHttpClient = HttpClientBuilder.create
-
     if(userName.nonEmpty) {
       closeableHttpClient.setDefaultCredentialsProvider(newCredentialsProvider(url, userName, password))
     }

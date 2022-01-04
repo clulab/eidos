@@ -74,13 +74,12 @@ object RestConsumerAppForRegrounding extends App with Logging {
   }
 
   def newCloseableHttpClient(url: URL, userName: String, password: String): CloseableHttpClient = {
-    val credentialsProvider = newCredentialsProvider(url, userName, password)
-    val closeableHttpClient = HttpClientBuilder
-        .create
-        .setDefaultCredentialsProvider(credentialsProvider)
-        .build
+    val closeableHttpClient = HttpClientBuilder.create
+    if(userName.nonEmpty) {
+      closeableHttpClient.setDefaultCredentialsProvider(newCredentialsProvider(url, userName, password))
+    }
 
-    closeableHttpClient
+    closeableHttpClient.build()
   }
 
   def download(docId: String, dateOpt: Option[String], annotations: Boolean, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {

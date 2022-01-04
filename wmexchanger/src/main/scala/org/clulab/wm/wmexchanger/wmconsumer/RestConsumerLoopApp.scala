@@ -25,7 +25,6 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
   val username: String = Try(config.getString("rest.consumer.username")).getOrElse("")
   val password: String = Try(config.getString("rest.consumer.password")).getOrElse("")
 
-
   val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
 
     def processFile(restConsumer: RestConsumerish, file: File): Unit = {

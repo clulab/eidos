@@ -9,6 +9,7 @@ import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 
 import java.io.File
+import scala.util.Try
 
 class RestProducerLoopApp(inputDir: String, doneDir: String) {
   var useReal: Boolean = RestProducerLoopApp.useReal
@@ -18,8 +19,8 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
   val interactive: Boolean = config.getBoolean("rest.producer.interactive")
   val waitDuration: Int = config.getInt("rest.producer.duration.wait")
   val pauseDuration: Int = config.getInt("rest.producer.duration.pause")
-  val username: String = config.getString("rest.producer.username")
-  val password: String = config.getString("rest.producer.password")
+  val username: String = Try(config.getString("rest.producer.username")).getOrElse("")
+  val password: String = Try(config.getString("rest.producer.password")).getOrElse("")
   val eidosVersion: String = config.getString("rest.producer.eidosVersion")
   val ontologyVersion: String = config.getString("rest.producer.ontologyVersion")
 
