@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.apps.xsv
 
-import ai.lum.common.StringUtils.StringWrapper
+import ai.lum.common.StringUtils.LumAICommonStringWrapper
 import org.clulab.odin.EventMention
 import org.clulab.struct.Counter
 import org.clulab.wm.eidos.EidosApp

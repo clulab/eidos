@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.exporters
 
-import ai.lum.common.StringUtils.StringWrapper
+import ai.lum.common.StringUtils.LumAICommonStringWrapper
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils.getBaseGroundingString
