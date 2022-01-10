@@ -41,7 +41,7 @@ libraryDependencies ++= {
     "org.clulab"               %% "timenorm"                % "1.0.5" exclude("org.slf4j", "slf4j-log4j12"),
     "org.clulab"               %% "geonorm"                 % "1.0.0",
     // This is used for config utilities in particular.
-    "ai.lum"                   %% "common"                  % "0.0.8",
+    "ai.lum"                   %% "common"                  % "0.1.5",
     // This ontology is fetched from github rather than included directly.
     "com.github.WorldModelers"  % "Ontologies"              % "master-SNAPSHOT", // remote
 //  "WorldModelers"            %% "ontologies"              % "0.3.0-SNAPSHOT",  // local
