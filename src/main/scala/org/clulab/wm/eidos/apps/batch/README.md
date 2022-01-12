@@ -4,6 +4,7 @@ Files here are involved with batch processing of large document collections, usu
 
 * DiffDirs - Take two directories of files and say which files are in the one but not the other.
 * DiffFiles - Take two lists of files, each in a file itself, and say which files are in one list but not the other.
+* DiffList - Take a list of files and a directory and say which files are in the one but not in the other.
 * ExtractCdrMetaFromDirectory - Read all the CDR files in an input directory with Eidos and write jsonld to the output directory.
 * ExtractCdrProcOnlyFromDirectory - Process all the CDR files in an input directory with Processors and write json to the output directory.
 * ExtractCluFromDirectoryFiltered - Bin a very large set of files by file size and then processes the bins, each in parallel, starting from the bins of the smallest files to the bins of largest files.
