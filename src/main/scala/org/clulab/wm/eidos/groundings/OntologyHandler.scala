@@ -8,7 +8,6 @@ import org.clulab.struct.Interval
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.attachments.EidosAttachment
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder.mkGrounder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.StopwordManager
@@ -235,7 +234,7 @@ object OntologyHandler extends Logging {
           val path: String = config[String](ontologyName)
           val domainOntology = DomainHandler.mkDomainOntology(ontologyName, path, proc, canonicalizer, cacheDir,
               useCacheForOntologies, includeParents)
-          val grounder = mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer, tokenizer)
+          val grounder = EidosOntologyGrounder.mkGrounder(ontologyName, domainOntology, eidosWordToVec, canonicalizer, tokenizer)
 
           grounder
         }
