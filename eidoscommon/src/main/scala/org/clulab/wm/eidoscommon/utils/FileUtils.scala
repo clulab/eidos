@@ -116,6 +116,9 @@ object FileUtils {
   def newResourceInputStream(filename: String, classProvider: Any = this): InputStream =
       classProvider.getClass.getResourceAsStream(filename)
 
+  def newFileInputStream(filename: String): InputStream =
+      new FileInputStream(new File(filename))
+
   def newClassLoaderObjectInputStream(filename: String, classProvider: Any = this): ClassLoaderObjectInputStream = {
     val classLoader = classProvider.getClass.getClassLoader
 
