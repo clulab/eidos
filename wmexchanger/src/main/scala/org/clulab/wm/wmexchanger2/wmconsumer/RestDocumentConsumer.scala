@@ -1,4 +1,4 @@
-package org.clulab.wm.wmexchanger.wmconsumer
+package org.clulab.wm.wmexchanger2.wmconsumer
 
 import org.apache.http.HttpHost
 import org.apache.http.client.methods.HttpGet
@@ -10,13 +10,14 @@ import org.clulab.wm.eidoscommon.utils.Sourcer
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.wmexchanger.utils.RestExchanger
 import org.json4s.DefaultFormats
+import org.json4s.JValue
 import org.json4s.jackson.JsonMethods
 
 import java.io.File
 import java.net.URL
 import scala.io.Source
 
-class RealRestConsumer(service: String, username: String, password: String, annotations: Boolean = false)
+class RestDocumentConsumer(service: String, username: String, password: String, annotations: Boolean = false)
     extends RestExchanger(service, username, password) with RestConsumerish {
 
   def newHttpGet(url: URL, docId: String, dateOpt: Option[String], annotations: Boolean): HttpGet = {
@@ -56,13 +57,12 @@ class RealRestConsumer(service: String, username: String, password: String, anno
     cdr
   }
 
-  def download(file: File): String = {
+  def download(docId: String, jValueOpt: Option[JValue] = None): String = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    val docId = StringUtils.beforeLast(file.getName, '.')
-    val json = FileUtils.getTextFromFile(file)
-    val jValue = JsonMethods.parse(json)
-    val dateOpt = (jValue \ "release-date").extractOpt[String]
+    val dateOpt = jValueOpt.flatMap { jValue =>
+      (jValue \ "document" \ "release-date").extractOpt[String]
+    }
     val cdr = download(docId, dateOpt, annotations, closeableHttpClientOpt.get, httpHost)
 
     cdr

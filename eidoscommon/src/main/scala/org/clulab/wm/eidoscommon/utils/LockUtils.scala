@@ -7,11 +7,16 @@ object LockUtils {
   def findFiles(dir: String, dataExt: String, lockExt: String): Seq[File] = {
     val dataFiles = FileUtils.findFiles(dir, dataExt)
     val unlockedDataFiles = dataFiles.filter { dataFile =>
-      val lockFile = FileEditor(dataFile).setExt(lockExt).get
-      !lockFile.exists
+      !hasLock(dataFile, lockExt)
     }
 
     unlockedDataFiles
+  }
+
+  def hasLock(dataFile: File, lockExt: String): Boolean = {
+    val lockFile = FileEditor(dataFile).setExt(lockExt).get
+
+    lockFile.exists
   }
 
   // Remove any lock files have become extraneous in that there is no
