@@ -43,7 +43,7 @@ libraryDependencies ++= {
     // This is used for config utilities in particular.
     "ai.lum"                   %% "common"                  % "0.1.5",
     // This ontology is fetched from github rather than included directly.
-    "com.github.WorldModelers"  % "Ontologies"              % "master-SNAPSHOT", // remote
+    "com.github.WorldModelers"  % "Ontologies"              % "4.0", // remote
 //  "WorldModelers"            %% "ontologies"              % "0.3.0-SNAPSHOT",  // local
     // Web serialization needs this.
     "com.typesafe.play"        %% "play-json"               % playVersion,

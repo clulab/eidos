@@ -16,7 +16,7 @@ import java.io.File
 import java.net.URL
 import scala.io.Source
 
-class RealRestConsumer(service: String, username: String, password: String, annotations: Boolean = false)
+class RestConsumer(service: String, username: String, password: String, annotations: Boolean = false)
     extends RestExchanger(service, username, password) with RestConsumerish {
 
   def newHttpGet(url: URL, docId: String, dateOpt: Option[String], annotations: Boolean): HttpGet = {
@@ -60,9 +60,10 @@ class RealRestConsumer(service: String, username: String, password: String, anno
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val docId = StringUtils.beforeLast(file.getName, '.')
-    val json = FileUtils.getTextFromFile(file)
-    val jValue = JsonMethods.parse(json)
-    val dateOpt = (jValue \ "release-date").extractOpt[String]
+    // The json format has changed and we don't really need the date anyway.
+    // val json = FileUtils.getTextFromFile(file)
+    // val jValue = JsonMethods.parse(json)
+    val dateOpt = None // (jValue \ "release-date").extractOpt[String]
     val cdr = download(docId, dateOpt, annotations, closeableHttpClientOpt.get, httpHost)
 
     cdr
