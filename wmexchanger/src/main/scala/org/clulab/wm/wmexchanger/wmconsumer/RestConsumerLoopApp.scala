@@ -50,7 +50,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
 
     override def runSafely(): Unit = {
       val restConsumer =
-          if (useReal) new RestConsumer(service, username, password, annotations)
+          if (useReal) new RealRestConsumer(service, username, password, annotations)
           else new MockRestConsumer(outputDir)
 
       // autoClose isn't executed if the thread is shot down, so this hook is included just in case.

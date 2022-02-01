@@ -44,7 +44,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
     override def runSafely(): Unit = {
       val restProducer =
-          if (useReal) new RealRestProducer(service, username, password, eidosVersion, ontologyVersion)
+          if (useReal) new RestProducer(service, username, password, eidosVersion, ontologyVersion)
           else new MockRestProducer()
 
       // autoClose isn't executed if the thread is shot down, so this hook is included just in case.

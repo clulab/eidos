@@ -10,7 +10,7 @@ import java.io.File
 import java.time.Duration
 import java.util.{Collections, ConcurrentModificationException, Properties}
 
-class KafkaConsumer(appProperties: Properties, kafkaProperties: Properties)
+class RealKafkaConsumer(appProperties: Properties, kafkaProperties: Properties)
     extends KafkaConsumerish {
   import org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumer._
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
