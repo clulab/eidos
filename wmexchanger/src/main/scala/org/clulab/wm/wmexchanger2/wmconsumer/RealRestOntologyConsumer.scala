@@ -13,7 +13,7 @@ import org.json4s.JValue
 import java.net.URL
 import scala.io.Source
 
-class RestOntologyConsumer(service: String, username: String, password: String)
+class RealRestOntologyConsumer(service: String, username: String, password: String)
     extends RestExchanger(service, username, password) with RestConsumerish {
 
   def newHttpGet(url: URL, ontologyId: String): HttpGet = {
@@ -44,7 +44,7 @@ class RestOntologyConsumer(service: String, username: String, password: String)
     ontology
   }
 
-  override def download(ontologyId: String, jValue: JValue): String = {
+  override def download(ontologyId: String, jValueOpt: Option[JValue]): String = {
     download(ontologyId, closeableHttpClientOpt.get, httpHost)
   }
 }

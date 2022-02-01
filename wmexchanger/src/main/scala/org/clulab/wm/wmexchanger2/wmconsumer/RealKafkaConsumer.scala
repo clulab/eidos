@@ -10,7 +10,7 @@ import java.io.File
 import java.time.Duration
 import java.util.{Collections, ConcurrentModificationException, Properties}
 
-class KafkaConsumer(appProperties: Properties, kafkaProperties: Properties)
+class RealKafkaConsumer(appProperties: Properties, kafkaProperties: Properties, var distinguisher: Int)
     extends KafkaConsumerish {
   import org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumer._
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
@@ -35,10 +35,10 @@ class KafkaConsumer(appProperties: Properties, kafkaProperties: Properties)
     records.forEach { record =>
       val key = record.key
       val value = record.value
-      // distinguisher
-      val file = FileEditor(new File(key + Extensions.placeholder)).setDir(outputDir).setExt(Extensions.json).get
-      logger.info("Consuming " + file.getName)
+      val file = FileEditor(new File(key)).setExt(Extensions.json).distinguish(distinguisher).setDir(outputDir).get
 
+      distinguisher += 1
+      logger.info("Consuming " + file.getName)
       LockUtils.withLock(file, Extensions.lock) {
         FileUtils.printWriterFromFile(file).autoClose { printWriter =>
           printWriter.print(value)

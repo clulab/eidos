@@ -12,5 +12,5 @@ class MockRestOntologyConsumer(outputDir: String) extends RestConsumerish {
 
   def close(): Unit = ()
 
-  def download(ontologyId: String, jValue: JValue): String = ???
+  def download(ontologyId: String, jValueOpt: Option[JValue]): String = ???
 }

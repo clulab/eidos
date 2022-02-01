@@ -17,7 +17,7 @@ import java.io.File
 import java.net.URL
 import scala.io.Source
 
-class RestDocumentConsumer(service: String, username: String, password: String, annotations: Boolean = false)
+class RealRestDocumentConsumer(service: String, username: String, password: String, annotations: Boolean = false)
     extends RestExchanger(service, username, password) with RestConsumerish {
 
   def newHttpGet(url: URL, docId: String, dateOpt: Option[String], annotations: Boolean): HttpGet = {

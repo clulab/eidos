@@ -14,7 +14,7 @@ class MockRestDocumentConsumer(outputDir: String) extends RestConsumerish {
 
   def close(): Unit = ()
 
-  def download(docId: String, jValue: JValue): String = {
+  def download(docId: String, jValueOpt: Option[JValue]): String = {
     val mockFile = new File(mockDir + "/" + docId + Extensions.json).getAbsolutePath
     val cdr = FileUtils.getTextFromFile(mockFile)
 

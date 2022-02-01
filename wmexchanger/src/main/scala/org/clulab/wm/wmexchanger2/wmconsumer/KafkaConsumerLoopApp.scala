@@ -3,7 +3,6 @@ package org.clulab.wm.wmexchanger2.wmconsumer
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
-import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.{DevtimeConfig, LoopApp, SafeThread}
 
@@ -23,31 +22,20 @@ class KafkaConsumerLoopApp(args: Array[String]) {
   val outputDir: String = appProperties.getProperty("output.dir")
 
   val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp.logger, interactive, waitDuration) {
-    val distinguisher = {
-      val files = FileUtils.findFiles(outputDir, Extensions.placeholder + Extensions.json)
-      val distinguisher = files.flatMap { file =>
-        val name = file.getName
-        val extensionless = StringUtils.beforeLast(name, '.')
-        val valid = extensionless.count(_ == '-') == 1
-        val distinguisher =
-          if (valid) StringUtils.beforeLast(extensionless, '-')
-
-      }
-
-
-    } // Find first number that is unused in .json
+    // These should have only - dash in the output.
+    val outputDistinguisher = FileUtils.distinguish(1, FileUtils.findFiles(outputDir, Extensions.placeholder + Extensions.json))
 
     override def runSafely(): Unit = {
       // This is kept open the entire time, so time between pings is extra important.
       val consumer =
           if (useReal)
-            new KafkaConsumer(appProperties, kafkaProperties)
+            new RealKafkaConsumer(appProperties, kafkaProperties, outputDistinguisher)
           else {
             // In some tests with useReal = false, the outputDir is passed in args.
             val mockOutputDir = LoopApp
                 .getNamedArg(args, "app.outputDir")
                 .getOrElse(outputDir)
-            new MockKafkaConsumer(mockOutputDir)
+            new MockKafkaConsumer(mockOutputDir, outputDistinguisher)
           }
       // autoClose isn't executed if the thread is shot down, so this hook is used instead.
       sys.ShutdownHookThread { consumer.close() }

@@ -2,6 +2,8 @@ package org.clulab.wm.wmexchanger2.wmconsumer
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Counter
+import org.clulab.wm.eidoscommon.utils.Holder
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, Sinker}
 import org.clulab.wm.wmexchanger.utils.SafeThread
@@ -35,22 +37,25 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
 
   val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
 
-    def processRequest(restConsumerRequest: RestConsumerRequest): Unit = {
+    def processRequest(restConsumerRequest: RestConsumerRequest, outputDistinguisher: Counter,
+        doneDistinguisher: Counter): Unit = {
       val file = restConsumerRequest.file
       val readingFile = FileEditor(file).setDir(readingDir).setExt(Extensions.jsonld).get
       val outputFile =
           if (readingFile.exists)
-            FileEditor(file).setDir(outputDir).setExt(Extensions.gnd).get
+            FileEditor(file).setExt(Extensions.gnd).distinguish(outputDistinguisher.get).setDir(outputDir).get
           else
-            FileEditor(file).setDir(outputDir).setExt(Extensions.rd).get
+            FileEditor(file).setExt(Extensions.rd).distinguish(outputDistinguisher.get).setDir(outputDir).get
 
+      outputDistinguisher.inc()
       LockUtils.withLock(outputFile, Extensions.lock) {
         Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
           restConsumerRequest.ontologyIds.foreach(printWriter.println)
         }
       }
 
-      val doneFile = FileEditor(file).setDir(doneDir).get
+      val doneFile = FileEditor(file).distinguish(doneDistinguisher.get).setDir(doneDir).get
+      doneDistinguisher.inc()
       FileUtils.rename(file, doneFile)
     }
 
@@ -108,10 +113,10 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
 
     override def runSafely(): Unit = {
       val restDocumentConsumer =
-          if (useReal) new RestDocumentConsumer(cdrService, username, password, annotations)
+          if (useReal) new RealRestDocumentConsumer(cdrService, username, password, annotations)
           else new MockRestDocumentConsumer(documentDir)
       val restOntologyConsumer =
-          if (useReal) new RestOntologyConsumer(ontologyService, username, password)
+          if (useReal) new RealRestOntologyConsumer(ontologyService, username, password)
           else new MockRestOntologyConsumer(ontologyDir)
       val knownDocumentIds = LockUtils.findFiles(documentDir, Extensions.json, Extensions.lock)
           .map { documentFile => StringUtils.beforeLast(documentFile.getName, '.') }
@@ -119,6 +124,10 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       val knownOntologyIds = LockUtils.findFiles(ontologyDir, Extensions.yml, Extensions.lock)
           .map { ontologyFile => StringUtils.beforeLast(ontologyFile.getName, '.') }
           .to[mutable.Set]
+      val outputDistinguisher = Counter(FileUtils.distinguish(2, FileUtils.findFiles(outputDir,
+          Seq(Extensions.placeholder + Extensions.rd, Extensions.placeholder + Extensions.gnd))))
+      val doneDistinguisher = Counter(FileUtils.distinguish(2, FileUtils.findFiles(doneDir,
+          Extensions.placeholder + Extensions.json)))
 
       // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
       sys.ShutdownHookThread {
@@ -130,10 +139,11 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
         val files = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock).take(RestConsumerLoopApp.fileLimit)
 
         if (files.nonEmpty) {
+          // These need holders.
           val restConsumerRequests = processFiles(files, knownDocumentIds, knownOntologyIds, restDocumentConsumer, restOntologyConsumer)
 
           restConsumerRequests.foreach { restConsumerRequest =>
-            processRequest(restConsumerRequest)
+            processRequest(restConsumerRequest, outputDistinguisher, doneDistinguisher)
           }
         }
         else {
