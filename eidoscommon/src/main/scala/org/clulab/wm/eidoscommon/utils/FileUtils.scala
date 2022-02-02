@@ -6,7 +6,6 @@ import java.nio.file.StandardCopyOption
 import java.nio.file.{Files, Path, Paths}
 import java.util.{Collection => JCollection}
 import java.util.zip.ZipFile
-
 import org.clulab.utils.ClassLoaderObjectInputStream
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.yaml.snakeyaml.Yaml
@@ -14,6 +13,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 
 import scala.collection.JavaConverters._
 import scala.io.Source
+import scala.util.Try
 
 object FileUtils {
 
@@ -28,18 +28,21 @@ object FileUtils {
   // See https://rosettacode.org/wiki/Walk_a_directory/Recursively#Scala.
   def walkTree(file: File): Iterable[File] = {
     val children = new Iterable[File] {
-      def iterator = if (file.isDirectory) file.listFiles.iterator else Iterator.empty
+      def iterator: Iterator[File] = if (file.isDirectory) file.listFiles.iterator else Iterator.empty
     }
     Seq(file) ++: children.flatMap(walkTree(_))
   }
 
   def walkTree(filename: String): Iterable[File] = walkTree(new File(filename))
 
-  def findFiles(collectionDir: String, extension: String): Seq[File] = {
+  def findFiles(collectionDir: String, extension: String): Seq[File] =
+      findFiles(collectionDir, Seq(extension))
+
+  def findFiles(collectionDir: String, extensions: Seq[String]): Seq[File] = {
     val dir = new File(collectionDir)
     val fileFilter = new FileFilter {
       override def accept(file: File): Boolean = {
-        file.isFile && file.getCanonicalPath.endsWith(extension)
+        file.isFile && extensions.exists { extension => file.getCanonicalPath.endsWith(extension) }
       }
     }
     val files = Option(dir.listFiles(fileFilter))
@@ -100,7 +103,7 @@ object FileUtils {
           val len = is.read(buf)
           val continue =
             if (len > 0) {
-              os.write(buf, 0, len);
+              os.write(buf, 0, len)
               true
             }
             else false
@@ -245,5 +248,24 @@ object FileUtils {
     if (newFile.exists())
       newFile.delete()
     oldFile.renameTo(newFile)
+  }
+
+  def distinguish(n: Int, files: Seq[File]): Int = {
+    // Finds the largest number after the nth - of the extensionless name and only when there are n -s.
+    val distinguishers = files.flatMap { file =>
+      val extensionless = StringUtils.beforeFirst(file.getName, '.', all = true)
+      val valid = extensionless.count(_ == '-') == n
+      val distinguisherOpt =
+          // Since they are after the last dash, they must be non-negative.
+          if (valid) Try(StringUtils.afterLast(extensionless, '-').toInt).toOption
+          else None
+
+      distinguisherOpt
+    }
+    val maxDistinguisher =
+        if (distinguishers.nonEmpty) distinguishers.max
+        else -1
+
+    maxDistinguisher + 1
   }
 }

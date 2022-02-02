@@ -4,8 +4,11 @@ import java.io.File
 
 object LockUtils {
 
-  def findFiles(dir: String, dataExt: String, lockExt: String): Seq[File] = {
-    val dataFiles = FileUtils.findFiles(dir, dataExt)
+  def findFiles(dir: String, dataExt: String, lockExt: String): Seq[File] =
+      findFiles(dir, Seq(dataExt), lockExt)
+
+  def findFiles(dir: String, dataExts: Seq[String], lockExt: String): Seq[File] = {
+    val dataFiles = FileUtils.findFiles(dir, dataExts)
     val unlockedDataFiles = dataFiles.filter { dataFile =>
       !hasLock(dataFile, lockExt)
     }
@@ -14,7 +17,7 @@ object LockUtils {
   }
 
   def hasLock(dataFile: File, lockExt: String): Boolean = {
-    val lockFile = FileEditor(dataFile).setExt(lockExt).get
+    val lockFile = FileEditor(dataFile).setExt(lockExt, last = false).get
 
     lockFile.exists
   }

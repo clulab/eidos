@@ -2,6 +2,8 @@ package org.clulab.wm.wmexchanger2.wmproducer
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
+import org.clulab.wm.eidoscommon.utils.Counter
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils}
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
@@ -26,14 +28,14 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
   val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
 
-    def processFile(restProducer: RestProducerish, file: File): Unit = {
+    def processFile(restProducer: RestProducerish, file: File, doneDistinguisher: Counter): Unit = {
       try {
         RestProducerLoopApp.logger.info(s"Uploading ${file.getName}")
         val storageKey = restProducer.upload(file)
 
         RestProducerLoopApp.logger.info(s"Reporting storage key $storageKey for ${file.getName}")
 
-        val doneFile = FileEditor(file).setDir(doneDir).get
+        val doneFile = FileEditor(file).distinguish(doneDistinguisher.getAndInc).setDir(doneDir).get
         FileUtils.rename(file, doneFile)
       }
       catch {
@@ -46,10 +48,14 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
       val restProducer =
           if (useReal) new RealRestProducer(service, username, password, eidosVersion, ontologyVersion)
           else new MockRestProducer()
+      val doneDistinguisher = Counter(FileUtils.distinguish(4, FileUtils.findFiles(doneDir,
+          Extensions.jsonld)))
+      val printWriter = FileUtils.appendingPrintWriterFromFile(doneDir + "/log.txt")
 
       // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
       sys.ShutdownHookThread {
         restProducer.close()
+        printWriter.close()
       }
 
       while (!isInterrupted) {
@@ -59,14 +65,21 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
           restProducer.open()
 
           files.par.foreach { file =>
-            processFile(restProducer, file)
+            val storageKey = processFile(restProducer, file, doneDistinguisher)
+
+            synchronized {
+              printWriter.println(s"${file.getAbsolutePath}\t$storageKey")
+            }
           }
         }
-        else
+        else {
           restProducer.close()
+          printWriter.close()
+        }
         Thread.sleep(pauseDuration)
       }
       restProducer.close()
+      printWriter.close()
     }
   }
 }

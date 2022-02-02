@@ -43,19 +43,17 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       val readingFile = FileEditor(file).setDir(readingDir).setExt(Extensions.jsonld).get
       val outputFile =
           if (readingFile.exists)
-            FileEditor(file).setExt(Extensions.gnd).distinguish(outputDistinguisher.get).setDir(outputDir).get
+            FileEditor(file).setExt(Extensions.gnd).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
           else
-            FileEditor(file).setExt(Extensions.rd).distinguish(outputDistinguisher.get).setDir(outputDir).get
+            FileEditor(file).setExt(Extensions.rd).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
 
-      outputDistinguisher.inc()
       LockUtils.withLock(outputFile, Extensions.lock) {
         Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
           restConsumerRequest.ontologyIds.foreach(printWriter.println)
         }
       }
 
-      val doneFile = FileEditor(file).distinguish(doneDistinguisher.get).setDir(doneDir).get
-      doneDistinguisher.inc()
+      val doneFile = FileEditor(file).distinguish(doneDistinguisher.getAndInc).setDir(doneDir).get
       FileUtils.rename(file, doneFile)
     }
 
@@ -125,9 +123,9 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
           .map { ontologyFile => StringUtils.beforeLast(ontologyFile.getName, '.') }
           .to[mutable.Set]
       val outputDistinguisher = Counter(FileUtils.distinguish(2, FileUtils.findFiles(outputDir,
-          Seq(Extensions.placeholder + Extensions.rd, Extensions.placeholder + Extensions.gnd))))
+          Seq(Extensions.rd, Extensions.gnd))))
       val doneDistinguisher = Counter(FileUtils.distinguish(2, FileUtils.findFiles(doneDir,
-          Extensions.placeholder + Extensions.json)))
+          Extensions.json)))
 
       // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
       sys.ShutdownHookThread {

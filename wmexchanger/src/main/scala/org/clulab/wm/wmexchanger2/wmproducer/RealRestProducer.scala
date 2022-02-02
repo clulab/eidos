@@ -41,7 +41,7 @@ class RealRestProducer(service: String, username: String, password: String, eido
     httpPost
   }
 
-  def upload(docId: String, metadata: String, file: File, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
+  def upload(documentId: String, metadata: String, file: File, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val httpPost = newHttpPost(url, metadata, file)
@@ -49,7 +49,7 @@ class RealRestProducer(service: String, username: String, password: String, eido
       val statusCode = response.getStatusLine.getStatusCode
 
       if (statusCode != 201)
-        throw new Exception(s"Status code '$statusCode' for docId '$docId''")
+        throw new Exception(s"Status code '$statusCode' for docId '$documentId''")
 
       val content = response.getEntity.getContent
       val storageKey = Source.fromInputStream(content, Sourcer.utf8).autoClose { source =>
@@ -68,9 +68,10 @@ class RealRestProducer(service: String, username: String, password: String, eido
   def upload(file: File): String = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    val docId = StringUtils.beforeLast(file.getName, '.')
-    val metadata = s"""{ "identity": "eidos", "version": "$eidosVersion", "document_id": "$docId", "output_version": "$ontologyVersion" }"""
-    val storageKey = upload(docId, metadata, file, closeableHttpClientOpt.get, httpHost)
+    val documentAndOntologyIds = StringUtils.beforeFirst(file.getName, '-')
+    val Array(documentId, ontologyId) = documentAndOntologyIds.split('_')
+    val metadata = s"""{ "identity": "eidos", "version": "$eidosVersion", "document_id": "$documentId", "output_version": "$ontologyId" }"""
+    val storageKey = upload(documentId, metadata, file, closeableHttpClientOpt.get, httpHost)
 
     storageKey
   }
