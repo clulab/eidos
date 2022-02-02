@@ -69,10 +69,9 @@ class RestExchanger(service: String, username: String, password: String) {
 
   def newCloseableHttpClient(url: URL, userName: String, password: String): CloseableHttpClient = {
     val closeableHttpClient = HttpClientBuilder.create
-    if(userName.nonEmpty) {
-      closeableHttpClient.setDefaultCredentialsProvider(newCredentialsProvider(url, userName, password))
-    }
 
+    if (userName.nonEmpty)
+      closeableHttpClient.setDefaultCredentialsProvider(newCredentialsProvider(url, userName, password))
     closeableHttpClient.build()
   }
 }
