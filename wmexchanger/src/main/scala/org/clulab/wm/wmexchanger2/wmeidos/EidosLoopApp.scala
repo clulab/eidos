@@ -66,7 +66,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
 
         Files.copy(documentFile.toPath, groundedOutputFile.toPath)
       }
-      
+
       EidosLoopApp.synchronized {
         val doneFile = FileEditor(file).distinguish(doneDistinguisher.getAndInc).setDir(doneDir).get
         FileUtils.rename(file, doneFile)

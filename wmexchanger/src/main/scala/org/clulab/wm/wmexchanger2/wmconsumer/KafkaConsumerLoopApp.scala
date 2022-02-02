@@ -23,7 +23,7 @@ class KafkaConsumerLoopApp(args: Array[String]) {
 
   val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp.logger, interactive, waitDuration) {
     // These should have only - dash in the output.
-    val outputDistinguisher = FileUtils.distinguish(1, FileUtils.findFiles(outputDir, Extensions.placeholder + Extensions.json))
+    val outputDistinguisher = FileUtils.distinguish(1, FileUtils.findFiles(outputDir, Extensions.json))
 
     override def runSafely(): Unit = {
       // This is kept open the entire time, so time between pings is extra important.
