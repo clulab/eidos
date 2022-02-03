@@ -65,11 +65,9 @@ class RealRestProducer(service: String, username: String, password: String, eido
     storageKey
   }
 
-  def upload(file: File): String = {
+  def upload(file: File, documentId: String, ontologyId: String): String = {
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
-    val documentAndOntologyIds = StringUtils.beforeFirst(file.getName, '-')
-    val Array(documentId, ontologyId) = documentAndOntologyIds.split('_')
     val metadata = s"""{ "identity": "eidos", "version": "$eidosVersion", "document_id": "$documentId", "output_version": "$ontologyId" }"""
     val storageKey = upload(documentId, metadata, file, closeableHttpClientOpt.get, httpHost)
 

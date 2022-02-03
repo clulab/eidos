@@ -3,7 +3,10 @@ package org.clulab.wm.wmexchanger2.wmeidos
 import org.clulab.processors.Document
 import org.clulab.wm.eidos.EidosOptions
 import org.clulab.wm.eidos.document.AnnotatedDocument
+import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidos.metadata.Metadata
+
+import java.io.File
 
 class MockEidosSystem extends EidosSystemish {
 
@@ -20,4 +23,6 @@ class MockEidosSystem extends EidosSystemish {
     Thread.sleep(5000)
     getEmptyAnnotatedDocument(metadata.idOpt)
   }
+
+  def newOntologyHandler(file: File): OntologyHandler = ???
 }

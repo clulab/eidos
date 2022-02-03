@@ -8,6 +8,7 @@ import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.{DevtimeConfig, LoopApp, SafeThread}
 import org.clulab.wm.wmexchanger2.utils.AppEnvironment
 import org.clulab.wm.wmexchanger2.utils.FileName
+import org.clulab.wm.wmexchanger2.utils.Stages
 
 import java.util.Properties
 
@@ -25,33 +26,40 @@ class KafkaConsumerLoopApp(args: Array[String]) {
   val outputDir: String = appProperties.getProperty("output.dir")
 
   val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp.logger, interactive, waitDuration) {
-    val outputDistinguisher = Counter(FileName.getDistinguisher(0, FileUtils.findFiles(outputDir, Extensions.json)))
+    val outputDistinguisher = FileName.getDistinguisher(KafkaConsumerLoopApp.outputStage, FileUtils.findFiles(outputDir, Extensions.json))
 
     override def runSafely(): Unit = {
       // This is kept open the entire time, so time between pings is extra important.
       val consumer =
           if (useReal)
-            new RealKafkaConsumer(appProperties, kafkaProperties, outputDistinguisher)
+            new RealKafkaConsumer(appProperties, kafkaProperties, KafkaConsumerLoopApp.outputStage, outputDistinguisher)
           else {
             // In some tests with useReal = false, the outputDir is passed in args.
             val mockOutputDir = LoopApp
                 .getNamedArg(args, "app.outputDir")
                 .getOrElse(outputDir)
-            new MockKafkaConsumer(mockOutputDir, outputDistinguisher)
+            new MockKafkaConsumer(mockOutputDir, KafkaConsumerLoopApp.outputStage, outputDistinguisher)
           }
+
+      def close(): Unit = consumer.close()
+
       // autoClose isn't executed if the thread is shot down, so this hook is used instead.
-      sys.ShutdownHookThread { consumer.close() }
+      sys.ShutdownHookThread { close() }
 
       while (!isInterrupted) {
         consumer.poll(pollDuration)
       }
-      consumer.close()
+      close()
     }
   }
 }
 
 object KafkaConsumerLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
+
+  // These will be used for the distinguishers and are their indexes.
+  val inputStage = Stages.kafkaConsumerInputStage
+  val outputStage = Stages.kafkaConsumerOutputStage
 
   def main(args: Array[String]): Unit = {
     val password = args.lift(0).getOrElse("<eidos_password>")

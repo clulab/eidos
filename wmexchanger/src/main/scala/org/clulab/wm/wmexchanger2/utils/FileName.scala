@@ -39,6 +39,16 @@ case class FileName(directories: String, names: IndexedSeq[String], distinguishe
     else // n > distinguishers.length
       this.copy(distinguishers = distinguishers.padTo(n, "") :+ distinguisher)
   }
+
+  def getName(n: Int): String = names(n)
+
+  // TODO, what if n is too high?
+  // Need a pad
+  def setName(n: Int, name: String): FileName = this.copy(names = names :+ name)
+
+  def getDocumentId: String = getName(0)
+
+  def getOntologyId: String = getName(1)
 }
 
 object FileName {
@@ -86,7 +96,7 @@ object FileName {
     new FileName(directories, names, distinguishers, extensions)
   }
 
-  def getDistinguisher(n: Int, files: Seq[File]): Int = {
+  def getDistinguisher(n: Int, files: Seq[File]): Counter = {
     val fileNames = files.map { file => FileName(file.getPath) }
     val distinguishers = fileNames.flatMap { file =>
       file.distinguishers.lift(0).flatMap { distinguisher =>
@@ -97,6 +107,6 @@ object FileName {
         if (distinguishers.nonEmpty) distinguishers.max
         else -1
 
-    maxDistinguisher + 1
+    Counter(maxDistinguisher + 1)
   }
 }

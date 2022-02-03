@@ -7,13 +7,13 @@ import org.clulab.wm.wmexchanger2.utils.FileName
 
 import java.io.File
 
-class MockKafkaConsumer(inputDir: String, outputDir: String, distinguisher: Counter) extends KafkaConsumerish {
+class MockKafkaConsumer(inputDir: String, outputDir: String, stage: Int, distinguisher: Counter) extends KafkaConsumerish {
 
   // This cheats by copying the answer from the inputDir and moving them
   // to the outputDir where something else is waiting for them.
-  def this(outputDir: String, distinguisher: Counter) = this(
+  def this(outputDir: String, stage: Int, distinguisher: Counter) = this(
     FileEditor(new File(outputDir)).incName("/mock").get.getAbsolutePath,
-    outputDir, distinguisher
+    outputDir, stage, distinguisher
   )
 
   def poll(duration: Int): Unit = {
@@ -23,7 +23,7 @@ class MockKafkaConsumer(inputDir: String, outputDir: String, distinguisher: Coun
 
     if (files.nonEmpty) {
       val inputFile = files.head
-      val outputFile = FileName(inputFile).distinguish(0, distinguisher).setDir(outputDir).toFile
+      val outputFile = FileName(inputFile).distinguish(stage, distinguisher).setDir(outputDir).toFile
 
       LockUtils.withLock(outputFile, Extensions.lock) {
         FileUtils.rename(inputFile, outputFile)

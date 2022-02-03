@@ -2,15 +2,15 @@ package org.clulab.wm.wmexchanger2.wmproducer
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidoscommon.utils.Counter
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils}
+import org.clulab.wm.eidoscommon.utils.{FileUtils, LockUtils}
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger2.utils.AppEnvironment
 import org.clulab.wm.wmexchanger2.utils.FileName
+import org.clulab.wm.wmexchanger2.utils.Stages
 
 import java.io.File
 import scala.util.Try
@@ -30,14 +30,17 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
   val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
 
-    def processFile(restProducer: RestProducerish, file: File, doneDistinguisher: Counter): Unit = {
+    def processFile(file: File, restProducer: RestProducerish, doneDistinguisher: Counter): Unit = {
       try {
         RestProducerLoopApp.logger.info(s"Uploading ${file.getName}")
-        val storageKey = restProducer.upload(file)
+        val fileName = FileName(file)
+        val documentId = fileName.getDocumentId
+        val ontologyId = fileName.getOntologyId
+        val storageKey = restProducer.upload(file, documentId, ontologyId)
 
         RestProducerLoopApp.logger.info(s"Reporting storage key $storageKey for ${file.getName}")
 
-        val doneFile = FileEditor(file).distinguish(doneDistinguisher.getAndInc).setDir(doneDir).get
+        val doneFile = fileName.distinguish(RestProducerLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
         FileUtils.rename(file, doneFile)
       }
       catch {
@@ -50,15 +53,17 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
       val restProducer =
           if (useReal) new RealRestProducer(service, username, password, eidosVersion, ontologyVersion)
           else new MockRestProducer()
-      val doneDistinguisher = Counter(FileName.getDistinguisher(4, FileUtils.findFiles(doneDir,
-          Extensions.jsonld)))
+      val doneDistinguisher = FileName.getDistinguisher(RestProducerLoopApp.outputStage, FileUtils.findFiles(doneDir,
+          Extensions.jsonld))
       val printWriter = FileUtils.appendingPrintWriterFromFile(doneDir + "/log.txt")
 
-      // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
-      sys.ShutdownHookThread {
+      def close(): Unit = {
         restProducer.close()
         printWriter.close()
       }
+
+      // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
+      sys.ShutdownHookThread { close() }
 
       while (!isInterrupted) {
         val files = LockUtils.findFiles(inputDir, Extensions.jsonld, Extensions.lock)
@@ -67,27 +72,28 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
           restProducer.open()
 
           files.par.foreach { file =>
-            val storageKey = processFile(restProducer, file, doneDistinguisher)
+            val storageKey = processFile(file, restProducer, doneDistinguisher)
 
             synchronized {
               printWriter.println(s"${file.getAbsolutePath}\t$storageKey")
             }
           }
         }
-        else {
-          restProducer.close()
-          printWriter.close()
-        }
+        else
+          close()
         Thread.sleep(pauseDuration)
       }
-      restProducer.close()
-      printWriter.close()
+      close()
     }
   }
 }
 
 object RestProducerLoopApp extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
+
+  // These will be used for the distinguishers and are their indexes.
+  val inputStage = Stages.restProducerInputStage
+  val outputStage = Stages.restProducerOutputStage
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {

@@ -12,7 +12,7 @@ import java.io.File
 import java.time.Duration
 import java.util.{Collections, ConcurrentModificationException, Properties}
 
-class RealKafkaConsumer(appProperties: Properties, kafkaProperties: Properties, distinguisher: Counter)
+class RealKafkaConsumer(appProperties: Properties, kafkaProperties: Properties, stage: Int, distinguisher: Counter)
     extends KafkaConsumerish {
   import org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumer._
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
@@ -37,7 +37,7 @@ class RealKafkaConsumer(appProperties: Properties, kafkaProperties: Properties, 
     records.forEach { record =>
       val key = record.key
       val value = record.value
-      val outputFile = FileName(key).setExt(Extensions.json).distinguish(0, distinguisher).setDir(outputDir).toFile
+      val outputFile = FileName(key).setExt(Extensions.json).distinguish(stage, distinguisher).setDir(outputDir).toFile
 
       logger.info("Consuming " + outputFile.getName)
       LockUtils.withLock(outputFile, Extensions.lock) {

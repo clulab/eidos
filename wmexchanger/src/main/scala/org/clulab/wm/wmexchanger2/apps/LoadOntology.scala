@@ -26,7 +26,7 @@ object LoadOntology extends App {
     newDomainOntology
   }
 
-  val eidosSystem = new EidosSystem() // Maybe remove ontology handler? and not perform grounding?
+  val eidosSystem = new EidosSystem()
   val version = StringUtils.beforeFirst(ontologyFile.getName, '.')
   newDomainOntology(eidosSystem, ontologyFile, version)
 }

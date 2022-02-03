@@ -5,5 +5,5 @@ import java.io.File
 trait RestProducerish {
   def open(): Unit
   def close(): Unit
-  def upload(file: File): String
+  def upload(file: File, documentId: String, ontologyId: String): String
 }

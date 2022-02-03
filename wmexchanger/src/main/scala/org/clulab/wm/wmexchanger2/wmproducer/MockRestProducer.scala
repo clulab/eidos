@@ -1,7 +1,5 @@
 package org.clulab.wm.wmexchanger2.wmproducer
 
-import org.clulab.wm.eidoscommon.utils.StringUtils
-
 import java.io.File
 
 class MockRestProducer() extends RestProducerish {
@@ -10,7 +8,7 @@ class MockRestProducer() extends RestProducerish {
 
   def close(): Unit = ()
 
-  def upload(file: File): String = {
-    StringUtils.beforeLast(file.getName, '.', true)
+  def upload(file: File, documentId: String, ontologyId: String): String = {
+    s"${documentId}_${ontologyId}"
   }
 }

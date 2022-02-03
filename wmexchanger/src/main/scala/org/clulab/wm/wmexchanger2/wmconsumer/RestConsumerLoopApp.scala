@@ -11,6 +11,7 @@ import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger2.utils.AppEnvironment
 import org.clulab.wm.wmexchanger2.utils.FileName
+import org.clulab.wm.wmexchanger2.utils.Stages
 import org.json4s.DefaultFormats
 import org.json4s.JArray
 import org.json4s.JValue
@@ -40,13 +41,13 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
 
     def processRequest(restConsumerRequest: RestConsumerRequest, outputDistinguisher: Counter,
         doneDistinguisher: Counter): Unit = {
-      val file = restConsumerRequest.file
-      val readingFile = FileEditor(file).setDir(readingDir).setExt(Extensions.jsonld).get
+      val fileName = FileName(restConsumerRequest.file)
+      val readingFile = FileEditor(new File(restConsumerRequest.documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
       val outputFile =
           if (readingFile.exists)
-            FileEditor(file).setExt(Extensions.gnd).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
+            fileName.setExt(Extensions.gnd).distinguish(RestConsumerLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
           else
-            FileEditor(file).setExt(Extensions.rd).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
+            fileName.setExt(Extensions.rd).distinguish(RestConsumerLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
       LockUtils.withLock(outputFile, Extensions.lock) {
         Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
@@ -54,10 +55,11 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
         }
       }
 
-      val doneFile = FileEditor(file).distinguish(doneDistinguisher.getAndInc).setDir(doneDir).get
-      FileUtils.rename(file, doneFile)
+      val doneFile = fileName.distinguish(RestConsumerLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
+      FileUtils.rename(restConsumerRequest.file, doneFile)
     }
 
+    // TODO: If no ontologies in file, don't create the job, but do download the document
     def processFiles(files: Seq[File], knownDocumentIds: mutable.Set[String], knownOntologyIds: mutable.Set[String],
         restDocumentConsumer: RestConsumerish, restOntologyConsumer: RestConsumerish): Seq[RestConsumerRequest] = {
       implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
@@ -84,13 +86,13 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
         unknownDocumentIds.par.foreach { documentId =>
           RestConsumerLoopApp.logger.info(s"Downloading $documentId${Extensions.json}")
           val document = restDocumentConsumer.download(documentId)
-          val outputFile = FileEditor(new File(documentId)).setDir(documentDir).setExt(Extensions.json).get
+          val outputFile = FileEditor(new File(documentId)).setExt(Extensions.json).setDir(documentDir).get
 
           Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
             printWriter.print(document)
           }
+          knownDocumentIds += documentId
         }
-        knownDocumentIds ++ unknownDocumentIds
       }
 
       if (unknownOntologyIds.nonEmpty) {
@@ -98,13 +100,13 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
         unknownOntologyIds.par.foreach { ontologyId =>
           RestConsumerLoopApp.logger.info(s"Downloading $ontologyId${Extensions.yml}")
           val ontology = restOntologyConsumer.download(ontologyId)
-          val outputFile = FileEditor(new File(ontologyId)).setDir(ontologyDir).setExt(Extensions.yml).get
+          val outputFile = FileEditor(new File(ontologyId)).setExt(Extensions.yml).setDir(ontologyDir).get
 
           Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
             printWriter.print(ontology)
           }
+          knownOntologyIds += ontologyId
         }
-        knownOntologyIds ++ unknownOntologyIds
       }
 
       restConsumerRequests
@@ -123,36 +125,34 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       val knownOntologyIds = LockUtils.findFiles(ontologyDir, Extensions.yml, Extensions.lock)
           .map { ontologyFile => StringUtils.beforeLast(ontologyFile.getName, '.') }
           .to[mutable.Set]
-      val outputDistinguisher = Counter(FileName.getDistinguisher(2, FileUtils.findFiles(outputDir,
-          Seq(Extensions.rd, Extensions.gnd))))
-      val doneDistinguisher = Counter(FileName.getDistinguisher(2, FileUtils.findFiles(doneDir,
-          Extensions.json)))
+      val outputDistinguisher = FileName.getDistinguisher(RestConsumerLoopApp.outputStage, FileUtils.findFiles(outputDir,
+          Seq(Extensions.rd, Extensions.gnd)))
+      val doneDistinguisher = FileName.getDistinguisher(RestConsumerLoopApp.outputStage, FileUtils.findFiles(doneDir,
+          Extensions.json))
 
-      // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
-      sys.ShutdownHookThread {
+      def close(): Unit = {
         restDocumentConsumer.close()
         restOntologyConsumer.close()
       }
+
+      // autoClose isn't executed if the thread is shot down, so this hook is included just in case.
+      sys.ShutdownHookThread { close() }
 
       while (!isInterrupted) {
         val files = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock).take(RestConsumerLoopApp.fileLimit)
 
         if (files.nonEmpty) {
-          // These need holders.
           val restConsumerRequests = processFiles(files, knownDocumentIds, knownOntologyIds, restDocumentConsumer, restOntologyConsumer)
 
           restConsumerRequests.foreach { restConsumerRequest =>
             processRequest(restConsumerRequest, outputDistinguisher, doneDistinguisher)
           }
         }
-        else {
-          restDocumentConsumer.close()
-          restOntologyConsumer.close()
-        }
+        else
+          close()
         Thread.sleep(pauseDuration)
       }
-      restDocumentConsumer.close()
-      restOntologyConsumer.close()
+      close()
     }
   }
 }
@@ -161,6 +161,9 @@ object RestConsumerLoopApp extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
   val fileLimit = 5000
 
+  // These will be used for the distinguishers and are their indexes.
+  val inputStage = Stages.restConsumerInputStage
+  val outputStage = Stages.restConsumerOutputStage
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {

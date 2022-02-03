@@ -3,6 +3,7 @@ package org.clulab.wm.wmexchanger2.wmeidos
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.clulab.wm.eidos.EidosOptions
+import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.metadata.CdrText
 import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
@@ -15,6 +16,9 @@ import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger2.utils.AppEnvironment
+import org.clulab.wm.wmexchanger2.utils.FileName
+import org.clulab.wm.wmexchanger2.utils.OntologyMap
+import org.clulab.wm.wmexchanger2.utils.Stages
 
 import java.io.File
 import java.nio.file.Files
@@ -35,44 +39,46 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
       if (useReal) new RealEidosSystem()
       else new MockEidosSystem()
   val deserializer = new JLDDeserializer()
+  val ontologyMap = new OntologyMap(reader, ontologyDir)
 
-  // TODO: If number of ontology files is small, could have map from id to processed thing
+  def ground(ontologyId: String, annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
+    val ontologyHandler = ontologyMap(ontologyId)
+
+    annotatedDocument.allEidosMentions.foreach(ontologyHandler.ground)
+    annotatedDocument
+  }
 
   def processGroundingFile(file: File, filesBeingProcessed: MutableHashSet[String], outputDistinguisher: Counter, doneDistinguisher: Counter): Unit = {
     try {
-      val documentId = StringUtils.beforeFirst(file.getName, '.')
+      val fileName = FileName(file)
+      val documentId = fileName.getDocumentId
       val ontologyIds = Sourcer.sourceFromFile(file).autoClose { source =>
         source.getLines.toVector
       }
-      val documentFile = new File(readingDir + "/" + documentId + Extensions.jsonld)
-      val ontologyFiles = ontologyIds.map { ontologyId =>
-        new File(ontologyDir + "/" + ontologyId + Extensions.yml)
-      }
-
+      val readingFile = FileEditor(new File(documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
       val annotatedDocument =
-        try {
-          val json = FileUtils.getTextFromFile(documentFile)
+          try {
+            val json = FileUtils.getTextFromFile(readingFile)
 
-          deserializer.deserialize(json).head
+            deserializer.deserialize(json).head
+          }
+          catch {
+            case exception: Throwable =>
+              EidosLoopApp.logger.error(s"Exception for file $file", exception)
+              reader.getEmptyAnnotatedDocument(Some(documentId))
+          }
+
+      ontologyIds.foreach { ontologyId =>
+        val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
+
+        ground(ontologyId, annotatedDocument)
+        FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
+          new JLDCorpus(annotatedDocument).serialize(printWriter)
         }
-        catch {
-          case exception: Throwable =>
-            EidosLoopApp.logger.error(s"Exception for file $file", exception)
-            reader.getEmptyAnnotatedDocument(Some(StringUtils.afterFirst(file.getName, '.', true)))
-        }
-
-      ontologyFiles.foreach { ontologyFile =>
-        val ontologyId = StringUtils.beforeFirst(ontologyFile.getName, '.')
-        val groundedOutputFile = new File("hello") // TODO FileEditor(file).setName(documentId + "_" + ontologyId).setExt(Extensions.gnd_jsonld).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
-
-        Files.copy(documentFile.toPath, groundedOutputFile.toPath)
       }
 
-      EidosLoopApp.synchronized {
-        val doneFile = FileEditor(file).distinguish(doneDistinguisher.getAndInc).setDir(doneDir).get
-        FileUtils.rename(file, doneFile)
-        filesBeingProcessed -= file.getAbsolutePath
-      }
+      val doneFile = FileName(file).distinguish(EidosLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
+      FileUtils.rename(file, doneFile)
     }
     catch {
       case exception: Exception =>
@@ -82,49 +88,45 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
 
   def processReadingFile(file: File, filesBeingProcessed: MutableHashSet[String], outputDistinguisher: Counter, doneDistinguisher: Counter): Unit = {
     try {
-      val documentId = StringUtils.beforeFirst(file.getName, '.')
+      val fileName = FileName(file)
+      val documentId = fileName.getDocumentId
       val ontologyIds = Sourcer.sourceFromFile(file).autoClose { source =>
         source.getLines.toVector
       }
-      val documentFile = new File(documentDir + "/" + documentId + Extensions.json)
-      val ontologyFiles = ontologyIds.map { ontologyId =>
-        new File(ontologyDir + "/" + ontologyId + Extensions.yml)
-      }
-
+      val documentFile = FileEditor(new File(documentId)).setExt(Extensions.json).setDir(documentDir).get
       val annotatedDocument =
-        try {
-          val eidosText = CdrText(documentFile)
-          val text = eidosText.getText
-          val metadata = eidosText.getMetadata
+          try {
+            val eidosText = CdrText(documentFile)
+            val text = eidosText.getText
+            val metadata = eidosText.getMetadata
 
-          // Do first with no grounders,
-          // Then go through grounders one at a time
-          reader.extractFromText(text, options, metadata)
+            reader.extractFromText(text, options, metadata)
+          }
+          catch {
+            case exception: Throwable =>
+              EidosLoopApp.logger.error(s"Exception for file $file", exception)
+              reader.getEmptyAnnotatedDocument(Some(documentId))
+          }
+      val readingFile = FileEditor(new File(documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
+
+      // The same file could be written multiple times, depending on the jobs, so therefore synchronize.
+      synchronized {
+        FileUtils.printWriterFromFile(readingFile).autoClose { printWriter =>
+          new JLDCorpus(annotatedDocument).serialize(printWriter)
         }
-        catch {
-          case exception: Throwable =>
-            EidosLoopApp.logger.error(s"Exception for file $file", exception)
-            reader.getEmptyAnnotatedDocument(Some(StringUtils.afterFirst(file.getName, '.', true)))
+      }
+
+      ontologyIds.foreach { ontologyId =>
+        val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
+
+        ground(ontologyId, annotatedDocument)
+        FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
+          new JLDCorpus(annotatedDocument).serialize(printWriter)
         }
-      val outputFile = FileEditor(documentFile).setExt(Extensions.jsonld).setDir(readingDir).get
-
-      FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
-        new JLDCorpus(annotatedDocument).serialize(printWriter)
       }
 
-      ontologyFiles.foreach { ontologyFile =>
-          val ontologyId = StringUtils.beforeFirst(ontologyFile.getName, '.')
-          // TODO Want to keep track of all distinguishing thing.
-          val groundedOutputFile = new File("there") // TODO FileEditor(file).setName(documentId + "_" + ontologyId).setExt(Extensions.rd_jsonld).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
-
-          Files.copy(outputFile.toPath, groundedOutputFile.toPath)
-      }
-
-      EidosLoopApp.synchronized {
-        val doneFile = FileEditor(file).distinguish(doneDistinguisher.getAndInc).setDir(doneDir).get
-        FileUtils.rename(file, doneFile)
-        filesBeingProcessed -= file.getAbsolutePath
-      }
+      val doneFile = fileName.distinguish(EidosLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
+      FileUtils.rename(file, doneFile)
     }
     catch {
       case exception: Exception =>
@@ -141,14 +143,14 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
     }
 
     override def runSafely(): Unit = {
-      val outputDistinguisher = Counter(0) // (FileUtils.distinguish(3, FileUtils.findFiles(outputDir,
-//          Seq(Extensions.rd_jsonld, Extensions.gnd_jsonld))))
-      val doneDistinguisher = Counter(0) // (FileUtils.distinguish(3, FileUtils.findFiles(doneDir,
-//          Seq(Extensions.rd, Extensions.gnd))))
+      val inputExtensions = Seq(Extensions.rd, Extensions.gnd)
+      val outputExtensions = inputExtensions.map(_ + "." + Extensions.jsonld)
+      val outputDistinguisher = FileName.getDistinguisher(EidosLoopApp.outputStage, FileUtils.findFiles(outputDir, outputExtensions))
+      val doneDistinguisher = FileName.getDistinguisher(EidosLoopApp.outputStage, FileUtils.findFiles(doneDir, inputExtensions))
 
       while (!isInterrupted) {
         val files = EidosLoopApp.synchronized {
-          val allFiles = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock)
+          val allFiles = LockUtils.findFiles(inputDir, inputExtensions, Extensions.lock)
           val newFiles = allFiles.filter { file => !filesBeingProcessed.contains(file.getAbsolutePath) }
           val newAbsolutePaths = newFiles.map(_.getAbsolutePath)
 
@@ -162,8 +164,10 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
               def run: Unit = {
                 if (file.getName.endsWith(Extensions.rd))
                   processReadingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
-                else
+                else if (file.getName.endsWith(Extensions.gnd))
                   processGroundingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
+                // TODO: What happens on an error in the above?
+                synchronized { filesBeingProcessed -= file.getAbsolutePath }
               }
             }
           )
@@ -176,6 +180,10 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
 
 object EidosLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
+
+  // These will be used for the distinguishers and are their indexes.
+  val inputStage = Stages.eidosInputStage
+  val outputStage = Stages.eidosOutputStage
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {
