@@ -1,8 +1,10 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
 import org.apache.http.HttpHost
+import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.utils.URIBuilder
+import org.apache.http.impl.auth.BasicScheme
 import org.apache.http.impl.client.CloseableHttpClient
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
@@ -34,6 +36,10 @@ class RealRestConsumer(service: String, username: String, password: String, anno
 
     val uri = uriBuilder.toString
     val httpGet = new HttpGet(uri)
+
+    // This is a poor person's substitute for preemptive basic authentication.
+    // val credentials = new UsernamePasswordCredentials(username, password)
+    // httpGet.addHeader(new BasicScheme().authenticate(credentials, httpGet))
 
     httpGet
   }
