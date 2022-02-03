@@ -9,6 +9,7 @@ import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
+import org.clulab.wm.wmexchanger2.utils.Environment
 
 import java.io.File
 import scala.util.Try
@@ -86,6 +87,12 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
 object RestProducerLoopApp extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
+
+  Environment.setEnv {
+    new java.util.HashMap[String, String]() {
+      put("HELLO", "there");
+    }
+  }
 
   def main(args: Array[String]): Unit = {
     val inputDir = getArgOrEnv(args, 0, "REST_PRODUCER_INPUT_DIR")

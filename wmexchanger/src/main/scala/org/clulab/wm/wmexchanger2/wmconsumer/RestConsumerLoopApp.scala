@@ -10,6 +10,7 @@ import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
+import org.clulab.wm.wmexchanger2.utils.Environment
 import org.json4s.DefaultFormats
 import org.json4s.JArray
 import org.json4s.JValue
@@ -159,6 +160,12 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
 object RestConsumerLoopApp extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
   val fileLimit = 5000
+
+  Environment.setEnv {
+    new java.util.HashMap[String, String]() {
+      put("HELLO", "there");
+    }
+  }
 
   def main(args: Array[String]): Unit = {
     val  inputDir: String = getArgOrEnv(args, 0, "REST_CONSUMER_INPUT_DIR")
