@@ -17,7 +17,6 @@ class RestExchanger(service: String, username: String, password: String) {
   protected val url = new URL(service)
   protected val httpHost: HttpHost = newHttpHost(url)
 
-
   // Keep this closed by default and only open when needed.
   protected var closeableHttpClientOpt: Option[CloseableHttpClient] = None
 

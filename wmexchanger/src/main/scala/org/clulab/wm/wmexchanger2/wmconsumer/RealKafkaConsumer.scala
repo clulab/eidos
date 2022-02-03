@@ -2,15 +2,17 @@ package org.clulab.wm.wmexchanger2.wmconsumer
 
 import org.apache.kafka.clients.consumer.{KafkaConsumer => ApacheKafkaConsumer}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
+import org.clulab.wm.eidoscommon.utils.Counter
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, Logging}
 import org.clulab.wm.wmexchanger.utils.Extensions
+import org.clulab.wm.wmexchanger2.utils.FileName
 import org.json4s._
 
 import java.io.File
 import java.time.Duration
 import java.util.{Collections, ConcurrentModificationException, Properties}
 
-class RealKafkaConsumer(appProperties: Properties, kafkaProperties: Properties, var distinguisher: Int)
+class RealKafkaConsumer(appProperties: Properties, kafkaProperties: Properties, distinguisher: Counter)
     extends KafkaConsumerish {
   import org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumer._
   implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
@@ -35,12 +37,11 @@ class RealKafkaConsumer(appProperties: Properties, kafkaProperties: Properties, 
     records.forEach { record =>
       val key = record.key
       val value = record.value
-      val file = FileEditor(new File(key)).setExt(Extensions.json).distinguish(distinguisher).setDir(outputDir).get
+      val outputFile = FileName(key).setExt(Extensions.json).distinguish(0, distinguisher).setDir(outputDir).toFile
 
-      distinguisher += 1
-      logger.info("Consuming " + file.getName)
-      LockUtils.withLock(file, Extensions.lock) {
-        FileUtils.printWriterFromFile(file).autoClose { printWriter =>
+      logger.info("Consuming " + outputFile.getName)
+      LockUtils.withLock(outputFile, Extensions.lock) {
+        FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
           printWriter.print(value)
         }
       }

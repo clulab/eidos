@@ -7,7 +7,8 @@ services:
     image: eidos:multi
     environment:
       EIDOS_MEMORY: -Xmx20g
-      REST_CONSUMER_SERVICE: ${REST_HOSTNAME:-http://localhost}/dart/api/v1/cdrs
+      REST_CONSUMER_DOCUMENT_SERVICE: ${REST_HOSTNAME:-http://localhost}/dart/api/v1/cdrs
+      REST_CONSUMER_ONTOLOGY_SERVICE: ${REST_HOSTNAME:-http://localhost}/dart/api/v1/ontologies
       REST_CONSUMER_USERNAME: ${REST_USERNAME:-eidos}
       REST_CONSUMER_PASSWORD: ${REST_PASSWORD:-eidos_pass}
       REST_PRODUCER_SERVICE: ${REST_HOSTNAME:-http://localhost}/dart/api/v1/readers/upload

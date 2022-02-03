@@ -8,7 +8,9 @@ import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
 import org.clulab.wm.wmexchanger.utils.RestExchanger
 import org.json4s.DefaultFormats
+import org.json4s.JObject
 import org.json4s.JValue
+import org.json4s.jackson.JsonMethods
 
 import java.net.URL
 import scala.io.Source
@@ -27,6 +29,8 @@ class RealRestOntologyConsumer(service: String, username: String, password: Stri
   }
 
   def download(ontologyId: String, closeableHttpClient: CloseableHttpClient, httpHost: HttpHost): String = {
+    implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
+
     val httpGet = newHttpGet(url, ontologyId)
     val ontology = closeableHttpClient.execute(httpHost, httpGet).autoClose { response =>
       val statusCode = response.getStatusLine.getStatusCode
@@ -35,16 +39,17 @@ class RealRestOntologyConsumer(service: String, username: String, password: Stri
         throw new Exception(s"Status code '$statusCode' for ontologyId '$ontologyId''")
 
       val content = response.getEntity.getContent
-      val ontology = Source.fromInputStream(content, Sourcer.utf8).autoClose { source =>
+      val json = Source.fromInputStream(content, Sourcer.utf8).autoClose { source =>
         source.mkString
       }
+      val jValue = JsonMethods.parse(json)
 
-      ontology
+      (jValue \ "ontology").extract[String]
     }
     ontology
   }
 
-  override def download(ontologyId: String, jValueOpt: Option[JValue]): String = {
+  override def download(ontologyId: String, jValueOpt: Option[JValue] = None): String = {
     download(ontologyId, closeableHttpClientOpt.get, httpHost)
   }
 }

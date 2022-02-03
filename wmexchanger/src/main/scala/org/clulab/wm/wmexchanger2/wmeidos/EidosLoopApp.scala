@@ -63,7 +63,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
 
       ontologyFiles.foreach { ontologyFile =>
         val ontologyId = StringUtils.beforeFirst(ontologyFile.getName, '.')
-        val groundedOutputFile = FileEditor(file).setName(documentId + "_" + ontologyId).setExt(Extensions.gnd_jsonld).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
+        val groundedOutputFile = new File("hello") // TODO FileEditor(file).setName(documentId + "_" + ontologyId).setExt(Extensions.gnd_jsonld).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
 
         Files.copy(documentFile.toPath, groundedOutputFile.toPath)
       }
@@ -115,7 +115,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
       ontologyFiles.foreach { ontologyFile =>
           val ontologyId = StringUtils.beforeFirst(ontologyFile.getName, '.')
           // TODO Want to keep track of all distinguishing thing.
-          val groundedOutputFile = FileEditor(file).setName(documentId + "_" + ontologyId).setExt(Extensions.rd_jsonld).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
+          val groundedOutputFile = new File("there") // TODO FileEditor(file).setName(documentId + "_" + ontologyId).setExt(Extensions.rd_jsonld).distinguish(outputDistinguisher.getAndInc).setDir(outputDir).get
 
           Files.copy(outputFile.toPath, groundedOutputFile.toPath)
       }
@@ -141,10 +141,10 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
     }
 
     override def runSafely(): Unit = {
-      val outputDistinguisher = Counter(FileUtils.distinguish(3, FileUtils.findFiles(outputDir,
-          Seq(Extensions.rd_jsonld, Extensions.gnd_jsonld))))
-      val doneDistinguisher = Counter(FileUtils.distinguish(3, FileUtils.findFiles(doneDir,
-          Seq(Extensions.rd, Extensions.gnd))))
+      val outputDistinguisher = Counter(0) // (FileUtils.distinguish(3, FileUtils.findFiles(outputDir,
+//          Seq(Extensions.rd_jsonld, Extensions.gnd_jsonld))))
+      val doneDistinguisher = Counter(0) // (FileUtils.distinguish(3, FileUtils.findFiles(doneDir,
+//          Seq(Extensions.rd, Extensions.gnd))))
 
       while (!isInterrupted) {
         val files = EidosLoopApp.synchronized {
@@ -182,7 +182,7 @@ object EidosLoopApp extends LoopApp {
       put("HELLO", "there");
     }
   }
-  
+
   def main(args: Array[String]): Unit = {
     val  inputDir: String = getArgOrEnv(args, 0, "EIDOS_INPUT_DIR")
     val outputDir: String = getArgOrEnv(args, 1, "EIDOS_OUTPUT_DIR")

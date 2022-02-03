@@ -10,6 +10,7 @@ import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger2.utils.Environment
+import org.clulab.wm.wmexchanger2.utils.FileName
 
 import java.io.File
 import scala.util.Try
@@ -49,7 +50,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
       val restProducer =
           if (useReal) new RealRestProducer(service, username, password, eidosVersion, ontologyVersion)
           else new MockRestProducer()
-      val doneDistinguisher = Counter(FileUtils.distinguish(4, FileUtils.findFiles(doneDir,
+      val doneDistinguisher = Counter(FileName.getDistinguisher(4, FileUtils.findFiles(doneDir,
           Extensions.jsonld)))
       val printWriter = FileUtils.appendingPrintWriterFromFile(doneDir + "/log.txt")
 

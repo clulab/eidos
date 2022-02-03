@@ -11,6 +11,7 @@ import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger2.utils.Environment
+import org.clulab.wm.wmexchanger2.utils.FileName
 import org.json4s.DefaultFormats
 import org.json4s.JArray
 import org.json4s.JValue
@@ -123,9 +124,9 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       val knownOntologyIds = LockUtils.findFiles(ontologyDir, Extensions.yml, Extensions.lock)
           .map { ontologyFile => StringUtils.beforeLast(ontologyFile.getName, '.') }
           .to[mutable.Set]
-      val outputDistinguisher = Counter(FileUtils.distinguish(2, FileUtils.findFiles(outputDir,
+      val outputDistinguisher = Counter(FileName.getDistinguisher(2, FileUtils.findFiles(outputDir,
           Seq(Extensions.rd, Extensions.gnd))))
-      val doneDistinguisher = Counter(FileUtils.distinguish(2, FileUtils.findFiles(doneDir,
+      val doneDistinguisher = Counter(FileName.getDistinguisher(2, FileUtils.findFiles(doneDir,
           Extensions.json)))
 
       // autoClose isn't executed if the thread is shot down, so this hook is included just in case.

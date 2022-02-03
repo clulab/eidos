@@ -40,9 +40,13 @@ object FileUtils {
 
   def findFiles(collectionDir: String, extensions: Seq[String]): Seq[File] = {
     val dir = new File(collectionDir)
+    val dotExtensions = extensions.map { extension =>
+      if (extension.startsWith(".")) extension
+      else "." + extension
+    }
     val fileFilter = new FileFilter {
       override def accept(file: File): Boolean = {
-        file.isFile && extensions.exists { extension => file.getCanonicalPath.endsWith(extension) }
+        file.isFile && dotExtensions.exists { dotExtension => file.getCanonicalPath.endsWith(dotExtension) }
       }
     }
     val files = Option(dir.listFiles(fileFilter))
@@ -248,24 +252,5 @@ object FileUtils {
     if (newFile.exists())
       newFile.delete()
     oldFile.renameTo(newFile)
-  }
-
-  def distinguish(n: Int, files: Seq[File]): Int = {
-    // Finds the largest number after the nth - of the extensionless name and only when there are n -s.
-    val distinguishers = files.flatMap { file =>
-      val extensionless = StringUtils.beforeFirst(file.getName, '.', all = true)
-      val valid = extensionless.count(_ == '-') == n
-      val distinguisherOpt =
-          // Since they are after the last dash, they must be non-negative.
-          if (valid) Try(StringUtils.afterLast(extensionless, '-').toInt).toOption
-          else None
-
-      distinguisherOpt
-    }
-    val maxDistinguisher =
-        if (distinguishers.nonEmpty) distinguishers.max
-        else -1
-
-    maxDistinguisher + 1
   }
 }
