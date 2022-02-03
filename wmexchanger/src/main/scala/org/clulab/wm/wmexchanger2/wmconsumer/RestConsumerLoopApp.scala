@@ -3,14 +3,13 @@ package org.clulab.wm.wmexchanger2.wmconsumer
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Counter
-import org.clulab.wm.eidoscommon.utils.Holder
 import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, Sinker}
 import org.clulab.wm.wmexchanger.utils.SafeThread
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
-import org.clulab.wm.wmexchanger2.utils.Environment
+import org.clulab.wm.wmexchanger2.utils.AppEnvironment
 import org.clulab.wm.wmexchanger2.utils.FileName
 import org.json4s.DefaultFormats
 import org.json4s.JArray
@@ -162,13 +161,12 @@ object RestConsumerLoopApp extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
   val fileLimit = 5000
 
-  Environment.setEnv {
-    new java.util.HashMap[String, String]() {
-      put("HELLO", "there");
-    }
-  }
 
   def main(args: Array[String]): Unit = {
+    AppEnvironment.setEnv {
+      Map.empty
+    }
+
     val  inputDir: String = getArgOrEnv(args, 0, "REST_CONSUMER_INPUT_DIR")
     val outputDir: String = getArgOrEnv(args, 1, "REST_CONSUMER_OUTPUT_DIR")
     val   doneDir: String = getArgOrEnv(args, 2, "REST_CONSUMER_DONE_DIR")

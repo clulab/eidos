@@ -6,7 +6,7 @@ import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.{DevtimeConfig, LoopApp, SafeThread}
-import org.clulab.wm.wmexchanger2.utils.Environment
+import org.clulab.wm.wmexchanger2.utils.AppEnvironment
 import org.clulab.wm.wmexchanger2.utils.FileName
 
 import java.util.Properties
@@ -53,17 +53,19 @@ class KafkaConsumerLoopApp(args: Array[String]) {
 object KafkaConsumerLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
-  Environment.setEnv {
-    new java.util.HashMap[String, String]() {
-      put("KAFKA_HOSTNAME", "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com");
-      put("KAFKA_CONSUMER_BOOTSTRAP_SERVERS", "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com:9093");
-      put("KAFKA_CONSUMER_SASL_JAAS_CONFIG", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"eidos\" password=\"<eidos_password>\";");
-      put("KAFKA_CONSUMER_OUTPUT_DIR", "../corpora/wmexchanger2/kafka");
-      put("KAFKA_APP_TOPIC", "dart.cdr.streaming.updates");
-    }
-  }
-
   def main(args: Array[String]): Unit = {
+    val password = args.lift(0).getOrElse("<eidos_password>")
+
+    AppEnvironment.setEnv(
+      Map(
+        "KAFKA_HOSTNAME" -> "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com",
+        "KAFKA_CONSUMER_BOOTSTRAP_SERVERS" -> "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com:9093",
+        "KAFKA_CONSUMER_SASL_JAAS_CONFIG" -> s"""org.apache.kafka.common.security.plain.PlainLoginModule required username="eidos" password="$password";""",
+        "KAFKA_CONSUMER_OUTPUT_DIR" -> "../corpora/wmexchanger2/kafka",
+        "KAFKA_APP_TOPIC" -> "dart.cdr.streaming.updates"
+      )
+    )
+
     loop {
       () => new KafkaConsumerLoopApp(args).thread
     }

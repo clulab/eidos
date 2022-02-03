@@ -14,7 +14,7 @@ import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
 import org.clulab.wm.wmexchanger.utils.SafeThread
-import org.clulab.wm.wmexchanger2.utils.Environment
+import org.clulab.wm.wmexchanger2.utils.AppEnvironment
 
 import java.io.File
 import java.nio.file.Files
@@ -177,13 +177,11 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
 object EidosLoopApp extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
-  Environment.setEnv {
-    new java.util.HashMap[String, String]() {
-      put("HELLO", "there");
-    }
-  }
-
   def main(args: Array[String]): Unit = {
+    AppEnvironment.setEnv {
+      Map.empty
+    }
+
     val  inputDir: String = getArgOrEnv(args, 0, "EIDOS_INPUT_DIR")
     val outputDir: String = getArgOrEnv(args, 1, "EIDOS_OUTPUT_DIR")
     val   doneDir: String = getArgOrEnv(args, 2, "EIDOS_DONE_DIR")
