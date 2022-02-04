@@ -10,7 +10,7 @@ import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Counter
 import org.clulab.wm.eidoscommon.utils.Sourcer
-import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils, StringUtils}
+import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils}
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger.utils.LoopApp
@@ -21,13 +21,13 @@ import org.clulab.wm.wmexchanger2.utils.OntologyMap
 import org.clulab.wm.wmexchanger2.utils.Stages
 
 import java.io.File
-import java.nio.file.Files
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import scala.collection.mutable.{HashSet => MutableHashSet}
 
 class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
                     documentDir: String, ontologyDir: String, readingDir: String, threads: Int) {
-  var useReal = EidosLoopApp2.useReal
+  var useReal: Boolean = EidosLoopApp2.useReal
 
   val config: Config = ConfigFactory.defaultApplication().resolve().getConfig("eidos")
   val interactive: Boolean = config.getBoolean("interactive")
@@ -35,7 +35,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
   val pauseDuration: Int = config.getInt("duration.pause")
 
   val options: EidosOptions = EidosOptions()
-  val reader =
+  val reader: EidosSystemish =
       if (useReal) new RealEidosSystem()
       else new MockEidosSystem(System.getenv("MOCK_DIR"))
   val deserializer = new JLDDeserializer()
@@ -145,7 +145,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
 
   val thread: SafeThread = new SafeThread(EidosLoopApp2.logger, interactive, waitDuration) {
     val filesBeingProcessed: MutableHashSet[String] = new MutableHashSet[String]
-    val threadPoolExecutor = Executors.newFixedThreadPool(threads)
+    val threadPoolExecutor: ExecutorService = Executors.newFixedThreadPool(threads)
 
     override def shutdown(): Unit = {
       threadPoolExecutor.shutdown()
@@ -170,7 +170,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
         files.foreach { file =>
           threadPoolExecutor.execute(
             new Runnable() {
-              def run: Unit = {
+              def run(): Unit = {
                 if (file.getName.endsWith(Extensions.rd))
                   processReadingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
                 else if (file.getName.endsWith(Extensions.gnd))
@@ -188,11 +188,11 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
 }
 
 object EidosLoopApp2 extends LoopApp {
-  var useReal = DevtimeConfig.useReal
+  var useReal: Boolean = DevtimeConfig.useReal
 
   // These will be used for the distinguishers and are their indexes.
-  val inputStage = Stages.eidosInputStage
-  val outputStage = Stages.eidosOutputStage
+  val inputStage: Int = Stages.eidosInputStage
+  val outputStage: Int = Stages.eidosOutputStage
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {

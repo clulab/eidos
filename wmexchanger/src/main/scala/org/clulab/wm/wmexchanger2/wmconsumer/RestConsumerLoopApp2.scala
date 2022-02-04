@@ -23,9 +23,9 @@ import scala.util.Try
 
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
-class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
+class RestConsumerLoopApp2(inputDir: String, outputDir: String, doneDir: String,
     documentDir: String, ontologyDir: String, readingDir: String) {
-  var useReal: Boolean = RestConsumerLoopApp.useReal
+  var useReal: Boolean = RestConsumerLoopApp2.useReal
 
   val config: Config = ConfigFactory.defaultApplication().resolve()
   val cdrService: String = config.getString("rest.consumer.documentService")
@@ -37,7 +37,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
   val username: String = Try(config.getString("rest.consumer.username")).getOrElse("")
   val password: String = Try(config.getString("rest.consumer.password")).getOrElse("")
 
-  val thread: SafeThread = new SafeThread(RestConsumerLoopApp.logger, interactive, waitDuration) {
+  val thread: SafeThread = new SafeThread(RestConsumerLoopApp2.logger, interactive, waitDuration) {
 
     def processRequest(restConsumerRequest: RestConsumerRequest, outputDistinguisher: Counter,
         doneDistinguisher: Counter): Unit = {
@@ -47,9 +47,9 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
         val readingFile = FileEditor(new File(restConsumerRequest.documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
         val outputFile =
             if (readingFile.exists)
-              fileName.setExt(Extensions.gnd).distinguish(RestConsumerLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
+              fileName.setExt(Extensions.gnd).distinguish(RestConsumerLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
             else
-              fileName.setExt(Extensions.rd).distinguish(RestConsumerLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
+              fileName.setExt(Extensions.rd).distinguish(RestConsumerLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
         LockUtils.withLock(outputFile, Extensions.lock) {
           Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
@@ -57,7 +57,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
           }
         }
       }
-      val doneFile = fileName.distinguish(RestConsumerLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
+      val doneFile = fileName.distinguish(RestConsumerLoopApp2.outputStage, doneDistinguisher).setDir(doneDir).toFile
       FileUtils.rename(restConsumerRequest.file, doneFile)
     }
 
@@ -86,7 +86,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       if (unknownDocumentIds.nonEmpty) {
         restDocumentConsumer.open()
         unknownDocumentIds.par.foreach { documentId =>
-          RestConsumerLoopApp.logger.info(s"Downloading $documentId.${Extensions.json}")
+          RestConsumerLoopApp2.logger.info(s"Downloading $documentId.${Extensions.json}")
           val document = restDocumentConsumer.download(documentId)
           val outputFile = FileEditor(new File(documentId)).setExt(Extensions.json).setDir(documentDir).get
 
@@ -100,7 +100,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       if (unknownOntologyIds.nonEmpty) {
         restOntologyConsumer.open()
         unknownOntologyIds.par.foreach { ontologyId =>
-          RestConsumerLoopApp.logger.info(s"Downloading $ontologyId.${Extensions.yml}")
+          RestConsumerLoopApp2.logger.info(s"Downloading $ontologyId.${Extensions.yml}")
           val ontology = restOntologyConsumer.download(ontologyId)
           val outputFile = FileEditor(new File(ontologyId)).setExt(Extensions.yml).setDir(ontologyDir).get
 
@@ -127,9 +127,9 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       val knownOntologyIds = LockUtils.findFiles(ontologyDir, Extensions.yml, Extensions.lock)
           .map { ontologyFile => StringUtils.beforeLast(ontologyFile.getName, '.') }
           .to[mutable.Set]
-      val outputDistinguisher = FileName.getDistinguisher(RestConsumerLoopApp.outputStage, FileUtils.findFiles(outputDir,
+      val outputDistinguisher = FileName.getDistinguisher(RestConsumerLoopApp2.outputStage, FileUtils.findFiles(outputDir,
           Seq(Extensions.rd, Extensions.gnd)))
-      val doneDistinguisher = FileName.getDistinguisher(RestConsumerLoopApp.outputStage, FileUtils.findFiles(doneDir,
+      val doneDistinguisher = FileName.getDistinguisher(RestConsumerLoopApp2.outputStage, FileUtils.findFiles(doneDir,
           Extensions.json))
 
       def close(): Unit = {
@@ -141,7 +141,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       sys.ShutdownHookThread { close() }
 
       while (!isInterrupted) {
-        val files = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock).take(RestConsumerLoopApp.fileLimit)
+        val files = LockUtils.findFiles(inputDir, Extensions.json, Extensions.lock).take(RestConsumerLoopApp2.fileLimit)
 
         if (files.nonEmpty) {
           val restConsumerRequests = processFiles(files, knownDocumentIds, knownOntologyIds, restDocumentConsumer, restOntologyConsumer)
@@ -159,13 +159,13 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
   }
 }
 
-object RestConsumerLoopApp extends LoopApp {
+object RestConsumerLoopApp2 extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
   val fileLimit = 5000
 
   // These will be used for the distinguishers and are their indexes.
-  val inputStage = Stages.restConsumerInputStage
-  val outputStage = Stages.restConsumerOutputStage
+  val inputStage: Int = Stages.restConsumerInputStage
+  val outputStage: Int = Stages.restConsumerOutputStage
 
   def main(args: Array[String]): Unit = {
 
@@ -200,7 +200,7 @@ object RestConsumerLoopApp extends LoopApp {
 
     FileUtils.ensureDirsExist(inputDir, outputDir, doneDir, documentDir, ontologyDir, readingDir)
     loop {
-      () => new RestConsumerLoopApp(inputDir, outputDir, doneDir,
+      () => new RestConsumerLoopApp2(inputDir, outputDir, doneDir,
           documentDir, ontologyDir, readingDir).thread
     }
   }

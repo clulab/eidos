@@ -94,8 +94,8 @@ object RestProducerLoopApp2 extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
 
   // These will be used for the distinguishers and are their indexes.
-  val inputStage = Stages.restProducerInputStage
-  val outputStage = Stages.restProducerOutputStage
+  val inputStage: Int = Stages.restProducerInputStage
+  val outputStage: Int = Stages.restProducerOutputStage
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {

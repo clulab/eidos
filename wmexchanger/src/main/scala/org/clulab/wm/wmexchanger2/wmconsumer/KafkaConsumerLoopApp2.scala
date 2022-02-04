@@ -15,7 +15,7 @@ import java.io.File
 import java.util.Properties
 
 class KafkaConsumerLoopApp2(args: Array[String]) {
-  var useReal = KafkaConsumerLoopApp2.useReal
+  var useReal: Boolean = KafkaConsumerLoopApp2.useReal
 
   private val config : Config = ConfigFactory.defaultApplication().resolve()
   private val appProperties : Properties = PropertiesBuilder.fromConfig(config.getConfig("kafka.app")).get
@@ -24,9 +24,9 @@ class KafkaConsumerLoopApp2(args: Array[String]) {
   val waitDuration: Long = appProperties.getProperty("wait.duration").toLong
   val interactive: Boolean = appProperties.getProperty("interactive").toBoolean
   val pollDuration: Int = appProperties.getProperty("poll.duration").toInt
-  val outputDir = appProperties.getProperty("output.dir")
+  val outputDir: String = appProperties.getProperty("output.dir")
   FileUtils.ensureDirsExist(outputDir)
-  val outputDistinguisher = FileName.getDistinguisher(KafkaConsumerLoopApp2.outputStage, FileUtils.findFiles(outputDir, Extensions.json))
+  val outputDistinguisher: Counter = FileName.getDistinguisher(KafkaConsumerLoopApp2.outputStage, FileUtils.findFiles(outputDir, Extensions.json))
 
   val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp2.logger, interactive, waitDuration) {
 
@@ -56,11 +56,11 @@ class KafkaConsumerLoopApp2(args: Array[String]) {
 }
 
 object KafkaConsumerLoopApp2 extends LoopApp {
-  var useReal = DevtimeConfig.useReal
+  var useReal: Boolean = DevtimeConfig.useReal
 
   // These will be used for the distinguishers and are their indexes.
-  val inputStage = Stages.kafkaConsumerInputStage
-  val outputStage = Stages.kafkaConsumerOutputStage
+  val inputStage: Int = Stages.kafkaConsumerInputStage
+  val outputStage: Int = Stages.kafkaConsumerOutputStage
 
   def main(args: Array[String]): Unit = {
     val password = getPassword
