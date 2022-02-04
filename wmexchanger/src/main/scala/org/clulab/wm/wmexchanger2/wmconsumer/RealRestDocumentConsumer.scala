@@ -36,6 +36,10 @@ class RealRestDocumentConsumer(service: String, username: String, password: Stri
     val uri = uriBuilder.toString
     val httpGet = new HttpGet(uri)
 
+    // This is a poor person's substitute for preemptive basic authentication.
+    // val credentials = new UsernamePasswordCredentials(username, password)
+    // httpGet.addHeader(new BasicScheme().authenticate(credentials, httpGet))
+
     httpGet
   }
 
