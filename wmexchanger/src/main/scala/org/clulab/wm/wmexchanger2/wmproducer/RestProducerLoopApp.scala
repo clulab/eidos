@@ -101,6 +101,8 @@ object RestProducerLoopApp extends LoopApp {
     AppEnvironment.setEnv {
       val baseDir = "../corpora/feb2022exp1"
       Map(
+        "REST_PRODUCER_SERVICE" -> "https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/readers/upload",
+
         "REST_PRODUCER_INPUT_DIR" -> s"$baseDir/eidos/output",
         "REST_PRODUCER_OUTPUT_DIR" -> s"$baseDir/restproducer/output",
         "REST_PRODUCER_DONE_DIR" -> s"$baseDir/eidos/done",

@@ -1,19 +1,17 @@
 package org.clulab.wm.wmexchanger2.wmconsumer
 
 import org.apache.http.HttpHost
+import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.utils.URIBuilder
+import org.apache.http.impl.auth.BasicScheme
 import org.apache.http.impl.client.CloseableHttpClient
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.Sourcer
-import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.wmexchanger.utils.RestExchanger
 import org.json4s.DefaultFormats
 import org.json4s.JValue
-import org.json4s.jackson.JsonMethods
 
-import java.io.File
 import java.net.URL
 import scala.io.Source
 
@@ -37,8 +35,8 @@ class RealRestDocumentConsumer(service: String, username: String, password: Stri
     val httpGet = new HttpGet(uri)
 
     // This is a poor person's substitute for preemptive basic authentication.
-    // val credentials = new UsernamePasswordCredentials(username, password)
-    // httpGet.addHeader(new BasicScheme().authenticate(credentials, httpGet))
+    val credentials = new UsernamePasswordCredentials(username, password)
+    httpGet.addHeader(new BasicScheme().authenticate(credentials, httpGet))
 
     httpGet
   }

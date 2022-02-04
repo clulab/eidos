@@ -172,6 +172,9 @@ object RestConsumerLoopApp extends LoopApp {
     AppEnvironment.setEnv {
       val baseDir = "../corpora/feb2022exp1"
       Map(
+        "REST_CONSUMER_DOCUMENT_SERVICE" -> "https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/cdrs",
+        "REST_CONSUMER_ONTOLOGY_SERVICE" -> "https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/ontologies",
+
         "REST_CONSUMER_INPUT_DIR" -> s"$baseDir/kafkaconsumer/output",
         "REST_CONSUMER_OUTPUT_DIR" -> s"$baseDir/restconsumer/output",
         "REST_CONSUMER_DONE_DIR" -> s"$baseDir/kafkaconsumer/done",
@@ -181,6 +184,7 @@ object RestConsumerLoopApp extends LoopApp {
         "READING_DIR" -> s"$baseDir/readings",
         "MOCK_DIR" -> s"$baseDir",
 
+        // These are not authenticated.
         "REST_CONSUMER_USERNAME" -> getUsername,
         "REST_CONSUMER_PASSWORD" -> getPassword
       )

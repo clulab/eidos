@@ -8,7 +8,6 @@ import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
 import org.clulab.wm.wmexchanger.utils.RestExchanger
 import org.json4s.DefaultFormats
-import org.json4s.JObject
 import org.json4s.JValue
 import org.json4s.jackson.JsonMethods
 

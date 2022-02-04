@@ -72,6 +72,7 @@ object KafkaConsumerLoopApp extends LoopApp {
         "KAFKA_CONSUMER_BOOTSTRAP_SERVERS" -> "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com:9093",
         "KAFKA_CONSUMER_SASL_JAAS_CONFIG" -> s"""org.apache.kafka.common.security.plain.PlainLoginModule required username="eidos" password="$password";""",
         "KAFKA_APP_TOPIC" -> "dart.cdr.streaming.updates",
+
         "KAFKA_CONSUMER_OUTPUT_DIR" -> s"$baseDir/kafkaconsumer/output",
         "KAFKA_CONSUMER_MOCK_DIR" -> s"$baseDir/kafkaconsumer/mock"
       )
