@@ -12,7 +12,9 @@ object LockUtils {
     val (lockFilesSeq, dataFiles) = allFiles.partition { file => file.getName.endsWith(lockExt) }
     val lockFilesSet = lockFilesSeq.map(_.getName).toSet
     val unlockedDataFiles = dataFiles.filter { dataFile =>
-      val lockFile = FileEditor(dataFile).setExt(lockExt, last = false).get.getName
+      // last = false is problematic if filename begins with .., for example,
+      // or includes any hidden directory or file starting with a period.
+      val lockFile = FileEditor(dataFile).setExt(lockExt, last = true).get.getName
 
       !lockFilesSet(lockFile)
     }
