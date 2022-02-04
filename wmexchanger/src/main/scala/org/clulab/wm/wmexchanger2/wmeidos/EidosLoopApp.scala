@@ -37,7 +37,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
   val options: EidosOptions = EidosOptions()
   val reader =
       if (useReal) new RealEidosSystem()
-      else new MockEidosSystem()
+      else new MockEidosSystem(System.getenv("MOCK_DIR"))
   val deserializer = new JLDDeserializer()
   val ontologyMap = new OntologyMap(reader, ontologyDir)
 
@@ -72,8 +72,11 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
         val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
         ground(ontologyId, annotatedDocument)
-        FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
-          new JLDCorpus(annotatedDocument).serialize(printWriter)
+
+        LockUtils.withLock(readingFile, Extensions.lock) {
+          FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
+            new JLDCorpus(annotatedDocument).serialize(printWriter)
+          }
         }
       }
 
@@ -111,8 +114,11 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
 
       // The same file could be written multiple times, depending on the jobs, so therefore synchronize.
       synchronized {
-        FileUtils.printWriterFromFile(readingFile).autoClose { printWriter =>
-          new JLDCorpus(annotatedDocument).serialize(printWriter)
+        // These also have to be locked because a different process is checking on them.
+        LockUtils.withLock(readingFile, Extensions.lock) {
+          FileUtils.printWriterFromFile(readingFile).autoClose { printWriter =>
+            new JLDCorpus(annotatedDocument).serialize(printWriter)
+          }
         }
       }
 
@@ -120,8 +126,11 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
         val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
         ground(ontologyId, annotatedDocument)
-        FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
-          new JLDCorpus(annotatedDocument).serialize(printWriter)
+
+        LockUtils.withLock(outputFile, Extensions.lock) {
+          FileUtils.printWriterFromFile(outputFile).autoClose { printWriter =>
+            new JLDCorpus(annotatedDocument).serialize(printWriter)
+          }
         }
       }
 
@@ -187,7 +196,18 @@ object EidosLoopApp extends LoopApp {
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {
-      Map.empty
+      Map(
+        "EIDOS_INPUT_DIR" -> "../corpora/feb2022exp_mock/restconsumer/output",
+        "EIDOS_OUTPUT_DIR" -> "../corpora/feb2022exp_mock/eidos/output",
+        "EIDOS_DONE_DIR" -> "../corpora/feb2022exp_mock/restconsumer/done",
+
+        "DOCUMENT_DIR" -> "../corpora/feb2022exp_mock/documents",
+        "ONTOLOGY_DIR" -> "../corpora/feb2022exp_mock/ontologies",
+        "READING_DIR" -> "../corpora/feb2022exp_mock/readings",
+        "MOCK_DIR" -> "../corpora/feb2022exp_mock",
+
+        "EIDOS_THREADS" -> "4"
+      )
     }
 
     val  inputDir: String = getArgOrEnv(args, 0, "EIDOS_INPUT_DIR")
@@ -198,7 +218,7 @@ object EidosLoopApp extends LoopApp {
     val ontologyDir: String = getArgOrEnv(args, 4, "ONTOLOGY_DIR")
     val  readingDir: String = getArgOrEnv(args, 5, "READING_DIR")
 
-    val   threads: Int    = getArgOrEnv(args, 3, "EIDOS_THREADS").toInt
+    val   threads: Int    = getArgOrEnv(args, 6, "EIDOS_THREADS").toInt
 
     FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
     loop {

@@ -2,6 +2,7 @@ package org.clulab.wm.wmexchanger2.wmconsumer
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidoscommon.utils.Counter
+import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.eidoscommon.utils.FileUtils
 import org.clulab.wm.eidoscommon.utils.PropertiesBuilder
 import org.clulab.wm.wmexchanger.utils.Extensions
@@ -10,6 +11,7 @@ import org.clulab.wm.wmexchanger2.utils.AppEnvironment
 import org.clulab.wm.wmexchanger2.utils.FileName
 import org.clulab.wm.wmexchanger2.utils.Stages
 
+import java.io.File
 import java.util.Properties
 
 class KafkaConsumerLoopApp(args: Array[String]) {
@@ -22,11 +24,10 @@ class KafkaConsumerLoopApp(args: Array[String]) {
   val waitDuration: Long = appProperties.getProperty("wait.duration").toLong
   val interactive: Boolean = appProperties.getProperty("interactive").toBoolean
   val pollDuration: Int = appProperties.getProperty("poll.duration").toInt
-  // TODO: Move this below so that it only affects the Mock version.
-  val outputDir: String = appProperties.getProperty("output.dir")
+  val outputDir = appProperties.getProperty("output.dir")
+  val outputDistinguisher = FileName.getDistinguisher(KafkaConsumerLoopApp.outputStage, FileUtils.findFiles(outputDir, Extensions.json))
 
   val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp.logger, interactive, waitDuration) {
-    val outputDistinguisher = FileName.getDistinguisher(KafkaConsumerLoopApp.outputStage, FileUtils.findFiles(outputDir, Extensions.json))
 
     override def runSafely(): Unit = {
       // This is kept open the entire time, so time between pings is extra important.
@@ -34,11 +35,10 @@ class KafkaConsumerLoopApp(args: Array[String]) {
           if (useReal)
             new RealKafkaConsumer(appProperties, kafkaProperties, KafkaConsumerLoopApp.outputStage, outputDistinguisher)
           else {
-            // In some tests with useReal = false, the outputDir is passed in args.
-            val mockOutputDir = LoopApp
-                .getNamedArg(args, "app.outputDir")
-                .getOrElse(outputDir)
-            new MockKafkaConsumer(mockOutputDir, KafkaConsumerLoopApp.outputStage, outputDistinguisher)
+            val inputDir = Option(System.getenv("KAFKA_CONSUMER_MOCK_DIR"))
+                .getOrElse(FileEditor(new File(outputDir)).incName("/mock").get.getAbsolutePath)
+
+            new MockKafkaConsumer(inputDir, outputDir, KafkaConsumerLoopApp.outputStage, outputDistinguisher)
           }
 
       def close(): Unit = consumer.close()
@@ -69,8 +69,9 @@ object KafkaConsumerLoopApp extends LoopApp {
         "KAFKA_HOSTNAME" -> "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com",
         "KAFKA_CONSUMER_BOOTSTRAP_SERVERS" -> "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com:9093",
         "KAFKA_CONSUMER_SASL_JAAS_CONFIG" -> s"""org.apache.kafka.common.security.plain.PlainLoginModule required username="eidos" password="$password";""",
-        "KAFKA_CONSUMER_OUTPUT_DIR" -> "../corpora/wmexchanger2/kafka",
-        "KAFKA_APP_TOPIC" -> "dart.cdr.streaming.updates"
+        "KAFKA_APP_TOPIC" -> "dart.cdr.streaming.updates",
+        "KAFKA_CONSUMER_OUTPUT_DIR" -> "../corpora/feb2022exp_mock/kafkaconsumer/output",
+        "KAFKA_CONSUMER_MOCK_DIR" -> "../corpora/feb2022exp_mock/kafkaconsumer/mock"
       )
     )
 

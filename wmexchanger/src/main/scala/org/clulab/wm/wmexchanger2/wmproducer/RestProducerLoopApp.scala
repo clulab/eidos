@@ -15,7 +15,7 @@ import org.clulab.wm.wmexchanger2.utils.Stages
 import java.io.File
 import scala.util.Try
 
-class RestProducerLoopApp(inputDir: String, doneDir: String) {
+class RestProducerLoopApp(inputDir: String, outputDir: String, doneDir: String) {
   var useReal: Boolean = RestProducerLoopApp.useReal
 
   val config: Config = ConfigFactory.defaultApplication().resolve()
@@ -30,7 +30,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
   val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
 
-    def processFile(file: File, restProducer: RestProducerish, doneDistinguisher: Counter): Unit = {
+    def processFile(file: File, restProducer: RestProducerish, doneDistinguisher: Counter): String = {
       try {
         RestProducerLoopApp.logger.info(s"Uploading ${file.getName}")
         val fileName = FileName(file)
@@ -42,10 +42,12 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
 
         val doneFile = fileName.distinguish(RestProducerLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
         FileUtils.rename(file, doneFile)
+        storageKey
       }
       catch {
         case exception: Exception =>
           RestProducerLoopApp.logger.error(s"Exception for file $file", exception)
+          "<failed>"
       }
     }
 
@@ -55,7 +57,7 @@ class RestProducerLoopApp(inputDir: String, doneDir: String) {
           else new MockRestProducer()
       val doneDistinguisher = FileName.getDistinguisher(RestProducerLoopApp.outputStage, FileUtils.findFiles(doneDir,
           Extensions.jsonld))
-      val printWriter = FileUtils.appendingPrintWriterFromFile(doneDir + "/log.txt")
+      val printWriter = FileUtils.appendingPrintWriterFromFile(outputDir + "/log.txt")
 
       def close(): Unit = {
         restProducer.close()
@@ -97,15 +99,20 @@ object RestProducerLoopApp extends LoopApp {
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {
-      Map.empty
+      Map(
+        "REST_PRODUCER_INPUT_DIR" -> "../corpora/feb2022exp_mock/eidos/output",
+        "REST_PRODUCER_OUTPUT_DIR" -> "../corpora/feb2022exp_mock/restproducer/output",
+        "REST_PRODUCER_DONE_DIR" -> "../corpora/feb2022exp_mock/eidos/done"
+      )
     }
 
-    val inputDir = getArgOrEnv(args, 0, "REST_PRODUCER_INPUT_DIR")
-    val  doneDir = getArgOrEnv(args, 1, "REST_PRODUCER_DONE_DIR")
+    val  inputDir = getArgOrEnv(args, 0, "REST_PRODUCER_INPUT_DIR")
+    val outputDir = getArgOrEnv(args, 1, "REST_PRODUCER_OUTPUT_DIR")
+    val   doneDir = getArgOrEnv(args, 2, "REST_PRODUCER_DONE_DIR")
 
-    FileUtils.ensureDirsExist(inputDir, doneDir)
+    FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
     loop {
-      () => new RestProducerLoopApp(inputDir, doneDir).thread
+      () => new RestProducerLoopApp(inputDir, outputDir, doneDir).thread
     }
   }
 }

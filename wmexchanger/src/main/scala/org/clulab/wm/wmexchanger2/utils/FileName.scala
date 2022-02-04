@@ -62,36 +62,41 @@ object FileName {
   val extensionSep = '.'
   val empty = ""
 
-  def splitBefore(string: String, char: Char): (String, String) =
-      (StringUtils.beforeFirst(string, char), StringUtils.afterFirst(string, char))
+  def splitBefore(string: String, char: Char, keepLeft: Boolean = false, keepRight: Boolean = false): (String, String) =
+      (StringUtils.beforeFirst(string, char, keep = keepLeft), StringUtils.afterFirst(string, char, keep = keepRight))
 
-  def splitAfter(string: String, char: Char): (String, String) =
-      (StringUtils.afterLast(string, char), StringUtils.afterLast(string, char))
+  def splitAfter(string: String, char: Char, keepLeft: Boolean = false, keepRight: Boolean = false): (String, String) =
+      (StringUtils.beforeLast(string, char, keep = keepLeft), StringUtils.afterLast(string, char, keep = keepRight))
+
+  def split(string: String, char: Char): Array[String] =
+      if (string.nonEmpty) string.split(char)
+      else Array.empty
 
   def apply(file: File): FileName = apply(file.getPath)
 
-  def apply(string: String): FileName = {
-    assert(string.nonEmpty)
+  def apply(osString: String): FileName = {
+    assert(osString.nonEmpty)
 
+    val string = osString.replace(File.separatorChar, directorySep)
     val (directories, afterDirectories) =
         if (string.contains(directorySep)) splitAfter(string, directorySep)
         else (empty, string)
     val (names, afterNames) = {
       val (multiName, afterNames) =
           if (afterDirectories.contains(distinguisherSep)) splitBefore(afterDirectories, distinguisherSep)
-          else if (afterDirectories.contains(extensionSep)) splitBefore(afterDirectories, extensionSep)
+          else if (afterDirectories.contains(extensionSep)) splitBefore(afterDirectories, extensionSep, keepRight = true)
           else (afterDirectories, empty)
 
-      (multiName.split(nameSep), afterNames)
+      (split(multiName, nameSep), afterNames)
     }
     val (distinguishers, afterDistinguishers) = {
       val (multiDistinguisher, afterDistinguishers) =
           if (afterNames.contains(extensionSep)) splitBefore(afterNames, extensionSep)
           else (afterNames, empty)
 
-      (multiDistinguisher.split(distinguisherSep), afterDistinguishers)
+      (split(multiDistinguisher, distinguisherSep), afterDistinguishers)
     }
-    val extensions = afterDistinguishers.split(extensionSep)
+    val extensions = split(afterDistinguishers, extensionSep)
 
     new FileName(directories, names, distinguishers, extensions)
   }
@@ -99,7 +104,7 @@ object FileName {
   def getDistinguisher(n: Int, files: Seq[File]): Counter = {
     val fileNames = files.map { file => FileName(file.getPath) }
     val distinguishers = fileNames.flatMap { file =>
-      file.distinguishers.lift(0).flatMap { distinguisher =>
+      file.distinguishers.lift(n).flatMap { distinguisher =>
         Try(distinguisher.toInt).toOption
       }
     }

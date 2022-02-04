@@ -9,6 +9,7 @@ class MockRestProducer() extends RestProducerish {
   def close(): Unit = ()
 
   def upload(file: File, documentId: String, ontologyId: String): String = {
+    Thread.sleep(100)
     s"${documentId}_${ontologyId}"
   }
 }

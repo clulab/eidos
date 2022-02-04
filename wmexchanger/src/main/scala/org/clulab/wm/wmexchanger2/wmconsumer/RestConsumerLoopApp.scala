@@ -28,7 +28,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
   var useReal: Boolean = RestConsumerLoopApp.useReal
 
   val config: Config = ConfigFactory.defaultApplication().resolve()
-  val cdrService: String = config.getString("rest.consumer.cdrService")
+  val cdrService: String = config.getString("rest.consumer.documentService")
   val ontologyService: String = config.getString("rest.consumer.ontologyService")
   val annotations: Boolean = config.getBoolean("rest.consumer.annotations")
   val interactive: Boolean = config.getBoolean("rest.consumer.interactive")
@@ -42,34 +42,36 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
     def processRequest(restConsumerRequest: RestConsumerRequest, outputDistinguisher: Counter,
         doneDistinguisher: Counter): Unit = {
       val fileName = FileName(restConsumerRequest.file)
-      val readingFile = FileEditor(new File(restConsumerRequest.documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
-      val outputFile =
-          if (readingFile.exists)
-            fileName.setExt(Extensions.gnd).distinguish(RestConsumerLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
-          else
-            fileName.setExt(Extensions.rd).distinguish(RestConsumerLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
-      LockUtils.withLock(outputFile, Extensions.lock) {
-        Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
-          restConsumerRequest.ontologyIds.foreach(printWriter.println)
+      if (restConsumerRequest.ontologyIds.nonEmpty) {
+        val readingFile = FileEditor(new File(restConsumerRequest.documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
+        val outputFile =
+            if (readingFile.exists)
+              fileName.setExt(Extensions.gnd).distinguish(RestConsumerLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
+            else
+              fileName.setExt(Extensions.rd).distinguish(RestConsumerLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
+
+        LockUtils.withLock(outputFile, Extensions.lock) {
+          Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
+            restConsumerRequest.ontologyIds.foreach(printWriter.println)
+          }
         }
       }
-
       val doneFile = fileName.distinguish(RestConsumerLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
       FileUtils.rename(restConsumerRequest.file, doneFile)
     }
 
-    // TODO: If no ontologies in file, don't create the job, but do download the document
     def processFiles(files: Seq[File], knownDocumentIds: mutable.Set[String], knownOntologyIds: mutable.Set[String],
         restDocumentConsumer: RestConsumerish, restOntologyConsumer: RestConsumerish): Seq[RestConsumerRequest] = {
       implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
       val restConsumerRequests = files.map { file =>
-        val documentId = StringUtils.beforeLast(file.getName, '.')
+        val fileName = FileName(file)
+        val documentId = fileName.getDocumentId
         val json = FileUtils.getTextFromFile(file)
         val jValue = JsonMethods.parse(json)
         val ontologyIds = {
-          (jValue \ "value" \ "ontologies").extract[JArray].arr.map { ontology =>
+          (jValue \ "ontologies").extract[JArray].arr.map { ontology =>
             (ontology \ "ontology").extract[String]
           }
         }
@@ -84,7 +86,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       if (unknownDocumentIds.nonEmpty) {
         restDocumentConsumer.open()
         unknownDocumentIds.par.foreach { documentId =>
-          RestConsumerLoopApp.logger.info(s"Downloading $documentId${Extensions.json}")
+          RestConsumerLoopApp.logger.info(s"Downloading $documentId.${Extensions.json}")
           val document = restDocumentConsumer.download(documentId)
           val outputFile = FileEditor(new File(documentId)).setExt(Extensions.json).setDir(documentDir).get
 
@@ -98,7 +100,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
       if (unknownOntologyIds.nonEmpty) {
         restOntologyConsumer.open()
         unknownOntologyIds.par.foreach { ontologyId =>
-          RestConsumerLoopApp.logger.info(s"Downloading $ontologyId${Extensions.yml}")
+          RestConsumerLoopApp.logger.info(s"Downloading $ontologyId.${Extensions.yml}")
           val ontology = restOntologyConsumer.download(ontologyId)
           val outputFile = FileEditor(new File(ontologyId)).setExt(Extensions.yml).setDir(ontologyDir).get
 
@@ -115,10 +117,10 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String,
     override def runSafely(): Unit = {
       val restDocumentConsumer =
           if (useReal) new RealRestDocumentConsumer(cdrService, username, password, annotations)
-          else new MockRestDocumentConsumer(documentDir)
+          else new MockRestDocumentConsumer(System.getenv("MOCK_DIR"))
       val restOntologyConsumer =
           if (useReal) new RealRestOntologyConsumer(ontologyService, username, password)
-          else new MockRestOntologyConsumer(ontologyDir)
+          else new MockRestOntologyConsumer(System.getenv("MOCK_DIR"))
       val knownDocumentIds = LockUtils.findFiles(documentDir, Extensions.json, Extensions.lock)
           .map { documentFile => StringUtils.beforeLast(documentFile.getName, '.') }
           .to[mutable.Set]
@@ -166,8 +168,18 @@ object RestConsumerLoopApp extends LoopApp {
   val outputStage = Stages.restConsumerOutputStage
 
   def main(args: Array[String]): Unit = {
+
     AppEnvironment.setEnv {
-      Map.empty
+      Map(
+        "REST_CONSUMER_INPUT_DIR" -> "../corpora/feb2022exp_mock/kafkaconsumer/output",
+        "REST_CONSUMER_OUTPUT_DIR" -> "../corpora/feb2022exp_mock/restconsumer/output",
+        "REST_CONSUMER_DONE_DIR" -> "../corpora/feb2022exp_mock/kafkaconsumer/done",
+
+        "DOCUMENT_DIR" -> "../corpora/feb2022exp_mock/documents",
+        "ONTOLOGY_DIR" -> "../corpora/feb2022exp_mock/ontologies",
+        "READING_DIR" -> "../corpora/feb2022exp_mock/readings",
+        "MOCK_DIR" -> "../corpora/feb2022exp_mock"
+      )
     }
 
     val  inputDir: String = getArgOrEnv(args, 0, "REST_CONSUMER_INPUT_DIR")
