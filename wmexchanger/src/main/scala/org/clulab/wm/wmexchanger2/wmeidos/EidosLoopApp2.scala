@@ -10,6 +10,7 @@ import org.clulab.wm.eidos.serialization.jsonld.JLDDeserializer
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Counter
 import org.clulab.wm.eidoscommon.utils.Sourcer
+import org.clulab.wm.eidoscommon.utils.StringUtils
 import org.clulab.wm.eidoscommon.utils.{FileEditor, FileUtils, LockUtils}
 import org.clulab.wm.wmexchanger.utils.DevtimeConfig
 import org.clulab.wm.wmexchanger.utils.Extensions
@@ -23,6 +24,7 @@ import org.clulab.wm.wmexchanger2.utils.Stages
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import scala.collection.mutable
 import scala.collection.mutable.{HashSet => MutableHashSet}
 
 class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
@@ -39,7 +41,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
       if (useReal) new RealEidosSystem()
       else new MockEidosSystem(System.getenv("MOCK_DIR"))
   val deserializer = new JLDDeserializer()
-  val ontologyMap = new OntologyMap(reader, ontologyDir)
+  val ontologyMap = new OntologyMap(reader, ontologyDir, EidosLoopApp2.logger)
 
   def ground(ontologyId: String, annotatedDocument: AnnotatedDocument): AnnotatedDocument = {
     val ontologyHandler = ontologyMap(ontologyId)
@@ -69,7 +71,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
           }
 
       ontologyIds.foreach { ontologyId =>
-        val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
+        val outputFile = fileName.setExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
         ground(ontologyId, annotatedDocument)
 
@@ -112,13 +114,10 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
           }
       val readingFile = FileEditor(new File(documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
 
-      // The same file could be written multiple times, depending on the jobs, so therefore synchronize.
-      synchronized {
-        // These also have to be locked because a different process is checking on them.
-        LockUtils.withLock(readingFile, Extensions.lock) {
-          FileUtils.printWriterFromFile(readingFile).autoClose { printWriter =>
-            new JLDCorpus(annotatedDocument).serialize(printWriter)
-          }
+      // These also have to be locked because a different process is checking on them.
+      LockUtils.withLock(readingFile, Extensions.lock) {
+        FileUtils.printWriterFromFile(readingFile).autoClose { printWriter =>
+          new JLDCorpus(annotatedDocument).serialize(printWriter)
         }
       }
 
@@ -146,20 +145,22 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
   val thread: SafeThread = new SafeThread(EidosLoopApp2.logger, interactive, waitDuration) {
     val filesBeingProcessed: MutableHashSet[String] = new MutableHashSet[String]
     val threadPoolExecutor: ExecutorService = Executors.newFixedThreadPool(threads)
+    val documentsBeingRead: mutable.Set[String] = mutable.Set.empty
+    val documentsAlreadyRead: mutable.Set[String] = FileUtils.findFiles(readingDir, Extensions.jsonld).map { file =>
+      StringUtils.beforeFirst(file.getName, '.')
+    }.to[mutable.Set]
 
     override def shutdown(): Unit = {
       threadPoolExecutor.shutdown()
     }
 
     override def runSafely(): Unit = {
-      val inputExtensions = Seq(Extensions.rd, Extensions.gnd)
-      val outputExtensions = inputExtensions.map(_ + "." + Extensions.jsonld)
-      val outputDistinguisher = FileName.getDistinguisher(EidosLoopApp2.outputStage, FileUtils.findFiles(outputDir, outputExtensions))
-      val doneDistinguisher = FileName.getDistinguisher(EidosLoopApp2.outputStage, FileUtils.findFiles(doneDir, inputExtensions))
+      val outputDistinguisher = FileName.getDistinguisher(EidosLoopApp2.outputStage, FileUtils.findFiles(outputDir, Extensions.jsonld))
+      val doneDistinguisher = FileName.getDistinguisher(EidosLoopApp2.outputStage, FileUtils.findFiles(doneDir, Extensions.txt))
 
       while (!isInterrupted) {
         val files = EidosLoopApp2.synchronized {
-          val allFiles = LockUtils.findFiles(inputDir, inputExtensions, Extensions.lock)
+          val allFiles = LockUtils.findFiles(inputDir, Extensions.txt, Extensions.lock).take(EidosLoopApp2.fileLimit)
           val newFiles = allFiles.filter { file => !filesBeingProcessed.contains(file.getAbsolutePath) }
           val newAbsolutePaths = newFiles.map(_.getAbsolutePath)
 
@@ -168,19 +169,45 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
         }
 
         files.foreach { file =>
-          threadPoolExecutor.execute(
-            new Runnable() {
-              def run(): Unit = {
-                if (file.getName.endsWith(Extensions.rd))
-                  processReadingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
-                else if (file.getName.endsWith(Extensions.gnd))
+          val name = file.getName
+          val fileName = FileName(file)
+          val documentId = fileName.getDocumentId
+          val (isAlreadyRead, isBeingRead) = EidosLoopApp2.synchronized {
+            (documentsAlreadyRead(documentId), documentsBeingRead(documentId))
+          }
+
+          if (isAlreadyRead) {
+            EidosLoopApp2.logger.info(s"Queing for grounding $name...")
+            threadPoolExecutor.execute(
+              new Runnable() {
+                def run(): Unit = {
+                  EidosLoopApp2.logger.info(s"Grounding $name...")
                   processGroundingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
-                // If the above throws an exception, the file will continue to be processed.
-                // It won't try again unless the thread restarts.
-                synchronized { filesBeingProcessed -= file.getAbsolutePath }
+                  EidosLoopApp2.synchronized { filesBeingProcessed -= file.getAbsolutePath }
+                }
               }
-            }
-          )
+            )
+          }
+          else if (!isBeingRead) {
+            EidosLoopApp2.logger.info(s"Queing for reading $name...")
+            EidosLoopApp2.synchronized { documentsBeingRead += documentId }
+            threadPoolExecutor.execute(
+              new Runnable() {
+                def run(): Unit = {
+                  EidosLoopApp2.logger.info(s"Reading $name...")
+                  // Open and close so that -= is guaranteed
+                  processReadingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
+                  EidosLoopApp2.synchronized {
+                    filesBeingProcessed -= file.getAbsolutePath
+                    documentsBeingRead -= documentId
+                    documentsAlreadyRead += documentId
+                  }
+                }
+              }
+            )
+          }
+          else
+            EidosLoopApp2.logger.info(s"Not yet queing $name...")
         }
         Thread.sleep(pauseDuration)
       }
@@ -190,6 +217,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
 
 object EidosLoopApp2 extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
+  val fileLimit = 5000
 
   // These will be used for the distinguishers and are their indexes.
   val inputStage: Int = Stages.eidosInputStage

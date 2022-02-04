@@ -45,11 +45,13 @@ class RestConsumerLoopApp2(inputDir: String, outputDir: String, doneDir: String,
 
       if (restConsumerRequest.ontologyIds.nonEmpty) {
         val readingFile = FileEditor(new File(restConsumerRequest.documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
+        // The readingFile may be produced by the time eidos needs to ground, so treat all as txt files.
         val outputFile =
-            if (readingFile.exists)
-              fileName.setExt(Extensions.gnd).distinguish(RestConsumerLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
-            else
-              fileName.setExt(Extensions.rd).distinguish(RestConsumerLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
+            fileName.setExt(Extensions.txt).distinguish(RestConsumerLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
+//            if (readingFile.exists)
+//              fileName.setExt(Extensions.gnd).distinguish(RestConsumerLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
+//            else
+//              fileName.setExt(Extensions.rd).distinguish(RestConsumerLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
         LockUtils.withLock(outputFile, Extensions.lock) {
           Sinker.printWriterFromFile(outputFile, append = false).autoClose { printWriter =>
@@ -128,7 +130,8 @@ class RestConsumerLoopApp2(inputDir: String, outputDir: String, doneDir: String,
           .map { ontologyFile => StringUtils.beforeLast(ontologyFile.getName, '.') }
           .to[mutable.Set]
       val outputDistinguisher = FileName.getDistinguisher(RestConsumerLoopApp2.outputStage, FileUtils.findFiles(outputDir,
-          Seq(Extensions.rd, Extensions.gnd)))
+          Extensions.txt))
+          // Seq(Extensions.rd, Extensions.gnd)))
       val doneDistinguisher = FileName.getDistinguisher(RestConsumerLoopApp2.outputStage, FileUtils.findFiles(doneDir,
           Extensions.json))
 

@@ -8,9 +8,13 @@ object LockUtils {
       findFiles(dir, Seq(dataExt), lockExt)
 
   def findFiles(dir: String, dataExts: Seq[String], lockExt: String): Seq[File] = {
-    val dataFiles = FileUtils.findFiles(dir, dataExts)
+    val allFiles = FileUtils.findFiles(dir, dataExts :+ lockExt)
+    val (lockFilesSeq, dataFiles) = allFiles.partition { file => file.getName.endsWith(lockExt) }
+    val lockFilesSet = lockFilesSeq.map(_.getName).toSet
     val unlockedDataFiles = dataFiles.filter { dataFile =>
-      !hasLock(dataFile, lockExt)
+      val lockFile = FileEditor(dataFile).setExt(lockExt, last = false).get.getName
+
+      !lockFilesSet(lockFile)
     }
 
     unlockedDataFiles

@@ -5,6 +5,5 @@ object Extensions {
   val json = "json"
   val jsonld = "jsonld"
   val yml = "yml"
-  val rd = "rd"
-  val gnd = "gnd"
+  val txt = "txt"
 }

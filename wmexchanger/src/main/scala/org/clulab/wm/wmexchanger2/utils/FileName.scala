@@ -40,11 +40,16 @@ case class FileName(directories: String, names: IndexedSeq[String], distinguishe
       this.copy(distinguishers = distinguishers.padTo(n, "") :+ distinguisher)
   }
 
-  def getName(n: Int): String = names(n)
+  def getName(n: Int): String = names.lift(n).getOrElse("")
 
-  // TODO, what if n is too high?
-  // Need a pad
-  def setName(n: Int, name: String): FileName = this.copy(names = names :+ name)
+  def setName(n: Int, name: String): FileName = {
+    if (n < names.length)
+      this.copy(names = names.updated(n, name))
+    else if (n == names.length)
+      this.copy(names = names :+ name)
+    else // n > names.length
+      this.copy(names = names.padTo(n, "") :+ name)
+  }
 
   def getDocumentId: String = getName(0)
 
