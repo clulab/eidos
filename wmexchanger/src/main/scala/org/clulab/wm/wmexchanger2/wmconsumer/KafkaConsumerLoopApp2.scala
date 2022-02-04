@@ -14,8 +14,8 @@ import org.clulab.wm.wmexchanger2.utils.Stages
 import java.io.File
 import java.util.Properties
 
-class KafkaConsumerLoopApp(args: Array[String]) {
-  var useReal = KafkaConsumerLoopApp.useReal
+class KafkaConsumerLoopApp2(args: Array[String]) {
+  var useReal = KafkaConsumerLoopApp2.useReal
 
   private val config : Config = ConfigFactory.defaultApplication().resolve()
   private val appProperties : Properties = PropertiesBuilder.fromConfig(config.getConfig("kafka.app")).get
@@ -26,20 +26,20 @@ class KafkaConsumerLoopApp(args: Array[String]) {
   val pollDuration: Int = appProperties.getProperty("poll.duration").toInt
   val outputDir = appProperties.getProperty("output.dir")
   FileUtils.ensureDirsExist(outputDir)
-  val outputDistinguisher = FileName.getDistinguisher(KafkaConsumerLoopApp.outputStage, FileUtils.findFiles(outputDir, Extensions.json))
+  val outputDistinguisher = FileName.getDistinguisher(KafkaConsumerLoopApp2.outputStage, FileUtils.findFiles(outputDir, Extensions.json))
 
-  val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp.logger, interactive, waitDuration) {
+  val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp2.logger, interactive, waitDuration) {
 
     override def runSafely(): Unit = {
       // This is kept open the entire time, so time between pings is extra important.
       val consumer =
           if (useReal)
-            new RealKafkaConsumer(appProperties, kafkaProperties, KafkaConsumerLoopApp.outputStage, outputDistinguisher)
+            new RealKafkaConsumer(appProperties, kafkaProperties, KafkaConsumerLoopApp2.outputStage, outputDistinguisher)
           else {
             val inputDir = Option(System.getenv("KAFKA_CONSUMER_MOCK_DIR"))
                 .getOrElse(FileEditor(new File(outputDir)).incName("/mock").get.getAbsolutePath)
 
-            new MockKafkaConsumer(inputDir, outputDir, KafkaConsumerLoopApp.outputStage, outputDistinguisher)
+            new MockKafkaConsumer(inputDir, outputDir, KafkaConsumerLoopApp2.outputStage, outputDistinguisher)
           }
 
       def close(): Unit = consumer.close()
@@ -55,7 +55,7 @@ class KafkaConsumerLoopApp(args: Array[String]) {
   }
 }
 
-object KafkaConsumerLoopApp extends LoopApp {
+object KafkaConsumerLoopApp2 extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
   // These will be used for the distinguishers and are their indexes.
@@ -79,7 +79,7 @@ object KafkaConsumerLoopApp extends LoopApp {
     }
 
     loop {
-      () => new KafkaConsumerLoopApp(args).thread
+      () => new KafkaConsumerLoopApp2(args).thread
     }
   }
 }

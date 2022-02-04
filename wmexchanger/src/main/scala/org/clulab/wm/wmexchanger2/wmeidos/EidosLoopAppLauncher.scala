@@ -6,7 +6,7 @@ object EidosLoopAppLauncher extends App {
 
   val (project, programArgs, javaArgs, sbtArgs) = SbtLauncher.parseArgs(args)
 
-  val launcher = SbtLauncher(Some(project), classOf[EidosLoopApp].getName, programArgs, javaArgs, sbtArgs)
+  val launcher = SbtLauncher(Some(project), classOf[EidosLoopApp2].getName, programArgs, javaArgs, sbtArgs)
 
   launcher.launch()
 }

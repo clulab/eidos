@@ -25,9 +25,9 @@ import java.nio.file.Files
 import java.util.concurrent.Executors
 import scala.collection.mutable.{HashSet => MutableHashSet}
 
-class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
-    documentDir: String, ontologyDir: String, readingDir: String, threads: Int) {
-  var useReal = EidosLoopApp.useReal
+class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
+                    documentDir: String, ontologyDir: String, readingDir: String, threads: Int) {
+  var useReal = EidosLoopApp2.useReal
 
   val config: Config = ConfigFactory.defaultApplication().resolve().getConfig("eidos")
   val interactive: Boolean = config.getBoolean("interactive")
@@ -64,12 +64,12 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
           }
           catch {
             case exception: Throwable =>
-              EidosLoopApp.logger.error(s"Exception for file $file", exception)
+              EidosLoopApp2.logger.error(s"Exception for file $file", exception)
               reader.getEmptyAnnotatedDocument(Some(documentId))
           }
 
       ontologyIds.foreach { ontologyId =>
-        val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
+        val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
         ground(ontologyId, annotatedDocument)
 
@@ -80,12 +80,12 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
         }
       }
 
-      val doneFile = FileName(file).distinguish(EidosLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
+      val doneFile = FileName(file).distinguish(EidosLoopApp2.outputStage, doneDistinguisher).setDir(doneDir).toFile
       FileUtils.rename(file, doneFile)
     }
     catch {
       case exception: Exception =>
-        EidosLoopApp.logger.error(s"Exception for file $file", exception)
+        EidosLoopApp2.logger.error(s"Exception for file $file", exception)
     }
   }
 
@@ -107,7 +107,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
           }
           catch {
             case exception: Throwable =>
-              EidosLoopApp.logger.error(s"Exception for file $file", exception)
+              EidosLoopApp2.logger.error(s"Exception for file $file", exception)
               reader.getEmptyAnnotatedDocument(Some(documentId))
           }
       val readingFile = FileEditor(new File(documentId)).setExt(Extensions.jsonld).setDir(readingDir).get
@@ -123,7 +123,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
       }
 
       ontologyIds.foreach { ontologyId =>
-        val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp.outputStage, outputDistinguisher).setDir(outputDir).toFile
+        val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
         ground(ontologyId, annotatedDocument)
 
@@ -134,16 +134,16 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
         }
       }
 
-      val doneFile = fileName.distinguish(EidosLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
+      val doneFile = fileName.distinguish(EidosLoopApp2.outputStage, doneDistinguisher).setDir(doneDir).toFile
       FileUtils.rename(file, doneFile)
     }
     catch {
       case exception: Exception =>
-        EidosLoopApp.logger.error(s"Exception for file $file", exception)
+        EidosLoopApp2.logger.error(s"Exception for file $file", exception)
     }
   }
 
-  val thread: SafeThread = new SafeThread(EidosLoopApp.logger, interactive, waitDuration) {
+  val thread: SafeThread = new SafeThread(EidosLoopApp2.logger, interactive, waitDuration) {
     val filesBeingProcessed: MutableHashSet[String] = new MutableHashSet[String]
     val threadPoolExecutor = Executors.newFixedThreadPool(threads)
 
@@ -154,11 +154,11 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
     override def runSafely(): Unit = {
       val inputExtensions = Seq(Extensions.rd, Extensions.gnd)
       val outputExtensions = inputExtensions.map(_ + "." + Extensions.jsonld)
-      val outputDistinguisher = FileName.getDistinguisher(EidosLoopApp.outputStage, FileUtils.findFiles(outputDir, outputExtensions))
-      val doneDistinguisher = FileName.getDistinguisher(EidosLoopApp.outputStage, FileUtils.findFiles(doneDir, inputExtensions))
+      val outputDistinguisher = FileName.getDistinguisher(EidosLoopApp2.outputStage, FileUtils.findFiles(outputDir, outputExtensions))
+      val doneDistinguisher = FileName.getDistinguisher(EidosLoopApp2.outputStage, FileUtils.findFiles(doneDir, inputExtensions))
 
       while (!isInterrupted) {
-        val files = EidosLoopApp.synchronized {
+        val files = EidosLoopApp2.synchronized {
           val allFiles = LockUtils.findFiles(inputDir, inputExtensions, Extensions.lock)
           val newFiles = allFiles.filter { file => !filesBeingProcessed.contains(file.getAbsolutePath) }
           val newAbsolutePaths = newFiles.map(_.getAbsolutePath)
@@ -187,7 +187,7 @@ class EidosLoopApp(inputDir: String, outputDir: String, doneDir: String,
   }
 }
 
-object EidosLoopApp extends LoopApp {
+object EidosLoopApp2 extends LoopApp {
   var useReal = DevtimeConfig.useReal
 
   // These will be used for the distinguishers and are their indexes.
@@ -228,7 +228,7 @@ object EidosLoopApp extends LoopApp {
 
     FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
     loop {
-      () => new EidosLoopApp(inputDir, outputDir, doneDir,
+      () => new EidosLoopApp2(inputDir, outputDir, doneDir,
           documentDir, ontologyDir, readingDir, threads).thread
     }
   }

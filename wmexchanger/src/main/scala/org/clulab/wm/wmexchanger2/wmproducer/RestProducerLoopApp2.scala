@@ -15,8 +15,8 @@ import org.clulab.wm.wmexchanger2.utils.Stages
 import java.io.File
 import scala.util.Try
 
-class RestProducerLoopApp(inputDir: String, outputDir: String, doneDir: String) {
-  var useReal: Boolean = RestProducerLoopApp.useReal
+class RestProducerLoopApp2(inputDir: String, outputDir: String, doneDir: String) {
+  var useReal: Boolean = RestProducerLoopApp2.useReal
 
   val config: Config = ConfigFactory.defaultApplication().resolve()
   val service: String = config.getString("rest.producer.service")
@@ -28,25 +28,25 @@ class RestProducerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
   val eidosVersion: String = config.getString("rest.producer.eidosVersion")
   val ontologyVersion: String = config.getString("rest.producer.ontologyVersion")
 
-  val thread: SafeThread = new SafeThread(RestProducerLoopApp.logger, interactive, waitDuration) {
+  val thread: SafeThread = new SafeThread(RestProducerLoopApp2.logger, interactive, waitDuration) {
 
     def processFile(file: File, restProducer: RestProducerish, doneDistinguisher: Counter): String = {
       try {
-        RestProducerLoopApp.logger.info(s"Uploading ${file.getName}")
+        RestProducerLoopApp2.logger.info(s"Uploading ${file.getName}")
         val fileName = FileName(file)
         val documentId = fileName.getDocumentId
         val ontologyId = fileName.getOntologyId
         val storageKey = restProducer.upload(file, documentId, ontologyId)
 
-        RestProducerLoopApp.logger.info(s"Reporting storage key $storageKey for ${file.getName}")
+        RestProducerLoopApp2.logger.info(s"Reporting storage key $storageKey for ${file.getName}")
 
-        val doneFile = fileName.distinguish(RestProducerLoopApp.outputStage, doneDistinguisher).setDir(doneDir).toFile
+        val doneFile = fileName.distinguish(RestProducerLoopApp2.outputStage, doneDistinguisher).setDir(doneDir).toFile
         FileUtils.rename(file, doneFile)
         storageKey
       }
       catch {
         case exception: Exception =>
-          RestProducerLoopApp.logger.error(s"Exception for file $file", exception)
+          RestProducerLoopApp2.logger.error(s"Exception for file $file", exception)
           "<failed>"
       }
     }
@@ -55,7 +55,7 @@ class RestProducerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
       val restProducer =
           if (useReal) new RealRestProducer(service, username, password, eidosVersion, ontologyVersion)
           else new MockRestProducer()
-      val doneDistinguisher = FileName.getDistinguisher(RestProducerLoopApp.outputStage, FileUtils.findFiles(doneDir,
+      val doneDistinguisher = FileName.getDistinguisher(RestProducerLoopApp2.outputStage, FileUtils.findFiles(doneDir,
           Extensions.jsonld))
       val printWriter = FileUtils.appendingPrintWriterFromFile(outputDir + "/log.txt")
 
@@ -90,7 +90,7 @@ class RestProducerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
   }
 }
 
-object RestProducerLoopApp extends LoopApp {
+object RestProducerLoopApp2 extends LoopApp {
   var useReal: Boolean = DevtimeConfig.useReal
 
   // These will be used for the distinguishers and are their indexes.
@@ -118,7 +118,7 @@ object RestProducerLoopApp extends LoopApp {
 
     FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
     loop {
-      () => new RestProducerLoopApp(inputDir, outputDir, doneDir).thread
+      () => new RestProducerLoopApp2(inputDir, outputDir, doneDir).thread
     }
   }
 }
