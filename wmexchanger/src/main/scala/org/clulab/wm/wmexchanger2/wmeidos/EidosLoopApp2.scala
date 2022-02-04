@@ -175,7 +175,8 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
                   processReadingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
                 else if (file.getName.endsWith(Extensions.gnd))
                   processGroundingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
-                // TODO: What happens on an error in the above?
+                // If the above throws an exception, the file will continue to be processed.
+                // It won't try again unless the thread restarts.
                 synchronized { filesBeingProcessed -= file.getAbsolutePath }
               }
             }
@@ -196,7 +197,7 @@ object EidosLoopApp2 extends LoopApp {
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {
-      val baseDir = "./corpora/feb2022exp1"
+      val baseDir = "../corpora/feb2022exp1"
       Map(
         "REST_CONSUMER_DOCUMENT_SERVICE" -> "",
         "REST_CONSUMER_ONTOLOGY_SERVICE" -> "",
@@ -226,7 +227,7 @@ object EidosLoopApp2 extends LoopApp {
 
     val   threads: Int    = getArgOrEnv(args, 6, "EIDOS_THREADS").toInt
 
-    FileUtils.ensureDirsExist(inputDir, outputDir, doneDir)
+    FileUtils.ensureDirsExist(inputDir, outputDir, doneDir, documentDir, ontologyDir, readingDir)
     loop {
       () => new EidosLoopApp2(inputDir, outputDir, doneDir,
           documentDir, ontologyDir, readingDir, threads).thread
