@@ -196,15 +196,21 @@ object EidosLoopApp extends LoopApp {
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {
+      val baseDir = "./corpora/feb2022exp1"
       Map(
-        "EIDOS_INPUT_DIR" -> "../corpora/feb2022exp_mock/restconsumer/output",
-        "EIDOS_OUTPUT_DIR" -> "../corpora/feb2022exp_mock/eidos/output",
-        "EIDOS_DONE_DIR" -> "../corpora/feb2022exp_mock/restconsumer/done",
+        "REST_CONSUMER_DOCUMENT_SERVICE" -> "",
+        "REST_CONSUMER_ONTOLOGY_SERVICE" -> "",
+        "REST_CONSUMER_USERNAME" -> "eidos",
+        "REST_CONSUMER_PASSWORD" -> System.getenv("PASSWORD"),
 
-        "DOCUMENT_DIR" -> "../corpora/feb2022exp_mock/documents",
-        "ONTOLOGY_DIR" -> "../corpora/feb2022exp_mock/ontologies",
-        "READING_DIR" -> "../corpora/feb2022exp_mock/readings",
-        "MOCK_DIR" -> "../corpora/feb2022exp_mock",
+        "EIDOS_INPUT_DIR" -> s"$baseDir/restconsumer/output",
+        "EIDOS_OUTPUT_DIR" -> s"$baseDir/eidos/output",
+        "EIDOS_DONE_DIR" -> s"$baseDir/restconsumer/done",
+
+        "DOCUMENT_DIR" -> s"$baseDir/documents",
+        "ONTOLOGY_DIR" -> s"$baseDir/ontologies",
+        "READING_DIR" -> s"$baseDir/readings",
+        "MOCK_DIR" -> s"$baseDir",
 
         "EIDOS_THREADS" -> "4"
       )

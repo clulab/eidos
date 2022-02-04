@@ -7,6 +7,7 @@ import org.clulab.wm.wmexchanger.wmconsumer.KafkaConsumer.logger
 import org.clulab.wm.wmexchanger2.utils.FileName
 
 class MockKafkaConsumer(inputDir: String, outputDir: String, stage: Int, distinguisher: Counter) extends KafkaConsumerish {
+  FileUtils.ensureDirsExist(outputDir)
 
   def poll(duration: Int): Unit = {
     Thread.sleep(duration)

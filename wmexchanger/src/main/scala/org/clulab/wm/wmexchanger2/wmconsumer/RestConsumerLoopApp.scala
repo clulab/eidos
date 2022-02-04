@@ -170,15 +170,19 @@ object RestConsumerLoopApp extends LoopApp {
   def main(args: Array[String]): Unit = {
 
     AppEnvironment.setEnv {
+      val baseDir = "../corpora/feb2022exp1"
       Map(
-        "REST_CONSUMER_INPUT_DIR" -> "../corpora/feb2022exp_mock/kafkaconsumer/output",
-        "REST_CONSUMER_OUTPUT_DIR" -> "../corpora/feb2022exp_mock/restconsumer/output",
-        "REST_CONSUMER_DONE_DIR" -> "../corpora/feb2022exp_mock/kafkaconsumer/done",
+        "REST_CONSUMER_INPUT_DIR" -> s"$baseDir/kafkaconsumer/output",
+        "REST_CONSUMER_OUTPUT_DIR" -> s"$baseDir/restconsumer/output",
+        "REST_CONSUMER_DONE_DIR" -> s"$baseDir/kafkaconsumer/done",
 
-        "DOCUMENT_DIR" -> "../corpora/feb2022exp_mock/documents",
-        "ONTOLOGY_DIR" -> "../corpora/feb2022exp_mock/ontologies",
-        "READING_DIR" -> "../corpora/feb2022exp_mock/readings",
-        "MOCK_DIR" -> "../corpora/feb2022exp_mock"
+        "DOCUMENT_DIR" -> s"$baseDir/documents",
+        "ONTOLOGY_DIR" -> s"$baseDir/ontologies",
+        "READING_DIR" -> s"$baseDir/readings",
+        "MOCK_DIR" -> s"$baseDir",
+
+        "REST_CONSUMER_USERNAME" -> getUsername,
+        "REST_CONSUMER_PASSWORD" -> getPassword
       )
     }
 

@@ -4,6 +4,20 @@ import org.clulab.wm.eidoscommon.utils.Logging
 
 trait LoopApp extends Logging {
 
+  def getPassword: String = {
+    Option(System.getenv("PASSWORD")).getOrElse {
+      logger.info("Note that PASSWORD is not set.")
+      "password"
+    }
+  }
+
+  def getUsername: String = {
+    Option(System.getenv("USERNAME")).getOrElse {
+      logger.info("Note that USERNAME is not set.")
+      "username"
+    }
+  }
+
   // Returns whether to continue looping or not.
   def safeLoop(f: () => SafeThread): Boolean = {
     try {

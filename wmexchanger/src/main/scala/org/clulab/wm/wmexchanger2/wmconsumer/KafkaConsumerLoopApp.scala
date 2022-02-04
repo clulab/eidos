@@ -25,6 +25,7 @@ class KafkaConsumerLoopApp(args: Array[String]) {
   val interactive: Boolean = appProperties.getProperty("interactive").toBoolean
   val pollDuration: Int = appProperties.getProperty("poll.duration").toInt
   val outputDir = appProperties.getProperty("output.dir")
+  FileUtils.ensureDirsExist(outputDir)
   val outputDistinguisher = FileName.getDistinguisher(KafkaConsumerLoopApp.outputStage, FileUtils.findFiles(outputDir, Extensions.json))
 
   val thread: SafeThread = new SafeThread(KafkaConsumerLoopApp.logger, interactive, waitDuration) {
@@ -62,18 +63,19 @@ object KafkaConsumerLoopApp extends LoopApp {
   val outputStage = Stages.kafkaConsumerOutputStage
 
   def main(args: Array[String]): Unit = {
-    val password = args.lift(0).getOrElse("<eidos_password>")
+    val password = getPassword
 
-    AppEnvironment.setEnv(
+    AppEnvironment.setEnv {
+      val baseDir = "../corpora/feb2022exp1"
       Map(
         "KAFKA_HOSTNAME" -> "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com",
         "KAFKA_CONSUMER_BOOTSTRAP_SERVERS" -> "wm-ingest-pipeline-streaming-1.prod.dart.worldmodelers.com:9093",
         "KAFKA_CONSUMER_SASL_JAAS_CONFIG" -> s"""org.apache.kafka.common.security.plain.PlainLoginModule required username="eidos" password="$password";""",
         "KAFKA_APP_TOPIC" -> "dart.cdr.streaming.updates",
-        "KAFKA_CONSUMER_OUTPUT_DIR" -> "../corpora/feb2022exp_mock/kafkaconsumer/output",
-        "KAFKA_CONSUMER_MOCK_DIR" -> "../corpora/feb2022exp_mock/kafkaconsumer/mock"
+        "KAFKA_CONSUMER_OUTPUT_DIR" -> s"$baseDir/kafkaconsumer/output",
+        "KAFKA_CONSUMER_MOCK_DIR" -> s"$baseDir/kafkaconsumer/mock"
       )
-    )
+    }
 
     loop {
       () => new KafkaConsumerLoopApp(args).thread

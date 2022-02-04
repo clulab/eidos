@@ -99,10 +99,14 @@ object RestProducerLoopApp extends LoopApp {
 
   def main(args: Array[String]): Unit = {
     AppEnvironment.setEnv {
+      val baseDir = "../corpora/feb2022exp1"
       Map(
-        "REST_PRODUCER_INPUT_DIR" -> "../corpora/feb2022exp_mock/eidos/output",
-        "REST_PRODUCER_OUTPUT_DIR" -> "../corpora/feb2022exp_mock/restproducer/output",
-        "REST_PRODUCER_DONE_DIR" -> "../corpora/feb2022exp_mock/eidos/done"
+        "REST_PRODUCER_INPUT_DIR" -> s"$baseDir/eidos/output",
+        "REST_PRODUCER_OUTPUT_DIR" -> s"$baseDir/restproducer/output",
+        "REST_PRODUCER_DONE_DIR" -> s"$baseDir/eidos/done",
+
+        "REST_PRODUCER_USERNAME" -> getUsername,
+        "REST_PRODUCER_PASSWORD" -> getPassword
       )
     }
 
