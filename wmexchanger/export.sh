@@ -20,6 +20,6 @@ export EIDOS_USERNAME=eidos
 # Add this elsewhere.
 # export EIDOS_PASSWORD=
 
-export EIDOS_BASE_DIR=../corpora/feb2022exp
+export EIDOS_BASE_DIR=../corpora/feb2022exp1
 
 export KAFKA_CONSUMER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule\ required\ username=\"$EIDOS_USERNAME\"\ password=\"$EIDOS_PASSWORD\"\;

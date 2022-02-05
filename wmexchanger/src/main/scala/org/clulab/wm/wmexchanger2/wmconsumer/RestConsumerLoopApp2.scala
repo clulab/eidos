@@ -172,25 +172,27 @@ object RestConsumerLoopApp2 extends LoopApp {
 
   def main(args: Array[String]): Unit = {
 
-    AppEnvironment.setEnv {
-      val baseDir = "../corpora/feb2022exp1"
-      Map(
-        "REST_CONSUMER_DOCUMENT_SERVICE" -> "https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/cdrs",
-        "REST_CONSUMER_ONTOLOGY_SERVICE" -> "https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/ontologies",
+    if (false) {
+      AppEnvironment.setEnv {
+        val baseDir = "../corpora/feb2022exp1"
+        Map(
+          "REST_CONSUMER_DOCUMENT_SERVICE" -> "https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/cdrs",
+          "REST_CONSUMER_ONTOLOGY_SERVICE" -> "https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/ontologies",
 
-        "REST_CONSUMER_INPUT_DIR" -> s"$baseDir/kafkaconsumer/output",
-        "REST_CONSUMER_OUTPUT_DIR" -> s"$baseDir/restconsumer/output",
-        "REST_CONSUMER_DONE_DIR" -> s"$baseDir/kafkaconsumer/done",
+          "REST_CONSUMER_INPUT_DIR" -> s"$baseDir/kafkaconsumer/output",
+          "REST_CONSUMER_OUTPUT_DIR" -> s"$baseDir/restconsumer/output",
+          "REST_CONSUMER_DONE_DIR" -> s"$baseDir/kafkaconsumer/done",
 
-        "DOCUMENT_DIR" -> s"$baseDir/documents",
-        "ONTOLOGY_DIR" -> s"$baseDir/ontologies",
-        "READING_DIR" -> s"$baseDir/readings",
-        "MOCK_DIR" -> s"$baseDir",
+          "DOCUMENT_DIR" -> s"$baseDir/documents",
+          "ONTOLOGY_DIR" -> s"$baseDir/ontologies",
+          "READING_DIR" -> s"$baseDir/readings",
+          "MOCK_DIR" -> s"$baseDir",
 
-        // These are not authenticated.
-        "REST_CONSUMER_USERNAME" -> getUsername,
-        "REST_CONSUMER_PASSWORD" -> getPassword
-      )
+          // These are not authenticated.
+          "REST_CONSUMER_USERNAME" -> getUsername,
+          "REST_CONSUMER_PASSWORD" -> getPassword
+        )
+      }
     }
 
     val  inputDir: String = getArgOrEnv(args, 0, "REST_CONSUMER_INPUT_DIR")

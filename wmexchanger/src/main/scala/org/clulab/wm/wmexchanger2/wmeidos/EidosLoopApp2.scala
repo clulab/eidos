@@ -122,7 +122,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
       }
 
       ontologyIds.foreach { ontologyId =>
-        val outputFile = fileName.addExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
+        val outputFile = fileName.setExt(Extensions.jsonld).setName(1, ontologyId).distinguish(EidosLoopApp2.outputStage, outputDistinguisher).setDir(outputDir).toFile
 
         ground(ontologyId, annotatedDocument)
 
@@ -224,25 +224,28 @@ object EidosLoopApp2 extends LoopApp {
   val outputStage: Int = Stages.eidosOutputStage
 
   def main(args: Array[String]): Unit = {
-    AppEnvironment.setEnv {
-      val baseDir = "../corpora/feb2022exp1"
-      Map(
-        "REST_CONSUMER_DOCUMENT_SERVICE" -> "",
-        "REST_CONSUMER_ONTOLOGY_SERVICE" -> "",
-        "REST_CONSUMER_USERNAME" -> "eidos",
-        "REST_CONSUMER_PASSWORD" -> System.getenv("PASSWORD"),
 
-        "EIDOS_INPUT_DIR" -> s"$baseDir/restconsumer/output",
-        "EIDOS_OUTPUT_DIR" -> s"$baseDir/eidos/output",
-        "EIDOS_DONE_DIR" -> s"$baseDir/restconsumer/done",
+    if (false) {
+      AppEnvironment.setEnv {
+        val baseDir = "../corpora/feb2022exp1"
+        Map(
+          "REST_CONSUMER_DOCUMENT_SERVICE" -> "",
+          "REST_CONSUMER_ONTOLOGY_SERVICE" -> "",
+          "REST_CONSUMER_USERNAME" -> "eidos",
+          "REST_CONSUMER_PASSWORD" -> System.getenv("PASSWORD"),
 
-        "DOCUMENT_DIR" -> s"$baseDir/documents",
-        "ONTOLOGY_DIR" -> s"$baseDir/ontologies",
-        "READING_DIR" -> s"$baseDir/readings",
-        "MOCK_DIR" -> s"$baseDir",
+          "EIDOS_INPUT_DIR" -> s"$baseDir/restconsumer/output",
+          "EIDOS_OUTPUT_DIR" -> s"$baseDir/eidos/output",
+          "EIDOS_DONE_DIR" -> s"$baseDir/restconsumer/done",
 
-        "EIDOS_THREADS" -> "4"
-      )
+          "DOCUMENT_DIR" -> s"$baseDir/documents",
+          "ONTOLOGY_DIR" -> s"$baseDir/ontologies",
+          "READING_DIR" -> s"$baseDir/readings",
+          "MOCK_DIR" -> s"$baseDir",
+
+          "EIDOS_THREADS" -> "4"
+        )
+      }
     }
 
     val  inputDir: String = getArgOrEnv(args, 0, "EIDOS_INPUT_DIR")

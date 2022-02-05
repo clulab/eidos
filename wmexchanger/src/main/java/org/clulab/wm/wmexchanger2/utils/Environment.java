@@ -13,10 +13,15 @@ public class Environment {
             theEnvironmentField.setAccessible(true);
             Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
             env.putAll(newenv);
-            Field theCaseInsensitiveEnvironmentField = processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
-            theCaseInsensitiveEnvironmentField.setAccessible(true);
-            Map<String, String> cienv = (Map<String, String>)     theCaseInsensitiveEnvironmentField.get(null);
-            cienv.putAll(newenv);
+            try {
+                Field theCaseInsensitiveEnvironmentField = processEnvironmentClass.getDeclaredField("theCaseInsensitiveEnvironment");
+                theCaseInsensitiveEnvironmentField.setAccessible(true);
+                Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
+                cienv.putAll(newenv);
+            }
+            catch (NoSuchFieldException e) {
+                // env will be good enough.
+            }
         } catch (NoSuchFieldException e) {
             Class[] classes = Collections.class.getDeclaredClasses();
             Map<String, String> env = System.getenv();
