@@ -50,7 +50,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
     annotatedDocument
   }
 
-  def processGroundingFile(file: File, filesBeingProcessed: MutableHashSet[String], outputDistinguisher: Counter, doneDistinguisher: Counter): Unit = {
+  def processGroundingFile(file: File, outputDistinguisher: Counter, doneDistinguisher: Counter): Unit = {
     try {
       val fileName = FileName(file)
       val documentId = fileName.getDocumentId
@@ -91,7 +91,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
     }
   }
 
-  def processReadingFile(file: File, filesBeingProcessed: MutableHashSet[String], outputDistinguisher: Counter, doneDistinguisher: Counter): Unit = {
+  def processReadingFile(file: File, outputDistinguisher: Counter, doneDistinguisher: Counter): Unit = {
     try {
       val fileName = FileName(file)
       val documentId = fileName.getDocumentId
@@ -161,10 +161,10 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
       while (!isInterrupted) {
         val files = EidosLoopApp2.synchronized {
           val allFiles = LockUtils.findFiles(inputDir, Extensions.txt, Extensions.lock).take(EidosLoopApp2.fileLimit)
-          val newFiles = allFiles.filter { file => !filesBeingProcessed.contains(file.getAbsolutePath) }
-          val newAbsolutePaths = newFiles.map(_.getAbsolutePath)
+          val newFiles = EidosLoopApp2.synchronized {
+            allFiles.filter { file => !filesBeingProcessed.contains(file.getAbsolutePath) }
+          }
 
-          filesBeingProcessed ++= newAbsolutePaths
           newFiles
         }
 
@@ -177,27 +177,31 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
           }
 
           if (isAlreadyRead) {
-            EidosLoopApp2.logger.info(s"Queing for grounding $name...")
+            EidosLoopApp2.logger.info(s"Queuing for grounding $name...")
+            EidosLoopApp2.synchronized { filesBeingProcessed += file.getAbsolutePath }
             threadPoolExecutor.execute(
               new NamedRunnable(name, "grounding") {
                 def run(): Unit = {
                   EidosLoopApp2.logger.info(s"Grounding $name...")
-                  processGroundingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
+                  processGroundingFile(file, outputDistinguisher, doneDistinguisher)
                   EidosLoopApp2.synchronized { filesBeingProcessed -= file.getAbsolutePath }
                 }
               }
             )
           }
           else if (!isBeingRead) {
-            EidosLoopApp2.logger.info(s"Queing for reading $name...")
-            EidosLoopApp2.synchronized { documentsBeingRead += documentId }
+            EidosLoopApp2.logger.info(s"Queuing for reading $name...")
+            EidosLoopApp2.synchronized {
+              filesBeingProcessed += file.getAbsolutePath
+              documentsBeingRead += documentId
+            }
             threadPoolExecutor.execute(
               new NamedRunnable(name, "reading") {
 
                 def run(): Unit = {
                   EidosLoopApp2.logger.info(s"Reading $name...")
                   // Open and close so that -= is guaranteed
-                  processReadingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
+                  processReadingFile(file, outputDistinguisher, doneDistinguisher)
                   EidosLoopApp2.synchronized {
                     filesBeingProcessed -= file.getAbsolutePath
                     documentsBeingRead -= documentId
@@ -208,7 +212,15 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
             )
           }
           else
-            EidosLoopApp2.logger.info(s"Not yet queing $name...")
+            EidosLoopApp2.logger.info(s"Not yet queuing $name...")
+        }
+        EidosLoopApp2.synchronized {
+          println("-------------------------------")
+          println(s"files: ${files.length}")
+          println(s"filesBeingProcessed: ${filesBeingProcessed.size}")
+          println(s"documentsBeingRead: ${documentsBeingRead.size}")
+          println(s"documentsAlreadyRead: ${documentsAlreadyRead.size}")
+          println("-------------------------------")
         }
         Thread.sleep(pauseDuration)
       }

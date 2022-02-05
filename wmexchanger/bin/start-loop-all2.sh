@@ -61,18 +61,18 @@ DEFAULT_EIDOS_MEMORY="-Xmx20g"
 THREADS="${EIDOS_THREADS:-$DEFAULT_THREADS}"
 MEMORY="${EIDOS_MEMORY:-$DEFAULT_EIDOS_MEMORY}"
 
-export _JAVA_OPTIONS=-Xmx1g ; ./bin/rest-producer-loop-app2 "${REST_PRODUCER_INPUT_DIR}" "${REST_PRODUCER_OUTPUT_DIR}" "${REST_PRODUCER_DONE_DIR}" &
+export _JAVA_OPTIONS=-Xmx1g ; ./bin/rest-producer-loop-app-2 "${REST_PRODUCER_INPUT_DIR}" "${REST_PRODUCER_OUTPUT_DIR}" "${REST_PRODUCER_DONE_DIR}" &
 sleep 10
-export _JAVA_OPTIONS=-Xmx1g ; ./bin/rest-consumer-loop-app2 "${REST_CONSUMER_INPUT_DIR}" "${REST_CONSUMER_OUTPUT_DIR}" "${REST_CONSUMER_DONE_DIR}" "${DOCUMENT_DIR}" "${ONTOLOGY_DIR}" "${READING_DIR}" &
+export _JAVA_OPTIONS=-Xmx1g ; ./bin/rest-consumer-loop-app-2 "${REST_CONSUMER_INPUT_DIR}" "${REST_CONSUMER_OUTPUT_DIR}" "${REST_CONSUMER_DONE_DIR}" "${DOCUMENT_DIR}" "${ONTOLOGY_DIR}" "${READING_DIR}" &
 sleep 5
-export _JAVA_OPTIONS=-Xmx512m ; ./bin/kafka-consumer-loop-app2 &
+export _JAVA_OPTIONS=-Xmx512m ; ./bin/kafka-consumer-loop-app-2 &
 sleep 5
 
 export _JAVA_OPTIONS=${MEMORY}
 export JAVA_OPTS=${MEMORY}
 
 # The container ends when eidos stops running.
-while ! ./bin/eidos-loop-app2 "${EIDOS_INPUT_DIR}" "${EIDOS_OUTPUT_DIR}" "${EIDOS_DONE_DIR}" "${DOCUMENT_DIR}" "${ONTOLOGY_DIR}" "${READING_DIR}" "${THREADS}"
+while ! ./bin/eidos-loop-app-2 "${EIDOS_INPUT_DIR}" "${EIDOS_OUTPUT_DIR}" "${EIDOS_DONE_DIR}" "${DOCUMENT_DIR}" "${ONTOLOGY_DIR}" "${READING_DIR}" "${THREADS}"
 do
   echo "It failed, so I am trying again in ${SLEEP} seconds."
   sleep ${SLEEP}
