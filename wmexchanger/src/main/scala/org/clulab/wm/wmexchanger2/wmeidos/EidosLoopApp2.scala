@@ -215,10 +215,12 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
             EidosLoopApp2.logger.info(s"Not yet queuing $name...")
         }
         EidosLoopApp2.synchronized {
+          val documentsBeingGrounded = filesBeingProcessed.size - documentsBeingRead.size
           println("-------------------------------")
           println(s"files: ${files.length}")
           println(s"filesBeingProcessed: ${filesBeingProcessed.size}")
           println(s"documentsBeingRead: ${documentsBeingRead.size}")
+          println(s"documentsBeingGrounded: $documentsBeingGrounded")
           println(s"documentsAlreadyRead: ${documentsAlreadyRead.size}")
           println("-------------------------------")
         }
