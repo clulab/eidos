@@ -1,8 +1,6 @@
 package org.clulab.wm.wmexchanger2.apps
 
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
-import org.clulab.wm.wmexchanger2.utils.Environment
-import org.clulab.wm.wmexchanger2.wmconsumer.RealRestDocumentConsumer
 import org.clulab.wm.wmexchanger2.wmproducer.RealRestProducer
 
 import java.io.File
@@ -16,11 +14,6 @@ object UploadReading extends App {
   val service = "https://wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com/dart/api/v1/readers/upload"
   val eidosVersion = "Feb2022IntTest"
   val ontologyVersion = "4.0"
-
-  Environment.setEnv {
-    new java.util.HashMap[String, String]() {
-    }
-  }
 
   val realRestProducer = new RealRestProducer(service, username, password, eidosVersion, ontologyVersion)
   realRestProducer.open()

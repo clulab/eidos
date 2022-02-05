@@ -11,7 +11,7 @@ object AppEnvironment {
   def isNotSet(keyValue: (String, String)): Boolean = Option(System.getenv(keyValue._1)).isEmpty
 
   def setEnv(env: Map[String, String]): Unit = {
-    Environment.setEnv(env.filter(isNotSet).asJava)
-    Environment.setEnv(etc.filter(isNotSet).asJava)
+//    Environment.setEnv(env.filter(isNotSet).asJava)
+//    Environment.setEnv(etc.filter(isNotSet).asJava)
   }
 }
