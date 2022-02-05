@@ -179,7 +179,7 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
           if (isAlreadyRead) {
             EidosLoopApp2.logger.info(s"Queing for grounding $name...")
             threadPoolExecutor.execute(
-              new Runnable() {
+              new NamedRunnable(name, "grounding") {
                 def run(): Unit = {
                   EidosLoopApp2.logger.info(s"Grounding $name...")
                   processGroundingFile(file, filesBeingProcessed, outputDistinguisher, doneDistinguisher)
@@ -192,7 +192,8 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
             EidosLoopApp2.logger.info(s"Queing for reading $name...")
             EidosLoopApp2.synchronized { documentsBeingRead += documentId }
             threadPoolExecutor.execute(
-              new Runnable() {
+              new NamedRunnable(name, "reading") {
+
                 def run(): Unit = {
                   EidosLoopApp2.logger.info(s"Reading $name...")
                   // Open and close so that -= is guaranteed
@@ -265,3 +266,5 @@ object EidosLoopApp2 extends LoopApp {
     }
   }
 }
+
+abstract class NamedRunnable(val name: String, val purpose: String) extends Runnable
