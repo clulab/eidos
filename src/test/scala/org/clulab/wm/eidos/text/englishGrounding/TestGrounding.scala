@@ -38,10 +38,58 @@ class TestGrounding extends EnglishGroundingTest {
       if (active) {
         val groundingNames = allGroundingNames(mention, topN, threshold)
         slot match {
-          case "theme" => groundingNames.head.head should be(value)
-          case "themeProperty" => groundingNames.head(1) should be(value)
-          case "process" => groundingNames.head(2) should be(value)
-          case "processProperty" => groundingNames.head(3) should be(value)
+          case "theme" =>
+            println(
+              "TEST",
+              "groundingShouldContain",
+              s""""${mention.odinMention.document.text.get}"""",
+              s""""${mention.odinMention.text}"""",
+              "theme",
+              value,
+              groundingNames.head.head,
+              groundingNames.head.head == value,
+              groundingNames.head(4)
+            )
+            groundingNames.head.head should be(value)
+          case "themeProperty" =>
+            println(
+              "TEST",
+              "groundingShouldContain",
+              s""""${mention.odinMention.document.text.get}"""",
+              s""""${mention.odinMention.text}"""",
+              "themeProperty",
+              value,
+              groundingNames.head(1),
+              groundingNames.head(1) == value,
+              groundingNames.head(5)
+            )
+            groundingNames.head(1) should be(value)
+          case "process" =>
+            println(
+              "TEST",
+              "groundingShouldContain",
+              s""""${mention.odinMention.document.text.get}"""",
+              s""""${mention.odinMention.text}"""",
+              "process",
+              value,
+              groundingNames.head(2),
+              groundingNames.head(2) == value,
+              groundingNames.head(6)
+            )
+            groundingNames.head(2) should be(value)
+          case "processProperty" =>
+            println(
+              "TEST",
+              "groundingShouldContain",
+              s""""${mention.odinMention.document.text.get}"""",
+              s""""${mention.odinMention.text}"""",
+              "processProperty",
+              value,
+              groundingNames.head(3),
+              groundingNames.head(3) == value,
+              groundingNames.head(7)
+            )
+            groundingNames.head(3) should be(value)
         }
       }
     }
@@ -49,10 +97,58 @@ class TestGrounding extends EnglishGroundingTest {
     def groundingShouldNotContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       val groundingNames = allGroundingNames(mention, topN, threshold)
       slot match {
-        case "theme" => groundingNames.head.head should not be(value)
-        case "themeProperty" => groundingNames.head(1) should not be(value)
-        case "process" => groundingNames.head(2) should not be(value)
-        case "processProperty" => groundingNames.head(3) should not be(value)
+        case "theme" =>
+          println(
+            "TEST",
+            "groundingShouldNotContain",
+            s""""${mention.odinMention.document.text.get}"""",
+            s""""${mention.odinMention.text}"""",
+            "theme",
+            value,
+            groundingNames.head.head,
+            groundingNames.head.head != value,
+            groundingNames.head(4)
+          )
+          groundingNames.head.head should not be(value)
+        case "themeProperty" =>
+          println(
+            "TEST",
+            "groundingShouldNotContain",
+            s""""${mention.odinMention.document.text.get}"""",
+            s""""${mention.odinMention.text}"""",
+            "themeProperty",
+            value,
+            groundingNames.head(1),
+            groundingNames.head(1) != value,
+            groundingNames.head(5)
+          )
+          groundingNames.head(1) should not be(value)
+        case "process" =>
+          println(
+            "TEST",
+            "groundingShouldNotContain",
+            s""""${mention.odinMention.document.text.get}"""",
+            s""""${mention.odinMention.text}"""",
+            "process",
+            value,
+            groundingNames.head(2),
+            groundingNames.head(2) != value,
+            groundingNames.head(6)
+          )
+          groundingNames.head(2) should not be(value)
+        case "processProperty" =>
+          println(
+            "TEST",
+            "groundingShouldNotContain",
+            s""""${mention.odinMention.document.text.get}"""",
+            s""""${mention.odinMention.text}"""",
+            "processProperty",
+            value,
+            groundingNames.head(3),
+            groundingNames.head(3) != value,
+            groundingNames.head(7)
+          )
+          groundingNames.head(3) should not be(value)
       }
     }
 
@@ -63,10 +159,58 @@ class TestGrounding extends EnglishGroundingTest {
     def properBranchForSlot(mention: EidosMention, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       val groundingNames = allGroundingNames(mention, topN, threshold)
       slot match {
-        case "theme" => testBranch(groundingNames.head.head, "wm/concept/")
-        case "themeProperty" => testBranch(groundingNames.head(1), "wm/property/")
-        case "process" => testBranch(groundingNames.head(2), "wm/process/")
-        case "processProperty" => testBranch(groundingNames.head(3), "wm/property/")
+        case "theme" =>
+          println(
+            "TEST",
+            "properBranchForSlot",
+            s""""${mention.odinMention.document.text.get}"""",
+            s""""${mention.odinMention.text}"""",
+            "theme",
+            if (groundingNames.head.head.nonEmpty) "wm/concept/" else "",
+            groundingNames.head.head,
+            if (groundingNames.head.head.nonEmpty) groundingNames.head.head.startsWith("wm/concept/") else groundingNames.head.head.startsWith(""),
+            groundingNames.head(4)
+          )
+          testBranch(groundingNames.head.head, "wm/concept/")
+        case "themeProperty" =>
+          println(
+            "TEST",
+            "properBranchForSlot",
+            s""""${mention.odinMention.document.text.get}"""",
+            s""""${mention.odinMention.text}"""",
+            "themeProperty",
+            if (groundingNames.head(1).nonEmpty) "wm/property/" else "",
+            groundingNames.head(1),
+            if (groundingNames.head(1).nonEmpty) groundingNames.head(1).startsWith("wm/property/") else groundingNames.head(1).startsWith(""),
+            groundingNames.head(5)
+          )
+          testBranch(groundingNames.head(1), "wm/property/")
+        case "process" =>
+          println(
+            "TEST",
+            "properBranchForSlot",
+            s""""${mention.odinMention.document.text.get}"""",
+            s""""${mention.odinMention.text}"""",
+            "process",
+            if (groundingNames.head(2).nonEmpty) "wm/process/" else "",
+            groundingNames.head(2),
+            if (groundingNames.head(2).nonEmpty) groundingNames.head(2).startsWith("wm/process/") else groundingNames.head(2).startsWith(""),
+            groundingNames.head(6)
+          )
+          testBranch(groundingNames.head(2), "wm/process/")
+        case "processProperty" =>
+          println(
+            "TEST",
+            "properBranchForSlot",
+            s""""${mention.odinMention.document.text.get}"""",
+            s""""${mention.odinMention.text}"""",
+            "processProperty",
+            if (groundingNames.head(3).nonEmpty) "wm/property/" else "",
+            groundingNames.head(3),
+            if (groundingNames.head(3).nonEmpty) groundingNames.head(3).startsWith("wm/property/") else groundingNames.head(3).startsWith(""),
+            groundingNames.head(7)
+          )
+          testBranch(groundingNames.head(3), "wm/property/")
       }
     }
   }
@@ -131,13 +275,19 @@ class TestGrounding extends EnglishGroundingTest {
           val predicateTuple = predicateGrounding.predicateTuple
           val theme = predicateTuple.theme
           val theme_name = theme.individualGroundings.headOption.map(_.name).getOrElse("")
+          val theme_score = theme.individualGroundings.headOption.map(_.score).getOrElse(0.0)
           val property = predicateTuple.themeProperties
           val property_name = property.individualGroundings.headOption.map(_.name).getOrElse("")
+          val property_score = property.individualGroundings.headOption.map(_.score).getOrElse(0.0)
+          property.individualGroundings.headOption.map(_.branchOpt)
           val process = predicateTuple.themeProcess
           val process_name = process.individualGroundings.headOption.map(_.name).getOrElse("")
+          val process_score = process.individualGroundings.headOption.map(_.score).getOrElse(0.0)
           val process_property = predicateTuple.themeProcessProperties
           val process_property_name = process_property.individualGroundings.headOption.map(_.name).getOrElse("")
-          val tuple = Seq(theme_name, property_name, process_name, process_property_name)
+          val process_property_score = process_property.individualGroundings.headOption.map(_.score).getOrElse(0.0)
+          val tuple = Seq(theme_name, property_name, process_name, process_property_name,
+            theme_score.toString, property_score.toString, process_score.toString, process_property_score.toString)
           tuple
         }
       }
@@ -207,7 +357,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -216,7 +366,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -239,7 +389,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -248,7 +398,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -272,7 +422,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -281,7 +431,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -304,7 +454,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -313,7 +463,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -336,7 +486,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -345,7 +495,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -368,7 +518,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -401,7 +551,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -410,7 +560,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -433,7 +583,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -442,7 +592,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -465,7 +615,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -474,7 +624,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -507,7 +657,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -531,7 +681,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -540,7 +690,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -564,7 +714,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -597,7 +747,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -606,7 +756,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -631,7 +781,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -640,7 +790,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -664,7 +814,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -673,7 +823,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -697,7 +847,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -778,7 +928,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -826,7 +976,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -859,7 +1009,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -892,7 +1042,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -901,7 +1051,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -934,7 +1084,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -943,7 +1093,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -976,7 +1126,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -985,7 +1135,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1018,7 +1168,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1027,7 +1177,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1057,7 +1207,7 @@ class TestGrounding extends EnglishGroundingTest {
 
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1066,7 +1216,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1095,7 +1245,7 @@ class TestGrounding extends EnglishGroundingTest {
     val notEffectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1104,7 +1254,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1155,7 +1305,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/goods/food", "", "wm/process/demand", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1164,7 +1314,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1183,7 +1333,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/tension", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1192,7 +1342,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1223,7 +1373,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1254,7 +1404,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1273,7 +1423,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/process/population/", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1282,7 +1432,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1307,7 +1457,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/agriculture/crop/sorghum", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1338,7 +1488,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/goods/food", "wm/property/insecurity", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1347,7 +1497,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1369,7 +1519,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1378,7 +1528,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1403,7 +1553,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/agriculture/disease/livestock_disease", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1412,7 +1562,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1446,7 +1596,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1468,7 +1618,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("", "", "wm/process/conflict/war", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1477,7 +1627,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1499,7 +1649,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/intervention", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1508,7 +1658,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1530,7 +1680,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1539,7 +1689,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1576,7 +1726,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1601,7 +1751,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/discontent", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1610,7 +1760,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1635,7 +1785,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/goods/food", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1644,7 +1794,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1669,7 +1819,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/environment/natural_resources/pasture", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1678,7 +1828,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1700,7 +1850,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1709,7 +1859,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1728,7 +1878,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/agriculture/crop/", "", "wm/process/production", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1737,7 +1887,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1768,7 +1918,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1787,7 +1937,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/health/treatment/preventative_treatment", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1796,7 +1946,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1818,7 +1968,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/poverty", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1827,7 +1977,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1846,7 +1996,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/property/price_or_cost", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1855,7 +2005,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1874,7 +2024,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/crisis_or_disaster/conflict/discontent", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1883,14 +2033,14 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
       tester.properBranchForSlot(effectMentions.head, slots(i))
       }
     }
-    failingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
+    passingTest should "NOT process cause theme incorrectly" taggedAs Somebody in {
       tester.groundingShouldNotContain(causeMentions.head, "wm/concept/crisis_or_disaster/conflict/discontent", "theme")
     }
     passingTest should "NOT process cause theme incorrectly 2" taggedAs Somebody in {
@@ -1911,7 +2061,7 @@ class TestGrounding extends EnglishGroundingTest {
     val effectGroundings = Seq("wm/concept/agriculture/crop/crops", "", "", "")
     // test cause slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
@@ -1920,7 +2070,7 @@ class TestGrounding extends EnglishGroundingTest {
     }
     // test effect slots
     for (i <- slots.indices) {
-      failingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
+      passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
         tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
       }
       passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
