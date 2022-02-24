@@ -78,11 +78,13 @@ class RestProducerLoopApp2(inputDir: String, outputDir: String, doneDir: String)
 
             synchronized {
               printWriter.println(s"${file.getAbsolutePath}\t$storageKey")
+              // Try to make the progress observable.
+              printWriter.flush()
             }
           }
         }
         else
-          close()
+          restProducer.close()
         Thread.sleep(pauseDuration)
       }
       close()
