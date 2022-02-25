@@ -29,6 +29,14 @@ class PredicateTuple protected (
   val themeProcessProperties: OntologyGrounding,
   val predicates: Set[Int]
 ) {
+  var count = 0
+  if (theme.nonEmpty) count += 1
+  if (themeProperties.nonEmpty) count += 1
+  if (themeProcess.nonEmpty) count += 1
+  if (themeProcessProperties.nonEmpty) count += 1
+
+  if (count > 1)
+    println("That's a relief!")
 
   def nameAndScore(gr: OntologyGrounding): String = nameAndScore(gr.headOption.get)
   def nameAndScore(gr: IndividualGrounding): String = {
@@ -89,12 +97,13 @@ object PredicateTuple {
     themeProcessProperties: OntologyGrounding,
     predicates: Set[Int]
   ): PredicateTuple = new PredicateTuple(
-    theme.filterSlots(SRLCompositionalGrounder.CONCEPT),
-    themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
-    themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS),
-    themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
-    predicates
-  )
+      theme.filterSlots(SRLCompositionalGrounder.CONCEPT),
+      themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
+      themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS),
+      themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
+      predicates
+    )
+  }
 }
 
 class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer)
@@ -230,7 +239,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
           exactMatchForPreds(mentionStrings, conceptEmbeddingsMap(branch))
         }
         if (exactSingleOntologyNodeGroundingAndRanges.isEmpty) None
-        else if (SRLCompositionalGrounder.processOrConceptBranches.length == 1)
+        else if (exactSingleOntologyNodeGroundingAndRanges.length == 1)
           Some(exactSingleOntologyNodeGroundingAndRanges.head) // Don't bother to resort.
         else {
           val bestExactSingleOntologyNodeGroundingAndRange = exactSingleOntologyNodeGroundingAndRanges.minBy { case (_, range) =>
@@ -284,7 +293,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     def groundWithPredicates(sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
       val mentionRange = Range(tokenInterval.start, tokenInterval.end)
       val mentionStrings = mentionRange.map(s.lemmas.get(_).toLowerCase).toArray // used to be words, now lemmas
-      val (exactPredicateGrounding, exactRange) = findExactPredicateGroundingAndRange(mentionStrings)
+      val (exactPredicateGrounding, relativeExactRange) = findExactPredicateGroundingAndRange(mentionStrings)
+      val exactRange = Range(relativeExactRange.start + mentionRange.start, relativeExactRange.end + mentionRange.start)
 
       if (exactRange.length >= mentionRange.length)
         Seq(exactPredicateGrounding)
