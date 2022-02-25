@@ -201,7 +201,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
     def emptyOrBranchToPredicateTuple(ontologyGrounding: OntologyGrounding): PredicateTuple = {
       if (ontologyGrounding.isEmpty)
-        // If there's nothing here, return an empty grounding.
+      // If there's nothing here, return an empty grounding.
         PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
       else {
         val branch = ontologyGrounding.individualGroundings.head.branchOpt.get
@@ -219,14 +219,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       val themePropertyOpt: Option[OntologyGrounding] = maybeProperty(tokenInterval, sentenceHelper)
       // First check for Property
       val predicateTuple =
-          if (themePropertyOpt.isDefined)
-            // If there is a Property, just return that
-            PredicateTuple(emptyOntologyGrounding, themePropertyOpt.get, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
-          else {
-            val maybeConceptOrProcess: OntologyGrounding = groundToBranches(SRLCompositionalGrounder.processOrConceptBranches, tokenInterval, s, topNOpt, thresholdOpt)
+        if (themePropertyOpt.isDefined)
+        // If there is a Property, just return that
+          PredicateTuple(emptyOntologyGrounding, themePropertyOpt.get, emptyOntologyGrounding, emptyOntologyGrounding, tokenInterval.toSet)
+        else {
+          val maybeConceptOrProcess: OntologyGrounding = groundToBranches(SRLCompositionalGrounder.processOrConceptBranches, tokenInterval, s, topNOpt, thresholdOpt)
 
-            emptyOrBranchToPredicateTuple(maybeConceptOrProcess)
-          }
+          emptyOrBranchToPredicateTuple(maybeConceptOrProcess)
+        }
 
       Seq(PredicateGrounding(predicateTuple))
     }
@@ -257,6 +257,61 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       (exactPredicateGrounding, exactRange)
     }
 
+    def combineExactAndInexact(exactPredicateGrounding: PredicateGrounding, inexactPredicateGrounding: PredicateGrounding): Option[PredicateGrounding] = {
+      // Make sure that inexactPredicateGrounding is not empty, because otherwise get the same thing that is included elsewhere.
+
+      println("This is nirvana!")
+
+      def option(ontologyGrounding: OntologyGrounding): Option[OntologyGrounding] = {
+        if (ontologyGrounding.isEmpty) None
+        else Some(ontologyGrounding)
+        // What if the OntologyGrounding has lots of individual groundings with their own scores
+        // Should they should be mixed and matched?  For now just take the head.
+      }
+
+      def getSlots(predicateGrounding: PredicateGrounding): Array[Option[OntologyGrounding]] = {
+        val predicateTuple = predicateGrounding.predicateTuple
+        // Do something about the score!
+        Array(
+          option(predicateTuple.theme),
+          option(predicateTuple.themeProperties),
+          option(predicateTuple.themeProcess),
+          option(predicateTuple.themeProcessProperties)
+        )
+      }
+
+      def combineSlots(exactSlots: Array[Option[OntologyGrounding]], inexactSlots: Array[Option[OntologyGrounding]]): Array[Option[OntologyGrounding]] = {
+        exactSlots.indices.map { index =>
+          if (exactSlots(index).isDefined) exactSlots(index)
+          else if (inexactSlots(index).isDefined) inexactSlots(index)
+          else None
+        }.toArray
+      }
+
+      def newPredicateGrounding(slots: Array[Option[OntologyGrounding]]): PredicateGrounding = {
+        PredicateGrounding(PredicateTuple(
+          slots(0).getOrElse(emptyOntologyGrounding),
+          slots(1).getOrElse(emptyOntologyGrounding),
+          slots(2).getOrElse(emptyOntologyGrounding),
+          slots(3).getOrElse(emptyOntologyGrounding),
+          Set() // What should this be?
+        ))
+      }
+
+      val exactSlots = getSlots(exactPredicateGrounding)
+      val inexactSlots = getSlots(inexactPredicateGrounding)
+      val differ = exactSlots.indices.exists { index =>
+        exactSlots(index).isEmpty && inexactSlots(index).isDefined
+      }
+
+      if (!differ) None
+      else {
+        val combinedSlots = combineSlots(exactSlots, inexactSlots)
+
+        Some(newPredicateGrounding(combinedSlots))
+      }
+    }
+
     def findInexactPredicateGroundings(exactPredicateGrounding: PredicateGrounding, exactRange: Range, mentionRange: Range, sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
       val inexactPredicateGroundings =
           for (index <- mentionRange if !exactRange.contains(index))
@@ -282,9 +337,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
             PredicateGrounding(predicateTuple)
           }
-      val predicateGroundings = exactPredicateGrounding +: inexactPredicateGroundings
-      val sortedPredicateGroundings = predicateGroundings.sortBy(-_.score)
-      val slicedPredicateGroundings = topNOpt.map(sortedPredicateGroundings.take).getOrElse(sortedPredicateGroundings)
+
+      val sortedInexactPredicateGroundings = inexactPredicateGroundings.sortBy(-_.score)
+      val combinedPredicateGroundings = sortedInexactPredicateGroundings.flatMap { inexactPredicateGrounding =>
+        combineExactAndInexact(exactPredicateGrounding, inexactPredicateGrounding)
+      }
+      // Do all the ones that can be combined, then the exact, then the individual inexact ones
+      val predicateGroundings = (combinedPredicateGroundings :+ exactPredicateGrounding) ++ inexactPredicateGroundings
+      val slicedPredicateGroundings = topNOpt.map(predicateGroundings.take).getOrElse(predicateGroundings)
 
       slicedPredicateGroundings
     }
@@ -296,8 +356,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
       if (exactRange.length >= mentionRange.length)
         Seq(exactPredicateGrounding)
-      else
+      else {
+        // Do we return both exact and inexact?
         findInexactPredicateGroundings(exactPredicateGrounding, exactRange, mentionRange, sentenceHelper)
+      }
     }
 
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
