@@ -258,20 +258,19 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
 
     def combineExactAndInexact(exactPredicateGrounding: PredicateGrounding, inexactPredicateGrounding: PredicateGrounding): Option[PredicateGrounding] = {
-      // Make sure that inexactPredicateGrounding is not empty, because otherwise get the same thing that is included elsewhere.
 
-      println("This is nirvana!")
+      def isEmpty(predicateGrounding: PredicateGrounding): Boolean =
+          predicateGrounding.predicateTuple.theme.isEmpty &&
+          predicateGrounding.predicateTuple.themeProperties.isEmpty &&
+          predicateGrounding.predicateTuple.themeProcess.isEmpty &&
+          predicateGrounding.predicateTuple.themeProcessProperties.isEmpty
 
-      def option(ontologyGrounding: OntologyGrounding): Option[OntologyGrounding] = {
-        if (ontologyGrounding.isEmpty) None
-        else Some(ontologyGrounding)
-        // What if the OntologyGrounding has lots of individual groundings with their own scores
-        // Should they should be mixed and matched?  For now just take the head.
-      }
+      def option(ontologyGrounding: OntologyGrounding): Option[OntologyGrounding] =
+          if (ontologyGrounding.isEmpty) None
+          else Some(ontologyGrounding)
 
       def getSlots(predicateGrounding: PredicateGrounding): Array[Option[OntologyGrounding]] = {
         val predicateTuple = predicateGrounding.predicateTuple
-        // Do something about the score!
         Array(
           option(predicateTuple.theme),
           option(predicateTuple.themeProperties),
@@ -280,35 +279,38 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         )
       }
 
-      def combineSlots(exactSlots: Array[Option[OntologyGrounding]], inexactSlots: Array[Option[OntologyGrounding]]): Array[Option[OntologyGrounding]] = {
-        exactSlots.indices.map { index =>
-          if (exactSlots(index).isDefined) exactSlots(index)
-          else if (inexactSlots(index).isDefined) inexactSlots(index)
-          else None
-        }.toArray
-      }
+      def combineSlots(exactSlots: Array[Option[OntologyGrounding]], inexactSlots: Array[Option[OntologyGrounding]]): Array[Option[OntologyGrounding]] =
+          exactSlots.indices.map { index =>
+            if (exactSlots(index).isDefined) exactSlots(index)
+            else if (inexactSlots(index).isDefined) inexactSlots(index)
+            else None
+          }.toArray
 
-      def newPredicateGrounding(slots: Array[Option[OntologyGrounding]]): PredicateGrounding = {
-        PredicateGrounding(PredicateTuple(
+      def newPredicateGrounding(slots: Array[Option[OntologyGrounding]], predicates: Set[Int]): PredicateGrounding = PredicateGrounding(
+        PredicateTuple(
           slots(0).getOrElse(emptyOntologyGrounding),
           slots(1).getOrElse(emptyOntologyGrounding),
           slots(2).getOrElse(emptyOntologyGrounding),
           slots(3).getOrElse(emptyOntologyGrounding),
-          Set() // What should this be?
-        ))
-      }
+          predicates
+        )
+      )
 
-      val exactSlots = getSlots(exactPredicateGrounding)
-      val inexactSlots = getSlots(inexactPredicateGrounding)
-      val differ = exactSlots.indices.exists { index =>
-        exactSlots(index).isEmpty && inexactSlots(index).isDefined
-      }
-
-      if (!differ) None
+      if (isEmpty(exactPredicateGrounding)) None
       else {
-        val combinedSlots = combineSlots(exactSlots, inexactSlots)
+        val exactSlots = getSlots(exactPredicateGrounding)
+        val inexactSlots = getSlots(inexactPredicateGrounding)
+        val differ = exactSlots.indices.exists { index =>
+          exactSlots(index).isEmpty && inexactSlots(index).isDefined
+        }
 
-        Some(newPredicateGrounding(combinedSlots))
+        if (!differ) None
+        else {
+          val combinedSlots = combineSlots(exactSlots, inexactSlots)
+          val predicates = exactPredicateGrounding.predicateTuple.predicates ++ inexactPredicateGrounding.predicateTuple.predicates
+
+          Some(newPredicateGrounding(combinedSlots, predicates))
+        }
       }
     }
 
@@ -338,13 +340,13 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
             PredicateGrounding(predicateTuple)
           }
 
-      val sortedInexactPredicateGroundings = inexactPredicateGroundings.sortBy(-_.score)
-      val combinedPredicateGroundings = sortedInexactPredicateGroundings.flatMap { inexactPredicateGrounding =>
+      val combinedPredicateGroundings = inexactPredicateGroundings.flatMap { inexactPredicateGrounding =>
         combineExactAndInexact(exactPredicateGrounding, inexactPredicateGrounding)
       }
-      // Do all the ones that can be combined, then the exact, then the individual inexact ones
+      // Do all the ones that can be combined, then the exact only, then the individual inexact ones.
       val predicateGroundings = (combinedPredicateGroundings :+ exactPredicateGrounding) ++ inexactPredicateGroundings
-      val slicedPredicateGroundings = topNOpt.map(predicateGroundings.take).getOrElse(predicateGroundings)
+      val sortedPredicateGroundings = predicateGroundings.sortBy(-_.score)
+      val slicedPredicateGroundings = topNOpt.map(sortedPredicateGroundings.take).getOrElse(sortedPredicateGroundings)
 
       slicedPredicateGroundings
     }
