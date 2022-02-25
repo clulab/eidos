@@ -97,13 +97,12 @@ object PredicateTuple {
     themeProcessProperties: OntologyGrounding,
     predicates: Set[Int]
   ): PredicateTuple = new PredicateTuple(
-      theme.filterSlots(SRLCompositionalGrounder.CONCEPT),
-      themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
-      themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS),
-      themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
-      predicates
-    )
-  }
+    theme.filterSlots(SRLCompositionalGrounder.CONCEPT),
+    themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
+    themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS),
+    themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
+    predicates
+  )
 }
 
 class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer)
@@ -232,11 +231,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       Seq(PredicateGrounding(predicateTuple))
     }
 
-    def findExactPredicateGroundingAndRange(mentionStrings: Array[String]): (PredicateGrounding, Range) = {
+    def findExactPredicateGroundingAndRange(mentionStrings: Array[String], mentionRange: Range): (PredicateGrounding, Range) = {
       // Try to exact match entire token interval
       val bestExactSingleOntologyNodeGroundingAndRangeOpt: Option[(OntologyNodeGrounding, Range)] = {
         val exactSingleOntologyNodeGroundingAndRanges = SRLCompositionalGrounder.processOrConceptBranches.flatMap { branch =>
-          exactMatchForPreds(mentionStrings, conceptEmbeddingsMap(branch))
+          exactMatchForPreds(mentionStrings, conceptEmbeddingsMap(branch), mentionRange)
         }
         if (exactSingleOntologyNodeGroundingAndRanges.isEmpty) None
         else if (exactSingleOntologyNodeGroundingAndRanges.length == 1)
@@ -293,8 +292,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     def groundWithPredicates(sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
       val mentionRange = Range(tokenInterval.start, tokenInterval.end)
       val mentionStrings = mentionRange.map(s.lemmas.get(_).toLowerCase).toArray // used to be words, now lemmas
-      val (exactPredicateGrounding, relativeExactRange) = findExactPredicateGroundingAndRange(mentionStrings)
-      val exactRange = Range(relativeExactRange.start + mentionRange.start, relativeExactRange.end + mentionRange.start)
+      val (exactPredicateGrounding, exactRange) = findExactPredicateGroundingAndRange(mentionStrings, mentionRange)
 
       if (exactRange.length >= mentionRange.length)
         Seq(exactPredicateGrounding)
