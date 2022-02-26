@@ -25,13 +25,14 @@ import scala.util.matching.Regex
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends OntologyGrounder {
 
+  val emptyOntologyGrounding: OntologyGrounding = OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt)
+
+  //def emptyOntologyGrounding(branchOpt: Option[String] = None) = new OntologyGrounding(domainOntology.version, domainOntology.date, branchOpt = branchOpt)
+
   def newOntologyGrounding(individualGroundings: OntologyAliases.IndividualGroundings = Seq.empty, branchOpt: Option[String] = None): OntologyGrounding = {
     OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt, individualGroundings, branchOpt)
   }
 
-  // This can be reused repeatedly.
-  //def emptyOntologyGrounding(branchOpt: Option[String] = None) = new OntologyGrounding(domainOntology.version, domainOntology.date, branchOpt = branchOpt)
-  val emptyOntologyGrounding: OntologyGrounding = OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt)
 
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
@@ -104,7 +105,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // If there was an exact match, returns Some of a tuple including the SingleOntologyNodeGrounding and the
   // Range of the match in the splitText so that we can tell how much of it was used.  No match results in None.
-  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding], range: Range): Option[(OntologyNodeGrounding, Range)] = {
+  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding], range: Range): Seq[(OntologyNodeGrounding, Range)] = {
     // This looks for exact string overlap only!
     // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
     // (or max length) and in case of ties, the min position in the sentence, so the leftmost match.
@@ -115,26 +116,27 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
       if (canonicalWords.isEmpty)
         // Non-leaf nodes end with a / resulting in an empty canonicalWords which we don't want to match.
-        None
+        Seq.empty
       else if (splitText.length >= canonicalWords.length) {
         // Text contains node name.
         val index = splitText.indexOfSlice(canonicalWords)
-        if (index < 0) None
+        if (index < 0) Seq.empty
         // Part or maybe all of the split text was matched, indicated by 1, favored.
         // Add range.start because splitText does not always begin the sentence.
-        else Some(-canonicalWords.length, index + range.start, 1, embedding.namer)
+        else Seq((-canonicalWords.length, index + range.start, 1, embedding.namer))
       }
       else {
         // Node name contains the text
         val index = canonicalWords.indexOfSlice(splitText)
-        if (index < 0) None
+        if (index < 0) Seq.empty
         // The entirety of splitText was matched, indicated by 2, disfavored.
         // Add range.start because splitText does not always begin the sentence.
-        else Some(-splitText.length, 0 + range.start, 2, embedding.namer)
+        else Seq((-splitText.length, 0 + range.start, 2, embedding.namer))
       }
     }
-    val result = Collection
-        .minOption(overlapTuples)
+    val result = overlapTuples
+        .sorted
+        .take(3)
         .map { overlapTuple =>
           val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
           val range = Range(overlapTuple._2, overlapTuple._2 - overlapTuple._1) // - because it is -length

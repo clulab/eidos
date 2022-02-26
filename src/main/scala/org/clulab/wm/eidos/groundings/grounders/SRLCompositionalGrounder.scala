@@ -29,15 +29,6 @@ class PredicateTuple protected (
   val themeProcessProperties: OntologyGrounding,
   val predicates: Set[Int]
 ) {
-  var count = 0
-  if (theme.nonEmpty) count += 1
-  if (themeProperties.nonEmpty) count += 1
-  if (themeProcess.nonEmpty) count += 1
-  if (themeProcessProperties.nonEmpty) count += 1
-
-  if (count > 1)
-    println("That's a relief!")
-
   def nameAndScore(gr: OntologyGrounding): String = nameAndScore(gr.headOption.get)
   def nameAndScore(gr: IndividualGrounding): String = {
     s"${gr.name} (${gr.score})"
@@ -73,7 +64,7 @@ class PredicateTuple protected (
       sb.mkString("")
     }
     else
-      "Empty Compositional Grounding"
+      "Themeless Compositional Grounding"
   }
   val score: Float = {
     val themeScoreOpt = theme.individualGroundings.headOption.map(_.score)
@@ -106,7 +97,9 @@ object PredicateTuple {
 }
 
 class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer)
-  extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
+    extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
+
+  val emptyPredicateTuple: PredicateTuple = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set.empty)
 
   lazy val proc: CluProcessor = {
     Utils.initializeDyNet()
@@ -237,8 +230,8 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       }
 
       exactSingleOntologyNodeGroundingAndRanges.map { case (ontologyNodeGrounding, range) =>
-        val sth = newOntologyGrounding(Seq(ontologyNodeGrounding))
-        val exactPredicateGrounding = PredicateGrounding(emptyOrBranchToPredicateTuple(sth))
+        val ontologyGrounding = newOntologyGrounding(Seq(ontologyNodeGrounding))
+        val exactPredicateGrounding = PredicateGrounding(emptyOrBranchToPredicateTuple(ontologyGrounding))
         (exactPredicateGrounding, range)
       }
     }
@@ -340,29 +333,17 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     def groundWithPredicates(sentenceHelper: SentenceHelper, predicates: Seq[Int]): Seq[PredicateGrounding] = {
       val mentionRange = Range(tokenInterval.start, tokenInterval.end)
       val mentionStrings = mentionRange.map(s.lemmas.get(_).toLowerCase).toArray // used to be words, now lemmas
-      val somethings = findExactPredicateGroundingAndRange(mentionStrings, mentionRange)
+      val exactPredicateGroundingsAndRanges = {
+        val exactPredicateGroundingsAndRanges = findExactPredicateGroundingAndRange(mentionStrings, mentionRange)
 
-      if (exactRange.length >= mentionRange.length)
-        Seq(exactPredicateGrounding)
-      else {
-        val nearPredicates = predicates.filterNot(exactRange.contains)
-        val nearPredicatesAndPredicateGroundings = nearPredicates.map { predicate =>
-          (predicate, findNearPredicateGrounding(predicate))
-        }
-        val exactAndInexact = findInexactPredicateGroundings(exactPredicateGrounding, exactRange, mentionRange, sentenceHelper)
-        val nearAndInexact =  nearPredicatesAndPredicateGroundings.flatMap { case (predicate, nearPredicateGrounding) =>
-          findInexactPredicateGroundings(nearPredicateGrounding, Range(predicate, predicate + 1), mentionRange, sentenceHelper)
-        }
-
-        (exactAndInexact ++ nearAndInexact).sortBy(-_.score)
+        if (exactPredicateGroundingsAndRanges.nonEmpty) exactPredicateGroundingsAndRanges
+        else Seq((PredicateGrounding(emptyPredicateTuple), Range(0, 0)))
       }
-    }
+      val exactAndInexact = exactPredicateGroundingsAndRanges.flatMap { case (predicateGrounding, range) =>
+        findInexactPredicateGroundings(predicateGrounding, range, mentionRange, sentenceHelper)
+      }
 
-    def findNearPredicateGrounding(predicateIndex: Int): PredicateGrounding = {
-      val conceptOntologyGrounding = groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(predicateIndex), s, topNOpt, thresholdOpt)
-      val predicateTuple = PredicateTuple(conceptOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set(predicateIndex))
-
-      PredicateGrounding(predicateTuple)
+      exactAndInexact.sortBy(-_.score)
     }
 
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
@@ -556,8 +537,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
     newOntologyGrounding(filtered)
   }
-
-  def emptyPredicateTuple: PredicateTuple = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set.empty)
 
   case class GraphNode(index: Int, sentenceHelper: SentenceHelper, backoff: Boolean, topN: Option[Int], threshold: Option[Float], ancestors: Set[Int]) {
     lazy val groundedSpan: GroundedSpan = groundToken(index, sentenceHelper, topN, threshold)
