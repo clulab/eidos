@@ -26,4 +26,11 @@ class TestNoisyOr extends Test {
 
     result should be > 0f
   }
+
+  it should "give a higher score when there are more items" in {
+    val result1 = GroundingUtils.noisyOr(Seq(1f))
+    val result2 = GroundingUtils.noisyOr(Seq(1f, 1f))
+
+    result2 should be > result1
+  }
 }
