@@ -123,7 +123,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         if (index < 0) Seq.empty
         // Part or maybe all of the split text was matched, indicated by 1, favored.
         // Add range.start because splitText does not always begin the sentence.
-        else Seq((-canonicalWords.length, index + range.start, 1, embedding.namer))
+        else Seq((canonicalWords.length, index + range.start, 1, embedding.namer))
       }
       else {
         // Node name contains the text
@@ -131,20 +131,27 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         if (index < 0) Seq.empty
         // The entirety of splitText was matched, indicated by 2, disfavored.
         // Add range.start because splitText does not always begin the sentence.
-        else Seq((-splitText.length, 0 + range.start, 2, embedding.namer))
+        else Seq((splitText.length, 0 + range.start, 2, embedding.namer))
       }
     }
-    val result = overlapTuples
-        .sorted
-        .take(3)
-        .map { overlapTuple =>
-          val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
-          val range = Range(overlapTuple._2, overlapTuple._2 - overlapTuple._1) // - because it is -length
+    // There may be a lot of ties of length 1 and picking the winner by sentence
+    // position isn't warrented.  Instead, use all with maximum length.
+    val results =
+        if (overlapTuples.isEmpty) Seq.empty
+        else {
+          val maxLength = overlapTuples.maxBy(_._1)._1
 
-          (singleOntologyNodeGrounding, range)
+          overlapTuples
+              .filter(_._1 == maxLength)
+              .map { overlapTuple =>
+                val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
+                val range = Range(overlapTuple._2, overlapTuple._2 + overlapTuple._1)
+
+                (singleOntologyNodeGrounding, range)
+              }
         }
 
-    result
+    results
   }
 
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): IndividualGroundings = {
