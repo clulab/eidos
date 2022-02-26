@@ -231,30 +231,16 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       Seq(PredicateGrounding(predicateTuple))
     }
 
-    def findExactPredicateGroundingAndRange(mentionStrings: Array[String], mentionRange: Range): (PredicateGrounding, Range) = {
-      // Try to exact match entire token interval
-      val bestExactSingleOntologyNodeGroundingAndRangeOpt: Option[(OntologyNodeGrounding, Range)] = {
-        val exactSingleOntologyNodeGroundingAndRanges = SRLCompositionalGrounder.processOrConceptBranches.flatMap { branch =>
-          exactMatchForPreds(mentionStrings, conceptEmbeddingsMap(branch), mentionRange)
-        }
-        if (exactSingleOntologyNodeGroundingAndRanges.isEmpty) None
-        else if (exactSingleOntologyNodeGroundingAndRanges.length == 1)
-          Some(exactSingleOntologyNodeGroundingAndRanges.head) // Don't bother to resort.
-        else {
-          val bestExactSingleOntologyNodeGroundingAndRange = exactSingleOntologyNodeGroundingAndRanges.minBy { case (_, range) =>
-            (-range.length, range.start)
-          }
-          Some(bestExactSingleOntologyNodeGroundingAndRange)
-        }
+    def findExactPredicateGroundingAndRange(mentionStrings: Array[String], mentionRange: Range): Seq[(PredicateGrounding, Range)] = {
+      val exactSingleOntologyNodeGroundingAndRanges = SRLCompositionalGrounder.processOrConceptBranches.flatMap { branch =>
+        exactMatchForPreds(mentionStrings, conceptEmbeddingsMap(branch), mentionRange)
       }
-      val (exactOntologyGrounding, exactRange) =
-        if (bestExactSingleOntologyNodeGroundingAndRangeOpt.isEmpty)
-          (emptyOntologyGrounding, Range(0, 0)) // aka Range.empty
-        else
-          (newOntologyGrounding(Seq(bestExactSingleOntologyNodeGroundingAndRangeOpt.get._1)), bestExactSingleOntologyNodeGroundingAndRangeOpt.get._2)
-      val exactPredicateGrounding = PredicateGrounding(emptyOrBranchToPredicateTuple(exactOntologyGrounding))
 
-      (exactPredicateGrounding, exactRange)
+      exactSingleOntologyNodeGroundingAndRanges.map { case (ontologyNodeGrounding, range) =>
+        val sth = newOntologyGrounding(Seq(ontologyNodeGrounding))
+        val exactPredicateGrounding = PredicateGrounding(emptyOrBranchToPredicateTuple(sth))
+        (exactPredicateGrounding, range)
+      }
     }
 
     def combineExactAndInexact(exactPredicateGrounding: PredicateGrounding, inexactPredicateGrounding: PredicateGrounding): Option[PredicateGrounding] = {
@@ -351,24 +337,39 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       slicedPredicateGroundings
     }
 
-    def groundWithPredicates(sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
+    def groundWithPredicates(sentenceHelper: SentenceHelper, predicates: Seq[Int]): Seq[PredicateGrounding] = {
       val mentionRange = Range(tokenInterval.start, tokenInterval.end)
       val mentionStrings = mentionRange.map(s.lemmas.get(_).toLowerCase).toArray // used to be words, now lemmas
-      val (exactPredicateGrounding, exactRange) = findExactPredicateGroundingAndRange(mentionStrings, mentionRange)
+      val somethings = findExactPredicateGroundingAndRange(mentionStrings, mentionRange)
 
       if (exactRange.length >= mentionRange.length)
         Seq(exactPredicateGrounding)
       else {
-        // Do we return both exact and inexact?
-        findInexactPredicateGroundings(exactPredicateGrounding, exactRange, mentionRange, sentenceHelper)
+        val nearPredicates = predicates.filterNot(exactRange.contains)
+        val nearPredicatesAndPredicateGroundings = nearPredicates.map { predicate =>
+          (predicate, findNearPredicateGrounding(predicate))
+        }
+        val exactAndInexact = findInexactPredicateGroundings(exactPredicateGrounding, exactRange, mentionRange, sentenceHelper)
+        val nearAndInexact =  nearPredicatesAndPredicateGroundings.flatMap { case (predicate, nearPredicateGrounding) =>
+          findInexactPredicateGroundings(nearPredicateGrounding, Range(predicate, predicate + 1), mentionRange, sentenceHelper)
+        }
+
+        (exactAndInexact ++ nearAndInexact).sortBy(-_.score)
       }
+    }
+
+    def findNearPredicateGrounding(predicateIndex: Int): PredicateGrounding = {
+      val conceptOntologyGrounding = groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(predicateIndex), s, topNOpt, thresholdOpt)
+      val predicateTuple = PredicateTuple(conceptOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set(predicateIndex))
+
+      PredicateGrounding(predicateTuple)
     }
 
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
     val validPredicates = sentenceHelper.validPredicates.sorted
     val srlGrounding =
         if (validPredicates.isEmpty) groundWithoutPredicates(sentenceHelper)
-        else groundWithPredicates(sentenceHelper)
+        else groundWithPredicates(sentenceHelper, validPredicates)
 
     Seq(newOntologyGrounding(srlGrounding))
   }
