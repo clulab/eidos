@@ -140,15 +140,17 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         if (overlapTuples.isEmpty) Seq.empty // Avoid maxBy on empty.
         else {
           val maxLength = overlapTuples.maxBy(_._1)._1
+          val maxOverlapTuples=  overlapTuples.filter(_._1 == maxLength).sorted
+          val limitedOverlapTuples =
+              if (maxLength == 1) maxOverlapTuples.take(1) // used to be only head
+              else maxOverlapTuples
 
-          overlapTuples
-              .filter(_._1 == maxLength)
-              .map { overlapTuple =>
-                val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
-                val range = Range(overlapTuple._2, overlapTuple._2 + overlapTuple._1)
+          limitedOverlapTuples.map { overlapTuple =>
+            val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
+            val range = Range(overlapTuple._2, overlapTuple._2 + overlapTuple._1)
 
-                (singleOntologyNodeGrounding, range) // We've lost the branch here.
-              }
+            (singleOntologyNodeGrounding, range)
+          }
         }
 
     results
