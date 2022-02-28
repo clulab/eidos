@@ -33,4 +33,10 @@ class TestNoisyOr extends Test {
 
     result2 should be > result1
   }
+
+  it should "get zero for empty" in {
+    val result = GroundingUtils.noisyOr(Seq.empty[Float])
+
+    result should be (0.0f)
+  }
 }
