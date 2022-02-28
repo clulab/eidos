@@ -25,63 +25,78 @@ class PredicateTuple protected (
   val themeProcess: OntologyGrounding,
   val themeProcessProperties: OntologyGrounding,
   val predicates: Set[Int]
-) {
-
-  def nameAndScore(gr: OntologyGrounding): String = nameAndScore(gr.headOption.get)
-
-  def nameAndScore(gr: IndividualGrounding): String = s"${gr.name} (${gr.score})"
-
-  override def toString: String = {
-
-    def slotToString(grounding: OntologyGrounding, label: String): Option[String] = grounding
-        .individualGroundings
-        .headOption
-        .map(label + nameAndScore(_))
-
-    Array(
-      slotToString(theme, "THEME: "),
-      slotToString(themeProperties, "Theme properties: "),
-      slotToString(themeProcess, "THEME PROCESS: "),
-      slotToString(themeProcessProperties, "Process properties: ")
-    ).flatten.mkString("\n")
+) extends IndexedSeq[OntologyGrounding] {
+  val score: Float = {
+    val allScores = indices.map(getScoreOpt).flatten
+    GroundingUtils.noisyOr(allScores)
   }
+  val labelers: Array[Unit => String] = Array(
+    { _ => nameAndScore(theme) },
+    { _ => themeProperties.take(5).map(nameAndScore).mkString(", ") },
+    { _ => nameAndScore(themeProcess) },
+    { _ => themeProcessProperties.take(5).map(nameAndScore).mkString(", ") }
+  )
+
+  override def length: Int = 4
+
+  def apply(index: Int): OntologyGrounding = {
+    index match {
+      case 0 => theme
+      case 1 => themeProperties
+      case 2 => themeProcess
+      case 3 => themeProcessProperties
+    }
+  }
+
+  def getScoreOpt(index: Int): Option[Float] = this(index).individualGroundings.headOption.map(_.score * PredicateTuple.weights(index))
+
+  def nameAndScore(index: Int): String = nameAndScore(this(index))
+
+  def nameAndScore(ontologyGrounding: OntologyGrounding): String = nameAndScore(ontologyGrounding.headOption.get)
+
+  def nameAndScore(individualGrounding: IndividualGrounding): String = s"${individualGrounding.name} (${individualGrounding.score})"
+
+  def indexToStringOpt(index: Int): Option[String] = this(index)
+      .individualGroundings
+      .headOption
+      .map(PredicateTuple.labels(index) + nameAndScore(_))
+
+  override def toString: String = indices
+      .map(indexToStringOpt)
+      .flatten
+      .mkString("\n")
 
   val name: String = {
     var hasSome = false
 
-    def someIf(condition: Boolean, f: => String): Option[String] = {
-      if (condition) {
+    def someIf(grounding: OntologyGrounding, label: String, separator: String, labeler: Unit => String): Option[String] = {
+      if (grounding.isEmpty) None
+      else {
+        val string = (if (hasSome) separator else "") + label + labeler()
         hasSome = true
-        Some(f)
+        Some(string)
       }
-      else None
     }
 
-    Array(
-      someIf(theme.nonEmpty, s"THEME: ${nameAndScore(theme)}"),
-      someIf(hasSome && themeProperties.nonEmpty, ", "),
-      someIf(themeProperties.nonEmpty, s"Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}"),
-      someIf(hasSome && themeProcess.nonEmpty, "; "),
-      someIf(themeProcess.nonEmpty, s"THEME PROCESS: ${nameAndScore(themeProcess)}"),
-      someIf(hasSome && themeProcessProperties.nonEmpty, ", "),
-      someIf(themeProcessProperties.nonEmpty, s"Process properties: ${themeProcessProperties.take(5).map(nameAndScore).mkString(", ")}")
-    ).flatten.mkString("")
-  }
-  val score: Float = {
-    val themeScoreOpt = theme.individualGroundings.headOption.map(_.score)
-    val themeProcessScoreOpt = themeProcess.individualGroundings.headOption.map(_.score)
-
-    val themePropertyScoreOpt = themeProperties.individualGroundings.headOption.map(_.score * 0.5f)
-    val themeProcessPropertyScoreOpt = themeProcessProperties.individualGroundings.headOption.map(_.score * 0.5f)
-
-    val allScores = (themeScoreOpt ++ themeProcessScoreOpt ++ themePropertyScoreOpt ++ themeProcessPropertyScoreOpt).toSeq
-    if (allScores.isEmpty) 0.0f
-//    else (allScores.toSeq.sum / allScores.toSeq.length)
-    else GroundingUtils.noisyOr(allScores)
+    indices
+        .map { index =>
+          someIf(this(index), PredicateTuple.labels(index), PredicateTuple.separators(index), labelers(index))
+        }
+        .flatten
+        .mkString("")
   }
 }
 
 object PredicateTuple {
+  val labels = Array(
+    "THEME: ",
+    "Theme properties: ",
+    "THEME PROCESS: ",
+    "Process properties: "
+  )
+  val separators = Array("; ", ", ", "; ", ", ")
+  val weights = Array(1f, 0.5f, 1f, 0.5f)
+
   def apply(
     theme: OntologyGrounding,
     themeProperties: OntologyGrounding,
@@ -303,7 +318,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       // If an inexactPredicateGrounding conflicts in branch (actually slot) with the exactPredicateGrounding, only
       // the exact version is used when they are combined.
       val exactRange = exactPredicateGroundingAndRangeOpt.map(_._2).getOrElse(Range(0, 0))
-      val inexactPredicateGroundings = mentionRange.indices
+      val inexactPredicateGroundings = mentionRange
           .filterNot(exactRange.contains)
           .map { index =>
             val themePropertyOpt: Option[OntologyGrounding] = maybeProperty(Interval(index), sentenceHelper)
