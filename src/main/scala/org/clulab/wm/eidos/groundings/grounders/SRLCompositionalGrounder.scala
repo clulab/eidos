@@ -286,14 +286,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       if (isEmpty(exactPredicateGrounding)) None
       else {
         val exactSlotOpts = getSlotOpts(exactPredicateGrounding)
-        val inexactSlotOpts = getSlotOpts(inexactPredicateGrounding)
+        val inexactSlots = getSlotOpts(inexactPredicateGrounding)
         val differ = exactSlotOpts.indices.exists { index =>
-          exactSlotOpts(index).isEmpty && inexactSlotOpts(index).isDefined
+          exactSlotOpts(index).isEmpty && inexactSlots(index).isDefined
         }
 
         if (!differ) None
         else {
-          val combinedSlots = combineSlots(exactSlotOpts, inexactSlotOpts)
+          val combinedSlots = combineSlots(exactSlotOpts, inexactSlots)
           val predicates = exactPredicateGrounding.predicateTuple.predicates ++ inexactPredicateGrounding.predicateTuple.predicates
 
           Some(newPredicateGrounding(combinedSlots, predicates))
