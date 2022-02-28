@@ -26,42 +26,46 @@ class PredicateTuple protected (
   val themeProcessProperties: OntologyGrounding,
   val predicates: Set[Int]
 ) {
+
   def nameAndScore(gr: OntologyGrounding): String = nameAndScore(gr.headOption.get)
-  def nameAndScore(gr: IndividualGrounding): String = {
-    s"${gr.name} (${gr.score})"
-  }
+
+  def nameAndScore(gr: IndividualGrounding): String = s"${gr.name} (${gr.score})"
 
   override def toString: String = {
-    val sb = new ArrayBuffer[String]()
 
-    def append(grounding: OntologyGrounding, label: String): Unit = {
-      val single = grounding.individualGroundings.take(1)
+    def slotToString(grounding: OntologyGrounding, label: String): Option[String] = grounding
+        .individualGroundings
+        .headOption
+        .map(label + nameAndScore(_))
 
-      if (single.nonEmpty)
-        sb.append(label + nameAndScore(single.head))
-    }
-
-    append(theme, "THEME: ")
-    append(themeProperties, "Theme properties: ")
-    append(themeProcess, "THEME PROCESS: ")
-    append(themeProcessProperties, "Process properties: ")
-    sb.mkString("\n")
+    Array(
+      slotToString(theme, "THEME: "),
+      slotToString(themeProperties, "Theme properties: "),
+      slotToString(themeProcess, "THEME PROCESS: "),
+      slotToString(themeProcessProperties, "Process properties: ")
+    ).flatten.mkString("\n")
   }
 
   val name: String = {
-    if (theme.nonEmpty) {
-      val sb = new ArrayBuffer[String]()
+    var hasSome = false
 
-      def appendIf(condition: Boolean, f: => String): Unit = if (condition) sb.append(f)
-
-      appendIf(condition = true, s"THEME: ${nameAndScore(theme)}")
-      appendIf(themeProperties.nonEmpty, s" , Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}")
-      appendIf(themeProcess.nonEmpty, s"; THEME PROCESS: ${nameAndScore(themeProcess)}")
-      appendIf(themeProcessProperties.nonEmpty, s", Process properties: ${themeProcessProperties.take(5).map(nameAndScore).mkString(", ")}")
-      sb.mkString("")
+    def someIf(condition: Boolean, f: => String): Option[String] = {
+      if (condition) {
+        hasSome = true
+        Some(f)
+      }
+      else None
     }
-    else
-      "Themeless Compositional Grounding"
+
+    Array(
+      someIf(theme.nonEmpty, s"THEME: ${nameAndScore(theme)}"),
+      someIf(hasSome && themeProperties.nonEmpty, ", "),
+      someIf(themeProperties.nonEmpty, s"Theme properties: ${themeProperties.take(5).map(nameAndScore).mkString(", ")}"),
+      someIf(hasSome && themeProcess.nonEmpty, "; "),
+      someIf(themeProcess.nonEmpty, s"THEME PROCESS: ${nameAndScore(themeProcess)}"),
+      someIf(hasSome && themeProcessProperties.nonEmpty, ", "),
+      someIf(themeProcessProperties.nonEmpty, s"Process properties: ${themeProcessProperties.take(5).map(nameAndScore).mkString(", ")}")
+    ).flatten.mkString("")
   }
   val score: Float = {
     val themeScoreOpt = theme.individualGroundings.headOption.map(_.score)
