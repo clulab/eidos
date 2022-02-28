@@ -105,7 +105,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // If there was an exact match, returns Some of a tuple including the SingleOntologyNodeGrounding and the
   // Range of the match in the splitText so that we can tell how much of it was used.  No match results in None.
-  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding], range: Range): Seq[(OntologyNodeGrounding, Range)] = {
+  def exactMatchesForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding], range: Range): Seq[(OntologyNodeGrounding, Range)] = {
     // This looks for exact string overlap only!
     // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
     // (or max length) and in case of ties, the min position in the sentence, so the leftmost match.
@@ -135,9 +135,9 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
       }
     }
     // There may be a lot of ties of length 1 and picking the winner by sentence
-    // position isn't warrented.  Instead, use all with maximum length.
+    // position isn't warranted.  Instead, use all with maximum length.
     val results =
-        if (overlapTuples.isEmpty) Seq.empty
+        if (overlapTuples.isEmpty) Seq.empty // Avoid maxBy on empty.
         else {
           val maxLength = overlapTuples.maxBy(_._1)._1
 
@@ -147,7 +147,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
                 val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
                 val range = Range(overlapTuple._2, overlapTuple._2 + overlapTuple._1)
 
-                (singleOntologyNodeGrounding, range)
+                (singleOntologyNodeGrounding, range) // We've lost the branch here.
               }
         }
 
