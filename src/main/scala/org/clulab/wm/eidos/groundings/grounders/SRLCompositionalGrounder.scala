@@ -304,10 +304,17 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     def findInexactPredicateGroundings(mentionRange: Range, sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
       val isArgs = mentionRange.map(sentenceHelper.isArg) // concept
       val mentionStart = mentionRange.start
-      val conceptGroundingOpt = isArgs.indices.find(isArgs).map { index => groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(mentionStart + index), s, topNOpt, thresholdOpt) }
+
+      // We're using the first one we find.
+      val conceptIndexOpt = isArgs.indices.find(isArgs)
+      val conceptGroundingOpt = conceptIndexOpt.map { index => groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(mentionStart + index), s, topNOpt, thresholdOpt) }
       val conceptGrounding = conceptGroundingOpt.getOrElse(emptyOntologyGrounding)
-      val processGroundingOpt = isArgs.indices.find(!isArgs(_)).map { index => groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(mentionStart + index), s, topNOpt, thresholdOpt) }
+
+      // We're using the first one we find.
+      val processIndexOpt = isArgs.indices.find(!isArgs(_))
+      val processGroundingOpt = processIndexOpt.map { index => groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(mentionStart + index), s, topNOpt, thresholdOpt) }
       val processGrounding = processGroundingOpt.getOrElse(emptyOntologyGrounding)
+
       val propertyOntologyGroundingOpts = mentionRange.map { index => maybeProperty(Interval(index), sentenceHelper) }
       val indices = isArgs.indices
       val inexactPredicateTuples = indices
@@ -317,6 +324,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
             val rightNonPropertyIndexOpt = indices.find { innerIndex => innerIndex > index && propertyOntologyGroundingOpts(innerIndex).isEmpty }
             if (rightNonPropertyIndexOpt.isDefined && (conceptGroundingOpt.isDefined || processGroundingOpt.isDefined)) {
               if (isArgs(rightNonPropertyIndexOpt.get))
+                // This uses the first conceptGrounding or processGrounding found, not the one to the right.
+                // However, we don't want to ground every single word.  It is more to figure out what kind of thing
+                // it might be modifying and then applying it to what we already have.  (It's a hack.)
                 PredicateTuple(conceptGrounding, propertyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set(index))
               else
                 PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, processGrounding, propertyOntologyGrounding, Set(index))
