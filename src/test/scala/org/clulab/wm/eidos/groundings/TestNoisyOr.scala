@@ -39,4 +39,21 @@ class TestNoisyOr extends Test {
 
     result should be (0.0f)
   }
+
+  ignore should "get bigger for bigger when over 1" in {
+    // These happen to be actual values seen in practice.
+    val small = GroundingUtils.noisyOr(Seq(1.8379604816436768f, 0.874017596244812f * 0.5f))
+    val large = GroundingUtils.noisyOr(Seq(1.8379604816436768f, 1.0f * 0.5f))
+
+    println(small)
+    println(large)
+    small should be < large
+  }
+
+  it should "get bigger for bigger when under 1" in {
+    val small = GroundingUtils.noisyOr(Seq(0.9f, 0.874017596244812f * 0.5f))
+    val large = GroundingUtils.noisyOr(Seq(0.9f, 1.0f * 0.5f))
+
+    small should be < large
+  }
 }
