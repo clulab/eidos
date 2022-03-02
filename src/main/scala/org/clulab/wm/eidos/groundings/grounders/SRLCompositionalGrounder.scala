@@ -344,10 +344,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
 
     def getBest(indexes: Seq[Int], ontologyGroundingOpts: Seq[Option[OntologyGrounding]]): Option[OntologyGrounding] = {
-      val ontologyGroundings = indexes.map(ontologyGroundingOpts(_).get)
-
-      if (ontologyGroundings.isEmpty) None
-      else Some(ontologyGroundings.maxBy(_.individualGroundings.head.score))
+      if (indexes.isEmpty) None
+      else {
+        val ontologyGroundings = indexes.map(ontologyGroundingOpts(_).get)
+        Some(ontologyGroundings.maxBy(_.individualGroundings.head.score))
+      }
     }
 
     def isStopword(sentenceHelper: SentenceHelper, index: Int): Boolean = {
