@@ -333,13 +333,23 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
     def indexAndCountToCount(position: Int, leftIndexAndCountOpt: Option[(Int, Int)], rightIndexAndCountOpt: Option[(Int, Int)]): Int = {
       (leftIndexAndCountOpt, rightIndexAndCountOpt) match {
-        case (Some((leftIndex, leftCount)), Some((rightIndex, rightCount))) =>
-          // Whichever is closest to the position.
-          if (math.abs(position - leftIndex) < math.abs(position - rightIndex)) leftCount
-          else -rightCount
-        case (Some((_, leftCount)), None) => leftCount
-        case (None, Some((_, rightCount))) => -rightCount
         case (None, None) => 0
+        case (None, Some((_, rightCount))) => rightCount
+        case (Some((_, leftCount)), None) => leftCount
+        case (Some((leftIndex, leftCount)), Some((rightIndex, rightCount))) =>
+          // Whichever is closest to the position and when tied, the value that
+          // is higher than position because we favor right, even though it might
+          // be the higher numbered arg or pred.
+          val leftDist = math.abs(position - leftIndex)
+          val rightDist = math.abs(position - rightIndex)
+          if (leftDist < rightDist) leftCount
+          else if (leftDist == rightDist) {
+            // These should not ever be equal because then there would be an
+            // arg and pred at the same position.
+            if (leftIndex > rightIndex) leftIndex
+            else rightIndex
+          }
+          else rightCount
       }
     }
 
@@ -355,6 +365,48 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       val pos = sentenceHelper.sentence.tags.get(index)
 
       SRLCompositionalGrounder.skipwordPartsOfSpeech.exists(pos.startsWith)
+    }
+
+    def findWhereAndWhatOptAround[T](values: IndexedSeq[T], position: Int)(f: T => Boolean): Option[(Int, T)] = {
+      val whereAndWhatOptBefore = Collection.findWhereAndWhatOptBefore(values, position)(f)
+      val whereAndWhatOptAfter = Collection.findWhereAndWhatOptAfter(values, position)(f)
+
+      ((whereAndWhatOptBefore, whereAndWhatOptAfter)) match {
+        case (None, None) => None
+        case (None, some) => some
+        case (some, None) => some
+        case (Some(before), Some(after)) =>
+          // Prefer the one after in case of ties.
+          if (math.abs(after._1 - position) <= math.abs(before._1 - position)) Some(after)
+          else Some(before)
+      }
+    }
+
+    def getAroundCount(index: Int, intArgs: IndexedSeq[Int], intPreds: IndexedSeq[Int]): Int = {
+      val argWhereAndWhatOpt: Option[(Int, Int)] = findWhereAndWhatOptAround(intArgs, index)(_ != 0)
+      val predWhereAndWhatOpt: Option[(Int, Int)] = findWhereAndWhatOptAround(intPreds, index)(_ != 0)
+
+      if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined)
+        indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
+      else
+        0
+    }
+
+    def getRightThenLeftCount(index: Int, intArgs: IndexedSeq[Int], intPreds: IndexedSeq[Int]): Int = {
+      // Prefer looking to the right, after.
+      val argWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereAndWhatOptAfter(intArgs, index)(_ != 0)
+      val predWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereAndWhatOptAfter(intPreds, index)(_ != 0)
+      if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined)
+        indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
+      else {
+        // Then look left if necessary, before.
+        val argWhereAndWhatOpt = Collection.findWhereAndWhatOptBefore(intArgs, index)(_ != 0)
+        val predWhereAndWhatOpt = Collection.findWhereAndWhatOptBefore(intPreds, index)(_ != 0)
+        if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined) {
+          indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
+        }
+        else 0
+      }
     }
 
     def findInexactPredicateGroundings(mentionRange: Range, sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
@@ -374,29 +426,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         // Since these are all mutually exclusive, one could go through just once and trickle down.
         // Since isPreds is the catch-all, there must be something for every index.  There is no other.
         val intArgs: IndexedSeq[Int] = boolsToInts(isArgs) // turns (false, true, false, true) to (0, 1, 0 2)
-        val intPreds: IndexedSeq[Int] = boolsToInts(isPreds) // turns (true, false, false, true) to (1, 0, 0, 2)
+        val intPreds: IndexedSeq[Int] = boolsToInts(isPreds).map(_ * -1) // turns (true, false, false, true) to (-1, 0, 0, -2)
         // 0, either not property or property that does not belong to arg or pred
         // +n, property that belongs to an arg
         // -n, property that belongs to a pred
         val intProps: IndexedSeq[Int] = indices.map { index =>
           if (!isProps(index)) 0
-          else {
-            // Prefer looking to the right, after.
-            val argWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereAndWhatOptAfter(intArgs, index)(_ != 0)
-            val predWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereAndWhatOptAfter(intPreds, index)(_ != 0)
-            if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined)
-              indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
-            else {
-              // Then look left if necessary, before.
-              val argWhereAndWhatOpt = Collection.findWhereAndWhatOptBefore(intArgs, index)(_ != 0)
-              val predWhereAndWhatOpt = Collection.findWhereAndWhatOptBefore(intPreds, index)(_ != 0)
-              if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined) {
-                indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
-              }
-              else
-                0
-            }
-          }
+          else getRightThenLeftCount(index, intArgs, intPreds)
+          // else getAroundCount(index, intArgs, intPreds)
         }
         // There is a property and it maps to no arg or pred.
         val zeroPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == 0 }
