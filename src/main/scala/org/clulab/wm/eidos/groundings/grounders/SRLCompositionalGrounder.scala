@@ -138,7 +138,7 @@ object PredicateTuple {
 class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v: EidosWordToVec, canonicalizer: Canonicalizer, tokenizer: EidosTokenizer)
     extends EidosOntologyGrounder(name, domainOntology, w2v, canonicalizer) {
 
-  val emptyPredicateTuple: PredicateTuple = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set.empty)
+  val emptyPredicateTuple: PredicateTuple = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set.empty[Int])
 
   lazy val proc: CluProcessor = {
     Utils.initializeDyNet()
@@ -347,15 +347,18 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       val ontologyGroundings = indexes.map(ontologyGroundingOpts(_).get)
 
       if (ontologyGroundings.isEmpty) None
-      else Some(ontologyGroundings.maxBy(-_.individualGroundings.head.score))
+      else Some(ontologyGroundings.maxBy(_.individualGroundings.head.score))
+    }
+
+    def isStopword(sentenceHelper: SentenceHelper, index: Int): Boolean = {
+      val pos = sentenceHelper.sentence.tags.get(index)
+
+      SRLCompositionalGrounder.stopwordPartsOfSpeech.exists(pos.startsWith)
     }
 
     def findInexactPredicateGroundings(mentionRange: Range, sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
       val mentionStart = mentionRange.start
-      val isStops: IndexedSeq[Boolean] = mentionRange.map { mentionIndex =>
-        val word = sentenceHelper.words(mentionIndex)
-        canonicalizer.stopwordManaging.containsStopwordStrict(word)
-      }
+      val isStops: IndexedSeq[Boolean] = mentionRange.map(isStopword(sentenceHelper, _))
       val indices: IndexedSeq[Int] = isStops.indices // indices(0) + mentionStart = mentionRange(0)
 
       if (indices.forall(isStops)) Seq.empty // There is nothing to ground, so short-circuit it.
@@ -440,10 +443,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       val exactIsArg = exactBranch == SRLCompositionalGrounder.CONCEPT // Args are concepts, Preds are processes.
       val exactAndInexactPredicateGroundings = mentionRange
           .filterNot(exactRange.contains)
-          .filterNot { index => // Skip stopwords.
-            val word = sentenceHelper.words(index)
-            canonicalizer.stopwordManaging.containsStopwordStrict(word)
-          }
+          .filterNot(isStopword(sentenceHelper, _))
           .flatMap { index =>
             val propertyOpt: Option[OntologyGrounding] = maybeProperty(Interval(index), sentenceHelper)
             val predicateTupleOpt =
@@ -897,4 +897,6 @@ object SRLCompositionalGrounder extends Logging {
 
 //  val verbConfidenceThreshold: Float = 0.7f
   val propertyConfidenceThreshold: Float = 0.85f
+
+  val stopwordPartsOfSpeech = Array("IN", "DT", "PRP")
 }
