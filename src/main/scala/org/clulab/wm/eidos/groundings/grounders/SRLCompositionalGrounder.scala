@@ -381,14 +381,14 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
           if (!isProps(index)) 0
           else {
             // Prefer looking to the right, after.
-            val argWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereWhatOptAfter(intArgs, index)(_ != 0)
-            val predWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereWhatOptAfter(intPreds, index)(_ != 0)
+            val argWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereAndWhatOptAfter(intArgs, index)(_ != 0)
+            val predWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereAndWhatOptAfter(intPreds, index)(_ != 0)
             if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined)
               indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
             else {
               // Then look left if necessary, before.
-              val argWhereAndWhatOpt = Collection.findWhereWhatOptBefore(intArgs, index)(_ != 0)
-              val predWhereAndWhatOpt = Collection.findWhereWhatOptBefore(intPreds, index)(_ != 0)
+              val argWhereAndWhatOpt = Collection.findWhereAndWhatOptBefore(intArgs, index)(_ != 0)
+              val predWhereAndWhatOpt = Collection.findWhereAndWhatOptBefore(intPreds, index)(_ != 0)
               if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined) {
                 indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
               }
