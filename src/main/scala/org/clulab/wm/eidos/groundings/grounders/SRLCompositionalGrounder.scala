@@ -15,6 +15,7 @@ import org.clulab.wm.eidoscommon.EidosTokenizer
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.ontologies.DomainOntology
 
+import scala.collection.immutable
 import scala.collection.mutable.ArrayBuffer
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
@@ -249,9 +250,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
     def findExactPredicateGroundingAndRanges(mentionStrings: Array[String], mentionRange: Range): Seq[(PredicateGrounding, Range, String)] = {
       SRLCompositionalGrounder.processOrConceptBranches.flatMap { branch =>
-        exactMatchesForPreds(mentionStrings, conceptEmbeddingsMap(branch), mentionRange).flatMap { case (ontologyNodeGrounding, range) =>
+        val exactMatches = exactMatchesForPreds(mentionStrings, conceptEmbeddingsMap(branch), mentionRange)
+        exactMatches.flatMap { case (ontologyNodeGrounding, range) =>
           val ontologyGrounding = newOntologyGrounding(Seq(ontologyNodeGrounding))
-
           toPredicateTupleOptWithBranch(ontologyGrounding, branch).map { predicateTuple =>
             val exactPredicateGrounding = PredicateGrounding(predicateTuple)
             (exactPredicateGrounding, range, branch)
@@ -301,65 +302,156 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       }
     }
 
+    def boolsToInts(bools: IndexedSeq[Boolean]): IndexedSeq[Int] = {
+      var count = 0
+
+      bools.map { value =>
+        if (!value) 0
+        else {
+          count += 1
+          count
+        }
+      }
+    }
+
+    // Returns (location, int)
+    def findToRight(ints: IndexedSeq[Int], position: Int): Option[(Int, Int)] = {
+      var index = position + 1
+
+      while (index < ints.length) {
+        if (ints(index) != 0)
+          return Some(index, ints(index))
+        index += 1
+      }
+      None
+    }
+
+    // TODO: make these pretty
+    def findToLeft(ints: IndexedSeq[Int], position: Int): Option[(Int, Int)] = {
+      var index = position - 1
+
+      while (position >= 0) {
+        if (ints(index) != 0)
+          return Some(index, ints(index))
+        index -= 1
+      }
+      None
+    }
+
+    def indexAndIntsToInt(position: Int, leftIndexAndCountOpt: Option[(Int, Int)], rightIndexAndCountOpt: Option[(Int, Int)]): Int = {
+      (leftIndexAndCountOpt, rightIndexAndCountOpt) match {
+        case (Some((leftIndex, leftCount)), Some((rightIndex, rightCount))) =>
+          // Whichever is closest to the position.
+          if (math.abs(position - leftIndex) < math.abs(position - rightIndex)) leftCount
+          else -rightCount
+        case (Some((_, leftCount)), None) => leftCount
+        case (None, Some((_, rightCount))) => -rightCount
+        case (None, None) => 0
+      }
+    }
+
+    def newPredicateTuple(
+        ontologyGrounding1Opt: Option[OntologyGrounding],
+        ontologyGrounding2Opt: Option[OntologyGrounding],
+        ontologyGrounding3Opt: Option[OntologyGrounding],
+        ontologyGrounding4Opt: Option[OntologyGrounding]
+    ): PredicateTuple = {
+      PredicateTuple(
+        ontologyGrounding1Opt.getOrElse(emptyOntologyGrounding),
+        ontologyGrounding2Opt.getOrElse(emptyOntologyGrounding),
+        ontologyGrounding3Opt.getOrElse(emptyOntologyGrounding),
+        ontologyGrounding4Opt.getOrElse(emptyOntologyGrounding),
+        Set.empty
+      )
+    }
+
+    def getBest(indexes: Seq[Int], ontologyGroundingOpts: Seq[Option[OntologyGrounding]]): Option[OntologyGrounding] = {
+      val ontologyGroundings = indexes.map(ontologyGroundingOpts(_).get)
+
+      if (ontologyGroundings.isEmpty) None
+      else Some(ontologyGroundings.maxBy(-_.individualGroundings.head.score))
+    }
+
+    def optIndexOf[T](seq: IndexedSeq[T], value: T): Option[Int] = {
+      val index = seq.indexOf(value)
+
+      if (index < 0) None
+      else Some(index)
+    }
+
     def findInexactPredicateGroundings(mentionRange: Range, sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
-      val isArgs = mentionRange.map(sentenceHelper.isArg) // concept
       val mentionStart = mentionRange.start
+      val isStops: IndexedSeq[Boolean] = mentionRange.map { mentionIndex =>
+        val word = sentenceHelper.words(mentionIndex)
+        canonicalizer.stopwordManaging.containsStopwordStrict(word)
+      }
+      val indices: IndexedSeq[Int] = isStops.indices
 
-      // We're using the first one we find.
-      val conceptIndexOpt = isArgs.indices.find(isArgs)
-      val conceptGroundingOpt = conceptIndexOpt.map { index => groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(mentionStart + index), s, topNOpt, thresholdOpt) }
-      val conceptGrounding = conceptGroundingOpt.getOrElse(emptyOntologyGrounding)
-
-      // We're using the first one we find.
-      val processIndexOpt = isArgs.indices.find(!isArgs(_))
-      val processGroundingOpt = processIndexOpt.map { index => groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(mentionStart + index), s, topNOpt, thresholdOpt) }
-      val processGrounding = processGroundingOpt.getOrElse(emptyOntologyGrounding)
-
-      val propertyOntologyGroundingOpts = mentionRange.map { index => maybeProperty(Interval(index), sentenceHelper) }
-      val indices = isArgs.indices
-      val inexactPredicateTuples = indices
-          .filter(propertyOntologyGroundingOpts(_).isDefined)
-          .map { index =>
-            val propertyOntologyGrounding = propertyOntologyGroundingOpts(index).get
-            val rightNonPropertyIndexOpt = indices.find { innerIndex => innerIndex > index && propertyOntologyGroundingOpts(innerIndex).isEmpty }
-            if (rightNonPropertyIndexOpt.isDefined && (conceptGroundingOpt.isDefined || processGroundingOpt.isDefined)) {
-              if (isArgs(rightNonPropertyIndexOpt.get))
-                // This uses the first conceptGrounding or processGrounding found, not the one to the right.
-                // However, we don't want to ground every single word.  It is more to figure out what kind of thing
-                // it might be modifying and then applying it to what we already have.  (It's a hack.)
-                PredicateTuple(conceptGrounding, propertyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set(index))
-              else
-                PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, processGrounding, propertyOntologyGrounding, Set(index))
-            }
+      if (indices.forall(isStops)) Seq.empty // There is nothing to ground, so short-circuit it.
+      else {
+        val propertyOntologyGroundingOpts: Seq[Option[OntologyGrounding]] = indices.map { index =>
+          if (isStops(index)) None
+          else maybeProperty(Interval(mentionStart + index), sentenceHelper)
+        }
+        val isProps = indices.map { index => propertyOntologyGroundingOpts(index).isDefined }
+        val isArgs: IndexedSeq[Boolean] = indices.map { index => !isStops(index) && !isProps(index) && sentenceHelper.isArg(mentionStart + index) }
+        val isPreds: IndexedSeq[Boolean] = indices.map { index => !isStops(index) && !isProps(index) && !isArgs(index) }
+        // Since these are all mutually exclusive, one could go through just once and trickle down.
+        // Since isPreds is the catch-all, there must be something for every index.  There is no other.
+        val intArgs: IndexedSeq[Int] = boolsToInts(isArgs)
+        val intPreds: IndexedSeq[Int] = boolsToInts(isPreds)
+        val intProps: IndexedSeq[Int] = indices.map { index =>
+          if (!isProps(index)) 0
+          else {
+            // Prefer looking to the right.
+            val intRightArgOpt: Option[(Int, Int)] = findToRight(intArgs, index)
+            val intRightPredOpt = findToRight(intPreds, index)
+            if (intRightArgOpt.isDefined || intRightPredOpt.isDefined)
+              indexAndIntsToInt(index, intRightArgOpt, intRightPredOpt)
             else {
-              val leftNonPropertyIndexOpt = indices.reverse.find { innerIndex => innerIndex < index && propertyOntologyGroundingOpts(innerIndex).isEmpty }
-              if (leftNonPropertyIndexOpt.isDefined && (conceptGroundingOpt.isDefined || processGroundingOpt.isDefined)) {
-                if (isArgs(leftNonPropertyIndexOpt.get))
-                  PredicateTuple(conceptGrounding, propertyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set(index))
-                else
-                  PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, processGrounding, propertyOntologyGrounding, Set(index))
+              // Then look left if necessary.
+              val intLeftArgOpt = findToLeft(intArgs, index)
+              val intLeftPredOpt = findToLeft(intPreds, index)
+              if (intLeftArgOpt.isDefined || intLeftPredOpt.isDefined) {
+                indexAndIntsToInt(index, intLeftArgOpt, intLeftPredOpt)
               }
               else
-                PredicateTuple(emptyOntologyGrounding, propertyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set(index))
+                0
             }
           }
-      val conceptPredicateTupleOpt = conceptGroundingOpt.map { conceptGrounding =>
-        PredicateTuple(conceptGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, Set.empty)
-      }
-      val processPredicateTupleOpt = processGroundingOpt.map { processGrounding =>
-        PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, processGrounding, emptyOntologyGrounding, Set.empty)
-      }
-      val conceptAndProcessPredicateTupleOpt =
-          if (conceptGroundingOpt.isDefined && processGroundingOpt.isDefined) {
-            Some(PredicateTuple(conceptGrounding, emptyOntologyGrounding, processGrounding, emptyOntologyGrounding, Set.empty))
+        }
+        // There is a property and it maps to no arg or pred.
+        val zeroPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == 0 }
+        val predicateTuple =
+          if (zeroPropertyIndexes.nonEmpty) {
+            // This can only happen if there are no arguments or predicates.
+            // This cannot be None because zeroProperties is nonEmpty.
+            val propertyOntologyGroundingOpt = getBest(zeroPropertyIndexes, propertyOntologyGroundingOpts)
+            // Arbitrarily put the property in the concept property slot.
+            newPredicateTuple(None, propertyOntologyGroundingOpt, None, None)
           }
-          else None
-      val nonInexactPredicateTuples = (conceptPredicateTupleOpt ++ processPredicateTupleOpt ++ conceptAndProcessPredicateTupleOpt)
-      val predicateGroundings = (inexactPredicateTuples ++ nonInexactPredicateTuples).map(PredicateGrounding)
-      val sortedPredicateGroundings = predicateGroundings.sortBy(-_.score)
-      val slicedPredicateGroundings = topNOpt.map(sortedPredicateGroundings.take).getOrElse(sortedPredicateGroundings)
+          else {
+            // We're only grounding against the very first argument or predicate, so +/- 1.
+            val argPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == 1 }
+            val bestArgPropertiesOpt = getBest(argPropertyIndexes, propertyOntologyGroundingOpts)
+            val predPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == -1 }
+            val bestPredPropertiesOpt = getBest(predPropertyIndexes, propertyOntologyGroundingOpts)
+            val argOntologyGroundingOpt = optIndexOf(isArgs, true)
+                .map { index =>
+                  groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(mentionStart + index), s, topNOpt, thresholdOpt)
+                }
+            val predOntologyGroundingOpt = optIndexOf(isPreds, true)
+                .map { index =>
+                  groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(mentionStart + index), s, topNOpt, thresholdOpt)
+                }
 
-      slicedPredicateGroundings
+            newPredicateTuple(argOntologyGroundingOpt, bestArgPropertiesOpt, predOntologyGroundingOpt, bestPredPropertiesOpt)
+          }
+        val predicateGroundings = Seq(PredicateGrounding(predicateTuple))
+        val sortedPredicateGroundings = predicateGroundings.sortBy(-_.score)
+        val slicedPredicateGroundings = topNOpt.map(sortedPredicateGroundings.take).getOrElse(sortedPredicateGroundings)
+        slicedPredicateGroundings
+      }
     }
 
     def findExactAndInexactPredicateGroundings(exactPredicateGroundingAndRangeAndBranch: (PredicateGrounding, Range, String), mentionRange: Range, sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
@@ -374,6 +466,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       val exactIsArg = exactBranch == SRLCompositionalGrounder.CONCEPT // Args are concepts, Preds are processes.
       val exactAndInexactPredicateGroundings = mentionRange
           .filterNot(exactRange.contains)
+          .filterNot { index => // Skip stopwords.
+            val word = sentenceHelper.words(index)
+            canonicalizer.stopwordManaging.containsStopwordStrict(word)
+          }
           .flatMap { index =>
             val propertyOpt: Option[OntologyGrounding] = maybeProperty(Interval(index), sentenceHelper)
             val predicateTupleOpt =
@@ -422,7 +518,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
 
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
-    val validPredicates = sentenceHelper.validPredicates.sorted
+    val validPredicates = sentenceHelper.validPredicates.distinct.sorted // Duplicates can be returned!
     val srlGrounding =
         if (validPredicates.isEmpty) groundWithoutPredicates(sentenceHelper)
         else groundWithPredicates(sentenceHelper, validPredicates)
@@ -595,6 +691,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   }
 
   private def groundToBranches(branches: Seq[String], span: Interval, s: Sentence, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
+    // It might not be good to filter stopwords now because they can be included in the examples, like "right to use" or "food for work".
     val contentWords = canonicalizer.canonicalWordsFromSentence(s, span).toArray
     val branchesGroundings = branches.flatMap { branch =>
       val patterns = conceptPatternsMap(branch)
