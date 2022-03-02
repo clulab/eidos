@@ -3,7 +3,7 @@ package org.clulab.wm.eidoscommon
 import org.clulab.processors.Sentence
 import org.clulab.struct.Interval
 
-class Canonicalizer(val stopwordManaging: StopwordManaging, tagSet: TagSet) {
+class Canonicalizer(stopwordManaging: StopwordManaging, tagSet: TagSet) {
 
   // Here we use the lemma because the stopwords etc are written against them
   def isCanonicalLemma(lemma: String, tag: String, ner: String): Boolean =
