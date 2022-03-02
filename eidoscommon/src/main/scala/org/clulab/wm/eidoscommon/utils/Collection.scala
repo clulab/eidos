@@ -26,7 +26,7 @@ object Collection {
   def findWhereWhatOptBefore[T](values: IndexedSeq[T], position: Int)(f: T => Boolean): Option[(Int, T)] = {
     var index = position - 1
 
-    while (position >= 0) {
+    while (index >= 0) {
       if (f(values(index)))
         return Some(index, values(index))
       index -= 1
