@@ -12,6 +12,7 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
+import org.clulab.wm.eidoscommon.utils.Collection
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.ontologies.DomainOntology
 
@@ -115,6 +116,22 @@ object PredicateTuple {
   def apply(ontologyGroundings: Array[OntologyGrounding], predicates: Set[Int]): PredicateTuple = {
     require(ontologyGroundings.length == 4)
     apply(ontologyGroundings(0), ontologyGroundings(1), ontologyGroundings(2), ontologyGroundings(3), predicates)
+  }
+
+  def apply(
+      ontologyGrounding1Opt: Option[OntologyGrounding],
+      ontologyGrounding2Opt: Option[OntologyGrounding],
+      ontologyGrounding3Opt: Option[OntologyGrounding],
+      ontologyGrounding4Opt: Option[OntologyGrounding],
+      emptyOntologyGrounding: OntologyGrounding
+  ): PredicateTuple = {
+    apply(
+      ontologyGrounding1Opt.getOrElse(emptyOntologyGrounding),
+      ontologyGrounding2Opt.getOrElse(emptyOntologyGrounding),
+      ontologyGrounding3Opt.getOrElse(emptyOntologyGrounding),
+      ontologyGrounding4Opt.getOrElse(emptyOntologyGrounding),
+      Set.empty[Int]
+    )
   }
 }
 
@@ -314,31 +331,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       }
     }
 
-    // Returns (location, int)
-    def findToRight(ints: IndexedSeq[Int], position: Int): Option[(Int, Int)] = {
-      var index = position + 1
-
-      while (index < ints.length) {
-        if (ints(index) != 0)
-          return Some(index, ints(index))
-        index += 1
-      }
-      None
-    }
-
-    // TODO: make these pretty
-    def findToLeft(ints: IndexedSeq[Int], position: Int): Option[(Int, Int)] = {
-      var index = position - 1
-
-      while (position >= 0) {
-        if (ints(index) != 0)
-          return Some(index, ints(index))
-        index -= 1
-      }
-      None
-    }
-
-    def indexAndIntsToInt(position: Int, leftIndexAndCountOpt: Option[(Int, Int)], rightIndexAndCountOpt: Option[(Int, Int)]): Int = {
+    def indexAndCountToCount(position: Int, leftIndexAndCountOpt: Option[(Int, Int)], rightIndexAndCountOpt: Option[(Int, Int)]): Int = {
       (leftIndexAndCountOpt, rightIndexAndCountOpt) match {
         case (Some((leftIndex, leftCount)), Some((rightIndex, rightCount))) =>
           // Whichever is closest to the position.
@@ -350,33 +343,11 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       }
     }
 
-    def newPredicateTuple(
-        ontologyGrounding1Opt: Option[OntologyGrounding],
-        ontologyGrounding2Opt: Option[OntologyGrounding],
-        ontologyGrounding3Opt: Option[OntologyGrounding],
-        ontologyGrounding4Opt: Option[OntologyGrounding]
-    ): PredicateTuple = {
-      PredicateTuple(
-        ontologyGrounding1Opt.getOrElse(emptyOntologyGrounding),
-        ontologyGrounding2Opt.getOrElse(emptyOntologyGrounding),
-        ontologyGrounding3Opt.getOrElse(emptyOntologyGrounding),
-        ontologyGrounding4Opt.getOrElse(emptyOntologyGrounding),
-        Set.empty
-      )
-    }
-
     def getBest(indexes: Seq[Int], ontologyGroundingOpts: Seq[Option[OntologyGrounding]]): Option[OntologyGrounding] = {
       val ontologyGroundings = indexes.map(ontologyGroundingOpts(_).get)
 
       if (ontologyGroundings.isEmpty) None
       else Some(ontologyGroundings.maxBy(-_.individualGroundings.head.score))
-    }
-
-    def optIndexOf[T](seq: IndexedSeq[T], value: T): Option[Int] = {
-      val index = seq.indexOf(value)
-
-      if (index < 0) None
-      else Some(index)
     }
 
     def findInexactPredicateGroundings(mentionRange: Range, sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
@@ -385,7 +356,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         val word = sentenceHelper.words(mentionIndex)
         canonicalizer.stopwordManaging.containsStopwordStrict(word)
       }
-      val indices: IndexedSeq[Int] = isStops.indices
+      val indices: IndexedSeq[Int] = isStops.indices // indices(0) + mentionStart = mentionRange(0)
 
       if (indices.forall(isStops)) Seq.empty // There is nothing to ground, so short-circuit it.
       else {
@@ -393,27 +364,30 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
           if (isStops(index)) None
           else maybeProperty(Interval(mentionStart + index), sentenceHelper)
         }
-        val isProps = indices.map { index => propertyOntologyGroundingOpts(index).isDefined }
+        val isProps: IndexedSeq[Boolean] = indices.map { index => propertyOntologyGroundingOpts(index).isDefined }
         val isArgs: IndexedSeq[Boolean] = indices.map { index => !isStops(index) && !isProps(index) && sentenceHelper.isArg(mentionStart + index) }
         val isPreds: IndexedSeq[Boolean] = indices.map { index => !isStops(index) && !isProps(index) && !isArgs(index) }
         // Since these are all mutually exclusive, one could go through just once and trickle down.
         // Since isPreds is the catch-all, there must be something for every index.  There is no other.
-        val intArgs: IndexedSeq[Int] = boolsToInts(isArgs)
-        val intPreds: IndexedSeq[Int] = boolsToInts(isPreds)
+        val intArgs: IndexedSeq[Int] = boolsToInts(isArgs) // turns (false, true, false, true) to (0, 1, 0 2)
+        val intPreds: IndexedSeq[Int] = boolsToInts(isPreds) // turns (true, false, false, true) to (1, 0, 0, 2)
+        // 0, either not property or property that does not belong to arg or pred
+        // +n, property that belongs to an arg
+        // -n, property that belongs to a pred
         val intProps: IndexedSeq[Int] = indices.map { index =>
           if (!isProps(index)) 0
           else {
-            // Prefer looking to the right.
-            val intRightArgOpt: Option[(Int, Int)] = findToRight(intArgs, index)
-            val intRightPredOpt = findToRight(intPreds, index)
-            if (intRightArgOpt.isDefined || intRightPredOpt.isDefined)
-              indexAndIntsToInt(index, intRightArgOpt, intRightPredOpt)
+            // Prefer looking to the right, after.
+            val argWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereWhatOptAfter(intArgs, index)(_ != 0)
+            val predWhereAndWhatOpt: Option[(Int, Int)] = Collection.findWhereWhatOptAfter(intPreds, index)(_ != 0)
+            if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined)
+              indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
             else {
-              // Then look left if necessary.
-              val intLeftArgOpt = findToLeft(intArgs, index)
-              val intLeftPredOpt = findToLeft(intPreds, index)
-              if (intLeftArgOpt.isDefined || intLeftPredOpt.isDefined) {
-                indexAndIntsToInt(index, intLeftArgOpt, intLeftPredOpt)
+              // Then look left if necessary, before.
+              val argWhereAndWhatOpt = Collection.findWhereWhatOptBefore(intArgs, index)(_ != 0)
+              val predWhereAndWhatOpt = Collection.findWhereWhatOptBefore(intPreds, index)(_ != 0)
+              if (argWhereAndWhatOpt.isDefined || predWhereAndWhatOpt.isDefined) {
+                indexAndCountToCount(index, argWhereAndWhatOpt, predWhereAndWhatOpt)
               }
               else
                 0
@@ -428,7 +402,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
             // This cannot be None because zeroProperties is nonEmpty.
             val propertyOntologyGroundingOpt = getBest(zeroPropertyIndexes, propertyOntologyGroundingOpts)
             // Arbitrarily put the property in the concept property slot.
-            newPredicateTuple(None, propertyOntologyGroundingOpt, None, None)
+            PredicateTuple(None, propertyOntologyGroundingOpt, None, None, emptyOntologyGrounding)
           }
           else {
             // We're only grounding against the very first argument or predicate, so +/- 1.
@@ -436,16 +410,16 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
             val bestArgPropertiesOpt = getBest(argPropertyIndexes, propertyOntologyGroundingOpts)
             val predPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == -1 }
             val bestPredPropertiesOpt = getBest(predPropertyIndexes, propertyOntologyGroundingOpts)
-            val argOntologyGroundingOpt = optIndexOf(isArgs, true)
+            val argOntologyGroundingOpt = Collection.optIndexOf(isArgs, true) // Since we're using the first one only, or none.
                 .map { index =>
                   groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(mentionStart + index), s, topNOpt, thresholdOpt)
                 }
-            val predOntologyGroundingOpt = optIndexOf(isPreds, true)
+            val predOntologyGroundingOpt = Collection.optIndexOf(isPreds, true) // Since we're using the first one only, or none.
                 .map { index =>
                   groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(mentionStart + index), s, topNOpt, thresholdOpt)
                 }
 
-            newPredicateTuple(argOntologyGroundingOpt, bestArgPropertiesOpt, predOntologyGroundingOpt, bestPredPropertiesOpt)
+            PredicateTuple(argOntologyGroundingOpt, bestArgPropertiesOpt, predOntologyGroundingOpt, bestPredPropertiesOpt, emptyOntologyGrounding)
           }
         val predicateGroundings = Seq(PredicateGrounding(predicateTuple))
         val sortedPredicateGroundings = predicateGroundings.sortBy(-_.score)
