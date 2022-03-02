@@ -351,15 +351,15 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       }
     }
 
-    def isStopword(sentenceHelper: SentenceHelper, index: Int): Boolean = {
+    def isSkipword(sentenceHelper: SentenceHelper, index: Int): Boolean = {
       val pos = sentenceHelper.sentence.tags.get(index)
 
-      SRLCompositionalGrounder.stopwordPartsOfSpeech.exists(pos.startsWith)
+      SRLCompositionalGrounder.skipwordPartsOfSpeech.exists(pos.startsWith)
     }
 
     def findInexactPredicateGroundings(mentionRange: Range, sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
       val mentionStart = mentionRange.start
-      val isStops: IndexedSeq[Boolean] = mentionRange.map(isStopword(sentenceHelper, _))
+      val isStops: IndexedSeq[Boolean] = mentionRange.map(isSkipword(sentenceHelper, _))
       val indices: IndexedSeq[Int] = isStops.indices // indices(0) + mentionStart = mentionRange(0)
 
       if (indices.forall(isStops)) Seq.empty // There is nothing to ground, so short-circuit it.
@@ -444,7 +444,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       val exactIsArg = exactBranch == SRLCompositionalGrounder.CONCEPT // Args are concepts, Preds are processes.
       val exactAndInexactPredicateGroundings = mentionRange
           .filterNot(exactRange.contains)
-          .filterNot(isStopword(sentenceHelper, _))
+          .filterNot(isSkipword(sentenceHelper, _))
           .flatMap { index =>
             val propertyOpt: Option[OntologyGrounding] = maybeProperty(Interval(index), sentenceHelper)
             val predicateTupleOpt =
@@ -899,5 +899,5 @@ object SRLCompositionalGrounder extends Logging {
 //  val verbConfidenceThreshold: Float = 0.7f
   val propertyConfidenceThreshold: Float = 0.85f
 
-  val stopwordPartsOfSpeech = Array("IN", "DT", "PRP")
+  val skipwordPartsOfSpeech = Array("IN", "DT", "PRP", ",", ".")
 }
