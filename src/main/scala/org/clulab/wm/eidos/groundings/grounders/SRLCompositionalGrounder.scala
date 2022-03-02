@@ -244,9 +244,13 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
 
     def toPredicateTupleOpt(ontologyGrounding: OntologyGrounding): Option[PredicateTuple] = {
-      val branch = ontologyGrounding.individualGroundings.head.branchOpt.get
+      if (ontologyGrounding.individualGroundings.isEmpty)
+        None
+      else {
+        val branch = ontologyGrounding.individualGroundings.head.branchOpt.get
 
-      toPredicateTupleOptWithBranch(ontologyGrounding, branch)
+        toPredicateTupleOptWithBranch(ontologyGrounding, branch)
+      }
     }
 
     def groundWithoutPredicates(sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
