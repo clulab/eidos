@@ -1,13 +1,14 @@
 package org.clulab.wm.eidos.groundings.grounders
 
+import org.clulab.dynet.Utils
 import org.clulab.odin.Mention
+import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.Sentence
 import org.clulab.struct.{DirectedGraph, GraphMap, Interval}
 import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAttachment}
 import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
-import org.clulab.dynet.Utils
-import org.clulab.processors.clu.CluProcessor
 import org.clulab.wm.eidos.groundings.ConceptExamples
+import org.clulab.wm.eidos.groundings.OntologyAliases.IndividualGroundings
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidoscommon.Canonicalizer
@@ -16,7 +17,6 @@ import org.clulab.wm.eidoscommon.utils.Collection
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.ontologies.DomainOntology
 
-import scala.collection.immutable
 import scala.collection.mutable.ArrayBuffer
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
@@ -441,32 +441,37 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
         }
         // There is a property and it maps to no arg or pred.
         val zeroPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == 0 }
-        val predicateTuple =
+        val predicateTupleOpt =
           if (zeroPropertyIndexes.nonEmpty) {
             // This can only happen if there are no arguments or predicates.
             // This cannot be None because zeroProperties is nonEmpty.
             val propertyOntologyGroundingOpt = getBest(zeroPropertyIndexes, propertyOntologyGroundingOpts)
             // Arbitrarily put the property in the concept property slot.
-            PredicateTuple(None, propertyOntologyGroundingOpt, None, None, emptyOntologyGrounding)
+            Some(PredicateTuple(None, propertyOntologyGroundingOpt, None, None, emptyOntologyGrounding))
           }
           else {
+            val argOntologyGroundingOpt = Collection.optIndexOf(intArgs, 1) // Since we're using the first one only, or none.
+                .flatMap { index =>
+                  groundToBranchesOpt(Seq(SRLCompositionalGrounder.CONCEPT), Interval(mentionStart + index), s, topNOpt, thresholdOpt)
+                }
             // We're only grounding against the very first argument or predicate, so +/- 1.
             val argPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == 1 }
-            val bestArgPropertiesOpt = getBest(argPropertyIndexes, propertyOntologyGroundingOpts)
-            val predPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == -1 }
-            val bestPredPropertiesOpt = getBest(predPropertyIndexes, propertyOntologyGroundingOpts)
-            val argOntologyGroundingOpt = Collection.optIndexOf(isArgs, true) // Since we're using the first one only, or none.
-                .map { index =>
-                  groundToBranches(Seq(SRLCompositionalGrounder.CONCEPT), Interval(mentionStart + index), s, topNOpt, thresholdOpt)
-                }
-            val predOntologyGroundingOpt = Collection.optIndexOf(isPreds, true) // Since we're using the first one only, or none.
-                .map { index =>
-                  groundToBranches(Seq(SRLCompositionalGrounder.PROCESS), Interval(mentionStart + index), s, topNOpt, thresholdOpt)
-                }
+            // If the argOntologyGroundingOpt didn't work out and is None, then the bestArgPropertiesOpt should also be None.
+            val bestArgPropertiesOpt = argOntologyGroundingOpt.flatMap(_ => getBest(argPropertyIndexes, propertyOntologyGroundingOpts))
 
-            PredicateTuple(argOntologyGroundingOpt, bestArgPropertiesOpt, predOntologyGroundingOpt, bestPredPropertiesOpt, emptyOntologyGrounding)
+            val predOntologyGroundingOpt = Collection.optIndexOf(intPreds, -1) // Since we're using the first one only, or none.
+                .flatMap { index =>
+                  groundToBranchesOpt(Seq(SRLCompositionalGrounder.PROCESS), Interval(mentionStart + index), s, topNOpt, thresholdOpt)
+                }
+            // We're only grounding against the very first argument or predicate, so +/- 1.
+            val predPropertyIndexes = indices.filter { index => isProps(index) && intProps(index) == -1 }
+            // If the predOntologyGroundingOpt didn't work out and is None, then the bestPredPropertiesOpt should also be None.
+            val bestPredPropertiesOpt = predOntologyGroundingOpt.flatMap(_ => getBest(predPropertyIndexes, propertyOntologyGroundingOpts))
+
+            if (argOntologyGroundingOpt.isEmpty && predOntologyGroundingOpt.isEmpty) None // Don't even bother.
+            else Some(PredicateTuple(argOntologyGroundingOpt, bestArgPropertiesOpt, predOntologyGroundingOpt, bestPredPropertiesOpt, emptyOntologyGrounding))
           }
-        val predicateGroundings = Seq(PredicateGrounding(predicateTuple))
+        val predicateGroundings = predicateTupleOpt.toSeq.map(PredicateGrounding)
         val sortedPredicateGroundings = predicateGroundings.sortBy(-_.score)
         val slicedPredicateGroundings = topNOpt.map(sortedPredicateGroundings.take).getOrElse(sortedPredicateGroundings)
         slicedPredicateGroundings
@@ -706,7 +711,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     groundToBranches(SRLCompositionalGrounder.propertyBranch, span, s.sentence, topN, threshold)
   }
 
-  private def groundToBranches(branches: Seq[String], span: Interval, s: Sentence, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
+  private def getIndividualGroundings(branches: Seq[String], span: Interval, s: Sentence, topN: Option[Int], threshold: Option[Float]): IndividualGroundings = {
     // It might not be good to filter stopwords now because they can be included in the examples, like "right to use" or "food for work".
     val contentWords = canonicalizer.canonicalWordsFromSentence(s, span).toArray
     val branchesGroundings = branches.flatMap { branch =>
@@ -719,11 +724,23 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       filterAndSlice(branchGroundings, topN, threshold)
     }
     // at the end, filter the combined values if appropriate.
-    val filtered =
+    val filtered: IndividualGroundings =
         if (branches.length == 1) branchesGroundings
         else filterAndSlice(branchesGroundings, topN, threshold)
 
-    newOntologyGrounding(filtered)
+    filtered
+  }
+
+  private def groundToBranchesOpt(branches: Seq[String], span: Interval, s: Sentence, topN: Option[Int], threshold: Option[Float]): Option[OntologyGrounding] = {
+    val individualGroundings = getIndividualGroundings(branches, span, s, topN, threshold)
+
+    if (individualGroundings.isEmpty) None
+    else Some(newOntologyGrounding(individualGroundings))
+  }
+
+  private def groundToBranches(branches: Seq[String], span: Interval, s: Sentence, topN: Option[Int], threshold: Option[Float]): OntologyGrounding = {
+    val individualGroundings = getIndividualGroundings(branches, span, s, topN, threshold)
+    newOntologyGrounding(individualGroundings)
   }
 
   case class GraphNode(index: Int, sentenceHelper: SentenceHelper, backoff: Boolean, topN: Option[Int], threshold: Option[Float], ancestors: Set[Int]) {
