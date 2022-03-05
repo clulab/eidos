@@ -36,23 +36,24 @@ class TestGrounding extends EnglishGroundingTest {
 
     def groundingShouldContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       if (active) {
-        val groundingNames = allGroundingNames(mention, topN, threshold)
+        val groundingNames = headGroundingNames(mention, topN, threshold)
         slot match {
-          case "theme" => groundingNames.head.head should be(value)
-          case "themeProperty" => groundingNames.head(1) should be(value)
-          case "process" => groundingNames.head(2) should be(value)
-          case "processProperty" => groundingNames.head(3) should be(value)
+          case "theme" => groundingNames(0) should be(value)
+          case "themeProperty" => groundingNames(1) should be(value)
+          case "process" => groundingNames(2) should be(value)
+          case "processProperty" => groundingNames(3) should be(value)
         }
       }
     }
 
     def groundingShouldNotContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
-      val groundingNames = allGroundingNames(mention, topN, threshold)
+      val groundingNames = headGroundingNames(mention, topN, threshold)
+
       slot match {
-        case "theme" => groundingNames.head.head should not be(value)
-        case "themeProperty" => groundingNames.head(1) should not be(value)
-        case "process" => groundingNames.head(2) should not be(value)
-        case "processProperty" => groundingNames.head(3) should not be(value)
+        case "theme" => groundingNames(0) should not be(value)
+        case "themeProperty" => groundingNames(1) should not be(value)
+        case "process" => groundingNames(2) should not be(value)
+        case "processProperty" => groundingNames(3) should not be(value)
       }
     }
 
@@ -60,13 +61,23 @@ class TestGrounding extends EnglishGroundingTest {
       if (grounding.nonEmpty) grounding should startWith (branch) else grounding should startWith ("")
     }
 
-    def properBranchForSlot(mention: EidosMention, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+    def headGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[String] = {
       val groundingNames = allGroundingNames(mention, topN, threshold)
+      val headGroundingNames =
+          if (groundingNames.nonEmpty) groundingNames.head
+          else Seq("", "", "", "")
+
+      headGroundingNames
+    }
+
+    def properBranchForSlot(mention: EidosMention, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+      val groundingNames = headGroundingNames(mention, topN, threshold)
+
       slot match {
-        case "theme" => testBranch(groundingNames.head.head, "wm/concept/")
-        case "themeProperty" => testBranch(groundingNames.head(1), "wm/property/")
-        case "process" => testBranch(groundingNames.head(2), "wm/process/")
-        case "processProperty" => testBranch(groundingNames.head(3), "wm/property/")
+        case "theme" => testBranch(groundingNames(0), "wm/concept/")
+        case "themeProperty" => testBranch(groundingNames(1), "wm/property/")
+        case "process" => testBranch(groundingNames(2), "wm/process/")
+        case "processProperty" => testBranch(groundingNames(3), "wm/property/")
       }
     }
   }
