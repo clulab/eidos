@@ -1,12 +1,16 @@
 package org.clulab.wm.eidos.text.englishGrounding
 
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigValueFactory
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.groundings.PredicateGrounding
+import org.clulab.wm.eidos.test.EidosTest
 import org.clulab.wm.eidos.test.EnglishGroundingTest
 
 // If these tests ever break, it is a very bad thing, even if some
 // grounding change causes every other test in TestGrounding to pass.
-class TestSpecificGroundings extends EnglishGroundingTest {
+class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings.config) {
 
   case class Slots(conceptOpt: Option[String], conceptPropertyOpt: Option[String], processOpt: Option[String], processPropertyOpt: Option[String])
 
@@ -63,4 +67,9 @@ class TestSpecificGroundings extends EnglishGroundingTest {
 
     actualSlots should be (expectedSlots)
   }
+}
+
+object TestSpecificGroundings {
+  val config = ConfigFactory.load(EidosTest.groundingConfig)
+      .withValue("ontologies.wm_compositional", ConfigValueFactory.fromAnyRef("/org/clulab/wm/eidos/english/ontologies/49277ea4-7182-46d2-ba4e-87800ee5a315.yml"))
 }
