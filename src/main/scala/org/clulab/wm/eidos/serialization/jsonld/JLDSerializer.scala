@@ -203,10 +203,15 @@ object JLDArgument {
 
 class JLDOntologyGrounding(serializer: JLDSerializer, name: String, value: Float)
     extends JLDObject(serializer, JLDOntologyGrounding.typename) {
+  val nameWithoutTrailingSlash =
+      if (name.endsWith("/"))
+        name.slice(0, name.length - 1)
+      else
+        name
 
   override def toJObject: TidyJObject = TidyJObject(List(
     serializer.mkType(this),
-    "ontologyConcept" -> name, // This should have escaped any slashes within a node name (simpleName)
+    "ontologyConcept" -> nameWithoutTrailingSlash, // This should have escaped any slashes within a node name (simpleName)
     "value" -> value
   ))
 }
