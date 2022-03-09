@@ -15,10 +15,10 @@ class TestSpecificGroundings extends EnglishGroundingTest {
 
   def getSlots(text: String, canonicalName: String): Slots = {
     val annotatedDocument = ieSystem.extractFromText(text)
-    val foodSecurityMention = annotatedDocument.allEidosMentions.find { eidosMention =>
+    val eidosMention = annotatedDocument.allEidosMentions.find { eidosMention =>
       eidosMention.canonicalName == canonicalName
     }.get
-    val grounding = foodSecurityMention.grounding("wm_compositional").individualGroundings.head
+    val grounding = eidosMention.grounding("wm_compositional").individualGroundings.head
     val predicateTuple = grounding.asInstanceOf[PredicateGrounding].predicateTuple
 
     val conceptOpt = getNameOpt(predicateTuple.theme)
@@ -52,6 +52,14 @@ class TestSpecificGroundings extends EnglishGroundingTest {
     val text = "The present strategy emphasizes FAO's commitment to work with governments, animal health and production professionals, as well as farmers, to ultimately improve the livelihoods and food security of livestock owners and others along the value chain."
     val expectedSlots = Slots(Some("wm/concept/goods/food/"), Some("wm/property/security"), None, None)
     val actualSlots = getSlots(text, "food security")
+
+    actualSlots should be (expectedSlots)
+  }
+
+  it should "ground 'crop failure' correctly" in {
+    val text = "Earlier\nthis year lack of rain led to crop failure and caused serious food shortages\nin many parts of the country, especially in the Afar region in the\nnorth-east."
+    val expectedSlots = Slots(Some("wm/concept/agriculture/crop/"), None, Some("wm/process/failure"), None)
+    val actualSlots = getSlots(text, "crop failure")
 
     actualSlots should be (expectedSlots)
   }
