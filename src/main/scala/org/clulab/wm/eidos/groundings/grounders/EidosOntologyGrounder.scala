@@ -174,12 +174,13 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         val embeddingGroundings = // This is a Seq rather than a Map.
             for ((namer, embeddingScore) <- matchedEmbeddings)
             yield {
-              val exampleScore = matchedExamples(namer)
+              val rawExampleScore = matchedExamples(namer)
+              val exampleScore = (1.0 / (log(rawExampleScore + 1) + 1)).toFloat
               // val comboScore = embeddingScore
               // val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
-              val comboScore = embeddingScore + 1 / (log(exampleScore + 1) + 1)
+              val comboScore = EidosOntologyGrounder.lambda * embeddingScore + (1f - EidosOntologyGrounder.lambda) * exampleScore
               // val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
-              OntologyNodeGrounding(namer, comboScore.toFloat)
+              OntologyNodeGrounding(namer, comboScore)
             }
 
         embeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
@@ -209,6 +210,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 }
 
 object EidosOntologyGrounder extends Logging {
+  val lambda = 0.75f
   val GROUNDABLE = "Entity"
 
   protected val               WM_NAMESPACE = "wm" // This one isn't in-house, but for completeness...
