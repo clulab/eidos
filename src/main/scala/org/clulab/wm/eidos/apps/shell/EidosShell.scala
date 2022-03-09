@@ -12,6 +12,8 @@ import org.clulab.wm.eidos.EidosApp
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.exporters.GroundingInsightExporter
 import org.clulab.wm.eidos.mentions.EidosMention
+import org.clulab.wm.eidos.serialization.json.JsonUtils
+import org.clulab.wm.eidos.serialization.jsonld.JLDCorpus
 import org.clulab.wm.eidos.serialization.web.WebSerializer
 import org.clulab.wm.eidos.utils.DisplayUtils
 import org.clulab.wm.eidos.utils.GroundingInfoSupplier
@@ -47,6 +49,11 @@ object EidosShell extends EidosApp {
 
     webSerializer.serialize(annotatedDocument, cagRelevantOnly = true, "eidosshell.html")
     DisplayUtils.displayEidosMentions(sortedMentions, doc, true, eidosGroundingInsightOpt)
+
+    val jldCorpus = new JLDCorpus(Seq(annotatedDocument))
+    val jCorpus = jldCorpus.serialize()
+    val jsonld = JsonUtils.stringify(jCorpus, pretty = true)
+    println(jsonld)
   }
 
   def extractFromMenu(menu: Menu, text: String): Boolean = {

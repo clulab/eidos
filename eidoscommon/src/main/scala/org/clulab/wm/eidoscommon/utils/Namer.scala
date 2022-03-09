@@ -10,9 +10,13 @@ trait Namer {
   def canonicalName: String =
       if (!isLeaf) ""
       else Namer.canonicalize(getSimpleName) // replaces the _s with spaces
-  def canonicalWords: Array[String] =
-      if (!isLeaf) Array.empty
-      else Namer.canonicalizeWords(getSimpleName) // splits the canonical name
+  def canonicalWords: Array[String] = {
+    // This previously returned an empty array for non-leaf nodes and that was
+    // intentional because we didn't want to match them in the past.  Now we do.
+    // if (!isLeaf) Array.empty
+    // else Namer.canonicalizeWords(getSimpleName) // splits the canonical name
+    Namer.canonicalizeWords(getSimpleName)
+  }
 
   override def toString: String = getName
 }
