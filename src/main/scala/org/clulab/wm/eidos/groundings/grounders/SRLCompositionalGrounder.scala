@@ -957,5 +957,15 @@ object SRLCompositionalGrounder extends Logging {
 //  val verbConfidenceThreshold: Float = 0.7f
   val propertyConfidenceThreshold: Float = 0.85f
 
-  val skipwordPartsOfSpeech = Array("IN", "DT", "PRP", ",", ".")
+  val skipwordPartsOfSpeech = Array(
+    "CC",  // Coordinating conjunction
+    "DT",  // Determiner
+    "EX",  // Existential there
+    "IN",  // Preposition or subordinating conjunction
+    "POS", // Possessive ending
+    "PRP", // Personal pronoun
+    "TO",  // to
+    ",",
+    "."
+  )
 }
