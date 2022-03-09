@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.text.englishGrounding
 
-import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
 import org.clulab.wm.eidos.groundings.OntologyGrounding
@@ -12,10 +11,10 @@ import org.clulab.wm.eidos.test.EnglishGroundingTest
 // grounding change causes every other test in TestGrounding to pass.
 class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings.config) {
 
-  case class Slots(conceptOpt: Option[String], conceptPropertyOpt: Option[String], processOpt: Option[String], processPropertyOpt: Option[String])
+  case class Slots(concept: String, conceptProperty: String, process: String, processProperty: String)
 
-  def getNameOpt(ontologyGrounding: OntologyGrounding): Option[String] =
-      ontologyGrounding.individualGroundings.headOption.map(_.name)
+  def getNameOrEmpty(ontologyGrounding: OntologyGrounding): String =
+      ontologyGrounding.individualGroundings.headOption.map(_.name).getOrElse("")
 
   def getSlots(text: String, canonicalName: String): Slots = {
     val annotatedDocument = ieSystem.extractFromText(text)
@@ -25,20 +24,20 @@ class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings
     val grounding = eidosMention.grounding("wm_compositional").individualGroundings.head
     val predicateTuple = grounding.asInstanceOf[PredicateGrounding].predicateTuple
 
-    val conceptOpt = getNameOpt(predicateTuple.theme)
-    val conceptPropertyOpt = getNameOpt(predicateTuple.themeProperties)
+    val concept = getNameOrEmpty(predicateTuple.theme)
+    val conceptProperty = getNameOrEmpty(predicateTuple.themeProperties)
 
-    val processOpt = getNameOpt(predicateTuple.themeProcess)
-    val processPropertyOpt = getNameOpt(predicateTuple.themeProcessProperties)
+    val process = getNameOrEmpty(predicateTuple.themeProcess)
+    val processProperty = getNameOrEmpty(predicateTuple.themeProcessProperties)
 
-    Slots(conceptOpt, conceptPropertyOpt, processOpt, processPropertyOpt)
+    Slots(concept, conceptProperty, process, processProperty)
   }
 
-  behavior of "grounder"
+  behavior of "compositional grounder"
 
   it should "ground 'water transportation' correctly" in {
     val text = "The price of oil decreased water transportation."
-    val expectedSlots = Slots(Some("wm/concept/goods/water"), None, Some("wm/process/transportation/"), None)
+    val expectedSlots = Slots("wm/concept/goods/water", "", "wm/process/transportation/", "")
     val actualSlots = getSlots(text, "water transportation")
 
     actualSlots should be (expectedSlots)
@@ -46,7 +45,7 @@ class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings
 
   it should "ground 'price of oil' correctly" in {
     val text = "The price of oil decreased water transportation."
-    val expectedSlots = Slots(Some("wm/concept/goods/fuel"), Some("wm/property/price_or_cost"), None, None)
+    val expectedSlots = Slots("wm/concept/goods/fuel", "wm/property/price_or_cost", "", "")
     val actualSlots = getSlots(text, "oil")
 
     actualSlots should be (expectedSlots)
@@ -54,7 +53,7 @@ class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings
 
   it should "ground 'food security' correctly" in {
     val text = "The present strategy emphasizes FAO's commitment to work with governments, animal health and production professionals, as well as farmers, to ultimately improve the livelihoods and food security of livestock owners and others along the value chain."
-    val expectedSlots = Slots(Some("wm/concept/goods/food/"), Some("wm/property/security"), None, None)
+    val expectedSlots = Slots("wm/concept/goods/food/", "wm/property/security", "", "")
     val actualSlots = getSlots(text, "food security")
 
     actualSlots should be (expectedSlots)
@@ -62,7 +61,7 @@ class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings
 
   it should "ground 'crop failure' correctly" in {
     val text = "Earlier\nthis year lack of rain led to crop failure and caused serious food shortages\nin many parts of the country, especially in the Afar region in the\nnorth-east."
-    val expectedSlots = Slots(Some("wm/concept/agriculture/crop/"), None, Some("wm/process/failure"), None)
+    val expectedSlots = Slots("wm/concept/agriculture/crop/", "", "wm/process/failure", "")
     val actualSlots = getSlots(text, "crop failure")
 
     actualSlots should be (expectedSlots)
