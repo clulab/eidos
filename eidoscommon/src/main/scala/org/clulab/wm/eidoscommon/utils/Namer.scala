@@ -7,9 +7,13 @@ trait Namer {
 
   def isLeaf: Boolean //  = getName.endsWith("/")
 
-  def canonicalName: String =
-      if (!isLeaf) ""
-      else Namer.canonicalize(getSimpleName) // replaces the _s with spaces
+  def canonicalName: String = {
+    // This previously returned an empty string for non-leaf nodes and that was
+    // intentional because we didn't want to match them in the past.  Now we do.
+    // if (!isLeaf) ""
+    // else Namer.canonicalize(getSimpleName) // replaces the _s with spaces
+    Namer.canonicalize(getSimpleName)
+  }
   def canonicalWords: Array[String] = {
     // This previously returned an empty array for non-leaf nodes and that was
     // intentional because we didn't want to match them in the past.  Now we do.
