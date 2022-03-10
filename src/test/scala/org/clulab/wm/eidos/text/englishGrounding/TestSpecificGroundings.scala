@@ -90,6 +90,14 @@ class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings
 
     actualSlots should be (expectedSlots)
   }
+
+  it should "ground 'food shortages' correctly" in {
+    val text = "They also lack pasture and water for their livestock, all of which has lead to soaring food prices and food shortages."
+    val expectedSlots = Slots("wm/concept/goods/food/", "wm/property/shortage", "", "")
+    val actualSlots = getSlots(text, "food")
+
+    actualSlots should be (expectedSlots)
+  }
 }
 
 object TestSpecificGroundings {

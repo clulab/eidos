@@ -955,7 +955,10 @@ object SRLCompositionalGrounder extends Logging {
   val propertyBranch = Seq(PROPERTY)
 
 //  val verbConfidenceThreshold: Float = 0.7f
-  val propertyConfidenceThreshold: Float = 0.85f
+  // This higher threshold was used when scores could substantially exceed 1.0.
+  // It has been lowered, in part to ensure that shortages matches wm/property/shortage.
+  // val propertyConfidenceThreshold: Float = 0.85f
+  val propertyConfidenceThreshold: Float = 0.70f
 
   val skipwordPartsOfSpeech = Array(
     "CC",  // Coordinating conjunction
