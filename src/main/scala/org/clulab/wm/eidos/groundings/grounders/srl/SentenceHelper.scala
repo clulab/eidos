@@ -13,6 +13,11 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
   val words: Array[String] = sentence.words
   val srls: DirectedGraph[String] = sentence.enhancedSemanticRoles.get
   val dependencies: DirectedGraph[String] = sentence.dependencies.get
+  val validTokenIndexes: IndexedSeq[Int] = tokenInterval.filterNot { index =>
+    // The exluded words should have come from this very sentence, so it
+    // should not be necessary to lowercase.  They should match exactly.
+    exclude.contains(words(index))
+  }
   // The roots of the SRL graph that are within the concept being grounded and aren't part of
   // an something we're ignoring (e.g., increase/decrease/quantification)
   val validPredicates: Seq[Int] = {

@@ -565,8 +565,7 @@ class JLDDeserializer {
               val themeProperties = deserializeOntologyGrounding(value, "themeProperties")
               val themeProcess = deserializeOntologyGrounding(value, "themeProcess")
               val themeProcessProperties = deserializeOntologyGrounding(value, "themeProcessProperties")
-              val predicates = Set.empty[Int]
-              val predicateTuple = PredicateTuple(theme, themeProperties, themeProcess, themeProcessProperties, predicates)
+              val predicateTuple = PredicateTuple(theme, themeProperties, themeProcess, themeProcessProperties)
 
               PredicateGrounding(predicateTuple)
             case _ => throw new Exception(s"Unknown grounding type: $typ")

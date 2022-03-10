@@ -4,12 +4,12 @@ import org.clulab.wm.eidos.groundings.IndividualGrounding
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.utils.GroundingUtils
 
+// TODO: Keep track of word and index?
 class PredicateTuple protected (
   val theme: OntologyGrounding,
   val themeProperties: OntologyGrounding,
   val themeProcess: OntologyGrounding,
-  val themeProcessProperties: OntologyGrounding,
-  val predicates: Set[Int]
+  val themeProcessProperties: OntologyGrounding
 ) extends IndexedSeq[OntologyGrounding] {
   val score: Float = {
     val allScores = indices.map(getScoreOpt).flatten
@@ -73,6 +73,11 @@ class PredicateTuple protected (
 }
 
 object PredicateTuple {
+  // Compositional Ontology Branches
+  val CONCEPT = "concept"
+  val PROCESS = "process"
+  val PROPERTY = "property"
+
   val labels = Array(
     "THEME: ",
     "Theme properties: ",
@@ -86,19 +91,17 @@ object PredicateTuple {
     theme: OntologyGrounding,
     themeProperties: OntologyGrounding,
     themeProcess: OntologyGrounding,
-    themeProcessProperties: OntologyGrounding,
-    predicates: Set[Int]
+    themeProcessProperties: OntologyGrounding
   ): PredicateTuple = new PredicateTuple(
-    theme.filterSlots(SRLCompositionalGrounder.CONCEPT),
-    themeProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
-    themeProcess.filterSlots(SRLCompositionalGrounder.PROCESS),
-    themeProcessProperties.filterSlots(SRLCompositionalGrounder.PROPERTY),
-    predicates
+    theme.filterSlots(CONCEPT),
+    themeProperties.filterSlots(PROPERTY),
+    themeProcess.filterSlots(PROCESS),
+    themeProcessProperties.filterSlots(PROPERTY)
   )
 
-  def apply(ontologyGroundings: Array[OntologyGrounding], predicates: Set[Int]): PredicateTuple = {
+  def apply(ontologyGroundings: Array[OntologyGrounding]): PredicateTuple = {
     require(ontologyGroundings.length == 4)
-    apply(ontologyGroundings(0), ontologyGroundings(1), ontologyGroundings(2), ontologyGroundings(3), predicates)
+    apply(ontologyGroundings(0), ontologyGroundings(1), ontologyGroundings(2), ontologyGroundings(3))
   }
 
   def apply(
@@ -112,8 +115,29 @@ object PredicateTuple {
       ontologyGrounding1Opt.getOrElse(emptyOntologyGrounding),
       ontologyGrounding2Opt.getOrElse(emptyOntologyGrounding),
       ontologyGrounding3Opt.getOrElse(emptyOntologyGrounding),
-      ontologyGrounding4Opt.getOrElse(emptyOntologyGrounding),
-      Set.empty[Int]
+      ontologyGrounding4Opt.getOrElse(emptyOntologyGrounding)
     )
+  }
+
+  def toPredicateTupleOptWithBranch(ontologyGrounding: OntologyGrounding, branch: String, emptyOntologyGrounding: OntologyGrounding): Option[PredicateTuple] = {
+    if (ontologyGrounding.isEmpty) None
+    else
+      branch match {
+        case CONCEPT =>
+          Some(PredicateTuple(ontologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding))
+        case PROCESS =>
+          Some(PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, ontologyGrounding, emptyOntologyGrounding))
+        case _ => None
+      }
+  }
+
+  def toPredicateTupleOpt(ontologyGrounding: OntologyGrounding, emptyOntologyGrounding: OntologyGrounding): Option[PredicateTuple] = {
+    if (ontologyGrounding.individualGroundings.isEmpty)
+      None
+    else {
+      val branch = ontologyGrounding.individualGroundings.head.branchOpt.get
+
+      toPredicateTupleOptWithBranch(ontologyGrounding, branch, emptyOntologyGrounding)
+    }
   }
 }
