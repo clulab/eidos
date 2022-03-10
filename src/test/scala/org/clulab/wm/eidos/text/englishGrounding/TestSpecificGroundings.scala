@@ -98,6 +98,15 @@ class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings
 
     actualSlots should be (expectedSlots)
   }
+
+  it should "ground 'increased livestock productivity' correctly" in {
+    // "increased" should not prevent "productivity" from matching.
+    val text = "At the same time, the livestock productivity should allow poor households to receive higher wages for labor and more gifts from better-off households."
+    val expectedSlots = Slots("wm/concept/agriculture/livestock", "wm/property/productivity", "", "")
+    val actualSlots = getSlots(text, "livestock productivity")
+
+    actualSlots should be (expectedSlots)
+  }
 }
 
 object TestSpecificGroundings {
