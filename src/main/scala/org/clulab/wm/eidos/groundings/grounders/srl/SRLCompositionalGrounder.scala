@@ -1,14 +1,25 @@
-package org.clulab.wm.eidos.groundings.grounders
+package org.clulab.wm.eidos.groundings.grounders.srl
 
 import org.clulab.dynet.Utils
 import org.clulab.odin.Mention
-import org.clulab.processors.clu.CluProcessor
 import org.clulab.processors.Sentence
-import org.clulab.struct.{DirectedGraph, GraphMap, Interval}
-import org.clulab.wm.eidos.attachments.{ContextAttachment, Property, TriggeredAttachment}
-import org.clulab.wm.eidos.groundings.{ConceptEmbedding, ConceptPatterns, EidosWordToVec, IndividualGrounding, OntologyGrounding, PredicateGrounding}
+import org.clulab.processors.clu.CluProcessor
+import org.clulab.struct.DirectedGraph
+import org.clulab.struct.GraphMap
+import org.clulab.struct.Interval
+import org.clulab.wm.eidos.attachments.ContextAttachment
+import org.clulab.wm.eidos.attachments.Property
+import org.clulab.wm.eidos.attachments.TriggeredAttachment
+import org.clulab.wm.eidos.groundings.ConceptEmbedding
 import org.clulab.wm.eidos.groundings.ConceptExamples
+import org.clulab.wm.eidos.groundings.ConceptPatterns
+import org.clulab.wm.eidos.groundings.EidosWordToVec
+import org.clulab.wm.eidos.groundings.IndividualGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases.IndividualGroundings
+import org.clulab.wm.eidos.groundings.OntologyGrounding
+import org.clulab.wm.eidos.groundings.PredicateGrounding
+import org.clulab.wm.eidos.groundings.grounders.CompositionalGrounder
+import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidoscommon.Canonicalizer
@@ -16,8 +27,6 @@ import org.clulab.wm.eidoscommon.EidosTokenizer
 import org.clulab.wm.eidoscommon.utils.Collection
 import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.ontologies.DomainOntology
-
-import scala.collection.mutable.ArrayBuffer
 
 case class GroundedSpan(tokenInterval: Interval, grounding: OntologyGrounding, isProperty: Boolean = false)
 

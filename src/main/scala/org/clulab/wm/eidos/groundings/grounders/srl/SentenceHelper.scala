@@ -1,4 +1,4 @@
-package org.clulab.wm.eidos.groundings.grounders
+package org.clulab.wm.eidos.groundings.grounders.srl
 
 import org.clulab.processors.Sentence
 import org.clulab.struct.DirectedGraph

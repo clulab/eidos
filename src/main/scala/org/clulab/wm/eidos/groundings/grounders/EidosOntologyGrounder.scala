@@ -12,6 +12,7 @@ import org.clulab.wm.eidos.groundings.OntologyAliases.OntologyGroundingMap
 import org.clulab.wm.eidos.groundings.OntologyGrounder
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.groundings.OntologyNodeGrounding
+import org.clulab.wm.eidos.groundings.grounders.srl.SRLCompositionalGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
