@@ -15,11 +15,11 @@ class PredicateTuple protected (
     val allScores = indices.map(getScoreOpt).flatten
     GroundingUtils.noisyOr(allScores)
   }
-  val labelers: Array[Unit => String] = Array(
-    { _ => nameAndScore(theme) },
-    { _ => themeProperties.take(5).map(nameAndScore).mkString(", ") },
-    { _ => nameAndScore(themeProcess) },
-    { _ => themeProcessProperties.take(5).map(nameAndScore).mkString(", ") }
+  val labelers: Array[() => String] = Array(
+    () => nameAndScore(theme),
+    () => themeProperties.take(5).map(nameAndScore).mkString(", "),
+    () => nameAndScore(themeProcess),
+    () => themeProcessProperties.take(5).map(nameAndScore).mkString(", ")
   )
 
   override def length: Int = 4
@@ -54,7 +54,7 @@ class PredicateTuple protected (
   val name: String = {
     var hasSome = false
 
-    def someIf(grounding: OntologyGrounding, label: String, separator: String, labeler: Unit => String): Option[String] = {
+    def someIf(grounding: OntologyGrounding, label: String, separator: String, labeler: () => String): Option[String] = {
       if (grounding.isEmpty) None
       else {
         val string = (if (hasSome) separator else "") + label + labeler()
