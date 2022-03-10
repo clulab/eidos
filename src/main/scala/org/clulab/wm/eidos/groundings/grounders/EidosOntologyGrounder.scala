@@ -88,13 +88,13 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
       case None => 0f
       case Some(examples) =>
         val scores = examples.map { example =>
-              val med = new EditDistance().score(lowerString, example.toLowerCase)
-              val normalizedMed = med / math.max(string.length, example.length)
-              val score = 1.0 - normalizedMed
+          val med = new EditDistance().score(lowerString, example.toLowerCase)
+          val normalizedMed = med / math.max(string.length, example.length)
+          val score = 1.0 - normalizedMed
 
-              // println(s"string: $string, example: $example, score: $score")
-              score
-            }
+          // println(s"string: $string, example: $example, score: $score")
+          score
+        }
         Collection.maxOption(scores).getOrElse(0.0).toFloat
     }
   }
