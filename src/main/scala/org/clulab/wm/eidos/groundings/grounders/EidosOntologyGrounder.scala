@@ -91,7 +91,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
               val normalizedMed = med / math.max(string.length, example.length)
               val score = 1.0 - normalizedMed
 
-              println(s"string: $string, example: $example, score: $score")
+              // println(s"string: $string, example: $example, score: $score")
               score
             }
         Collection.maxOption(scores).getOrElse(0.0).toFloat
@@ -183,11 +183,11 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
               // val comboScore = embeddingScore
               // val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
               // val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
-              println(s"$text $namer embedding: $embeddingScore example: $exampleScore")
+              // println(s"$text $namer embedding: $embeddingScore example: $exampleScore")
               OntologyNodeGrounding(namer, comboScore)
             }
 
-        embeddingGroundings// ++ returnedExactMatches ++ matchedPatterns
+        embeddingGroundings // ++ returnedExactMatches ++ matchedPatterns
       }
     }
   }
