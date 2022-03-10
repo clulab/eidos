@@ -27,12 +27,9 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   val emptyOntologyGrounding: OntologyGrounding = OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt)
 
-  //def emptyOntologyGrounding(branchOpt: Option[String] = None) = new OntologyGrounding(domainOntology.version, domainOntology.date, branchOpt = branchOpt)
-
   def newOntologyGrounding(individualGroundings: OntologyAliases.IndividualGroundings = Seq.empty, branchOpt: Option[String] = None): OntologyGrounding = {
     OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt, individualGroundings, branchOpt)
   }
-
 
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
@@ -84,14 +81,20 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
   }
 
   def nodeExamplesMatch(string: String, examples: Option[Array[String]]): Float = {
+    val lowerString = string.toLowerCase
+
     examples match {
-      case None => string.length.toFloat
+      case None => 0f
       case Some(examples) =>
-        val lowerString = string.toLowerCase // just once for all examples
-        examples
-            .map { example => new EditDistance().score(lowerString, example.toLowerCase) }
-            .min
-            .toFloat
+        val scores = examples.map { example =>
+              val med = new EditDistance().score(lowerString, example.toLowerCase)
+              val normalizedMed = med / math.max(string.length, example.length)
+              val score = 1.0 - normalizedMed
+
+              println(s"string: $string, example: $example, score: $score")
+              score
+            }
+        Collection.maxOption(scores).getOrElse(0.0).toFloat
     }
   }
 
@@ -174,12 +177,13 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         val embeddingGroundings = // This is a Seq rather than a Map.
             for ((namer, embeddingScore) <- matchedEmbeddings)
             yield {
-              val rawExampleScore = matchedExamples(namer)
-              val exampleScore = (1.0 / (log(rawExampleScore + 1) + 1)).toFloat
+              val exampleScore = matchedExamples(namer)
+              val comboScore = EidosOntologyGrounder.lambda * embeddingScore + (1f - EidosOntologyGrounder.lambda) * exampleScore
+              // These below are obsolete versions for the historic record.
               // val comboScore = embeddingScore
               // val comboScore = embeddingScore + (1 / (exampleScore + 1)) // Becky's simple version
-              val comboScore = EidosOntologyGrounder.lambda * embeddingScore + (1f - EidosOntologyGrounder.lambda) * exampleScore
               // val comboScore = pow(embeddingScore.toDouble, exampleScore.toDouble)
+              println(s"$text $namer embedding: $embeddingScore example: $exampleScore")
               OntologyNodeGrounding(namer, comboScore)
             }
 
