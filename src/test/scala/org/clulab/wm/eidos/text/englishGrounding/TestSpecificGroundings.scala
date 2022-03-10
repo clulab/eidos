@@ -66,6 +66,30 @@ class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings
 
     actualSlots should be (expectedSlots)
   }
+
+  it should "ground 'food insecurity' correctly" in {
+    val text = "Food insecurity can lead to migration pressure."
+    val expectedSlots = Slots("wm/concept/goods/food/", "wm/property/insecurity", "", "")
+    val actualSlots = getSlots(text, "Food insecurity")
+
+    actualSlots should be (expectedSlots)
+  }
+
+  it should "ground 'crop production' correctly" in {
+    val text = "Crop production promotes good nutrition."
+    val expectedSlots = Slots("wm/concept/agriculture/crop/", "", "wm/process/production", "")
+    val actualSlots = getSlots(text, "Crop")
+
+    actualSlots should be (expectedSlots)
+  }
+
+  it should "ground 'nutrution' correctly" in {
+    val text = "Successful crop production promotes good nutrition."
+    val expectedSlots = Slots("wm/concept/health/nutrition", "", "", "")
+    val actualSlots = getSlots(text, "nutrition")
+
+    actualSlots should be (expectedSlots)
+  }
 }
 
 object TestSpecificGroundings {
