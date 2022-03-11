@@ -109,7 +109,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // If there was an exact match, returns Some of a tuple including the SingleOntologyNodeGrounding and the
   // Range of the match in the splitText so that we can tell how much of it was used.  No match results in None.
-  def exactMatchesForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding], range: Range): Seq[(OntologyNodeGrounding, Range)] = {
+  def exactMatchesForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding], mentionIndexes: Seq[Int]): Seq[(OntologyNodeGrounding, Seq[Int])] = {
     // This looks for exact string overlap only!
     // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
     // (or max length) and in case of ties, the min position in the sentence, so the leftmost match.
@@ -127,7 +127,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         if (index < 0) Seq.empty
         // Part or maybe all of the split text was matched, indicated by 1, favored.
         // Add range.start because splitText does not always begin the sentence.
-        else Seq((canonicalWords.length, index + range.start, 1, embedding.namer))
+        else Seq((canonicalWords.length, mentionIndexes.slice(index, index + canonicalWords.length), 1, embedding.namer))
       }
       else {
         // Node name contains the text
@@ -135,7 +135,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         if (index < 0) Seq.empty
         // The entirety of splitText was matched, indicated by 2, disfavored.
         // Add range.start because splitText does not always begin the sentence.
-        else Seq((splitText.length, 0 + range.start, 2, embedding.namer))
+        else Seq((splitText.length, mentionIndexes, 2, embedding.namer))
       }
     }
     // There may be a lot of ties of length 1 and picking the winner by sentence
@@ -144,16 +144,17 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
         if (overlapTuples.isEmpty) Seq.empty // Avoid maxBy on empty.
         else {
           val maxLength = overlapTuples.maxBy(_._1)._1
-          val maxOverlapTuples=  overlapTuples.filter(_._1 == maxLength).sorted
+          // Order these by where the match starts in the sentence, then type (1 or 2), then by namer.
+          val maxOverlapTuples = overlapTuples.filter(_._1 == maxLength).sortBy(value => (value._2.head, value._3, value._4))
           val limitedOverlapTuples =
               if (maxLength == 1) maxOverlapTuples.take(1) // used to be only head
               else maxOverlapTuples
 
           limitedOverlapTuples.map { overlapTuple =>
             val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
-            val range = Range(overlapTuple._2, overlapTuple._2 + overlapTuple._1)
+            val indexes = overlapTuple._2
 
-            (singleOntologyNodeGrounding, range)
+            (singleOntologyNodeGrounding, indexes)
           }
         }
 
