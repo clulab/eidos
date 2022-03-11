@@ -27,7 +27,7 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
       // keep only predicates that are within the mention
       .filter(tokenInterval.contains)
       // remove the predicates which correspond to our increase/decrease/quantifiers
-      .filterNot(exclude contains words(_))
+      .filter(validTokenIndexes contains _)
     // add back in ones that SRL "missed"
     val corrected = for {
       i <- tokenInterval
@@ -35,7 +35,7 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
       if outgoingOfType(i, Seq("compound")).nonEmpty
     } yield i
     // start with those closest to the syntactic root of the sentence to begin with "higher level" predicates
-    (original ++ corrected).sortBy(minGraphDistanceToSyntacticRoot)
+    (original ++ corrected).sortBy(minGraphDistanceToSyntacticRoot).distinct
   }
 
   // Find the shortest distance (in the syntax graph) between a given token and any of the roots
@@ -154,19 +154,18 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
       .map(_._1)
   }
 
-  def isArg(index: Int): Boolean =
-    srls.getIncomingEdges(index).nonEmpty && srls.getOutgoingEdges(index).isEmpty
+  def isArg(index: Int): Boolean = !isPred(index) &&
+      srls.getIncomingEdges(index).nonEmpty && srls.getOutgoingEdges(index).isEmpty
 
-  def isPred(index: Int): Boolean = !isArg(index)
+  def isPred(index: Int): Boolean = validPredicates.contains(index)
 
-  def isSkipword(index: Int): Boolean = {
-    val pos = sentence.tags.get(index)
-    SentenceHelper.skipwordPartsOfSpeech.exists(pos.startsWith)
-  }
+  def isSkipword(index: Int): Boolean = !isKeepword(index)
 
   def isKeepword(index: Int): Boolean = {
+    val word = sentence.words(index)
     val pos = sentence.tags.get(index)
-    SentenceHelper.keepwordPartsOfSpeech.exists(pos.startsWith)
+
+    SentenceHelper.isKeepword(word, pos)
   }
 }
 
@@ -190,4 +189,8 @@ object SentenceHelper {
     "RB", // Adverb
     "VB"  // Verb, base form
   )
+
+  def isSkipword(word: String, pos: String): Boolean = !isKeepword(word, pos)
+
+  def isKeepword(word: String, pos: String): Boolean = keepwordPartsOfSpeech.exists(pos.startsWith)
 }

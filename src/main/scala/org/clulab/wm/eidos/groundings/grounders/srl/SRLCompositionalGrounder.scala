@@ -14,14 +14,12 @@ import org.clulab.wm.eidos.groundings.ConceptEmbedding
 import org.clulab.wm.eidos.groundings.ConceptExamples
 import org.clulab.wm.eidos.groundings.ConceptPatterns
 import org.clulab.wm.eidos.groundings.EidosWordToVec
-import org.clulab.wm.eidos.groundings.IndividualGrounding
 import org.clulab.wm.eidos.groundings.OntologyAliases.IndividualGroundings
 import org.clulab.wm.eidos.groundings.OntologyGrounding
 import org.clulab.wm.eidos.groundings.PredicateGrounding
 import org.clulab.wm.eidos.groundings.grounders.CompositionalGrounder
 import org.clulab.wm.eidos.groundings.grounders.EidosOntologyGrounder
 import org.clulab.wm.eidos.mentions.EidosMention
-import org.clulab.wm.eidos.utils.GroundingUtils
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.EidosTokenizer
 import org.clulab.wm.eidoscommon.utils.Collection
@@ -115,7 +113,16 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   def groundSentenceSpan(s: Sentence, start: Int, end: Int, exclude: Set[String], topN: Option[Int], threshold: Option[Float]): Seq[OntologyGrounding] = {
     val tokenInterval = Interval(start, end)
-    groundSentenceSpan(s, tokenInterval, exclude, topN, threshold)
+    val skipWords = tokenInterval
+        .filter { tokenIndex =>
+          val word = s.words(tokenIndex)
+          val pos = s.tags.get(tokenIndex)
+
+          SentenceHelper.isSkipword(word, pos)
+        }
+        .map(s.words)
+
+    groundSentenceSpan(s, tokenInterval, exclude ++ skipWords, topN, threshold)
   }
 
   def groundSentenceSpan(
@@ -351,7 +358,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       slicedPredicateGroundings
     }
 
-    def groundWithPredicates(sentenceHelper: SentenceHelper, predicates: Seq[Int]): Seq[PredicateGrounding] = {
+    def groundWithPredicates(sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
       val mentionIndexes = sentenceHelper.validTokenIndexes
       val mentionStrings = mentionIndexes.map(s.lemmas.get(_).toLowerCase).toArray // used to be words, now lemmas
       val predicateGroundings = {
@@ -367,12 +374,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
 
     val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
-    val srlGrounding = {
-      val validPredicates = sentenceHelper.validPredicates.distinct.sorted // Duplicates can be returned!
-
-      if (validPredicates.isEmpty) groundWithoutPredicates(sentenceHelper)
-      else groundWithPredicates(sentenceHelper, validPredicates)
-    }
+    val srlGrounding =
+        if (sentenceHelper.validPredicates.isEmpty) groundWithoutPredicates(sentenceHelper)
+        else groundWithPredicates(sentenceHelper)
 
     Seq(newOntologyGrounding(srlGrounding))
   }
@@ -492,12 +496,30 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       .map(_._1)
   }
 
-  // Get the triggers, quantifiers, and context phrases of the attachments
+  // Get the triggers, quantifiers, and context phrases of the attachments,
+  // usually so that they can be excluded from the grounding.
   private def getAttachmentStrings(mention: Mention): Set[String] = {
+
+    def getPos(triggeredAttachment: TriggeredAttachment): String = {
+      val provenance = triggeredAttachment.triggerProvenance.get
+      val document = provenance.document
+      val sentence = provenance.sentence
+      val index = provenance.interval.head
+
+      document.sentences(sentence).tags.get(index)
+    }
+
+    def qualifies(triggeredAttachment: TriggeredAttachment): Boolean = {
+      val pos = getPos(triggeredAttachment)
+
+      SRLCompositionalGrounder.triggerPartsOfSpeech.exists(pos.startsWith)
+    }
+
     mention.attachments.flatMap { a =>
       a match {
         case _: Property => Seq.empty
-        case t: TriggeredAttachment => Seq(t.trigger) ++ t.quantifiers.getOrElse(Seq())
+        case t: TriggeredAttachment =>
+          Seq(t).filter(qualifies).map(_.trigger) ++ t.quantifiers.getOrElse(Seq())
         case c: ContextAttachment => Seq(c.text)
         case _ => throw new RuntimeException("Unexpected attachment")
       }
@@ -629,6 +651,8 @@ object SRLCompositionalGrounder extends Logging {
   val LOC_ROLE = "AM-LOC" // FIXME: may need offline processing to make happen
 
   val ENTITY = "entity"
+
+  val triggerPartsOfSpeech = Array("JJ", "VBN")
 
   // Groundable Branches
   val pseudoThemeBranches = Seq(PredicateTuple.CONCEPT, ENTITY)
