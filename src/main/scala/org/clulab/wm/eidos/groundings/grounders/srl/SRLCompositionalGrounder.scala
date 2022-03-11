@@ -255,6 +255,10 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
       if (indices.forall(isSkips)) Seq.empty // There is nothing to ground, so short-circuit it.
       else {
+        // One would think that isPreds should come first because there is the best linguistic
+        // evidence for them.  However, we want to give a head start to properties.  Otherwise,
+        // in "price of oil", we get the process wm/process/transaction before the property
+        // wm/property/price_or_cost and a unit test fails.  There are other ways around this.
         val propertyOntologyGroundingOpts: Seq[Option[OntologyGrounding]] = indices.map { index =>
           if (isSkips(index)) None
           else maybeProperty(sentenceHelper, mentionIndexes(index))
