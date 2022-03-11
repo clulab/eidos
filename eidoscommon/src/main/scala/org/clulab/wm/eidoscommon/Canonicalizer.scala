@@ -11,8 +11,12 @@ class Canonicalizer(stopwordManaging: StopwordManaging, tagSet: TagSet) {
         !stopwordManaging.containsStopwordStrict(lemma) &&
         !stopwordManaging.containsStopwordNer(ner)
 
-  def canonicalWordsFromSentence(s: Sentence, tokenInterval: Interval, excludedWords: Set[String] = Set()): Seq[String] =
-      canonicalWordsFromSentenceAt(s, tokenInterval, excludedWords)
+  def canonicalWordsFromSentence(s: Sentence, tokenInterval: Interval, excludedWords: Set[String] = Set()): Seq[String] = {
+    val canonicalWords = canonicalWordsFromSentenceAt(s, tokenInterval, excludedWords)
+
+    if (canonicalWords.nonEmpty) canonicalWords
+    else tokenInterval.map(s.words) // fixme -- better and cleaner backoff
+  }
 
   def canonicalWordsFromSentenceAt(s: Sentence, tokenIndexes: Seq[Int], excludedWords: Set[String] = Set()): Seq[String] = {
     val words = s.words
@@ -23,12 +27,10 @@ class Canonicalizer(stopwordManaging: StopwordManaging, tagSet: TagSet) {
     val contentWords = for {
       i <- tokenIndexes
       if isCanonicalLemma(lemmas(i), tags(i), ners(i))
-      if !excludedWords.contains(words(i))
-    } yield words(i)
+      word = words(i)
+      if !excludedWords.contains(word)
+    } yield word
 
-    if (contentWords.isEmpty)
-      tokenIndexes.map(words)   // fixme -- better and cleaner backoff
-    else
-      contentWords
+    contentWords
   }
 }
