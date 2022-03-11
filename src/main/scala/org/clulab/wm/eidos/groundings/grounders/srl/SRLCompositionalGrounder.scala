@@ -120,11 +120,13 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
 
   def groundSentenceSpan(
     s: Sentence,
-    tokenIntervalHide: Interval,
+    tokenInterval: Interval,
     exclude: Set[String],
     topNOpt: Option[Int],
     thresholdOpt: Option[Float]
   ): Seq[OntologyGrounding] = {
+    // These are inner functions mostly so that some of the arguments like topN and threshold
+    // can be spread throughout the code without passing them around and around.
 
     def groundWithoutPredicates(sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
       val themePropertyOpt: Option[OntologyGrounding] = maybeProperty(sentenceHelper)
@@ -364,7 +366,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       predicateGroundings.sortBy(-_.score)
     }
 
-    val sentenceHelper = SentenceHelper(s, tokenIntervalHide, exclude)
+    val sentenceHelper = SentenceHelper(s, tokenInterval, exclude)
     val srlGrounding = {
       val validPredicates = sentenceHelper.validPredicates.distinct.sorted // Duplicates can be returned!
 
