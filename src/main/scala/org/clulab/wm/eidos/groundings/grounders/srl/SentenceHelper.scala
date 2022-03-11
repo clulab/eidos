@@ -25,13 +25,13 @@ case class SentenceHelper(sentence: Sentence, tokenInterval: Interval, exclude: 
     // and the roots also contain the unreachable nodes etc.
     val original = srls.edges.map(edge => edge.source)
       // keep only predicates that are within the mention
-      .filter(tokenInterval.contains)
+      // .filter(tokenInterval.contains)
       // remove the predicates which correspond to our increase/decrease/quantifiers
       .filter(validTokenIndexes contains _)
     // add back in ones that SRL "missed"
     val corrected = for {
       i <- tokenInterval
-      if !original.contains(i)
+      if !original.contains(i) && validTokenIndexes.contains(i)
       if outgoingOfType(i, Seq("compound")).nonEmpty
     } yield i
     // start with those closest to the syntactic root of the sentence to begin with "higher level" predicates

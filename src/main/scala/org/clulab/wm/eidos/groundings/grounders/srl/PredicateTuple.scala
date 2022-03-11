@@ -85,7 +85,7 @@ object PredicateTuple {
     "Process properties: "
   )
   val separators = Array("; ", ", ", "; ", ", ")
-  val weights = Array(1f, 0.6f, 1f, 0.6f)
+  val weights = Array(1f, 0.5f, 1f, 0.5f)
 
   def apply(
     theme: OntologyGrounding,
