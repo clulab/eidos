@@ -152,9 +152,9 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
       predicateTupleOpt.map(PredicateGrounding).toSeq
     }
 
-    def findExactPredicateGroundingAndRanges(mentionStrings: Array[String], mentionIndexes: Seq[Int]): Seq[(PredicateGrounding, Seq[Int], String)] = {
+    def findExactPredicateGroundingAndRanges(mentionWords: Array[String], mentionLemmas: Array[String], mentionIndexes: Seq[Int]): Seq[(PredicateGrounding, Seq[Int], String)] = {
       SRLCompositionalGrounder.processOrConceptBranches.flatMap { branch =>
-        val exactMatches = exactMatchesForPreds(mentionStrings, conceptEmbeddingsMap(branch), mentionIndexes)
+        val exactMatches = exactMatchesForPreds(mentionWords, mentionLemmas, conceptEmbeddingsMap(branch), mentionIndexes)
         exactMatches.flatMap { case (ontologyNodeGrounding, mentionIndexes) =>
           val ontologyGrounding = newOntologyGrounding(Seq(ontologyNodeGrounding))
           PredicateTuple.toPredicateTupleOptWithBranch(ontologyGrounding, branch, emptyOntologyGrounding).map { predicateTuple =>
@@ -299,12 +299,16 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     }
 
     def groundWithPredicates(sentenceHelper: SentenceHelper): Seq[PredicateGrounding] = {
-      val mentionIndexes = sentenceHelper.validTokenIndexes
-      val mentionStrings = mentionIndexes.map(s.lemmas.get(_).toLowerCase).toArray // used to be words, now lemmas
       val predicateGroundings = {
-        val exactPredicateGroundingsAndIndexesAndBranches = findExactPredicateGroundingAndRanges(mentionStrings, mentionIndexes)
+        // For exact matches, use all of the words available, although in lemma form.
+        val exactIndexes = sentenceHelper.tokenInterval
+        val exactWords = exactIndexes.map(sentenceHelper.words(_).toLowerCase).toArray
+        val exactLemmas = exactIndexes.map(s.lemmas.get(_).toLowerCase).toArray
+        val exactPredicateGroundingsAndIndexesAndBranches = findExactPredicateGroundingAndRanges(exactWords, exactLemmas, exactIndexes)
 
-        if (exactPredicateGroundingsAndIndexesAndBranches.isEmpty)
+        // For the inexact matches, use only the valid tokens, so words of import.
+        val mentionIndexes = sentenceHelper.validTokenIndexes
+       if (exactPredicateGroundingsAndIndexesAndBranches.isEmpty)
           findInexactPredicateGroundings(mentionIndexes, sentenceHelper)
         else
           exactPredicateGroundingsAndIndexesAndBranches.flatMap(findExactAndInexactPredicateGroundings(_, mentionIndexes, sentenceHelper))

@@ -109,7 +109,7 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // If there was an exact match, returns Some of a tuple including the SingleOntologyNodeGrounding and the
   // Range of the match in the splitText so that we can tell how much of it was used.  No match results in None.
-  def exactMatchesForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding], mentionIndexes: Seq[Int]): Seq[(OntologyNodeGrounding, Seq[Int])] = {
+  def exactMatchesForPreds(splitWords: Array[String], splitLemmas: Array[String], embeddings: Seq[ConceptEmbedding], mentionIndexes: Seq[Int]): Seq[(OntologyNodeGrounding, Seq[Int])] = {
     // This looks for exact string overlap only!
     // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
     // (or max length) and in case of ties, the min position in the sentence, so the leftmost match.
@@ -121,9 +121,9 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
       if (canonicalWords.isEmpty)
         // Non-leaf nodes end with a / resulting in an empty canonicalWords which we don't want to match.
         Seq.empty
-      else if (splitText.length >= canonicalWords.length) {
+      else if (splitWords.length >= canonicalWords.length) {
         // Text contains node name.
-        val index = splitText.indexOfSlice(canonicalWords)
+        val index = math.max(splitWords.indexOfSlice(canonicalWords), splitLemmas.indexOfSlice(canonicalWords))
         if (index < 0) Seq.empty
         // Part or maybe all of the split text was matched, indicated by 1, favored.
         // Add range.start because splitText does not always begin the sentence.
@@ -131,11 +131,11 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
       }
       else {
         // Node name contains the text
-        val index = canonicalWords.indexOfSlice(splitText)
+        val index = math.max(canonicalWords.indexOfSlice(splitWords), canonicalWords.indexOfSlice(splitLemmas))
         if (index < 0) Seq.empty
         // The entirety of splitText was matched, indicated by 2, disfavored.
         // Add range.start because splitText does not always begin the sentence.
-        else Seq((splitText.length, mentionIndexes, 2, embedding.namer))
+        else Seq((splitWords.length, mentionIndexes, 2, embedding.namer))
       }
     }
     // There may be a lot of ties of length 1 and picking the winner by sentence
