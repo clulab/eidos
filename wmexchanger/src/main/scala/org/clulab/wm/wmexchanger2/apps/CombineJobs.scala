@@ -10,19 +10,23 @@ import java.nio.file.Files
 import scala.collection.mutable
 
 object CombineJobs extends App {
-  val baseDir = "/E:/DocumentCollections/feb2022exp1-amy/inputs"
+  val baseDir = "/E:/DocumentCollections/feb2022exp1-amy/input-all"
   val inputDirs = Array(
     baseDir + "/input-dones/done",
-//    baseDir + "/input-dones2",
-//    baseDir + "/input-dones3",
-//    baseDir + "/input-dones5",
-//    baseDir + "/input-dones-not-sent",
-//    baseDir + "/input-undones3-bad.zip",
-    // baseDir + "/input-dones6"
+    baseDir + "/input-dones2/done",
+    baseDir + "/input-dones4/done",
+    baseDir + "/input-dones5/done",
+    baseDir + "/input-dones6/done",
+    baseDir + "/input-dones-not-sent/done",
+    baseDir + "/input-undones3-bad/input",
+    baseDir + "/input-undones3-bad/input/done"
   )
   val outputDir = baseDir + "/all"
   val extension = ".txt"
 
+  inputDirs.foreach { inputDir =>
+    require(new File(inputDir).exists)
+  }
   FileUtils.ensureDirsExist(outputDir)
 
   val map = {
