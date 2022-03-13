@@ -107,6 +107,15 @@ class TestSpecificGroundings extends EnglishGroundingTest(TestSpecificGroundings
 
     actualSlots should be (expectedSlots)
   }
+
+  it should "ground 'higher temperatures' correctly" in {
+    // The "higher" is not generally a valid token, but allow it in exact matches.
+    val text = "Higher temperatures cause draught."
+    val expectedSlots = Slots("wm/concept/environment/climate_change/higher_temperatures", "", "", "")
+    val actualSlots = getSlots(text, "Higher temperatures")
+
+    actualSlots should be (expectedSlots)
+  }
 }
 
 object TestSpecificGroundings {
