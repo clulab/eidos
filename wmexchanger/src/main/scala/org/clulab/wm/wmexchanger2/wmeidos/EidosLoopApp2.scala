@@ -146,9 +146,6 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
     val filesBeingProcessed: MutableHashSet[String] = new MutableHashSet[String]
     val threadPoolExecutor: ExecutorService = Executors.newFixedThreadPool(threads)
     val documentsBeingRead: mutable.Set[String] = mutable.Set.empty
-    val documentsAlreadyRead: mutable.Set[String] = FileUtils.findFiles(readingDir, Extensions.jsonld).map { file =>
-      StringUtils.beforeFirst(file.getName, '.')
-    }.to[mutable.Set]
 
     override def shutdown(): Unit = {
       threadPoolExecutor.shutdown()
@@ -157,6 +154,10 @@ class EidosLoopApp2(inputDir: String, outputDir: String, doneDir: String,
     override def runSafely(): Unit = {
       val outputDistinguisher = FileName.getDistinguisher(EidosLoopApp2.outputStage, FileUtils.findFiles(outputDir, Extensions.jsonld))
       val doneDistinguisher = FileName.getDistinguisher(EidosLoopApp2.outputStage, FileUtils.findFiles(doneDir, Extensions.txt))
+      // This doesn't work when placed above.
+      val documentsAlreadyRead: mutable.Set[String] = FileUtils.findFiles(readingDir, Extensions.jsonld).map { file =>
+        StringUtils.beforeFirst(file.getName, '.')
+      }.to[mutable.Set]
 
       while (!isInterrupted) {
         val files = EidosLoopApp2.synchronized {
