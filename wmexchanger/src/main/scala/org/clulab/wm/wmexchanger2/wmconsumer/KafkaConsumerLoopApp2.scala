@@ -63,9 +63,9 @@ object KafkaConsumerLoopApp2 extends LoopApp {
   val outputStage: Int = Stages.kafkaConsumerOutputStage
 
   def main(args: Array[String]): Unit = {
-    val password = getPassword
-
     if (false) { // This only seems to work for Windows.
+      val password = getPassword()
+
       AppEnvironment.setEnv {
         val baseDir = "../corpora/feb2022exp1"
         Map(

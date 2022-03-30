@@ -15,6 +15,7 @@ This directory contains multiple docker files that work alone or in tandem to pr
   * DockerfileLoopEidos
 * One-stage built with `sbt` on host, run from `Java`
   * DockerfileLoopDist
+  * DockerfileLoopDist2, an update of the above
 
 ### One-stage built and run with sbt in image
 
@@ -69,11 +70,24 @@ $ cd ../..
 $ docker build -f ./Docker/DockerfileLoopDist -t clulab/eidos-loop .
 ```
 
+`DockerfileLoopDist2` works the same except that it uses version 2 of several of the files.  It implements the second version of the protocol for interaction with DART, the one in which multiple ontologies are supported.  Some names below have been changed slightly to avoid clashes.
+```shell
+$ sbt "project wmexchanger" "dist"
+$ cd ./wmexchanger/target/universal
+$ unzip wmexchanger*.zip
+$ mv wmexchanger*/bin wmexchanger*/lib .
+$ cd ../..
+$ docker build -f ./Docker/DockerfileLoopDist2 -t clulab/eidos-dart .
+```
+
+
 ## Parameters
 
-Quite a few parameters need to be passed to the `wmexchanger` programs and most of them start as environment variables which are then referenced in configuration files or fotwarded to scripts as command line parameters.  See particularly those used in `export.sh`.  Once set, they can be included in the `docker run` command, but more typically they are used with `docker-compose up`.  This series of commands often does the job:
+Quite a few parameters need to be passed to the `wmexchanger` programs and most of them start as environment variables which are then referenced in configuration files or forwarded to scripts as command line parameters.  See particularly those used in `export.sh`.  Once set, they can be included in the `docker run` command, but more typically they are used with `docker-compose up`.  This series of commands often does the job:
 ```shell
-$ source ./export.sh
 $ export EIDOS_PASSWORD=<EidosPassword>
+$ source ./export.sh
 $ docker-compose -f ./Docker/docker-compose-eidos.yml up
+$ # or depending on the interface you want to DART,
+$ docker-compose -f ./Docker/docker-compose-eidos2.yml up
 ```

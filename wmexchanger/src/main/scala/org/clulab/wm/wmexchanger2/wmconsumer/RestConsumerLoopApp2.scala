@@ -189,8 +189,8 @@ object RestConsumerLoopApp2 extends LoopApp {
           "MOCK_DIR" -> s"$baseDir",
 
           // These are not authenticated.
-          "REST_CONSUMER_USERNAME" -> getUsername,
-          "REST_CONSUMER_PASSWORD" -> getPassword
+          "REST_CONSUMER_USERNAME" -> getUsername(),
+          "REST_CONSUMER_PASSWORD" -> getPassword()
         )
       }
     }

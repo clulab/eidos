@@ -13,13 +13,13 @@ export REST_HOSTNAME=wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com
 # This one is for testing.
 # export REST_HOSTNAME=uat-ingest-pipeline-rest-1.prod.dart.worldmodelers.com
 
-export EIDOS_VERSION=feb2022expV2
+export EIDOS_VERSION=dart
 export ONTOLOGY_VERSION=4.0
 
 export EIDOS_USERNAME=eidos
 # Add this elsewhere.
 # export EIDOS_PASSWORD=
 
-export EIDOS_BASE_DIR=../corpora/feb2022exp1
+export EIDOS_BASE_DIR=../corpora/corpus
 
 export KAFKA_CONSUMER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule\ required\ username=\"$EIDOS_USERNAME\"\ password=\"$EIDOS_PASSWORD\"\;

@@ -4,16 +4,16 @@ import org.clulab.wm.eidoscommon.utils.Logging
 
 trait LoopApp extends Logging {
 
-  def getPassword: String = {
-    Option(System.getenv("PASSWORD")).getOrElse {
-      logger.info("Note that PASSWORD is not set.")
+  def getPassword(key: String = "PASSWORD"): String = {
+    Option(System.getenv(key)).getOrElse {
+      logger.info(s"Note that $key is not set.")
       "password"
     }
   }
 
-  def getUsername: String = {
-    Option(System.getenv("USERNAME")).getOrElse {
-      logger.info("Note that USERNAME is not set.")
+  def getUsername(key: String = "USERNAME"): String = {
+    Option(System.getenv(key)).getOrElse {
+      logger.info(s"Note that $key is not set.")
       "username"
     }
   }
