@@ -1,4 +1,13 @@
 # Changes
++ **1.5.1** - Update to processors 8.5.7 and ai.lum.common 0.1.5
++ **1.5.0** - Release to maven rather than artifactory using processors 8.4.5
++ **1.5.0** - Update logging, badges
++ **1.5.0** - Reorganize bags, sets, maps for identity and equality
++ **1.5.0** - Reorganize ontology code
++ **1.5.0** - Use new ontology format
++ **1.5.0** - Update compositional grounding algorithm
++ **1.5.0** - Fix "not only" bug
++ **1.5.0** - Rework sorting
 + **1.3.0** - Use srl_ner and processors 8.4.3
 + **1.2.1** - Update to processors 8.3.2
 + **1.2.0** - Update to processors 8.3.1, break into subprojects

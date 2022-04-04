@@ -10,7 +10,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   // Versions were last checked 2021 Mar 12.
-  val procVer = "8.4.5"
+  val procVer = "8.4.7"
   val luceneVer = "6.6.6"
 
   // Run dependencyTree, dependencyList, and dependencyStats on eidos and

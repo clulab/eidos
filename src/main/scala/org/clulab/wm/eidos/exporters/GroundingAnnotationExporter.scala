@@ -1,6 +1,6 @@
 package org.clulab.wm.eidos.exporters
 
-import ai.lum.common.StringUtils.StringWrapper
+import ai.lum.common.StringUtils.LumAICommonStringWrapper
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
 import org.clulab.wm.eidos.mentions.EidosMention
