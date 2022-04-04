@@ -145,6 +145,7 @@ decrease_triggers:
 noncausal_decrease_triggers:
   - absence
   - below-average
+  - breakdown
   - declin
   - defici
   - discontinu
