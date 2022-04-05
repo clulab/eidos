@@ -17,7 +17,7 @@ class RestConsumerLoopApp(inputDir: String, outputDir: String, doneDir: String) 
   var useReal = RestConsumerLoopApp.useReal
 
   val config: Config = ConfigFactory.defaultApplication().resolve()
-  val service: String = config.getString("rest.consumer.service")
+  val service: String = config.getString("rest.consumer.documentService")
   val annotations: Boolean = config.getBoolean("rest.consumer.annotations")
   val interactive: Boolean = config.getBoolean("rest.consumer.interactive")
   val waitDuration: Int = config.getInt("rest.consumer.duration.wait")

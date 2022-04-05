@@ -43,12 +43,24 @@ class FileEditor(protected var file: File) {
     this
   }
 
-  def setExt(ext: String): FileEditor = {
+  def distinguish(distinguisher: Int): FileEditor = {
+    // Add s"-$distinguisher" to name before the extension
+    // Note the beforeFirst, so that keep everything with a period at the very end.
+    val extensionless = StringUtils.beforeFirst(file.getName, '.', all = true)
+    val extension = file.getName.substring(extensionless.length)
+
+    // A dot gets added here, so one was expected before.
+    setName(s"$extensionless-$distinguisher.$extension")
+  }
+
+  def setExt(ext: String, last: Boolean = true): FileEditor = {
     // Being an extension implies that it starts with a period, but don't add a second period,
     // because then it's not an extension but something else.
     val dottedExt = if (ext.startsWith(dots)) ext else dots + ext
     val path = file.getPath
-    val extensionlessPath = StringUtils.beforeLast(path, dot)
+    val extensionlessPath =
+        if (last) StringUtils.beforeLast(path, dot)
+        else StringUtils.beforeFirst(path, dot)
     val newPath = extensionlessPath + dottedExt
 
     file = new File(newPath)

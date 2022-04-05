@@ -4,8 +4,8 @@ package org.clulab.wm.eidos.exporters
 import com.typesafe.config.{Config, ConfigFactory}
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.document.AnnotatedDocument
-import org.clulab.wm.eidos.groundings.grounders.SRLCompositionalGrounder
-import org.clulab.wm.eidos.groundings.{ConceptPatterns, IndividualGrounding, OntologyGrounding, PredicateGrounding, OntologyNodeGrounding}
+import org.clulab.wm.eidos.groundings.grounders.srl.SRLCompositionalGrounder
+import org.clulab.wm.eidos.groundings.{ConceptPatterns, IndividualGrounding, OntologyGrounding, OntologyNodeGrounding, PredicateGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.Closer._
 import org.clulab.wm.eidoscommon.utils.{FileUtils, StringUtils}

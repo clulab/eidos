@@ -1,8 +1,10 @@
 package org.clulab.wm.wmexchanger.wmconsumer
 
 import org.apache.http.HttpHost
+import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.utils.URIBuilder
+import org.apache.http.impl.auth.BasicScheme
 import org.apache.http.impl.client.CloseableHttpClient
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
@@ -35,6 +37,10 @@ class RealRestConsumer(service: String, username: String, password: String, anno
     val uri = uriBuilder.toString
     val httpGet = new HttpGet(uri)
 
+    // This is a poor person's substitute for preemptive basic authentication.
+    // val credentials = new UsernamePasswordCredentials(username, password)
+    // httpGet.addHeader(new BasicScheme().authenticate(credentials, httpGet))
+
     httpGet
   }
 
@@ -60,9 +66,10 @@ class RealRestConsumer(service: String, username: String, password: String, anno
     implicit val formats: DefaultFormats.type = org.json4s.DefaultFormats
 
     val docId = StringUtils.beforeLast(file.getName, '.')
-    val json = FileUtils.getTextFromFile(file)
-    val jValue = JsonMethods.parse(json)
-    val dateOpt = (jValue \ "release-date").extractOpt[String]
+    // The json format has changed and we don't really need the date anyway.
+    // val json = FileUtils.getTextFromFile(file)
+    // val jValue = JsonMethods.parse(json)
+    val dateOpt = None // (jValue \ "release-date").extractOpt[String]
     val cdr = download(docId, dateOpt, annotations, closeableHttpClientOpt.get, httpHost)
 
     cdr

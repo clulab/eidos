@@ -1,7 +1,8 @@
 default_base_dir="../corpora/loop"
 
 # Coordinate servers
-export REST_CONSUMER_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/cdrs
+export REST_CONSUMER_DOCUMENT_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/cdrs
+export REST_CONSUMER_ONTOLOGY_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/ontologies
 export REST_PRODUCER_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/readers/upload
 
 # Coordinate credentials.
@@ -21,6 +22,10 @@ export EIDOS_OUTPUT_SUBDIR="${EIDOS_OUTPUT_SUBDIR:-output}"
 export DONE_SUBDIR="${DONE_SUBDIR:-done}"
 export KAFKA_SUBDIR="${KAFKA_SUBDIR:-kafka}"
 
+export DOCUMENT_SUBDIR="${DOCUMENT_SUBDIR:-documents}"
+export ONTOLOGY_SUBDIR="${ONTOLOGY_SUBDIR:-ontologies}"
+export READING_SUBDIR="${READING_SUBDIR:-readings}"
+
 # Set up the pipeline.
 
 # For kafka, input comes from the network.
@@ -36,4 +41,9 @@ export EIDOS_DONE_DIR="${EIDOS_DONE_DIR:-$EIDOS_INPUT_DIR/$DONE_SUBDIR}"
 
 # For the rest producer, output goes to the network.
 export REST_PRODUCER_INPUT_DIR="${REST_PRODUCER_INPUT_DIR:-$EIDOS_OUTPUT_DIR}"
+export REST_PRODUCER_OUTPUT_DIR="${REST_PRODUCER_OUTPUT_DIR:-$EIDOS_BASE_DIR}"
 export REST_PRODUCER_DONE_DIR="${REST_PRODUCER_DONE_DIR:-$REST_PRODUCER_INPUT_DIR/$DONE_SUBDIR}"
+
+export DOCUMENT_DIR="${DOCUMENT_DIR:-$EIDOS_BASE_DIR/$DOCUMENT_SUBDIR}"
+export ONTOLOGY_DIR="${ONTOLOGY_DIR:-$EIDOS_BASE_DIR/$ONTOLOGY_SUBDIR}"
+export READING_DIR="${READING_DIR:-$EIDOS_BASE_DIR/$READING_SUBDIR}"

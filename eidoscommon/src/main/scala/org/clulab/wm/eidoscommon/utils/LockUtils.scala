@@ -4,14 +4,28 @@ import java.io.File
 
 object LockUtils {
 
-  def findFiles(dir: String, dataExt: String, lockExt: String): Seq[File] = {
-    val dataFiles = FileUtils.findFiles(dir, dataExt)
+  def findFiles(dir: String, dataExt: String, lockExt: String): Seq[File] =
+      findFiles(dir, Seq(dataExt), lockExt)
+
+  def findFiles(dir: String, dataExts: Seq[String], lockExt: String): Seq[File] = {
+    val allFiles = FileUtils.findFiles(dir, dataExts :+ lockExt)
+    val (lockFilesSeq, dataFiles) = allFiles.partition { file => file.getName.endsWith(lockExt) }
+    val lockFilesSet = lockFilesSeq.map(_.getName).toSet
     val unlockedDataFiles = dataFiles.filter { dataFile =>
-      val lockFile = FileEditor(dataFile).setExt(lockExt).get
-      !lockFile.exists
+      // last = false is problematic if filename begins with .., for example,
+      // or includes any hidden directory or file starting with a period.
+      val lockFile = FileEditor(dataFile).setExt(lockExt, last = true).get.getName
+
+      !lockFilesSet(lockFile)
     }
 
     unlockedDataFiles
+  }
+
+  def hasLock(dataFile: File, lockExt: String): Boolean = {
+    val lockFile = FileEditor(dataFile).setExt(lockExt, last = false).get
+
+    lockFile.exists
   }
 
   // Remove any lock files have become extraneous in that there is no

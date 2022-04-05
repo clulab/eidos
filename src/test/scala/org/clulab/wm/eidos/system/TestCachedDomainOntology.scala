@@ -58,7 +58,7 @@ class TestCachedDomainOntology extends EidosTest {
       if (!useCacheForOntologies) {
         val orig = DomainHandler(baseDir + path, "", proc, canonicalizer, filter, useCacheForOntologies , includeParents)
         val copy =
-          if (!includeParents)  new CompactDomainOntologyBuilder(orig.asInstanceOf[HalfTreeDomainOntology]).build()
+          if (!includeParents) new CompactDomainOntologyBuilder(orig.asInstanceOf[HalfTreeDomainOntology]).build()
           else new FastDomainOntologyBuilder(orig.asInstanceOf[FullTreeDomainOntology]).build()
 
         Array(orig, copy)

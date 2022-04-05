@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.groundings.OntologyAliases._
-import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
+import org.clulab.wm.eidos.groundings.grounders.srl.PredicateTuple
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.ontologies.DomainOntology

@@ -2,11 +2,13 @@ package org.clulab.wm.wmexchanger.wmproducer
 
 import org.apache.http.HttpHeaders
 import org.apache.http.HttpHost
+import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.MultipartEntityBuilder
 import org.apache.http.entity.mime.content.FileBody
 import org.apache.http.entity.mime.content.StringBody
+import org.apache.http.impl.auth.BasicScheme
 import org.apache.http.impl.client.CloseableHttpClient
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.Sourcer
@@ -22,7 +24,7 @@ import scala.io.Source
 // See https://hc.apache.org/httpcomponents-client-ga/tutorial/html/authentication.html
 // and https://mkyong.com/java/apache-httpclient-basic-authentication-examples/
 // and https://stackoverflow.com/questions/2304663/apache-httpclient-making-multipart-form-post
-class RealRestProducer(service: String, username: String, password: String, eidosVersion: String, ontologyVersion: String)
+class RestProducer(service: String, username: String, password: String, eidosVersion: String, ontologyVersion: String)
     extends RestExchanger(service, username, password) with RestProducerish {
 
   def newHttpPost(url: URL, metadata: String, file: File): HttpPost = {
@@ -37,6 +39,11 @@ class RealRestProducer(service: String, username: String, password: String, eido
 
     httpPost.setEntity(httpEntity)
     httpPost.setHeader(HttpHeaders.EXPECT, "100-continue")
+
+    // This is a poor person's substitute for preemptive basic authentication.
+    val credentials = new UsernamePasswordCredentials(username, password)
+    httpPost.addHeader(new BasicScheme().authenticate(credentials, httpPost))
+
     httpPost.expectContinue()
     httpPost
   }
