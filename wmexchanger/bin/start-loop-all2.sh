@@ -6,9 +6,9 @@
 default_base_dir="../corpora/loop"
 
 # Coordinate servers
-export REST_CONSUMER_DOCUMENT_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/cdrs
-export REST_CONSUMER_ONTOLOGY_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/ontologies
-export REST_PRODUCER_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/readers/upload
+export REST_CONSUMER_DOCUMENT_SERVICE=${REST_CONSUMER_DOCUMENT_SERVICE:-http://localhost/dart/api/v1/cdrs}
+export REST_CONSUMER_ONTOLOGY_SERVICE=${REST_CONSUMER_ONTOLOGY_SERVICE:-http://localhost/dart/api/v1/ontologies}
+export REST_PRODUCER_SERVICE=${REST_PRODUCER_SERVICE:-http://localhost/dart/api/v1/readers/upload}
 
 # Coordinate credentials.
 export REST_CONSUMER_USERNAME="${EIDOS_USERNAME}"
