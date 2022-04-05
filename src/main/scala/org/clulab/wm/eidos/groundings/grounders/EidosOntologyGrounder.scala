@@ -25,13 +25,14 @@ import scala.util.matching.Regex
 abstract class EidosOntologyGrounder(val name: String, val domainOntology: DomainOntology, wordToVec: EidosWordToVec, canonicalizer: Canonicalizer)
     extends OntologyGrounder {
 
+  val emptyOntologyGrounding: OntologyGrounding = OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt)
+
+  //def emptyOntologyGrounding(branchOpt: Option[String] = None) = new OntologyGrounding(domainOntology.version, domainOntology.date, branchOpt = branchOpt)
+
   def newOntologyGrounding(individualGroundings: OntologyAliases.IndividualGroundings = Seq.empty, branchOpt: Option[String] = None): OntologyGrounding = {
     OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt, individualGroundings, branchOpt)
   }
 
-  // This can be reused repeatedly.
-  //def emptyOntologyGrounding(branchOpt: Option[String] = None) = new OntologyGrounding(domainOntology.version, domainOntology.date, branchOpt = branchOpt)
-  val emptyOntologyGrounding: OntologyGrounding = OntologyGrounding(domainOntology.versionOpt, domainOntology.dateOpt)
 
   // TODO: These may have to change depending on whether n corresponds to leaf or branch node.
   val conceptEmbeddings: Seq[ConceptEmbedding] =
@@ -104,43 +105,55 @@ abstract class EidosOntologyGrounder(val name: String, val domainOntology: Domai
 
   // If there was an exact match, returns Some of a tuple including the SingleOntologyNodeGrounding and the
   // Range of the match in the splitText so that we can tell how much of it was used.  No match results in None.
-  def exactMatchForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding]): Option[(OntologyNodeGrounding, Range)] = {
+  def exactMatchesForPreds(splitText: Array[String], embeddings: Seq[ConceptEmbedding], range: Range): Seq[(OntologyNodeGrounding, Range)] = {
     // This looks for exact string overlap only!
     // This tuple is designed so that Seq.min gets the intended result, the one with the min negLength
     // (or max length) and in case of ties, the min position in the sentence, so the leftmost match.
-    // The embedding.namer should not be required to break ties.  It goes along for the ride.
+    // The embedding.namer should not be required to break ties: it goes along for the ride.
     // For expediency, the word count is used for length rather than the letter count.
     val overlapTuples = embeddings.flatMap { embedding =>
       val canonicalWords = embedding.namer.canonicalWords
 
       if (canonicalWords.isEmpty)
         // Non-leaf nodes end with a / resulting in an empty canonicalWords which we don't want to match.
-        None
+        Seq.empty
       else if (splitText.length >= canonicalWords.length) {
         // Text contains node name.
         val index = splitText.indexOfSlice(canonicalWords)
-        if (index < 0) None
+        if (index < 0) Seq.empty
         // Part or maybe all of the split text was matched, indicated by 1, favored.
-        else Some(-canonicalWords.length, index, 1, embedding.namer)
+        // Add range.start because splitText does not always begin the sentence.
+        else Seq((canonicalWords.length, index + range.start, 1, embedding.namer))
       }
       else {
         // Node name contains the text
         val index = canonicalWords.indexOfSlice(splitText)
-        if (index < 0) None
+        if (index < 0) Seq.empty
         // The entirety of splitText was matched, indicated by 2, disfavored.
-        else Some(-splitText.length, 0, 2, embedding.namer)
+        // Add range.start because splitText does not always begin the sentence.
+        else Seq((splitText.length, 0 + range.start, 2, embedding.namer))
       }
     }
-    val result = Collection
-        .minOption(overlapTuples)
-        .map { overlapTuple =>
-          val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
-          val range = Range(overlapTuple._2, overlapTuple._2 - overlapTuple._1) // - because it is -length
+    // There may be a lot of ties of length 1 and picking the winner by sentence
+    // position isn't warranted.  Instead, use all with maximum length.
+    val results =
+        if (overlapTuples.isEmpty) Seq.empty // Avoid maxBy on empty.
+        else {
+          val maxLength = overlapTuples.maxBy(_._1)._1
+          val maxOverlapTuples=  overlapTuples.filter(_._1 == maxLength).sorted
+          val limitedOverlapTuples =
+              if (maxLength == 1) maxOverlapTuples.take(1) // used to be only head
+              else maxOverlapTuples
 
-          (singleOntologyNodeGrounding, range)
+          limitedOverlapTuples.map { overlapTuple =>
+            val singleOntologyNodeGrounding = OntologyNodeGrounding(overlapTuple._4, 1.0f)
+            val range = Range(overlapTuple._2, overlapTuple._2 + overlapTuple._1)
+
+            (singleOntologyNodeGrounding, range)
+          }
         }
 
-    result
+    results
   }
 
   def groundPatternsThenEmbeddings(text: String, splitText: Array[String], patterns: Seq[ConceptPatterns], examples: Seq[ConceptExamples], embeddings: Seq[ConceptEmbedding]): IndividualGroundings = {

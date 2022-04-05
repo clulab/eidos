@@ -11,4 +11,33 @@ object Collection {
   def maxOption[A](values: Seq[A])(implicit cmp: Ordering[A]): Option[A] =
       if (values.isEmpty) None
       else Some(values.max)
+
+  def findWhereAndWhatOptAfter[T](values: IndexedSeq[T], position: Int)(f: T => Boolean): Option[(Int, T)] = {
+    var index = position + 1
+
+    while (index < values.length) {
+      if (f(values(index)))
+        return Some(index, values(index))
+      index += 1
+    }
+    None
+  }
+
+  def findWhereAndWhatOptBefore[T](values: IndexedSeq[T], position: Int)(f: T => Boolean): Option[(Int, T)] = {
+    var index = position - 1
+
+    while (index >= 0) {
+      if (f(values(index)))
+        return Some(index, values(index))
+      index -= 1
+    }
+    None
+  }
+
+  def optIndexOf[T](seq: IndexedSeq[T], value: T): Option[Int] = {
+    val index = seq.indexOf(value)
+
+    if (index < 0) None
+    else Some(index)
+  }
 }
