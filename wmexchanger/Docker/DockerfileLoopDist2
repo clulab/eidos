@@ -1,6 +1,6 @@
-# This file is for the looping/streaming version of the wmexchanger subproject.
-# docker build -f ./Docker/DockerfileLoopDist -t clulab/eidos-loop ./wmexchanger
-# docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g eidos-loop
+# This file is for the looping/streaming version of the wmexchanger subproject that interacts with DART.
+# docker build -f ./Docker/DockerfileLoopDist2 -t clulab/eidos-dart ./wmexchanger
+# docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g clulab/eidos-dart
 
 FROM openjdk:8
 

@@ -12,7 +12,7 @@ object Collection {
       if (values.isEmpty) None
       else Some(values.max)
 
-  def findWhereAndWhatOptAfter[T](values: IndexedSeq[T], position: Int)(f: T => Boolean): Option[(Int, T)] = {
+  def findWhereAndWhatOptAfter[T](values: Seq[T], position: Int)(f: T => Boolean): Option[(Int, T)] = {
     var index = position + 1
 
     while (index < values.length) {
@@ -23,7 +23,7 @@ object Collection {
     None
   }
 
-  def findWhereAndWhatOptBefore[T](values: IndexedSeq[T], position: Int)(f: T => Boolean): Option[(Int, T)] = {
+  def findWhereAndWhatOptBefore[T](values: Seq[T], position: Int)(f: T => Boolean): Option[(Int, T)] = {
     var index = position - 1
 
     while (index >= 0) {
@@ -34,7 +34,7 @@ object Collection {
     None
   }
 
-  def optIndexOf[T](seq: IndexedSeq[T], value: T): Option[Int] = {
+  def optIndexOf[T](seq: Seq[T], value: T): Option[Int] = {
     val index = seq.indexOf(value)
 
     if (index < 0) None

@@ -111,8 +111,8 @@ object RestProducerLoopApp2 extends LoopApp {
           "REST_PRODUCER_OUTPUT_DIR" -> s"$baseDir/restproducer/output",
           "REST_PRODUCER_DONE_DIR" -> s"$baseDir/eidos/done",
 
-          "REST_PRODUCER_USERNAME" -> getUsername,
-          "REST_PRODUCER_PASSWORD" -> getPassword
+          "REST_PRODUCER_USERNAME" -> getUsername(),
+          "REST_PRODUCER_PASSWORD" -> getPassword()
         )
       }
     }

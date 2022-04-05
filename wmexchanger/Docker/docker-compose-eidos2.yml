@@ -4,16 +4,20 @@ services:
   eidos:
     container_name: eidos
     hostname: eidos
-    image: clulab/eidos-loop
+    image: clulab/eidos-dart
     environment:
       # Run export.sh before using this.
       KAFKA_CONSUMER_BOOTSTRAP_SERVERS: ${KAFKA_CONSUMER_BOOTSTRAP_SERVERS}
       KAFKA_APP_TOPIC: ${KAFKA_APP_TOPIC}
 
+      KAFKA_CONSUMER_SASL_JAAS_CONFIG: ${KAFKA_CONSUMER_SASL_JAAS_CONFIG}
+      KAFKA_HOSTNAME: ${KAFKA_HOSTNAME}
+
       REST_HOSTNAME: ${REST_HOSTNAME}
 
-      EIDOS_VERSION: ${EIDOS_VERSION}
       ONTOLOGY_VERSION: ${ONTOLOGY_VERSION}
+
+      EIDOS_VERSION: ${EIDOS_VERSION}
 
       EIDOS_USERNAME: ${EIDOS_USERNAME}
       EIDOS_PASSWORD: ${EIDOS_PASSWORD}
