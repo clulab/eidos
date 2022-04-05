@@ -6,7 +6,8 @@
 default_base_dir="../corpora/loop"
 
 # Coordinate servers
-export REST_CONSUMER_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/cdrs
+export REST_CONSUMER_DOCUMENT_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/cdrs
+export REST_CONSUMER_ONTOLOGY_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/ontologies
 export REST_PRODUCER_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/readers/upload
 
 # Coordinate credentials.
@@ -39,8 +40,8 @@ EIDOS_INPUT_DIR="${EIDOS_INPUT_DIR:-$REST_CONSUMER_OUTPUT_DIR}"
 EIDOS_OUTPUT_DIR="${EIDOS_OUTPUT_DIR:-$EIDOS_BASE_DIR/$EIDOS_OUTPUT_SUBDIR}"
 EIDOS_DONE_DIR="${EIDOS_DONE_DIR:-$EIDOS_INPUT_DIR/$DONE_SUBDIR}"
 
-# For the rest producer, output goes to the network.
 REST_PRODUCER_INPUT_DIR="${REST_PRODUCER_INPUT_DIR:-$EIDOS_OUTPUT_DIR}"
+REST_PRODUCER_OUTPUT_DIR="${REST_PRODUCER_OUTPUT_DIR:-$EIDOS_BASE_DIR}"
 REST_PRODUCER_DONE_DIR="${REST_PRODUCER_DONE_DIR:-$REST_PRODUCER_INPUT_DIR/$DONE_SUBDIR}"
 
 echo "Starting Eidos"
@@ -52,7 +53,7 @@ DEFAULT_EIDOS_MEMORY="-Xmx20g"
 THREADS="${EIDOS_THREADS:-$DEFAULT_THREADS}"
 MEMORY="${EIDOS_MEMORY:-$DEFAULT_EIDOS_MEMORY}"
 
-export _JAVA_OPTIONS=-Xmx1g ; ./bin/rest-producer-loop-app "${REST_PRODUCER_INPUT_DIR}" "${REST_PRODUCER_DONE_DIR}" &
+export _JAVA_OPTIONS=-Xmx1g ; ./bin/rest-producer-loop-app "${REST_PRODUCER_INPUT_DIR}" "${REST_PRODUCER_OUTPUT_DIR}" "${REST_PRODUCER_DONE_DIR}" &
 sleep 10
 export _JAVA_OPTIONS=-Xmx1g ; ./bin/rest-consumer-loop-app "${REST_CONSUMER_INPUT_DIR}" "${REST_CONSUMER_OUTPUT_DIR}" "${REST_CONSUMER_DONE_DIR}" &
 sleep 5

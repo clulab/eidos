@@ -18,7 +18,7 @@ class KafkaConsumerApp(args: Array[String]) {
   val thread: SafeThread = new SafeThread(KafkaConsumerApp.logger) {
 
     override def runSafely(): Unit = {
-      val consumer = new KafkaConsumer(appProperties, kafkaProperties)
+      val consumer = new RealKafkaConsumer(appProperties, kafkaProperties)
 
       // autoClose isn't executed if the thread is shot down, so this hook is used instead.
       sys.ShutdownHookThread { consumer.close() }

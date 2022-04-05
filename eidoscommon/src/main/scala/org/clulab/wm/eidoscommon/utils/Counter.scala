@@ -8,6 +8,13 @@ class Counter(protected var value: Int, step: Int) {
   }
 
   def get: Int = value
+
+  def getAndInc: Int = synchronized {
+    val result = value
+
+    value += step
+    result
+  }
 }
 
 object Counter {

@@ -1,7 +1,7 @@
 package org.clulab.wm.eidos.groundings
 
 import org.clulab.wm.eidos.groundings.OntologyAliases._
-import org.clulab.wm.eidos.groundings.grounders.PredicateTuple
+import org.clulab.wm.eidos.groundings.grounders.srl.PredicateTuple
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.Namer
 import org.clulab.wm.ontologies.DomainOntology
@@ -32,7 +32,7 @@ object OntologyNodeGrounding {
 case class PredicateGrounding(predicateTuple: PredicateTuple) extends IndividualGrounding {
   def name: String = predicateTuple.name
   def score: Float = predicateTuple.score
-  override def toString(): String = predicateTuple.toString()
+  override def toString(): String = predicateTuple.toString() + s" Total: $score"
 }
 
 case class OntologyGrounding(versionOpt: Option[String], dateOpt: Option[ZonedDateTime], individualGroundings: IndividualGroundings = Seq.empty, branchOpt: Option[String] = None) {

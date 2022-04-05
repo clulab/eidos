@@ -135,7 +135,7 @@ object RestConsumerAppForRegrounding extends App with Logging {
   }
 
   val config: Config = ConfigFactory.defaultApplication().resolve()
-  val service = config.getString("rest.consumer.service")
+  val service = config.getString("rest.consumer.documentService")
   val annotations = config.getBoolean("rest.consumer.annotations")
   val username: String = Try(config.getString("rest.consumer.username")).getOrElse("")
   val password: String = Try(config.getString("rest.consumer.password")).getOrElse("")

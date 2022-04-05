@@ -1,0 +1,16 @@
+# This file is for the looping/streaming version of the wmexchanger subproject that interacts with DART.
+# docker build -f ./Docker/DockerfileLoopDist2 -t clulab/eidos-dart ./wmexchanger
+# docker run --env eidos_threads=6 --env eidos_memory=-Xmx24g clulab/eidos-dart
+
+FROM openjdk:8
+
+RUN mkdir /eidos
+WORKDIR /eidos
+
+COPY ./target/universal/bin ./bin
+COPY ./target/universal/lib ./lib
+COPY ./bin/start-loop-all2.sh .
+RUN chmod +x *.sh
+
+#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["./start-loop-all2.sh"]

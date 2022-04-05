@@ -2,7 +2,6 @@ package org.clulab.wm.eidos.serialization.jsonld
 
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
-
 import org.clulab.odin.Attachment
 import org.clulab.odin.CrossSentenceMention
 import org.clulab.odin.EventMention
@@ -40,7 +39,8 @@ import org.clulab.wm.eidos.document.attachments.LocationDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.RelevanceDocumentAttachment
 import org.clulab.wm.eidos.document.attachments.TitleDocumentAttachment
 import org.clulab.wm.eidos.groundings.PredicateGrounding
-import org.clulab.wm.eidos.groundings.grounders.{AdjectiveGrounding, PredicateTuple}
+import org.clulab.wm.eidos.groundings.grounders.AdjectiveGrounding
+import org.clulab.wm.eidos.groundings.grounders.srl.PredicateTuple
 import org.clulab.wm.eidos.groundings.{OntologyAliases, OntologyGrounding, OntologyNodeGrounding}
 import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidoscommon.utils.IdentityHashMap
@@ -565,8 +565,7 @@ class JLDDeserializer {
               val themeProperties = deserializeOntologyGrounding(value, "themeProperties")
               val themeProcess = deserializeOntologyGrounding(value, "themeProcess")
               val themeProcessProperties = deserializeOntologyGrounding(value, "themeProcessProperties")
-              val predicates = Set.empty[Int]
-              val predicateTuple = PredicateTuple(theme, themeProperties, themeProcess, themeProcessProperties, predicates)
+              val predicateTuple = PredicateTuple(theme, themeProperties, themeProcess, themeProcessProperties)
 
               PredicateGrounding(predicateTuple)
             case _ => throw new Exception(s"Unknown grounding type: $typ")
