@@ -1,5 +1,4 @@
-rm -r ./wmexchanger/target/universal/*
-# sbt "project wmexchanger" "dist"
+sbt "project wmexchanger" clean dist
 cd ./wmexchanger/target/universal
 unzip eidos-wmexchanger*.zip
 mv eidos-wmexchanger*/bin eidos-wmexchanger*/lib .
@@ -9,3 +8,4 @@ rm eidos-wmexchanger*.zip
 rm -r eidos-wmexchanger* scripts
 cd ../..
 docker build -f ./Docker/DockerfileLoopDist2 -t clulab/eidos-dart .
+cd ..
