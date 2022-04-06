@@ -1,0 +1,4 @@
+<configuration>
+    <property name="eidos:component" value="rest-producer-loop"/>
+    <include resource="wmexchanger.xml"/>
+</configuration>

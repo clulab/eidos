@@ -1,4 +1,4 @@
-name := "wmexchanger"
+name := "eidos-wmexchanger"
 
 // This is actually for the native packager, but it breaks things.
 // dist / maintainer := "msurdeanu@email.arizona.edu"

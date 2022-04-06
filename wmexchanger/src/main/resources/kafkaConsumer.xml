@@ -1,0 +1,4 @@
+<configuration>
+    <property name="eidos:component" value="kafka-consumer-loop"/>
+    <include resource="wmexchanger.xml"/>
+</configuration>

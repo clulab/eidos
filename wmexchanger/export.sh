@@ -13,6 +13,10 @@ export REST_HOSTNAME=wm-ingest-pipeline-rest-1.prod.dart.worldmodelers.com
 # This one is for testing.
 # export REST_HOSTNAME=uat-ingest-pipeline-rest-1.prod.dart.worldmodelers.com
 
+export REST_CONSUMER_DOCUMENT_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/cdrs
+export REST_CONSUMER_ONTOLOGY_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/ontologies
+export REST_PRODUCER_SERVICE=https://${REST_HOSTNAME:-localhost}/dart/api/v1/readers/upload
+
 export EIDOS_VERSION=dart
 export ONTOLOGY_VERSION=4.0
 

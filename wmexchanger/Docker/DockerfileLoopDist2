@@ -7,10 +7,13 @@ FROM openjdk:8
 RUN mkdir /eidos
 WORKDIR /eidos
 
-COPY ./target/universal/bin ./bin
 COPY ./target/universal/lib ./lib
+
 COPY ./bin/start-loop-all2.sh .
 RUN chmod +x *.sh
+COPY ./target/universal/bin ./bin
+
+COPY ./target/universal/eidos ./lib
 
 #ENTRYPOINT ["/bin/bash"]
 ENTRYPOINT ["./start-loop-all2.sh"]
