@@ -1,0 +1,49 @@
+<included>
+    <appender name="eidos:timer" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-timer.log</file>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.clulab.wm.eidoscommon.utils.Timer" level="all" additivity="true">
+        <appender-ref ref="eidos:timer" />
+    </logger>
+
+    <!-- This accounts for anything coming from the eidoscommon subproject. -->
+    <logger name="org.clulab.wm.eidoscommon" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </logger>
+
+    <!-- This accounts for anything coming from the ontologies subproject. -->
+    <logger name="org.clulab.wm.ontologies" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </logger>
+
+    <!-- This accounts for anything coming from the wmexchanger subproject. -->
+    <logger name="org.clulab.wm.wmexchanger" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </logger>
+
+    <!-- This accounts for anything coming from the eidos core project. -->
+    <!-- ALL TRACE DEBUG INFO WARN ERROR FATAL OFF -->
+    <logger name="org.clulab.wm.eidos" level="all" additivity="false">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </logger>
+
+    <!-- This handles anything from outside of eidos that isn't configured otherwise. -->
+    <root level="info">
+        <appender-ref ref="eidos:stderr"/>
+        <appender-ref ref="eidos:stdout"/>
+        <appender-ref ref="eidos:eidos"/>
+    </root>
+</included>

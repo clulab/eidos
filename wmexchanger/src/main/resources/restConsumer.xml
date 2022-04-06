@@ -1,0 +1,14 @@
+<configuration>
+    <include resource="wmexchangerTop.xml"/>
+
+    <appender name="eidos:eidos" class="ch.qos.logback.core.FileAppender">
+        <param name="Append" value="true" />
+        <file>${HOSTNAME}-rest-consumer-loop.log</file>
+        <encoder>
+            <pattern>${eidos:pattern}</pattern>
+        </encoder>
+    </appender>
+
+
+    <include resource="wmexchangerBot.xml"/>
+</configuration>
