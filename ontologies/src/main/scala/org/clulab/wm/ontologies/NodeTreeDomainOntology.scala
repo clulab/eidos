@@ -150,6 +150,7 @@ case class YamlNode(
 }
 
 object YamlNode {
+  val ROOT = "wm"
   val NODE = "node"
   val NAME = "name"
   val CHILDREN = "children"
@@ -162,13 +163,22 @@ object YamlNode {
 
   def getNode(any: Any): JLinkedHashMap[String, Any] = any
       .asInstanceOf[JLinkedHashMap[String, Any]]
-      .get(YamlNode.NODE)
+      .get(NODE)
       .asInstanceOf[JLinkedHashMap[String, Any]]
 
-  def getHeadNode(any: Any): JLinkedHashMap[String, Any] = any
-      .asInstanceOf[JArrayList[Any]]
-      .get(0)
-      .asInstanceOf[JLinkedHashMap[String, Any]]
+  def getHeadNode(any: Any): JLinkedHashMap[String, Any] = {
+    val headNodes = any.asInstanceOf[JArrayList[Any]]
+    val index =
+        if (headNodes.size == 1) 0
+        else {
+          val names = headNodes.toArray.map { node =>
+            getNode(node).get(NAME).asInstanceOf[String]
+          }
+          names.indexOf(ROOT)
+        }
+
+    headNodes.get(index).asInstanceOf[JLinkedHashMap[String, Any]]
+  }
 
   def getString(node: JLinkedHashMap[String, Any], name: String): String =
       node.get(name).asInstanceOf[String]
