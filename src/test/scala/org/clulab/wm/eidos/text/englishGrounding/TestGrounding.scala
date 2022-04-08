@@ -25,34 +25,32 @@ class TestGrounding extends EnglishGroundingTest {
   val PROCESS_BRANCH = "process"
   val PROPERTY_BRANCH = "property"
 
-  val BRANCH_PREFIXES: Array[String] = Array(
-    s"wm/$CONCEPT_BRANCH/",
-    s"wm/$PROPERTY_BRANCH/",
-    s"wm/$PROCESS_BRANCH/",
-    s"wm/$PROPERTY_BRANCH/"
-  )
-
   val THEME_SLOT = 0
   val THEME_PROPERTY_SLOT = 1
   val PROCESS_SLOT = 2
   val PROCESS_PROPERTY_SLOT = 3
 
-  val SLOT_NAMES: Array[String] = Array(
-    "theme",
-    "themeProperty",
-    "process",
-    "processProperty"
-  )
-
   type Groundings = Tuple4[String, String, String, String]
   type GroundingExtractor = Groundings => String
 
-  val groundingExtractors: Array[GroundingExtractor] = Array(
-    tuple => tuple._1,
-    tuple => tuple._2,
-    tuple => tuple._3,
-    tuple => tuple._4
+  type Modes = Tuple4[Int, Int, Int, Int]
+  type ModeExtractor = Modes => Int
+
+  case class Slot(index: Int, name: String, prefix: String, groundingExtractor: GroundingExtractor, modeExtractor: ModeExtractor)
+
+  val slots: Array[Slot] = Array(
+    Slot(0, "theme",           s"wm/$CONCEPT_BRANCH/",  tuple => tuple._1, tuple => tuple._1),
+    Slot(1, "themeProperty",   s"wm/$PROPERTY_BRANCH/", tuple => tuple._2, tuple => tuple._2),
+    Slot(2, "process",         s"wm/$PROCESS_BRANCH/",  tuple => tuple._3, tuple => tuple._3),
+    Slot(3, "processProperty", s"wm/$PROPERTY_BRANCH/", tuple => tuple._4, tuple => tuple._4)
   )
+
+  val FAIL = 0
+  val PASS = 1
+  val IGNORE = 2
+
+  val CAUSE = "cause"
+  val EFFECT = "effect"
 
   abstract class CompositionalGroundingTextTester {
     val groundTopN: Option[Int] = Option(5)
@@ -66,18 +64,18 @@ class TestGrounding extends EnglishGroundingTest {
 
     // TODO: Map form theme to index and branch name
 
-    def groundingShouldContain(mention: EidosMention, value: String, slot: Int, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+    def groundingShouldContain(mention: EidosMention, groundings: Groundings, slot: Slot, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       if (active) {
         val groundingNames = headGroundingNames(mention, topN, threshold)
-        val slotName = SLOT_NAMES(slot)
+        val slotName = slot.name
 
-        (slotName, groundingNames(slot)) should be((slotName, value))
+        (slotName, groundingNames(slot.index)) should be((slotName, slot.groundingExtractor(groundings)))
       }
     }
 
     def groundingShouldNotContain(mention: EidosMention, value: String, slot: Int, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       val groundingNames = headGroundingNames(mention, topN, threshold)
-      val slotName = SLOT_NAMES(slot)
+      val slotName = slots(slot).name
 
       (slotName, groundingNames(slot)) should not be((slotName, value))
     }
@@ -91,10 +89,10 @@ class TestGrounding extends EnglishGroundingTest {
       headGroundingNames
     }
 
-    def properBranchForSlot(mention: EidosMention, slot: Int, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
-      val grounding = headGroundingNames(mention, topN, threshold)(slot)
+    def properBranchForSlot(mention: EidosMention, slot: Slot, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+      val grounding = headGroundingNames(mention, topN, threshold)(slot.index)
 
-      if (grounding.nonEmpty) grounding should startWith (BRANCH_PREFIXES(slot))
+      if (grounding.nonEmpty) grounding should startWith (slot.prefix)
       else grounding should startWith ("")
     }
   }
@@ -215,23 +213,6 @@ class TestGrounding extends EnglishGroundingTest {
 
   val tester: CompositionalGroundingTextTester = CompositionalGroundingTextTester("wm_compositional")
 
-  val FAIL = 0
-  val PASS = 1
-  val IGNORE = 2
-
-  val CAUSE = "cause"
-  val EFFECT = "effect"
-
-  type Modes = Tuple4[Int, Int, Int, Int]
-  type ModeExtractor = Modes => Int
-
-  val modeExtractors: Array[ModeExtractor] = Array(
-    tuple => tuple._1,
-    tuple => tuple._2,
-    tuple => tuple._3,
-    tuple => tuple._4
-  )
-
   case class Test(
       name: String,
       text: String,
@@ -249,37 +230,37 @@ class TestGrounding extends EnglishGroundingTest {
   ) {
 
     def test(typ: String, groundings: Groundings, modes: Modes, mentions: Seq[EidosMention]): Unit = {
-      SLOT_NAMES.indices.foreach { index =>
-        val title = s"""process "$text" $typ ${SLOT_NAMES(index)} correctly"""
+      slots.foreach { slot =>
+        val title = s"""process "$text" $typ ${slot.name} correctly"""
 
-        modeExtractors(index)(modes) match {
+        slot.modeExtractor(modes) match {
           case FAIL =>
             failingTest should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundingExtractors(index)(groundings), index)
+              tester.groundingShouldContain(mentions.head, groundings, slot)
             }
           case PASS =>
             passingTest should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundingExtractors(index)(groundings), index)
+              tester.groundingShouldContain(mentions.head, groundings, slot)
             }
           case IGNORE =>
             ignore should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundingExtractors(index)(groundings), index)
+              tester.groundingShouldContain(mentions.head, groundings, slot)
             }
         }
       }
 
-      SLOT_NAMES.indices.foreach { index =>
-        val title = s"""ground to proper branch for $typ "${SLOT_NAMES(index)}" slot"""
+      slots.foreach { slot =>
+        val title = s"""ground to proper branch for $typ "${slot.name}" slot"""
 
         passingTest should title taggedAs Somebody in {
-          tester.properBranchForSlot(mentions.head, index)
+          tester.properBranchForSlot(mentions.head, slot)
         }
       }
     }
 
     def testNot(typ: String, mentions: Seq[EidosMention], notGroundings: Seq[(String, Int)]): Unit = {
       notGroundings.foreach { case (node, slot) =>
-        passingTest should s"NOT process $typ ${SLOT_NAMES(slot)} incorrectly" taggedAs Somebody in {
+        passingTest should s"NOT process $typ ${slots(slot).name} incorrectly" taggedAs Somebody in {
           tester.groundingShouldNotContain(mentions.head, node, slot)
         }
       }
