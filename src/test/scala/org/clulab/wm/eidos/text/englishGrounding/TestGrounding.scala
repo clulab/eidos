@@ -21,6 +21,38 @@ class TestGrounding extends EnglishGroundingTest {
   // right, plus the expected values have been changed to match the actual values.
   // The test is mostly good for detecting unexpected changes.
 
+  val CONCEPT_BRANCH = "concept"
+  val PROCESS_BRANCH = "process"
+  val PROPERTY_BRANCH = "property"
+
+  val THEME_SLOT = 0
+  val THEME_PROPERTY_SLOT = 1
+  val PROCESS_SLOT = 2
+  val PROCESS_PROPERTY_SLOT = 3
+
+  val SLOT_NAMES = Array(
+    "theme",
+    "themeProperty",
+    "process",
+    "processProperty"
+  )
+
+  val BRANCH_PREFIXES = Array(
+    s"wm/${CONCEPT_BRANCH}/",
+    s"wm/${PROPERTY_BRANCH}/",
+    s"wm/${PROCESS_BRANCH}/",
+    s"wm/${PROPERTY_BRANCH}/"
+  )
+
+  type Extractor = (Tuple4[String, String, String, String]) => String
+
+  val extractors: Array[Extractor] = Array(
+     tuple => tuple._1,
+     tuple => tuple._2,
+     tuple => tuple._3,
+     tuple => tuple._4
+  )
+
   abstract class CompositionalGroundingTextTester {
     val groundTopN: Option[Int] = Option(5)
     val threshold: Option[Float] = Option(0.5f)
@@ -33,40 +65,20 @@ class TestGrounding extends EnglishGroundingTest {
 
     // TODO: Map form theme to index and branch name
 
-    def groundingShouldContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+    def groundingShouldContain(mention: EidosMention, value: String, slot: Int, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       if (active) {
         val groundingNames = headGroundingNames(mention, topN, threshold)
+        val slotName = SLOT_NAMES(slot)
 
-        def compare(index: Int): Unit =
-            (slot, groundingNames(index)) should be((slot, value))
-
-        val index = slot match {
-          case "theme" => 0
-          case "themeProperty" => 1
-          case "process" => 2
-          case "processProperty" => 3
-        }
-        compare(index)
+        (slotName, groundingNames(slot)) should be((slotName, value))
       }
     }
 
-    def groundingShouldNotContain(mention: EidosMention, value: String, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+    def groundingShouldNotContain(mention: EidosMention, value: String, slot: Int, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
       val groundingNames = headGroundingNames(mention, topN, threshold)
+      val slotName = SLOT_NAMES(slot)
 
-      def compare(index: Int): Unit =
-          (slot, groundingNames(index)) should not be((slot, value))
-
-      val index = slot match {
-        case "theme" => 0
-        case "themeProperty" => 1
-        case "process" => 2
-        case "processProperty" => 3
-      }
-      compare(index)
-    }
-
-    def testBranch(grounding: String, branch: String): Unit = {
-      if (grounding.nonEmpty) grounding should startWith (branch) else grounding should startWith ("")
+      (slotName, groundingNames(slot)) should not be((slotName, value))
     }
 
     def headGroundingNames(mention: EidosMention, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Seq[String] = {
@@ -78,15 +90,11 @@ class TestGrounding extends EnglishGroundingTest {
       headGroundingNames
     }
 
-    def properBranchForSlot(mention: EidosMention, slot: String, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
-      val groundingNames = headGroundingNames(mention, topN, threshold)
+    def properBranchForSlot(mention: EidosMention, slot: Int, topN: Option[Int] = groundTopN, threshold: Option[Float] = threshold): Unit = {
+      val grounding = headGroundingNames(mention, topN, threshold)(slot)
 
-      slot match {
-        case "theme" => testBranch(groundingNames(0), "wm/concept/")
-        case "themeProperty" => testBranch(groundingNames(1), "wm/property/")
-        case "process" => testBranch(groundingNames(2), "wm/process/")
-        case "processProperty" => testBranch(groundingNames(3), "wm/property/")
-      }
+      if (grounding.nonEmpty) grounding should startWith (BRANCH_PREFIXES(slot))
+      else grounding should startWith ("")
     }
   }
 
@@ -136,11 +144,11 @@ class TestGrounding extends EnglishGroundingTest {
     }
 
     // TODO Get these names from elsewhere
-    def topConceptGrounding(mention: EidosMention): Float = topGroundingValue(mention: EidosMention, "concept")
+    def topConceptGrounding(mention: EidosMention): Float = topGroundingValue(mention: EidosMention, CONCEPT_BRANCH)
 
-    def topPropertyGrounding(mention: EidosMention): Float = topGroundingValue(mention: EidosMention, "property")
+    def topPropertyGrounding(mention: EidosMention): Float = topGroundingValue(mention: EidosMention, PROPERTY_BRANCH)
 
-    def topProcessGrounding(mention: EidosMention): Float = topGroundingValue(mention: EidosMention, "process")
+    def topProcessGrounding(mention: EidosMention): Float = topGroundingValue(mention: EidosMention, PROCESS_BRANCH)
 
     def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[Seq[String]] = {
       val allGroundings = groundings(mention, topN, threshold)
@@ -203,18 +211,15 @@ class TestGrounding extends EnglishGroundingTest {
       returned
     }
   }
-
-  val theme = "theme"
-  val themeProperty = "themeProperty"
-  val process = "process"
-  val processProperty = "processProperty"
-  val slots: Seq[String] = Seq("theme", "themeProperty", "process", "processProperty")
-
+val `type` = 42
   val tester: CompositionalGroundingTextTester = CompositionalGroundingTextTester("wm_compositional")
 
   val FAIL = 0
   val PASS = 1
   val IGNORE = 2
+
+  val CAUSE = "cause"
+  val EFFECT = "effect"
 
   case class Test(
     name: String,
@@ -228,35 +233,43 @@ class TestGrounding extends EnglishGroundingTest {
     effectGroundings: Seq[String],
     effectModes: Seq[Int],
 
-    causeNotGroundings: Seq[(String, String)] = Seq.empty,
-    effectNotGroundings: Seq[(String, String)] = Seq.empty
+    causeNotGroundings: Seq[(String, Int)] = Seq.empty,
+    effectNotGroundings: Seq[(String, Int)] = Seq.empty
   ) {
 
     def test(typ: String, groundings: Seq[String], modes: Seq[Int], mentions: Seq[EidosMention]): Unit = {
-      slots.indices.foreach { index =>
-        val title = s"""process "$text" $typ ${slots(index)} correctly"""
+      SLOT_NAMES.indices.foreach { index =>
+        val title = s"""process "$text" $typ ${SLOT_NAMES(index)} correctly"""
 
         modes(index) match {
           case FAIL =>
             failingTest should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundings(index), slots(index))
+              tester.groundingShouldContain(mentions.head, groundings(index), index)
             }
           case PASS =>
             passingTest should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundings(index), slots(index))
+              tester.groundingShouldContain(mentions.head, groundings(index), index)
             }
           case IGNORE =>
             ignore should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundings(index), slots(index))
+              tester.groundingShouldContain(mentions.head, groundings(index), index)
             }
         }
       }
 
-      slots.indices.foreach { index =>
-        val title = s"""ground to proper branch for $typ "${slots(index)}" slot"""
+      SLOT_NAMES.indices.foreach { index =>
+        val title = s"""ground to proper branch for $typ "${SLOT_NAMES(index)}" slot"""
 
         passingTest should title taggedAs Somebody in {
-          tester.properBranchForSlot(mentions.head, slots(index))
+          tester.properBranchForSlot(mentions.head, index)
+        }
+      }
+    }
+
+    def testNot(typ: String, mentions: Seq[EidosMention], notGroundings: Seq[(String, Int)]): Unit = {
+      notGroundings.foreach { case (node, slot) =>
+        passingTest should s"NOT process $typ ${SLOT_NAMES(slot)} incorrectly" taggedAs Somebody in {
+          tester.groundingShouldNotContain(mentions.head, node, slot)
         }
       }
     }
@@ -266,21 +279,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       val (causeMentions, effectMentions) = tester.fakeAnnotatedDoc(text, Seq(causeInterval), Seq(effectInterval))
 
-      test("cause", causeGroundings, causeModes, causeMentions)
-      test("effect", effectGroundings, effectModes, effectMentions)
+      test(CAUSE, causeGroundings, causeModes, causeMentions)
+      test(EFFECT, effectGroundings, effectModes, effectMentions)
 
-      // TODO: Do the same as above but testNot
-      causeNotGroundings.foreach { case (node, slot) =>
-        passingTest should s"NOT process cause $slot incorrectly" taggedAs Somebody in {
-          tester.groundingShouldNotContain(causeMentions.head, node, slot)
-        }
-      }
-
-      effectNotGroundings.foreach { case (node, slot) =>
-        passingTest should s"NOT process effect $slot incorrectly" taggedAs Somebody in {
-          tester.groundingShouldNotContain(effectMentions.head, node, slot)
-        }
-      }
+      testNot(CAUSE, causeMentions, causeNotGroundings)
+      testNot(EFFECT, effectMentions, effectNotGroundings)
     }
   }
 
@@ -544,8 +547,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/economy/unemployment", "", "", ""), //todo: add 'rate' property?
       Seq(PASS, FAIL, PASS, PASS),
 
-      Seq(("wm/concept/crisis_or_disaster/environmental/", "process")),
-      Seq(("wm/concept/economy/exchange_rate", "process"))
+      Seq(("wm/concept/crisis_or_disaster/environmental/", PROCESS_SLOT)),
+      Seq(("wm/concept/economy/exchange_rate", PROCESS_SLOT))
     )
     test.test()
   }
@@ -563,10 +566,10 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/poverty", "", "", ""), //fixme: bad effect span
       Seq(PASS, PASS, FAIL, PASS),
 
-      Seq(("wm/concept/economy/economy", "theme")),
+      Seq(("wm/concept/economy/economy", THEME_SLOT)),
       Seq(
-        ("wm/property/productivity", "theme"),
-        ("wm/concept/population_demographics/population_density/population_growth", "process")
+        ("wm/property/productivity", THEME_SLOT),
+        ("wm/concept/population_demographics/population_density/population_growth", PROCESS_SLOT)
       )
     )
     test.test()
@@ -585,8 +588,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("", "wm/property/price_or_cost", "", ""),
       Seq(PASS, PASS, PASS, PASS),
 
-      Seq(("wm/concept/environment/higher_temperatures", "process")),
-      Seq(("wm/concept/economy/exchange_rate", "theme"))
+      Seq(("wm/concept/environment/higher_temperatures", PROCESS_SLOT)),
+      Seq(("wm/concept/economy/exchange_rate", THEME_SLOT))
     )
     test.test()
   }
@@ -621,10 +624,10 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq(
-        ("wm/property/security", "theme"),
-        ("wm/concept/intervention", "process")
+        ("wm/property/security", THEME_SLOT),
+        ("wm/concept/intervention", PROCESS_SLOT)
       ),
-      Seq(("wm/property/price_or_cost", "theme"))
+      Seq(("wm/property/price_or_cost", THEME_SLOT))
     )
     test.test()
   }
@@ -642,10 +645,10 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/goods/food", "", "wm/process/production", "wm/property/unavailability"),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/agriculture/disease/", "process")),
+      Seq(("wm/concept/agriculture/disease/", PROCESS_SLOT)),
       Seq(
-        ("wm/process/production", "theme"),
-        ("wm/concept/inequality", "process")
+        ("wm/process/production", THEME_SLOT),
+        ("wm/concept/inequality", PROCESS_SLOT)
       )
     )
     test.test()
@@ -665,10 +668,10 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq(
-        ("wm/process/population/", "theme"),
-        ("wm/concept/environment/higher_temperatures", "process")
+        ("wm/process/population/", THEME_SLOT),
+        ("wm/concept/environment/higher_temperatures", PROCESS_SLOT)
       ),
-      Seq(("wm/concept/population_demographics/population_density/de-population", "theme"))
+      Seq(("wm/concept/population_demographics/population_density/de-population", THEME_SLOT))
 
     )
     test.test()
@@ -687,10 +690,10 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/crisis_or_disaster/famine", "", "wm/process/perceive", "wm/property/risk"), //todo: add 'perceive' as a process? 'perception' exists now as a concept.
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/economy/commercial_enterprise", "process")),
+      Seq(("wm/concept/economy/commercial_enterprise", PROCESS_SLOT)),
       Seq(
-        ("wm/property/risk", "themeProperty"), // TODO: failing
-        ("wm/concept/perception", "process")
+        ("wm/property/risk", THEME_PROPERTY_SLOT),
+        ("wm/concept/perception", PROCESS_SLOT)
       )
     )
     test.test()
@@ -710,8 +713,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq(
-        ("wm/process/trade/export", "theme"),
-        ("wm/concept/intervention", "process")
+        ("wm/process/trade/export", THEME_SLOT),
+        ("wm/concept/intervention", PROCESS_SLOT)
       )
     )
     test.test()
@@ -730,8 +733,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/crisis_or_disaster/conflict/tension", "", "", ""), //todo: need 'fear' node?
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/entity/people/military_personnel", "theme")),
-      Seq(("wm/concept/crisis_or_disaster/conflict/tension", "process"))
+      Seq(("wm/concept/entity/people/military_personnel", THEME_SLOT)),
+      Seq(("wm/concept/crisis_or_disaster/conflict/tension", PROCESS_SLOT))
     )
     test.test()
   }
@@ -769,7 +772,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(PASS, PASS, FAIL, PASS),
 
       Seq.empty,
-      Seq(("wm/concept/health/life", "process"))
+      Seq(("wm/concept/health/life", PROCESS_SLOT))
     )
     test.test()
   }
@@ -803,7 +806,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/crisis_or_disaster/conflict/tension", "", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/entity/people/migration/migrant", "process"))
+      Seq(("wm/concept/entity/people/migration/migrant", PROCESS_SLOT))
     )
     test.test()
   }
@@ -822,7 +825,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
-      Seq(("wm/concept/health/life", "process"))
+      Seq(("wm/concept/health/life", PROCESS_SLOT))
     )
     test.test()
   }
@@ -856,8 +859,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/process/population/", "", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/population_demographics/population_density/population_growth", "process")),
-      Seq(("wm/concept/environment/higher_temperatures", "process"))
+      Seq(("wm/concept/population_demographics/population_density/population_growth", PROCESS_SLOT)),
+      Seq(("wm/concept/environment/higher_temperatures", PROCESS_SLOT))
     )
     test.test()
   }
@@ -875,7 +878,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/agriculture/crop/sorghum", "", "", ""),
       Seq(PASS, PASS, PASS, PASS),
 
-      Seq(("wm/process/training/training", "process"))
+      Seq(("wm/process/training/training", PROCESS_SLOT))
     )
     test.test()
   }
@@ -893,7 +896,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/goods/food", "wm/property/insecurity", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/crisis_or_disaster/shocks", "process"))
+      Seq(("wm/concept/crisis_or_disaster/shocks", PROCESS_SLOT))
     )
     test.test()
   }
@@ -913,8 +916,8 @@ class TestGrounding extends EnglishGroundingTest {
 
       Seq.empty,
       Seq(
-        ("wm/concept/entity/locations/neighboring_country", "theme"),
-        ("wm/concept/economy/economy", "process")
+        ("wm/concept/entity/locations/neighboring_country", THEME_SLOT),
+        ("wm/concept/economy/economy", PROCESS_SLOT)
       )
     )
     test.test()
@@ -933,8 +936,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/agriculture/disease/livestock_disease", "", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/agriculture/disease/livestock_disease", "theme")),
-      Seq(("wm/concept/health/weight_gain", "process"))
+      Seq(("wm/concept/agriculture/disease/livestock_disease", THEME_SLOT)),
+      Seq(("wm/concept/health/weight_gain", PROCESS_SLOT))
     )
     test.test()
   }
@@ -952,7 +955,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/crisis_or_disaster/conflict/", "", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/crisis_or_disaster/conflict/", "process"))
+      Seq(("wm/concept/crisis_or_disaster/conflict/", PROCESS_SLOT))
     )
     test.test()
   }
@@ -971,7 +974,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
-      Seq(("wm/concept/health/malnutrition", "theme"))
+      Seq(("wm/concept/health/malnutrition", THEME_SLOT))
     )
     test.test()
   }
@@ -989,7 +992,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/intervention", "", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/crisis_or_disaster/conflict/hostility", "process"))
+      Seq(("wm/concept/crisis_or_disaster/conflict/hostility", PROCESS_SLOT))
     )
     test.test()
   }
@@ -1008,10 +1011,10 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq(
-        ("wm/concept/entity/muslim_communities", "theme"),
-        ("wm/concept/environment/natural_resources/soil", "process")
+        ("wm/concept/entity/muslim_communities", THEME_SLOT),
+        ("wm/concept/environment/natural_resources/soil", PROCESS_SLOT)
       ),
-      Seq(("wm/process/training/humanitarian_training/emergency_preparedness_training", "theme"))
+      Seq(("wm/process/training/humanitarian_training/emergency_preparedness_training", THEME_SLOT))
     )
     test.test()
   }
@@ -1029,8 +1032,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/health/life", "", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/environment/climate_change", "process")),
-      Seq(("wm/concept/environment/higher_temperatures", "process"))
+      Seq(("wm/concept/environment/climate_change", PROCESS_SLOT)),
+      Seq(("wm/concept/environment/higher_temperatures", PROCESS_SLOT))
     )
     test.test()
   }
@@ -1049,8 +1052,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq(
-        ("wm/process/conflict/torture", "theme"),
-        ("wm/concept/health/weight_gain", "process")
+        ("wm/process/conflict/torture", THEME_SLOT),
+        ("wm/concept/health/weight_gain", PROCESS_SLOT)
       )
     )
     test.test()
@@ -1069,8 +1072,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/goods/food", "", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/health/case_volume", "process")),
-      Seq(("wm/concept/humanitarian_assistance/humanitarian_assistance", "process"))
+      Seq(("wm/concept/health/case_volume", PROCESS_SLOT)),
+      Seq(("wm/concept/humanitarian_assistance/humanitarian_assistance", PROCESS_SLOT))
     )
     test.test()
   }
@@ -1089,7 +1092,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
-      Seq(("wm/concept/environment/higher_temperatures", "process"))
+      Seq(("wm/concept/environment/higher_temperatures", PROCESS_SLOT))
     )
     test.test()
   }
@@ -1123,7 +1126,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/agriculture/crop/", "", "wm/process/production", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/concept/agriculture/disease/", "process"))
+      Seq(("wm/concept/agriculture/disease/", PROCESS_SLOT))
     )
     test.test()
   }
@@ -1158,7 +1161,7 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
-      Seq(("wm/concept/intervention", "process"))
+      Seq(("wm/concept/intervention", PROCESS_SLOT))
     )
     test.test()
   }
@@ -1209,10 +1212,10 @@ class TestGrounding extends EnglishGroundingTest {
       Seq(FAIL, FAIL, FAIL, FAIL),
 
       Seq(
-        ("wm/concept/crisis_or_disaster/conflict/discontent", "theme"), // TODO: This was failing, not now
-        ("wm/concept/infrastructure/housing", "process")
+        ("wm/concept/crisis_or_disaster/conflict/discontent", THEME_SLOT),
+        ("wm/concept/infrastructure/housing", PROCESS_SLOT)
       ),
-      Seq(("wm/concept/environment/emissions", "process"))
+      Seq(("wm/concept/environment/emissions", PROCESS_SLOT))
     )
     test.test()
   }
@@ -1230,8 +1233,8 @@ class TestGrounding extends EnglishGroundingTest {
       Seq("wm/concept/agriculture/crop/crops", "", "", ""),
       Seq(FAIL, FAIL, FAIL, FAIL),
 
-      Seq(("wm/process/training/agriculture_training", "process")),
-      Seq(("wm/concept/economy/economy", "process"))
+      Seq(("wm/process/training/agriculture_training", PROCESS_SLOT)),
+      Seq(("wm/concept/economy/economy", PROCESS_SLOT))
     )
     test.test()
   }
@@ -1251,47 +1254,10 @@ class TestGrounding extends EnglishGroundingTest {
 
       Seq.empty,
       Seq(
-        ("wm/concept/population_demographics/", "theme"),
-        ("wm/process/development", "process")
+        ("wm/concept/population_demographics/", THEME_SLOT),
+        ("wm/process/development", PROCESS_SLOT)
       )
     )
     test.test()
   }
-
-  // template for compositional grounder tests
-  // add test name, sentence text, and token intervals for cause and effect mentions
-  // if you have multiple causes/effects, see "Grounding 6" test for how to include them
-  /*
-    {
-      behavior of "test name"
-
-      val text = "Sentence goes here"
-      val eidosMentions = tester.fakeAnnotatedDoc(text, Seq(Interval(0,1)), Seq(Interval(1,2)))
-      val causeMentions = eidosMentions._1
-      val effectMentions = eidosMentions._2
-
-      // order is:  theme, theme property, process, process property
-      val causeGroundings = Seq("", "", "", "")
-      val effectGroundings = Seq("", "", "", "")
-
-      // test cause slots
-      for (i <- slots.indices) {
-        passingTest should "process \"" + text + "\" cause " + slots(i) + " correctly" taggedAs Somebody in {
-          tester.groundingShouldContain(causeMentions.head, causeGroundings(i), slots(i))
-        }
-        passingTest should "ground to proper branch for cause \"" + slots(i) + "\" slot" taggedAs Somebody in {
-        tester.properBranchForSlot(causeMentions.head, slots(i))
-        }
-      }
-      // test effect slots
-      for (i <- slots.indices) {
-        passingTest should "process \"" + text + "\" effect " + slots(i) + " correctly" taggedAs Somebody in {
-          tester.groundingShouldContain(effectMentions.head, effectGroundings(i), slots(i))
-        }
-        passingTest should "ground to proper branch for effect \"" + slots(i) + "\" slot" taggedAs Somebody in {
-        tester.properBranchForSlot(effectMentions.head, slots(i))
-        }
-      }
-    }
-  */
 }
