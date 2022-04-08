@@ -44,10 +44,10 @@ class TestGrounding extends EnglishGroundingTest {
     "processProperty"
   )
 
-  type Grounding = Tuple4[String, String, String, String]
-  type Extractor = Grounding => String
+  type Groundings = Tuple4[String, String, String, String]
+  type GroundingExtractor = Groundings => String
 
-  val extractors: Array[Extractor] = Array(
+  val groundingExtractors: Array[GroundingExtractor] = Array(
     tuple => tuple._1,
     tuple => tuple._2,
     tuple => tuple._3,
@@ -222,38 +222,48 @@ class TestGrounding extends EnglishGroundingTest {
   val CAUSE = "cause"
   val EFFECT = "effect"
 
+  type Modes = Tuple4[Int, Int, Int, Int]
+  type ModeExtractor = Modes => Int
+
+  val modeExtractors: Array[ModeExtractor] = Array(
+    tuple => tuple._1,
+    tuple => tuple._2,
+    tuple => tuple._3,
+    tuple => tuple._4
+  )
+
   case class Test(
-    name: String,
-    text: String,
+      name: String,
+      text: String,
 
-    causeInterval: Interval,
-    causeGroundings: Grounding,
-    causeModes: Seq[Int],
+      causeInterval: Interval,
+      causeGroundings: Groundings,
+      causeModes: Modes,
 
-    effectInterval: Interval,
-    effectGroundings: Grounding,
-    effectModes: Seq[Int],
+      effectInterval: Interval,
+      effectGroundings: Groundings,
+      effectModes: Modes,
 
-    causeNotGroundings: Seq[(String, Int)] = Seq.empty,
-    effectNotGroundings: Seq[(String, Int)] = Seq.empty
+      causeNotGroundings: Seq[(String, Int)] = Seq.empty,
+      effectNotGroundings: Seq[(String, Int)] = Seq.empty
   ) {
 
-    def test(typ: String, groundings: Grounding, modes: Seq[Int], mentions: Seq[EidosMention]): Unit = {
+    def test(typ: String, groundings: Groundings, modes: Modes, mentions: Seq[EidosMention]): Unit = {
       SLOT_NAMES.indices.foreach { index =>
         val title = s"""process "$text" $typ ${SLOT_NAMES(index)} correctly"""
 
-        modes(index) match {
+        modeExtractors(index)(modes) match {
           case FAIL =>
             failingTest should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, extractors(index)(groundings), index)
+              tester.groundingShouldContain(mentions.head, groundingExtractors(index)(groundings), index)
             }
           case PASS =>
             passingTest should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, extractors(index)(groundings), index)
+              tester.groundingShouldContain(mentions.head, groundingExtractors(index)(groundings), index)
             }
           case IGNORE =>
             ignore should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, extractors(index)(groundings), index)
+              tester.groundingShouldContain(mentions.head, groundingExtractors(index)(groundings), index)
             }
         }
       }
@@ -298,11 +308,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(20, 23),
       ("wm/concept/entity/people/", "", "wm/process/population/migrate/", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(0, 17),
       ("wm/concept/agriculture/", "", "", ""), //todo: check effect groundings
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
     )
     test.test()
   }
@@ -314,11 +324,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(36, 45),
       ("wm/concept/time/wet_season", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(20, 22),
       ("wm/concept/environment/natural_resources/pasture", "wm/property/condition", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -331,11 +341,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(15, 17),
       ("wm/concept/time/wet_season", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(25, 28),
       ("wm/concept/environment/natural_resources/pasture", "wm/property/condition", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -347,11 +357,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0, 3),
       ("wm/concept/goods/food", "wm/property/insecurity", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(9, 12),
       ("wm/concept/health/disease/", "", "", ""), //todo: add nodes for disease resistance?
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
     )
     test.test()
   }
@@ -363,11 +373,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0, 6),
       ("wm/concept/plan/", "", "", ""), //todo: or "intervention"?
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(26, 33),
       ("wm/concept/health/disease/illness", "", "", ""), //todo: "aftermath" as property?
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -379,11 +389,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(14, 17),
       ("wm/concept/agriculture/livestock_nonpoultry", "", "wm/process/death", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(1, 5),
       ("wm/concept/crisis_or_disaster/environmental/drought", "", "", ""),
-      Seq(PASS, FAIL, PASS, PASS)
+      (PASS, FAIL, PASS, PASS)
     )
     test.test()
   }
@@ -395,12 +405,12 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(1, 9),
       ("wm/concept/time/wet_season", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(12, 16),
       ("wm/concept/environment/natural_resources/pasture", "wm/property/condition", "", ""),
       //todo: new node for "vegetation" that isn't "pasture" or "forestry"?
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -412,11 +422,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(14, 17),
       ("wm/concept/economy/economy", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(0,5),
       ("wm/concept/goods/food", "wm/property/price_or_cost", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -428,11 +438,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(26, 28),
       ("wm/concept/crisis_or_disaster/conflict/crime", "", "wm/process/conflict/terrorism", ""), //todo: need process as well?
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(0, 22),
       ("wm/concept/government/", "", "wm/process/communication/informing", ""), //todo: needs better process, probably
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -444,12 +454,12 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(54, 56),
       ("wm/concept/economy/unemployment", "", "", ""),
-      Seq(PASS, FAIL, PASS, PASS),
+      (PASS, FAIL, PASS, PASS),
 
       Interval(49, 52),
       ("wm/concept/economy/economy", "wm/property/condition", "", ""),
       //todo: need process for 'deteriorate' ?
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -461,11 +471,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(6, 10),
       ("wm/concept/regulations", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(13, 18),
       ("wm/concept/economy/economy", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -477,11 +487,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(11, 12),
       ("wm/concept/agriculture/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(16, 18),
       ("", "wm/property/price_or_cost", "", ""),
-      Seq(PASS, FAIL, PASS, PASS)
+      (PASS, FAIL, PASS, PASS)
     )
     test.test()
   }
@@ -493,11 +503,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0, 1),
       ("wm/concept/crisis_or_disaster/conflict/tension", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(27, 29),
       ("wm/concept/crisis_or_disaster/conflict/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -510,11 +520,11 @@ class TestGrounding extends EnglishGroundingTest {
       Interval(16, 24),
       //fixme: bad causal extractions in general
       ("wm/concept/agriculture/livestock_nonpoultry", "", "", "wm/property/price_or_cost"), //fixme: needs process for 'feeding'
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(0, 12),
       ("", "", "", ""), //todo: effect is really generic 'impact'
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -526,11 +536,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(16, 24),
       ("wm/concept/environment/climate_change", "", "wm/process/mitigation", ""), //fixme: grounding currently just 'climate'
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(39, 40),
       ("wm/concept/crisis_or_disaster/conflict/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -542,11 +552,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(25, 30),
       ("wm/concept/economy/economy", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(18, 20),
       ("wm/concept/economy/unemployment", "", "", ""), //todo: add 'rate' property?
-      Seq(PASS, FAIL, PASS, PASS),
+      (PASS, FAIL, PASS, PASS),
 
       Seq(("wm/concept/crisis_or_disaster/environmental/", PROCESS_SLOT)),
       Seq(("wm/concept/economy/exchange_rate", PROCESS_SLOT))
@@ -561,11 +571,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(1, 4),
       ("", "", "wm/process/research", ""),
-      Seq(PASS, FAIL, PASS, FAIL),
+      (PASS, FAIL, PASS, FAIL),
 
       Interval(5, 16),
       ("wm/concept/poverty", "", "", ""), //fixme: bad effect span
-      Seq(PASS, PASS, FAIL, PASS),
+      (PASS, PASS, FAIL, PASS),
 
       Seq(("wm/concept/economy/economy", THEME_SLOT)),
       Seq(
@@ -583,11 +593,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(9, 12),
       ("wm/concept/economy/economy", "wm/property/condition", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(0, 1),
       ("", "wm/property/price_or_cost", "", ""),
-      Seq(PASS, PASS, PASS, PASS),
+      (PASS, PASS, PASS, PASS),
 
       Seq(("wm/concept/environment/higher_temperatures", PROCESS_SLOT)),
       Seq(("wm/concept/economy/exchange_rate", THEME_SLOT))
@@ -602,11 +612,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0, 2),
       ("wm/concept/crisis_or_disaster/conflict/tension", "", "", ""),
-      Seq(PASS, FAIL, FAIL, PASS),
+      (PASS, FAIL, FAIL, PASS),
 
       Interval(6, 7),
       ("wm/concept/crisis_or_disaster/conflict/tension", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -618,11 +628,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(10, 22),
       ("wm/concept/safety_net", "", "", ""),
-      Seq(PASS, FAIL, FAIL, PASS),
+      (PASS, FAIL, FAIL, PASS),
 
       Interval(0, 4),
       ("", "wm/property/price_or_cost", "wm/process/stabilization", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(
         ("wm/property/security", THEME_SLOT),
@@ -640,11 +650,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(1, 10),
       ("wm/concept/environment/meteorology/precipitation", "", "wm/process/start", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(12, 17),
       ("wm/concept/goods/food", "", "wm/process/production", "wm/property/unavailability"),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/agriculture/disease/", PROCESS_SLOT)),
       Seq(
@@ -662,11 +672,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(19, 21),
       ("", "", "", ""), //todo: fill these in
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(27, 29),
       ("", "", "", ""), //todo: fill these in
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(
         ("wm/process/population/", THEME_SLOT),
@@ -685,11 +695,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(17, 22),
       ("wm/concept/goods/food", "", "wm/process/provision", ""), //todo: add process for 'receiving' ?
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(27, 30),
       ("wm/concept/crisis_or_disaster/famine", "", "wm/process/perceive", "wm/property/risk"), //todo: add 'perceive' as a process? 'perception' exists now as a concept.
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/economy/commercial_enterprise", PROCESS_SLOT)),
       Seq(
@@ -707,11 +717,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(17, 24),
       ("", "", "", ""), //todo: fill these in
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(28, 29),
       ("wm/concept/health/welfare", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(
         ("wm/process/trade/export", THEME_SLOT),
@@ -728,11 +738,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(11, 22),
       ("wm/concept/crisis_or_disaster/conflict/armed_conflict", "", "wm/process/start", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(24, 28),
       ("wm/concept/crisis_or_disaster/conflict/tension", "", "", ""), //todo: need 'fear' node?
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/entity/people/military_personnel", THEME_SLOT)),
       Seq(("wm/concept/crisis_or_disaster/conflict/tension", PROCESS_SLOT))
@@ -747,11 +757,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(2, 4),
       ("wm/concept/health/disease/COVID", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(6, 14),
       ("wm/concept/crisis_or_disaster/conflict/", "", "wm/process/access", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
     // These were never tested.
@@ -766,11 +776,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(38, 39),
       ("wm/concept/crisis_or_disaster/environmental/drought", "", "", ""),
-      Seq(PASS, PASS, PASS, PASS),
+      (PASS, PASS, PASS, PASS),
 
       Interval(28, 34),
       ("wm/concept/crisis_or_disaster/famine", "", "", ""),
-      Seq(PASS, PASS, FAIL, PASS),
+      (PASS, PASS, FAIL, PASS),
 
       Seq.empty,
       Seq(("wm/concept/health/life", PROCESS_SLOT))
@@ -785,11 +795,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(15, 16),
       ("wm/process/production", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(23, 26),
       ("wm/concept/goods/food", "", "wm/process/demand", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -801,11 +811,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(2, 7),
       ("wm/concept/entity/people/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(9,11),
       ("wm/concept/crisis_or_disaster/conflict/tension", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/entity/people/migration/migrant", PROCESS_SLOT))
     )
@@ -819,11 +829,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(37, 38),
       ("wm/concept/crisis_or_disaster/environmental/drought", "", "", ""),
-      Seq(PASS, PASS, PASS, PASS),
+      (PASS, PASS, PASS, PASS),
       
       Interval(30, 35),
       ("wm/concept/crisis_or_disaster/famine", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
       Seq(("wm/concept/health/life", PROCESS_SLOT))
@@ -838,11 +848,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(3, 4),
       ("wm/concept/crisis_or_disaster/environmental/drought", "", "", ""),
-      Seq(PASS, PASS, PASS, PASS),
+      (PASS, PASS, PASS, PASS),
       
       Interval(7, 9),
       ("wm/concept/crisis_or_disaster/conflict/tension", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -854,11 +864,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0, 3),
       ("wm/process/population/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(5, 7),
       ("wm/process/population/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/population_demographics/population_density/population_growth", PROCESS_SLOT)),
       Seq(("wm/concept/environment/higher_temperatures", PROCESS_SLOT))
@@ -873,11 +883,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(5, 14),
       ("wm/concept/goods/agricultural/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(16, 17),
       ("wm/concept/agriculture/crop/sorghum", "", "", ""),
-      Seq(PASS, PASS, PASS, PASS),
+      (PASS, PASS, PASS, PASS),
 
       Seq(("wm/process/training/training", PROCESS_SLOT))
     )
@@ -891,11 +901,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0, 16),
       ("wm/concept/environment/climate", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(17, 20),
       ("wm/concept/goods/food", "wm/property/insecurity", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/crisis_or_disaster/shocks", PROCESS_SLOT))
     )
@@ -909,11 +919,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(1, 2),
       ("wm/process/communication/informing", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(13, 27),
       ("", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
       Seq(
@@ -931,11 +941,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(46, 50),
       ("", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(32, 43),
       ("wm/concept/agriculture/disease/livestock_disease", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/agriculture/disease/livestock_disease", THEME_SLOT)),
       Seq(("wm/concept/health/weight_gain", PROCESS_SLOT))
@@ -950,11 +960,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(13, 16),
       ("wm/concept/entity/border", "", "", ""),
-      Seq(PASS, PASS, FAIL, PASS),
+      (PASS, PASS, FAIL, PASS),
 
       Interval(1, 3),
       ("wm/concept/crisis_or_disaster/conflict/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/crisis_or_disaster/conflict/", PROCESS_SLOT))
     )
@@ -968,11 +978,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(1, 3),
       ("wm/process/conflict/attack", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(21, 30),
       ("", "", "wm/process/conflict/war", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
       Seq(("wm/concept/health/malnutrition", THEME_SLOT))
@@ -987,11 +997,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(15, 17),
       ("wm/concept/environment/natural_resources/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(31, 33),
       ("wm/concept/intervention", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/crisis_or_disaster/conflict/hostility", PROCESS_SLOT))
     )
@@ -1005,11 +1015,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(19, 28),
       ("", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(32, 42),
       ("", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(
         ("wm/concept/entity/muslim_communities", THEME_SLOT),
@@ -1027,11 +1037,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(1, 9),
       ("wm/concept/economy/economy", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, PASS),
+      (FAIL, FAIL, FAIL, PASS),
       
       Interval(12, 22),
       ("wm/concept/health/life", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/environment/climate_change", PROCESS_SLOT)),
       Seq(("wm/concept/environment/higher_temperatures", PROCESS_SLOT))
@@ -1046,11 +1056,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(8, 20),
       ("", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(23, 25),
       ("wm/concept/crisis_or_disaster/conflict/discontent", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(
         ("wm/process/conflict/torture", THEME_SLOT),
@@ -1067,11 +1077,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(29, 45),
       ("wm/concept/entity/field_reports", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(18, 22),
       ("wm/concept/goods/food", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/health/case_volume", PROCESS_SLOT)),
       Seq(("wm/concept/humanitarian_assistance/humanitarian_assistance", PROCESS_SLOT))
@@ -1086,11 +1096,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(26, 27),
       ("wm/concept/environment/meteorology/precipitation", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(30, 34),
       ("wm/concept/environment/natural_resources/pasture", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
       Seq(("wm/concept/environment/higher_temperatures", PROCESS_SLOT))
@@ -1105,11 +1115,11 @@ class TestGrounding extends EnglishGroundingTest {
    
       Interval(1, 2),
       ("wm/concept/crisis_or_disaster/conflict/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(4, 11),
       ("wm/concept/crisis_or_disaster/conflict/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -1121,11 +1131,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(13, 21),
       ("wm/concept/environment/meteorology/precipitation", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(26, 32),
       ("wm/concept/agriculture/crop/", "", "wm/process/production", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/concept/agriculture/disease/", PROCESS_SLOT))
     )
@@ -1139,11 +1149,11 @@ class TestGrounding extends EnglishGroundingTest {
       
       Interval(18, 19),
       ("wm/concept/crisis_or_disaster/environmental/drought", "", "", ""),
-      Seq(PASS, PASS, PASS, PASS),
+      (PASS, PASS, PASS, PASS),
       
       Interval(21, 23),
       ("wm/concept/poverty", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -1155,11 +1165,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0, 2),
       ("wm/process/conflict/threat", "", "wm/process/prediction", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(4, 11),
       ("wm/concept/health/treatment/preventative_treatment", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq.empty,
       Seq(("wm/concept/intervention", PROCESS_SLOT))
@@ -1174,11 +1184,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(1, 2),
       ("wm/concept/crisis_or_disaster/conflict/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(9, 10),
       ("wm/concept/poverty", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -1190,11 +1200,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(11, 12),
       ("wm/concept/agriculture/", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
       
       Interval(16, 18),
       ("wm/property/price_or_cost", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL)
+      (FAIL, FAIL, FAIL, FAIL)
     )
     test.test()
   }
@@ -1206,11 +1216,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(7, 11),
       ("", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(12, 17),
       ("wm/concept/crisis_or_disaster/conflict/discontent", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(
         ("wm/concept/crisis_or_disaster/conflict/discontent", THEME_SLOT),
@@ -1228,11 +1238,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0, 7),
       ("wm/concept/entity/drone", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Interval(9, 14),
       ("wm/concept/agriculture/crop/crops", "", "", ""),
-      Seq(FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL),
 
       Seq(("wm/process/training/agriculture_training", PROCESS_SLOT)),
       Seq(("wm/concept/economy/economy", PROCESS_SLOT))
@@ -1247,11 +1257,11 @@ class TestGrounding extends EnglishGroundingTest {
 
       Interval(0,1),
       ("wm/concept/crisis_or_disaster/environmental/drought", "", "", ""),
-      Seq(PASS, PASS, PASS, PASS),
+      (PASS, PASS, PASS, PASS),
       
       Interval(2,4),
       ("wm/concept/population_demographics/population_density/population_growth", "", "", ""),
-      Seq(PASS, PASS, PASS, PASS),
+      (PASS, PASS, PASS, PASS),
 
       Seq.empty,
       Seq(
