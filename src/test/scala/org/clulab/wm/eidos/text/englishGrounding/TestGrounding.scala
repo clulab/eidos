@@ -114,8 +114,8 @@ class TestGrounding extends EnglishGroundingTest {
     val active = false
 
     def fakeAnnotatedDoc(text: String, causeIntervals: Seq[Interval], effectIntervals: Seq[Interval],
-                         topN: Option[Int], threshold: Option[Float]):
-    (Seq[EidosMention], Seq[EidosMention]) = (Seq.empty, Seq.empty)
+        topN: Option[Int], threshold: Option[Float]): (Seq[EidosMention], Seq[EidosMention]) =
+        (Seq.empty, Seq.empty)
 
     def allGroundingNames(mention: EidosMention, topN: Option[Int], threshold: Option[Float]): Seq[Seq[String]] = Seq(Seq.empty)
   }
@@ -214,19 +214,19 @@ class TestGrounding extends EnglishGroundingTest {
   val tester: CompositionalGroundingTextTester = CompositionalGroundingTextTester("wm_compositional")
 
   case class Test(
-      name: String,
-      text: String,
+    name: String,
+    text: String,
 
-      causeInterval: Interval,
-      causeGroundings: Groundings,
-      causeModes: Modes,
+    causeInterval: Interval,
+    causeGroundings: Groundings,
+    causeModes: Modes,
 
-      effectInterval: Interval,
-      effectGroundings: Groundings,
-      effectModes: Modes,
+    effectInterval: Interval,
+    effectGroundings: Groundings,
+    effectModes: Modes,
 
-      causeNotGroundings: Seq[(String, Int)] = Seq.empty,
-      effectNotGroundings: Seq[(String, Int)] = Seq.empty
+    causeNotGroundings: Seq[(String, Int)] = Seq.empty,
+    effectNotGroundings: Seq[(String, Int)] = Seq.empty
   ) {
 
     def test(typ: String, groundings: Groundings, modes: Modes, mentions: Seq[EidosMention]): Unit = {
@@ -922,5 +922,6 @@ class TestGrounding extends EnglishGroundingTest {
     )
   )
 
+  println(s"There are ${tests.length} tests.")
   tests.foreach { test => test.test() }
 }
