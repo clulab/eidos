@@ -319,7 +319,7 @@ class TestGrounding extends EnglishGroundingTest {
       (FAIL, FAIL, FAIL, FAIL),
       Interval(9, 12),
       ("wm/concept/health/disease/", "", "", ""), //todo: add nodes for disease resistance?
-      (FAIL, FAIL, FAIL, FAIL),
+      (FAIL, FAIL, FAIL, FAIL)
     ),
     Test(
       "test slots 5",
