@@ -1,4 +1,7 @@
 # Changes
++ **1.6.2** - Refine docker image for dart, eidos-dart
++ **1.6.1** - Largely revise compositional grounding
++ **1.6.1** - Extend wmexchanger project to facilitate runtime replaceable ontologies
 + **1.5.1** - Update to processors 8.5.7 and ai.lum.common 0.1.5
 + **1.5.0** - Release to maven rather than artifactory using processors 8.4.5
 + **1.5.0** - Update logging, badges
