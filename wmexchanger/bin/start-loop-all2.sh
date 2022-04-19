@@ -3,7 +3,7 @@
 # These came from ../loop_sbt_configure.sh.  Values should be exported
 # so that Java can access them except for values that are used directly.
 
-default_base_dir="../corpora/loop"
+default_base_dir="../corpora/corpus"
 
 # Coordinate servers
 export REST_CONSUMER_DOCUMENT_SERVICE=${REST_CONSUMER_DOCUMENT_SERVICE:-http://localhost/dart/api/v1/cdrs}
@@ -29,7 +29,7 @@ KAFKA_SUBDIR="${KAFKA_SUBDIR:-kafka}"
 
 DOCUMENT_SUBDIR="${DOCUMENT_SUBDIR:-documents}"
 ONTOLOGY_SUBDIR="${ONTOLOGY_SUBDIR:-ontologies}"
-READING_SUDIR="${READING_SUDIR:-readings}"
+READING_SUBDIR="${READING_SUBDIR:-readings}"
 
 # Set up the pipeline.
 
