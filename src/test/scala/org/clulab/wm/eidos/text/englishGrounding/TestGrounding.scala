@@ -9,8 +9,6 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.EnglishGroundingTest
 import org.clulab.wm.eidos.test.TestUtils._
 
-import scala.collection.Seq
-
 class TestGrounding extends EnglishGroundingTest {
   // Grounding needs to be activated in englishTest.conf for these tests to be active.
   // Update: Grounding is now activated in EnglishTests by default.
@@ -30,11 +28,11 @@ class TestGrounding extends EnglishGroundingTest {
   val PROCESS_SLOT = 2
   val PROCESS_PROPERTY_SLOT = 3
 
-  type Groundings = Tuple4[String, String, String, String]
+  type Groundings = (String, String, String, String)
   type GroundingExtractor = Groundings => String
 
-  type Modes = Tuple4[Int, Int, Int, Int]
-  type ModeExtractor = Modes => Int
+  type Modes = (Shouldable, Shouldable, Shouldable, Shouldable)
+  type ModeExtractor = Modes => Shouldable
 
   case class Slot(index: Int, name: String, prefix: String, groundingExtractor: GroundingExtractor, modeExtractor: ModeExtractor)
 
@@ -45,9 +43,9 @@ class TestGrounding extends EnglishGroundingTest {
     Slot(3, "processProperty", s"wm/$PROPERTY_BRANCH/", tuple => tuple._4, tuple => tuple._4)
   )
 
-  val FAIL = 0
-  val PASS = 1
-  val IGNORE = 2
+  val FAIL = failingTest
+  val PASS = passingTest
+  val IGNORE = ignore
 
   val CAUSE = "cause"
   val EFFECT = "effect"
@@ -232,20 +230,10 @@ class TestGrounding extends EnglishGroundingTest {
     def test(typ: String, groundings: Groundings, modes: Modes, mentions: Seq[EidosMention]): Unit = {
       slots.foreach { slot =>
         val title = s"""process "$text" $typ ${slot.name} correctly"""
+        val shouldable = slot.modeExtractor(modes)
 
-        slot.modeExtractor(modes) match {
-          case FAIL =>
-            failingTest should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundings, slot)
-            }
-          case PASS =>
-            passingTest should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundings, slot)
-            }
-          case IGNORE =>
-            ignore should title taggedAs Somebody in {
-              tester.groundingShouldContain(mentions.head, groundings, slot)
-            }
+        shouldable should title taggedAs Somebody in {
+          tester.groundingShouldContain(mentions.head, groundings, slot)
         }
       }
 
