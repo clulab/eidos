@@ -8,8 +8,8 @@ import org.clulab.wm.eidos.graph
 import org.clulab.wm.eidos.rule
 import org.clulab.wm.eidos.test.TestUtils.newEidosSystem
 import org.clulab.wm.eidoscommon.utils.Test
-
-import scala.collection.Seq
+import org.scalactic.source.Position
+import org.scalatest.Tag
 
 class EidosTest extends Test() {
   val defaultConfig: Config = ConfigFactory.load(EidosTest.config)
@@ -28,6 +28,10 @@ class EidosTest extends Test() {
   // This is usually disabled.
   // val longTimeNormTest = it
   val longTimeNormTest = ignore
+
+  type Inable = { def in(testFun: => Any)(implicit pos: Position): Unit }
+  type TaggedAsable = { def taggedAs(firstTestTag: Tag, otherTestTags: Tag*): Inable }
+  type Shouldable = { def should(string: String): TaggedAsable }
 }
 
 object EidosTest {
