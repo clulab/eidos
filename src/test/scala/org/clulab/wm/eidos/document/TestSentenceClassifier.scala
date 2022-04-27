@@ -104,7 +104,7 @@ class TestSentenceClassifier extends EidosTest {
 
       println(s"precision and recall: $precision, $recall")
 
-      precision should be > 0.80f
+      precision should be > 0.79f
       recall should be > 0.17f
     }
   }
