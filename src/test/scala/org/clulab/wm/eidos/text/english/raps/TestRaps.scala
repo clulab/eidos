@@ -198,11 +198,11 @@ class TestRaps extends EnglishTest {
       tester.test(poverty) should be (successful)
     }
 
-    failingTest should "have correct node 2" taggedAs(Heather) in {
+    passingTest should "have correct node 2" taggedAs(Heather) in {
       tester.test(familySize) should be (successful)
     }
 
-    failingTest should "have correct node 3" taggedAs(Heather) in {
+    passingTest should "have correct node 3" taggedAs(Heather) in {
       tester.test(income) should be (successful)
     }
 
