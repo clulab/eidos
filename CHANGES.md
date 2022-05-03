@@ -1,4 +1,5 @@
 # Changes
++ **1.7.0** - Update to processors 8.5.0
 + **1.6.2** - Refine docker image for dart, eidos-dart
 + **1.6.1** - Largely revise compositional grounding
 + **1.6.1** - Extend wmexchanger project to facilitate runtime replaceable ontologies
