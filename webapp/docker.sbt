@@ -7,7 +7,7 @@ val appDir = topDir + "/app"
 val binDir = appDir + "/bin/" // The second half is determined by the plug-in.  Don't change.
 val app = binDir + "eidos-webapp"
 val port = 9000
-val tag = "1.5.0"
+val tag = "1.7.0"
 
 Docker / defaultLinuxInstallLocation := appDir
 Docker / dockerBaseImage := "openjdk:8"
