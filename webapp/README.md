@@ -27,4 +27,4 @@ To run the resulting image, use a command like
 docker run -d --env secret=<secret> -p 9000:9000 --restart unless-stopped eidos-webapp:latest &
 ```
 The secret is the value for `play.http.secret.key` used in
-[conf/application.conf](./conf/application.conf) to protected the application.
+[conf/application.conf](./conf/application.conf) to protect the application.
