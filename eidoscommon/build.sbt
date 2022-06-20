@@ -10,8 +10,8 @@ resolvers ++= Seq(
 
 libraryDependencies ++= {
   // Versions were last checked 2021 Mar 12.
-  val procVer = "8.5.0"
-  val luceneVer = "6.6.6"
+  val procVer = "8.5.2-SNAPSHOT"
+  val luceneVer = "7.5.0" // Match processors!
 
   // Run dependencyTree, dependencyList, and dependencyStats on eidos and
   // see what kinds of duplicates with different version numbers show up.
@@ -21,6 +21,7 @@ libraryDependencies ++= {
     // It is possible then that something using eidoscommons and something using
     // eidos would get different answers.
     "org.apache.lucene"           % "lucene-analyzers-common"  % luceneVer,
+    "org.apache.lucene"           % "lucene-backward-codecs"   % luceneVer,
     "org.apache.lucene"           % "lucene-core"              % luceneVer,
     "org.apache.lucene"           % "lucene-queries"           % luceneVer,
     "org.apache.lucene"           % "lucene-queryparser"       % luceneVer,

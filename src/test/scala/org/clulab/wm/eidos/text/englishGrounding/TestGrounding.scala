@@ -9,6 +9,8 @@ import org.clulab.wm.eidos.mentions.EidosMention
 import org.clulab.wm.eidos.test.EnglishGroundingTest
 import org.clulab.wm.eidos.test.TestUtils._
 
+import scala.language.reflectiveCalls
+
 class TestGrounding extends EnglishGroundingTest {
   // Grounding needs to be activated in englishTest.conf for these tests to be active.
   // Update: Grounding is now activated in EnglishTests by default.
