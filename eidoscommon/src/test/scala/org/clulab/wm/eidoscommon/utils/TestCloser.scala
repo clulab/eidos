@@ -1,8 +1,10 @@
 package org.clulab.wm.eidoscommon.utils
 
+import java.io.Closeable
+
 class TestCloser extends Test {
 
-  class Closing(exception: Option[Throwable] = None) {
+  class Closing(exception: Option[Throwable] = None) extends Closeable {
     var closed: Boolean = false // test
 
     def close(): Unit = {

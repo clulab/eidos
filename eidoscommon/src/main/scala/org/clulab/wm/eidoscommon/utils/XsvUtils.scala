@@ -1,6 +1,6 @@
 package org.clulab.wm.eidoscommon.utils
 
-import java.io.PrintWriter
+import java.io.{Closeable, PrintWriter}
 
 class EscapePair(char: Char, escaped: Char) {
   val unescapedString: String = char.toString
@@ -74,7 +74,7 @@ class CsvReader() extends XsvReader(XsvUtils.commaChar) {
   // TODO It is more complicated because of the multiple lines per string
 }
 
-abstract class XsvWriter(val printWriter: PrintWriter, separatorChar: Char) {
+abstract class XsvWriter(val printWriter: PrintWriter, separatorChar: Char) extends Closeable {
   protected val separatorString: String = separatorChar.toString
 
   def quote(text: String): String = "\"" + text.replace("\"", "\"\"") + "\""
