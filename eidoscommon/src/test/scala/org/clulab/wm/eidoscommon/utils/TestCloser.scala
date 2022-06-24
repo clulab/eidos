@@ -1,8 +1,14 @@
 package org.clulab.wm.eidoscommon.utils
 
+
+import org.clulab.utils.Closer.AutoCloser
+
+import java.io.Closeable
+import scala.io.Source
+
 class TestCloser extends Test {
 
-  class Closing(exception: Option[Throwable] = None) {
+  class Closing(exception: Option[Throwable] = None) extends Closeable {
     var closed: Boolean = false // test
 
     def close(): Unit = {
@@ -134,5 +140,11 @@ class TestCloser extends Test {
       Closer.autoClose(getClosing)( _ => 5)
     }
     closing.closed should be (false)
+  }
+
+  it should "work with a plain Source, even in Scala 2.11" in {
+    Source.fromString("foo\nbar\n").autoClose { source =>
+      source.getLines.toList
+    }
   }
 }
