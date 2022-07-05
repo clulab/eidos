@@ -1,6 +1,6 @@
 package org.clulab.wm.wmexchanger.utils
 
-import org.slf4j.Logger
+import com.typesafe.scalalogging.Logger
 
 import java.util.Scanner
 

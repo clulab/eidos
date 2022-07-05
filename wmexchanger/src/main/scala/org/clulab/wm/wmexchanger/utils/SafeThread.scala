@@ -1,9 +1,9 @@
 package org.clulab.wm.wmexchanger.utils
 
-import java.util.Scanner
+import com.typesafe.scalalogging.Logger
 
+import java.util.Scanner
 import org.apache.kafka.common.errors.InterruptException
-import org.slf4j.Logger
 
 abstract class SafeThread(logger: Logger, interactive: Boolean = false, duration: Long = 0L) extends Thread {
   var userInterruption: Boolean = false

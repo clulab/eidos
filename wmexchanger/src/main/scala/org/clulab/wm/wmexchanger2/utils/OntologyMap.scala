@@ -1,10 +1,10 @@
 package org.clulab.wm.wmexchanger2.utils
 
+import com.typesafe.scalalogging.Logger
 import org.clulab.wm.eidos.groundings.OntologyHandler
 import org.clulab.wm.eidoscommon.utils.FileEditor
 import org.clulab.wm.wmexchanger.utils.Extensions
 import org.clulab.wm.wmexchanger2.wmeidos.EidosSystemish
-import org.slf4j.Logger
 
 import java.io.File
 import scala.collection.mutable
