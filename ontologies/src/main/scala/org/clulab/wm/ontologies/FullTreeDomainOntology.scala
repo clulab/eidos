@@ -4,17 +4,15 @@ import org.clulab.utils.Serializer
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.OptionUtils
 import org.clulab.wm.eidoscommon.utils.Resourcer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import java.time.ZonedDateTime
 import java.util.{Collection => JCollection}
 import java.util.{Map => JMap}
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -135,9 +133,7 @@ class FullTreeDomainOntology(ontologyNodes: Array[FullOntologyNode], versionOpt:
   override def nodes: IndexedSeq[FullOntologyNode] = ontologyNodes
 }
 
-object FullTreeDomainOntology {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
-
+object FullTreeDomainOntology extends Logging {
   val FIELD = "OntologyNode"
   val NAME = "name"
   val EXAMPLES = "examples"

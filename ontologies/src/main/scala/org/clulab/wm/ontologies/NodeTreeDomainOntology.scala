@@ -7,15 +7,12 @@ import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.StopwordManaging
 import org.clulab.wm.eidoscommon.utils.Closer.AutoCloser
 import org.clulab.wm.eidoscommon.utils.FileUtils
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 
 import java.io.InputStream
 import java.time.ZonedDateTime
 import java.util.{ArrayList => JArrayList}
 import java.util.{LinkedHashMap => JLinkedHashMap}
-
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
@@ -31,7 +28,6 @@ class NodeTreeDomainOntology(
 }
 
 class NodeTreeDomainOntologyBuilder(sentenceExtractor: SentencesExtractor, canonicalizer: Canonicalizer, filtered: Boolean) {
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   protected def realFilter(text: String): Array[String] =
       DomainOntology.canonicalWordsFromSentence(sentenceExtractor, canonicalizer, text).toArray

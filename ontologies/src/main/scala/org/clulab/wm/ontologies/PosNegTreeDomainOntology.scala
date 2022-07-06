@@ -4,17 +4,15 @@ import org.clulab.utils.Serializer
 import org.clulab.wm.eidoscommon.Canonicalizer
 import org.clulab.wm.eidoscommon.SentencesExtractor
 import org.clulab.wm.eidoscommon.utils.FileUtils
+import org.clulab.wm.eidoscommon.utils.Logging
 import org.clulab.wm.eidoscommon.utils.OptionUtils
 import org.clulab.wm.eidoscommon.utils.Resourcer
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.Constructor
 
 import java.time.ZonedDateTime
 import java.util.{Collection => JCollection}
 import java.util.{Map => JMap}
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -169,11 +167,9 @@ class PosNegTreeDomainOntology(val ontologyNodes: Array[PosNegOntologyNode], ver
   override def nodes: IndexedSeq[DomainOntologyNode] = ontologyNodes
 }
 
-object PosNegTreeDomainOntology {
+object PosNegTreeDomainOntology extends Logging {
 
   case class NodeData(name: String, posExamplesOpt: Option[Array[String]], negExamplesOpt: Option[Array[String]], descriptionsOpt: Option[Array[String]], patterns: Option[Array[Regex]], polarity: Float)
-
-  protected lazy val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   val FIELD = "OntologyNode"
   val INNER_FIELD = "InnerOntologyNode"

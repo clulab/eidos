@@ -1,4 +1,9 @@
 import org.clulab.sbt.BuildUtils
+import org.clulab.sbt.DependencyFilter
+import org.clulab.sbt.DependencyId
+
+import scala.xml.Node
+import scala.xml.transform.RuleTransformer
 
 val publication = "eidos"
 
@@ -20,6 +25,14 @@ ThisBuild / organizationHomepage := Some(url("http://clulab.org/"))
 ThisBuild / organizationName := "Computational Language Understanding (CLU) Lab"
 // The sonatype plugin seems to overwrite these two values, so they are in sonatype.sbt.
 // ThisBuild / pomIncludeRepository := BuildUtils.keepHttpRepos
+ThisBuild / pomPostProcess := {
+  val logback = DependencyId("ch.qos.logback", "logback-classic")
+  val rule = DependencyFilter { dependencyId =>
+    dependencyId != logback
+  }
+
+  (node: Node) => new RuleTransformer(rule).transform(node).head
+}
 // ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := {
   if (BuildUtils.useArtifactory) {
