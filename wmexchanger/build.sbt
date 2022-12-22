@@ -4,7 +4,7 @@ name := "eidos-wmexchanger"
 // dist / maintainer := "msurdeanu@email.arizona.edu"
 
 resolvers ++= Seq(
-  ("Artifactory" at "http://artifactory.cs.arizona.edu:8081/artifactory/sbt-release").withAllowInsecureProtocol(true), // processors-models
+  "clulab" at "https://artifactory.cs.arizona.edu/artifactory/sbt-release", // processors-models
   "Local Ivy Repository" at s"file://${System.getProperty("user.home")}/.ivy2/local"
 )
 

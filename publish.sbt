@@ -36,14 +36,14 @@ ThisBuild / pomPostProcess := {
 // ThisBuild / publishMavenStyle := true
 ThisBuild / publishTo := {
   if (BuildUtils.useArtifactory) {
-    val artifactory = "http://artifactory.cs.arizona.edu:8081/artifactory/"
+    val artifactory = "https://artifactory.cs.arizona.edu/artifactory/"
     val repository = "sbt-release-local"
     val details =
         if (isSnapshot.value) ";build.timestamp=" + new java.util.Date().getTime
         else ""
     val location = artifactory + repository + details
 
-    Some(("Artifactory Realm" at location).withAllowInsecureProtocol(true))
+    Some("Artifactory Realm" at location)
   }
   else {
     // This is for maven central, the default for when not artifactory.
