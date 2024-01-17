@@ -2,16 +2,13 @@ package org.clulab.wm.eidoscommon
 
 import java.text.Normalizer
 import java.util.regex.Pattern
-
 import org.clulab.dynet.Utils.initializeDyNet
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
 import org.clulab.processors.clu.PortugueseCluProcessor
 import org.clulab.processors.clu.SpanishCluProcessor
-import org.clulab.processors.clu.tokenizer.RawToken
-import org.clulab.processors.clu.tokenizer.SentenceSplitter
-import org.clulab.processors.clu.tokenizer.Tokenizer
+import org.clulab.processors.clu.tokenizer.{OpenDomainSpanishTokenizer, RawToken, SentenceSplitter, Tokenizer}
 import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
 import org.clulab.utils.ScienceUtils
 import org.clulab.wm.eidoscommon.utils.Logging
@@ -101,7 +98,8 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
 
 class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
     with EidosProcessor {
-  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(null, cutoff) // TODO: This shouldn't be null.
   override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new SpanishTagSet()
 
@@ -125,7 +123,7 @@ class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCl
 
 class EidosPortugueseProcessor(val language: String, cutoff: Int) extends PortugueseCluProcessor
     with EidosProcessor {
-  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(null, cutoff) // TODO: This shouldn't be null.
   override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new PortugueseTagSet()
 

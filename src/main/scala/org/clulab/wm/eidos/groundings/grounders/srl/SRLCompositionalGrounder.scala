@@ -38,7 +38,7 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
     Utils.initializeDyNet()
     new CluProcessor() {
       // Reuse the EidosTokenizer from the EidosProcess, but replace its wrapped tokenizer with the localTokenizer.
-      override lazy val tokenizer: EidosTokenizer = SRLCompositionalGrounder.this.tokenizer.copyWithNewTokenizer(localTokenizer)
+      override lazy val tokenizer: EidosTokenizer = SRLCompositionalGrounder.this.tokenizer.copyWithNewTokenizer(null) // TODO: this is wrong
     }
   }
 
