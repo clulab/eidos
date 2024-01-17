@@ -2,24 +2,24 @@ package org.clulab.wm.eidos.document
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
 import java.time.LocalDateTime
-
 import com.typesafe.config.Config
 import org.clulab.processors.{Document, Sentence}
 import org.clulab.serialization.DocumentSerializer
 import org.clulab.serialization.json.{JSONSerializer, _}
 import org.clulab.timenorm.scate.SimpleInterval
-import org.clulab.utils.Closer.AutoCloser
 import org.clulab.wm.eidos.EidosSystem
 import org.clulab.wm.eidos.context.DCT
 import org.clulab.wm.eidos.document.attachments.{DctDocumentAttachment, RelevanceDocumentAttachment}
 import org.clulab.wm.eidos.test.EidosTest
 import org.json4s.jackson.{parseJson, prettyJson, renderJValue}
 
+import scala.util.Using
+
 class TestDocumentAttachment extends EidosTest {
 
   def serialize(any: Any): Array[Byte] = {
-    new ByteArrayOutputStream().autoClose { byteArrayOutputStream =>
-      new ObjectOutputStream(byteArrayOutputStream).autoClose { objectOutputStream =>
+    Using.resource(new ByteArrayOutputStream()) { byteArrayOutputStream =>
+      Using.resource(new ObjectOutputStream(byteArrayOutputStream)) { objectOutputStream =>
         try {
           objectOutputStream.writeObject(any)
         }
@@ -34,8 +34,8 @@ class TestDocumentAttachment extends EidosTest {
   }
 
   def deserialize[T](byteArray: Array[Byte]): T = {
-    new ByteArrayInputStream(byteArray).autoClose { byteArrayInputStream =>
-      new ObjectInputStream(byteArrayInputStream).autoClose { objectInputStream =>
+    Using.resource(new ByteArrayInputStream(byteArray)) { byteArrayInputStream =>
+      Using.resource(new ObjectInputStream(byteArrayInputStream)) { objectInputStream =>
         try {
           val res1 = objectInputStream.readObject()
           val res2 = res1.asInstanceOf[T]
