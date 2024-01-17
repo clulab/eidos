@@ -1,6 +1,5 @@
 package org.clulab.wm.eidos.groundings.grounders.srl
 
-import org.clulab.dynet.Utils
 import org.clulab.odin.Mention
 import org.clulab.processors.Sentence
 import org.clulab.processors.clu.CluProcessor
@@ -35,7 +34,6 @@ class SRLCompositionalGrounder(name: String, domainOntology: DomainOntology, w2v
   val emptyPredicateTuple: PredicateTuple = PredicateTuple(emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding, emptyOntologyGrounding)
 
   lazy val proc: CluProcessor = {
-    Utils.initializeDyNet()
     new CluProcessor() {
       // Reuse the EidosTokenizer from the EidosProcessor, but replace its wrapped tokenizer with the localTokenizer.
       override lazy val tokenizer: EidosTokenizer = SRLCompositionalGrounder.this.tokenizer.copyWithNewTokenizer(tokenizer)
