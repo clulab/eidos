@@ -248,7 +248,7 @@ class JLDDeserializer {
           key -> DirectedGraph(dependencies, Some(idsAndWordSpecs.length))
         }
         GraphMap(graphs)
-      }.getOrElse(new GraphMap)
+      }.getOrElse(GraphMap())
 
       val idsAndTimexes = (sentenceValue \ "timexes").extractOpt[JArray].map { jArray =>
         jArray.arr.map(deserializeTimex)
