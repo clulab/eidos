@@ -2,14 +2,11 @@ package org.clulab.wm.eidoscommon
 
 import java.text.Normalizer
 import java.util.regex.Pattern
-import org.clulab.dynet.Utils.initializeDyNet
 import org.clulab.processors.Document
 import org.clulab.processors.Processor
 import org.clulab.processors.Sentence
-import org.clulab.processors.clu.PortugueseCluProcessor
-import org.clulab.processors.clu.SpanishCluProcessor
-import org.clulab.processors.clu.tokenizer.{OpenDomainPortugueseTokenizer, OpenDomainSpanishTokenizer, RawToken, SentenceSplitter, Tokenizer}
-import org.clulab.processors.fastnlp.FastNLPProcessorWithSemanticRoles
+import org.clulab.processors.clu.{BalaurProcessor, CluProcessor}
+import org.clulab.processors.clu.tokenizer.{RawToken, SentenceSplitter, Tokenizer}
 import org.clulab.utils.ScienceUtils
 import org.clulab.wm.eidoscommon.utils.Logging
 
@@ -62,18 +59,16 @@ class EnglishFubarDetector extends FubarDetector {
     fubar
   }
 }
-
 object EnglishFubarDetector {
   val MAX_SINGLE_ALPHA_NONWORDS = 10
   // There can be problems with outlines and short itemized lists.
   val SHORT_WORDS = List("I", "a", "A") // "A" could begin a sentence.
 }
 
-class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
+class EidosEnglishProcessor(val language: String, cutoff: Int) extends BalaurProcessor
     with EidosProcessor {
 
-  initializeDyNet()
-  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff, new EnglishFubarDetector())
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(super.tokenizer, cutoff, new EnglishFubarDetector())
   override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new EnglishTagSet()
 
@@ -85,10 +80,11 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
     val document = mkDocument(text, keepText = false)
 
     if (document.sentences.nonEmpty) {
-      tagPartsOfSpeech(document)
-      lemmatize(document)
-      recognizeNamedEntities(document)
-      srl(document)
+      annotate(document)
+//      tagPartsOfSpeech(document)
+//      lemmatize(document)
+//      recognizeNamedEntities(document)
+//      srl(document)
     }
     document
   }
@@ -96,66 +92,9 @@ class EidosEnglishProcessor(val language: String, cutoff: Int) extends FastNLPPr
   def getTagSet: TagSet = tagSet
 }
 
-class EidosSpanishProcessor(val language: String, cutoff: Int) extends SpanishCluProcessor
-    with EidosProcessor {
-
-  lazy val eidosTokenizer: EidosTokenizer = {
-    val tokenizer = new OpenDomainSpanishTokenizer()
-
-    new EidosTokenizer(tokenizer, cutoff)
-  }
-  override lazy val tokenizer: Tokenizer = eidosTokenizer
-  val tagSet = new SpanishTagSet()
-
-  def getTokenizer: EidosTokenizer = eidosTokenizer
-
-  // TODO: This should be checked with each update of processors.
-  def extractDocument(text: String): Document = {
-    // This mkDocument will now be subject to all of the EidosProcessor changes.
-    val document = mkDocument(text, keepText = false)
-
-    if (document.sentences.nonEmpty) {
-      lemmatize(document)
-      tagPartsOfSpeech(document)
-      recognizeNamedEntities(document)
-    }
-    document
-  }
-
-  def getTagSet: TagSet = tagSet
-}
-
-class EidosPortugueseProcessor(val language: String, cutoff: Int) extends PortugueseCluProcessor
-    with EidosProcessor {
-  lazy val eidosTokenizer: EidosTokenizer = {
-    val tokenizer = new OpenDomainPortugueseTokenizer()
-
-    new EidosTokenizer(tokenizer, cutoff)
-  }
-  override lazy val tokenizer: Tokenizer = eidosTokenizer
-  val tagSet = new PortugueseTagSet()
-
-  def getTokenizer: EidosTokenizer = eidosTokenizer
-
-  // TODO: This should be checked with each update of processors.
-  def extractDocument(text: String): Document = {
-    // This mkDocument will now be subject to all of the EidosProcessor changes.
-    val document = mkDocument(text, keepText = false)
-
-    if (document.sentences.nonEmpty) {
-      cheapLemmatize(document)
-      tagPartsOfSpeech(document)
-      recognizeNamedEntities(document)
-    }
-    document
-  }
-
-  def getTagSet: TagSet = tagSet
-}
-
-class EidosCluProcessor(val language: String, cutoff: Int) extends FastNLPProcessorWithSemanticRoles
+class EidosCluProcessor(val language: String, cutoff: Int) extends CluProcessor
   with EidosProcessor {
-  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(localTokenizer, cutoff)
+  lazy val eidosTokenizer: EidosTokenizer = new EidosTokenizer(tokenizer, cutoff)
   override lazy val tokenizer: Tokenizer = eidosTokenizer
   val tagSet = new EnglishTagSet()
 
@@ -396,8 +335,6 @@ object EidosProcessor extends Logging {
   def apply(language: String, cutoff: Int = DEFAULT_CUTOFF): EidosProcessor = language match {
     case Language.ENGLISH =>
       new EidosEnglishProcessor(language, cutoff)
-    case Language.SPANISH => new EidosSpanishProcessor(language, cutoff)
-    case Language.PORTUGUESE => new EidosPortugueseProcessor(language, cutoff)
     case Language.CLU => new EidosCluProcessor(language, cutoff)
   }
 
